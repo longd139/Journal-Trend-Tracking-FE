@@ -1,10 +1,10 @@
 # Scientific Journal Publication Trend Tracking System - Frontend
 
-Frontend application for the **Scientific Journal Publication Trend Tracking System**.
+Frontend cho hệ thống **Scientific Journal Publication Trend Tracking System**.
 
 ---
 
-# Tech Stack
+# Công nghệ sử dụng
 
 - React
 - Vite
@@ -15,34 +15,34 @@ Frontend application for the **Scientific Journal Publication Trend Tracking Sys
 
 ---
 
-# Project Structure
+# Cấu trúc thư mục
 
 ```bash
 src/
-├── api/           # Axios configuration
-├── assets/        # Images, icons, static files
-├── components/    # Reusable UI components
+├── api/           # Cấu hình axios
+├── assets/        # Hình ảnh, icon, file tĩnh
+├── components/    # Các component tái sử dụng
 │   ├── common/
 │   ├── layouts/
 │   ├── charts/
 │   └── ui/
-├── constants/     # Global constants
+├── constants/     # Biến hằng toàn cục
 ├── contexts/      # React Context
 ├── hooks/         # Custom hooks
-├── layouts/       # Layout components
-├── pages/         # Application pages
-├── routes/        # Route configuration
-├── services/      # API service layer
-├── styles/        # Global styles
-├── utils/         # Helper functions
+├── layouts/       # Layout tổng
+├── pages/         # Các trang chính
+├── routes/        # Cấu hình route
+├── services/      # Gọi API
+├── styles/        # CSS/Tailwind global
+├── utils/         # Hàm hỗ trợ
 └── data/          # Mock data
 ```
 
 ---
 
-# Installation
+# Cài đặt project
 
-## Clone repository
+## Clone project
 
 ```bash
 git clone <repository-url>
@@ -50,7 +50,7 @@ git clone <repository-url>
 
 ---
 
-## Move to project folder
+## Di chuyển vào thư mục project
 
 ```bash
 cd Journal-Trend-Tracking-FE
@@ -58,7 +58,7 @@ cd Journal-Trend-Tracking-FE
 
 ---
 
-## Install dependencies
+## Cài dependencies
 
 ```bash
 npm install
@@ -68,9 +68,9 @@ npm install
 
 # Environment Variables
 
-Create a `.env` file in the root directory.
+Tạo file `.env` ở thư mục gốc.
 
-Example:
+Ví dụ:
 
 ```env
 VITE_API_URL=http://localhost:5000
@@ -78,13 +78,13 @@ VITE_API_URL=http://localhost:5000
 
 ---
 
-# Run Development Server
+# Chạy project
 
 ```bash
 npm run dev
 ```
 
-Frontend will run at:
+Project sẽ chạy tại:
 
 ```bash
 http://localhost:5173
@@ -92,7 +92,7 @@ http://localhost:5173
 
 ---
 
-# Build Project
+# Build project
 
 ```bash
 npm run build
@@ -100,7 +100,7 @@ npm run build
 
 ---
 
-# Preview Production Build
+# Preview production build
 
 ```bash
 npm run preview
@@ -108,18 +108,18 @@ npm run preview
 
 ---
 
-# Git Workflow
+# Quy tắc Git Workflow
 
-## Important Rules
+## QUAN TRỌNG
 
-- Never push directly to `main`
-- Never code directly on `develop`
-- Every feature must have its own branch
-- Pull Request is required before merge
+- Không push trực tiếp lên `main`
+- Không code trực tiếp trên `develop`
+- Mỗi task phải có branch riêng
+- Phải tạo Pull Request trước khi merge
 
 ---
 
-# Branch Structure
+# Cấu trúc branch
 
 ```bash
 main
@@ -129,9 +129,9 @@ feature/*
 
 ---
 
-# Create Feature Branch
+# Tạo branch mới
 
-Example:
+Ví dụ:
 
 ```bash
 git checkout develop
@@ -144,32 +144,30 @@ git checkout -b feature/login-page
 
 # Commit Convention
 
-Use the following commit format:
+Commit đúng format:
 
 ```bash
-feat: add login page
-fix: resolve navbar bug
-refactor: optimize dashboard layout
-docs: update README
+feat: thêm login page
+fix: sửa lỗi navbar
+refactor: tối ưu dashboard layout
+docs: cập nhật README
 style: format code
 ```
 
 ---
 
-# Code Style
+# Quy tắc code
 
-## Requirements
+## Bắt buộc
 
-- Format on Save must be enabled
-- Use Prettier for formatting
-- Keep components reusable
-- Avoid duplicated code
+- Bật Format on Save
+- Dùng Prettier để format code
+- Hạn chế code trùng lặp
+- Component phải tái sử dụng được
 
 ---
 
-# VSCode Extensions
-
-Recommended extensions:
+# VSCode Extensions khuyên dùng
 
 - Prettier
 - Tailwind CSS IntelliSense
@@ -177,15 +175,21 @@ Recommended extensions:
 
 ---
 
-# API Communication
+# Quy tắc gọi API
 
-All API requests should go through:
+Tất cả API phải viết trong:
 
 ```bash
 src/services/
 ```
 
-Axios base configuration:
+Không viết trực tiếp API trong component/page.
+
+---
+
+# Axios Config
+
+File cấu hình axios:
 
 ```bash
 src/api/axiosClient.js
@@ -193,14 +197,13 @@ src/api/axiosClient.js
 
 ---
 
-# Team Development Rules
+# Quy tắc đặt tên
 
-## Components
+## Component
 
-- Use PascalCase for component names
-- One component per file
+Dùng PascalCase.
 
-Example:
+Ví dụ:
 
 ```bash
 JournalCard.jsx
@@ -209,23 +212,9 @@ SearchBar.jsx
 
 ---
 
-## Pages
+## Service
 
-Pages should be placed inside:
-
-```bash
-src/pages/
-```
-
----
-
-## Services
-
-API logic should NOT be written directly inside pages/components.
-
-Use service files instead.
-
-Example:
+Ví dụ:
 
 ```bash
 journalService.js
@@ -234,25 +223,22 @@ authService.js
 
 ---
 
-# Current Development Scope
-
-Frontend includes:
+# Các chức năng frontend hiện tại
 
 - Authentication UI
 - Dashboard
-- Journal statistics
 - Publication trends
-- Search and filter
+- Search & filter
 - Analytics charts
 - Responsive layout
 
 ---
 
-# Notes
+# Lưu ý
 
-- Do not push `.env`
-- Do not modify another member's feature branch
-- Always pull latest `develop` before starting new work
+- Không push file `.env`
+- Không sửa branch của người khác
+- Luôn pull `develop` mới nhất trước khi code
 
 ---
 
