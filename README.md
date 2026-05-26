@@ -1,16 +1,261 @@
-# React + Vite
+# Scientific Journal Publication Trend Tracking System - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend application for the **Scientific Journal Publication Trend Tracking System**.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+# Tech Stack
 
-## React Compiler
+- React
+- Vite
+- JavaScript
+- TailwindCSS
+- React Router DOM
+- Axios
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+# Project Structure
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+src/
+├── api/           # Axios configuration
+├── assets/        # Images, icons, static files
+├── components/    # Reusable UI components
+│   ├── common/
+│   ├── layouts/
+│   ├── charts/
+│   └── ui/
+├── constants/     # Global constants
+├── contexts/      # React Context
+├── hooks/         # Custom hooks
+├── layouts/       # Layout components
+├── pages/         # Application pages
+├── routes/        # Route configuration
+├── services/      # API service layer
+├── styles/        # Global styles
+├── utils/         # Helper functions
+└── data/          # Mock data
+```
+
+---
+
+# Installation
+
+## Clone repository
+
+```bash
+git clone <repository-url>
+```
+
+---
+
+## Move to project folder
+
+```bash
+cd Journal-Trend-Tracking-FE
+```
+
+---
+
+## Install dependencies
+
+```bash
+npm install
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file in the root directory.
+
+Example:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+---
+
+# Run Development Server
+
+```bash
+npm run dev
+```
+
+Frontend will run at:
+
+```bash
+http://localhost:5173
+```
+
+---
+
+# Build Project
+
+```bash
+npm run build
+```
+
+---
+
+# Preview Production Build
+
+```bash
+npm run preview
+```
+
+---
+
+# Git Workflow
+
+## Important Rules
+
+- Never push directly to `main`
+- Never code directly on `develop`
+- Every feature must have its own branch
+- Pull Request is required before merge
+
+---
+
+# Branch Structure
+
+```bash
+main
+develop
+feature/*
+```
+
+---
+
+# Create Feature Branch
+
+Example:
+
+```bash
+git checkout develop
+git pull
+
+git checkout -b feature/login-page
+```
+
+---
+
+# Commit Convention
+
+Use the following commit format:
+
+```bash
+feat: add login page
+fix: resolve navbar bug
+refactor: optimize dashboard layout
+docs: update README
+style: format code
+```
+
+---
+
+# Code Style
+
+## Requirements
+
+- Format on Save must be enabled
+- Use Prettier for formatting
+- Keep components reusable
+- Avoid duplicated code
+
+---
+
+# VSCode Extensions
+
+Recommended extensions:
+
+- Prettier
+- Tailwind CSS IntelliSense
+- ES7+ React Snippets
+
+---
+
+# API Communication
+
+All API requests should go through:
+
+```bash
+src/services/
+```
+
+Axios base configuration:
+
+```bash
+src/api/axiosClient.js
+```
+
+---
+
+# Team Development Rules
+
+## Components
+
+- Use PascalCase for component names
+- One component per file
+
+Example:
+
+```bash
+JournalCard.jsx
+SearchBar.jsx
+```
+
+---
+
+## Pages
+
+Pages should be placed inside:
+
+```bash
+src/pages/
+```
+
+---
+
+## Services
+
+API logic should NOT be written directly inside pages/components.
+
+Use service files instead.
+
+Example:
+
+```bash
+journalService.js
+authService.js
+```
+
+---
+
+# Current Development Scope
+
+Frontend includes:
+
+- Authentication UI
+- Dashboard
+- Journal statistics
+- Publication trends
+- Search and filter
+- Analytics charts
+- Responsive layout
+
+---
+
+# Notes
+
+- Do not push `.env`
+- Do not modify another member's feature branch
+- Always pull latest `develop` before starting new work
+
+---
+
+# Contributors
+
+Frontend Team - Scientific Journal Publication Trend Tracking System
