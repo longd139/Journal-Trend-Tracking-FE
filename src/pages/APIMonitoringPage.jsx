@@ -1,6 +1,58 @@
-function APIMonitoring() {
+import { motion } from 'framer-motion';
+import { CheckCircle, Activity, Zap, AlertCircle } from 'lucide-react';
+
+// ==========================================
+// 1. COMPONENTS DÙNG CHUNG
+// ==========================================
+const StatCard = ({ label, value, change, Icon, accent }) => (
+  <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border flex flex-col justify-between" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
+    <div className="flex items-start justify-between mb-2">
+      <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
+        <Icon size={18} />
+      </div>
+      <span className="text-xs font-bold px-2 py-1 rounded-md" style={{ background: 'rgba(255,255,255,0.05)', color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>
+        {change}
+      </span>
+    </div>
+    <div>
+      <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1" style={{ color: '#A0AEC0' }}>{label}</h4>
+      <div className="text-2xl font-black text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+    </div>
+  </motion.div>
+);
+
+const StatusPill = ({ status }) => {
+  const colors = {
+    ok: { bg: '#00D1B21A', text: '#00D1B2' },
+    degraded: { bg: '#F59E0B1A', text: '#F59E0B' },
+    down: { bg: '#EF44441A', text: '#EF4444' },
+  };
+  const c = colors[status.toLowerCase()] || colors.ok;
+  
   return (
-    <div className="space-y-6">
+    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider" style={{ background: c.bg, color: c.text }}>
+      {status}
+    </span>
+  );
+};
+
+// ==========================================
+// 2. DỮ LIỆU GIẢ (Mock Data)
+// ==========================================
+const APIS = [
+  { name: 'Semantic Search API', req: '124K', status: 'ok', up: 99.9, lat: '120ms' },
+  { name: 'Citation Graph API', req: '89K', status: 'degraded', up: 95.5, lat: '850ms' },
+  { name: 'User Auth API', req: '215K', status: 'ok', up: 99.99, lat: '45ms' },
+  { name: 'Analytics Engine API', req: '42K', status: 'ok', up: 99.5, lat: '210ms' },
+];
+
+// ==========================================
+// 3. GIAO DIỆN CHÍNH (Đã thêm export default)
+// ==========================================
+export default function APIMonitoring() {
+  return (
+    <div className="space-y-6 p-8">
+      {/* 4 Cục Thống kê Tổng quan */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Avg Uptime"
@@ -31,11 +83,13 @@ function APIMonitoring() {
           accent="#F59E0B"
         />
       </div>
+
+      {/* Danh sách các API */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {APIS.map((api) => (
           <div
             key={api.name}
-            className="rounded-xl border p-5"
+            className="rounded-xl border p-5 transition-colors hover:bg-white/[0.02]"
             style={{
               background: '#1B2235',
               borderColor: 'rgba(255,255,255,0.07)',
@@ -50,6 +104,7 @@ function APIMonitoring() {
               </div>
               <StatusPill status={api.status} />
             </div>
+
             <div className="grid grid-cols-3 gap-2 mb-4">
               {[
                 { l: 'Uptime', v: `${api.up}%`, c: '#00D1B2' },
@@ -76,6 +131,8 @@ function APIMonitoring() {
                 </div>
               ))}
             </div>
+
+            {/* Thanh tiến trình Uptime */}
             <div>
               <div
                 className="flex justify-between text-[10px] mb-1.5"
@@ -94,7 +151,7 @@ function APIMonitoring() {
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${api.up}%`,
-                    background: api.status === 'ok' ? '#00D1B2' : '#F59E0B',
+                    background: api.status === 'ok' ? '#00D1B2' : (api.status === 'degraded' ? '#F59E0B' : '#EF4444'),
                   }}
                 />
               </div>

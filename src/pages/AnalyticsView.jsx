@@ -1,6 +1,51 @@
-function AnalyticsView() {
+import { motion } from 'framer-motion';
+import { FileText, TrendingUp, Users, Star } from 'lucide-react';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell, PieChart, Pie } from 'recharts';
+
+// ==========================================
+// 1. COMPONENT BỊ THIẾU
+// ==========================================
+const StatCard = ({ label, value, change, Icon, accent }) => (
+  <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border flex flex-col justify-between" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
+    <div className="flex items-start justify-between mb-2">
+      <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
+        <Icon size={18} />
+      </div>
+      <span className="text-xs font-bold px-2 py-1 rounded-md" style={{ background: 'rgba(255,255,255,0.05)', color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>
+        {change}
+      </span>
+    </div>
+    <div>
+      <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1" style={{ color: '#A0AEC0' }}>{label}</h4>
+      <div className="text-2xl font-black text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+    </div>
+  </motion.div>
+);
+
+// ==========================================
+// 2. DỮ LIỆU GIẢ BỊ THIẾU
+// ==========================================
+const FIELD_DATA = [
+  { n: 'AI & ML', v: 45, c: '#4F8CFF' },
+  { n: 'Biotech', v: 30, c: '#8B5CF6' },
+  { n: 'Climate', v: 25, c: '#00D1B2' }
+];
+
+const CIT_DATA = [
+  { y: '2019', v: 12.5 },
+  { y: '2020', v: 18.2 },
+  { y: '2021', v: 25.4 },
+  { y: '2022', v: 34.1 },
+  { y: '2023', v: 45.8 },
+  { y: '2024', v: 52.1 }
+];
+
+// ==========================================
+// 3. GIAO DIỆN CHÍNH (Đã thêm export default)
+// ==========================================
+export default function AnalyticsView() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-8">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Publications"
@@ -31,7 +76,9 @@ function AnalyticsView() {
           accent="#F59E0B"
         />
       </div>
+      
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* Biểu đồ Cột */}
         <div
           className="rounded-xl border p-5"
           style={{
@@ -84,6 +131,8 @@ function AnalyticsView() {
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        {/* Biểu đồ Tròn */}
         <div
           className="rounded-xl border p-5"
           style={{
@@ -124,6 +173,8 @@ function AnalyticsView() {
               />
             </PieChart>
           </ResponsiveContainer>
+          
+          {/* Chú thích biểu đồ */}
           <div className="flex flex-wrap gap-3 mt-1 justify-center">
             {FIELD_DATA.map((f) => (
               <div key={f.n} className="flex items-center gap-1.5 text-xs">

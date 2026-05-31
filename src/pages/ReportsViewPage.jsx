@@ -1,4 +1,30 @@
-function ReportsView() {
+import { Plus, FileText, Download } from 'lucide-react';
+
+// ==========================================
+// 1. COMPONENT 
+// ==========================================
+const StatusPill = ({ status }) => {
+  const colors = {
+    ready: { bg: '#00D1B21A', text: '#00D1B2' },
+    processing: { bg: '#F59E0B1A', text: '#F59E0B' },
+    failed: { bg: '#EF44441A', text: '#EF4444' },
+  };
+  const c = colors[status] || colors.ready;
+  
+  return (
+    <span 
+      className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider" 
+      style={{ background: c.bg, color: c.text }}
+    >
+      {status}
+    </span>
+  );
+};
+
+// ==========================================
+// 2. GIAO DIỆN CHÍNH (Đã thêm export default)
+// ==========================================
+export default function ReportsView() {
   const reports = [
     {
       title: 'Q4 2024 AI Research Landscape Report',
@@ -36,19 +62,21 @@ function ReportsView() {
       status: 'ready',
     },
   ];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 p-8">
       <div className="flex items-center justify-between">
         <p className="text-xs" style={{ color: '#A0AEC0' }}>
           {reports.length} reports available
         </p>
         <button
-          className="px-4 py-2 rounded-lg text-xs font-bold text-white flex items-center gap-2"
+          className="px-4 py-2 rounded-lg text-xs font-bold text-white flex items-center gap-2 hover:opacity-90 transition-opacity"
           style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
         >
           <Plus size={13} /> Generate Report
         </button>
       </div>
+      
       <div
         className="rounded-xl border overflow-hidden"
         style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}
@@ -84,10 +112,11 @@ function ReportsView() {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            
+            <div className="flex items-center gap-3 shrink-0">
               <StatusPill status={r.status} />
               <button
-                className="p-2 rounded-lg transition-colors hover:text-white"
+                className="p-2 rounded-lg transition-colors hover:bg-white/5 hover:text-white"
                 style={{ color: '#A0AEC0' }}
               >
                 <Download size={14} />
