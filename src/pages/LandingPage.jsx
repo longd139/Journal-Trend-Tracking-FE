@@ -809,15 +809,6 @@ export default function LandingPage() {
                   },
                   text: 'text-white',
                 },
-                {
-                  label: 'Register Free',
-                  action: handleAuthRedirect, // Chỉnh lại chuyển hướng
-                  style: {
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#A0AEC0',
-                  },
-                  text: '',
-                },
               ].map((b) => (
                 <motion.button
                   key={b.label}
