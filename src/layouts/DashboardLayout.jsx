@@ -19,7 +19,11 @@ function Sidebar({ role, activeTab, navigate }) {
 
   return (
     <aside className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.07)' }}>
-      <div className="p-5 border-b flex items-center gap-3" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
+<div 
+        onClick={() => navigate('/overview')}
+        className="p-5 border-b flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all" 
+        style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+      >
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}>
           <Microscope size={14} className="text-white" />
         </div>
