@@ -34,8 +34,8 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   // Hàm xử lý chung: Tất cả các nút điều hướng về trang Auth để bắt buộc chọn Role trước
-  const handleAuthRedirect = () => {
-    navigate('/auth'); // Đảm bảo ông có route '/auth' trỏ tới AuthPage
+  const handleAuthRedirect = (mode) => {
+    navigate('/auth', { state: { mode: mode } });
   };
 
   return (
@@ -84,7 +84,7 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={handleAuthRedirect} // Chỉnh lại chuyển hướng
+            onClick={() => handleAuthRedirect('login')} // Chỉnh lại chuyển hướng
             className="px-4 py-2 text-sm font-medium rounded-lg border transition-all hover:text-white"
             style={{
               color: '#A0AEC0',
@@ -96,7 +96,7 @@ export default function LandingPage() {
           <motion.button
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            onClick={handleAuthRedirect} // Chỉnh lại chuyển hướng
+            onClick={() => handleAuthRedirect('register')} // Chỉnh lại chuyển hướng
             className="px-4 py-2 text-sm font-bold rounded-lg text-white"
             style={{
               background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
@@ -197,7 +197,7 @@ export default function LandingPage() {
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={handleAuthRedirect} // Chỉnh lại chuyển hướng
+                onClick={() => handleAuthRedirect('register')} // Chỉnh lại chuyển hướng
                 className="px-6 py-3 rounded-xl text-sm font-bold text-white flex items-center gap-2"
                 style={{
                   background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
@@ -465,7 +465,7 @@ export default function LandingPage() {
           </motion.div>
 
           {/* ... (Đoạn AreaChart và INSIGHTS giữ nguyên) ... */}
-           <motion.div
+          <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -803,7 +803,7 @@ export default function LandingPage() {
               {[
                 {
                   label: 'Login',
-                  action: handleAuthRedirect, // Chỉnh lại chuyển hướng
+                  action: () => handleAuthRedirect('login'), // Chỉnh lại chuyển hướng
                   style: {
                     background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
                   },
@@ -811,7 +811,7 @@ export default function LandingPage() {
                 },
                 {
                   label: 'Register Free',
-                  action: handleAuthRedirect, // Chỉnh lại chuyển hướng
+                  action: () => handleAuthRedirect('register'), // Chỉnh lại chuyển hướng
                   style: {
                     border: '1px solid rgba(255,255,255,0.14)',
                     color: '#A0AEC0',
@@ -833,7 +833,7 @@ export default function LandingPage() {
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={handleAuthRedirect} // Nút Explore Dashboard cũng đưa về Auth luôn
+                onClick={() => handleAuthRedirect('register')} // Nút Explore Dashboard cũng đưa về Auth luôn
                 className="px-8 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2"
                 style={{
                   color: '#00D1B2',
