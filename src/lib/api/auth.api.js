@@ -1,0 +1,23 @@
+import axiosClient from '../http/axiosClient';
+
+export const authAPI = {
+  async login({ email, password }) {
+    const { data } = await axiosClient.post('/api/auth/login', {
+      email,
+      password,
+    });
+    console.log(data);
+    return {
+      accessToken: data.accessToken,
+    };
+  },
+  async register(userData) {
+    const { data } = await axiosClient.post('/api/auth/register', userData);
+
+    // backend trả: {message, result:{access_token, refresh_token}}
+    // fe nhận : {accessToken,refreshToken}
+    return {
+      accessToken: data.accessToken,
+    };
+  },
+};

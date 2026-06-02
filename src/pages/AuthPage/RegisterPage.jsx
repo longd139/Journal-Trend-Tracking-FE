@@ -1,57 +1,136 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import {
   Microscope,
   Mail,
   Lock,
-  BookOpen,
-  Shield,
   RefreshCw,
   Building2,
   AlertCircle,
+  ChevronLeft,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
+import { authAPI } from '../../lib/api/auth.api';
+import { useAuthStore } from '../../store/useAuthStore';
+
+const LOCAL_UNIS = [
+  'Văn Lang University',
+  'FPT University',
+  'Bách khoa University',
+  'Khoa học Tự nhiên University',
+  'Công nghệ Thông tin (UIT) University',
+  'Quốc tế TP.HCM University',
+  'RMIT University',
+  'Tôn Đức Thắng University',
+  'Kinh tế TP.HCM University',
+  'Ngoại thương University',
+  'Y Dược University',
+  'Sư phạm Kỹ thuật University',
+  'Công nghiệp University',
+];
 
 export default function RegisterPage() {
+  const location = useLocation();
   const navigate = useNavigate();
-  // Khác biệt: Thêm trường name vào state
+
+  const incomingRole = location.state?.role || '';
+
   const [form, setForm] = useState({
-    name: '',
+    fullName: '',
     institution: '',
     email: '',
-
     password: '',
     confirmPassword: '',
-    role: 'user',
+    role: incomingRole,
   });
+
+  // --- THÊM STATE QUẢN LÝ GỢI Ý TRƯỜNG ĐẠI HỌC ---
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingUnis, setLoadingUnis] = useState(false);
+
+  const setTokens = useAuthStore((state) => state.setTokens);
+
+  // --- USE-EFFECT BẢO MẬT LUỒNG ---
+  useEffect(() => {
+    if (!incomingRole) {
+      navigate('/auth');
+    }
+  }, [incomingRole, navigate]);
+
+  // --- USE-EFFECT TÌM KIẾM TRƯỜNG ĐẠI HỌC ---
+  useEffect(() => {
+    // Bỏ điều kiện currentMode vì ở trang này luôn là register
+    if (form.institution.trim().length < 1) {
+      setSuggestions([]);
+      return;
+    }
+
+    const searchTerm = form.institution.toLowerCase();
+
+    // 1. Tìm ngay lập tức trong danh sách Local VN
+    const localMatches = LOCAL_UNIS.filter((uni) =>
+      uni.toLowerCase().includes(searchTerm),
+    ).map((name) => ({ name }));
+
+    setSuggestions(localMatches.slice(0, 5));
+
+    // 2. Gọi API để tìm thêm trường quốc tế
+    const timer = setTimeout(async () => {
+      setLoadingUnis(true);
+      try {
+        const res = await fetch(
+          `http://universities.hipolabs.com/search?name=${form.institution}`,
+        );
+        const data = await res.json();
+        const apiMatches = data.map((u) => ({ name: u.name }));
+
+        // 3. Trộn và lọc kết quả trùng lặp
+        const combined = [...localMatches, ...apiMatches];
+        const uniqueSuggestions = Array.from(
+          new Set(combined.map((a) => a.name)),
+        )
+          .map((name) => ({ name }))
+          .slice(0, 5);
+
+        setSuggestions(uniqueSuggestions);
+      } catch (error) {
+        console.error('Lỗi khi tải danh sách trường:', error);
+      } finally {
+        setLoadingUnis(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [form.institution]);
+
   const [loading, setLoading] = useState(false);
 
-  // 2. State quản lý lỗi cho tất cả các field
   const [errors, setErrors] = useState({
-    name: false,
+    fullName: false,
     institution: false,
     email: false,
     emailFormat: false,
     password: false,
     confirmPassword: false,
-    mismatch: false, // Lỗi mật khẩu không khớp
+    mismatch: false,
+    apiError: '', // 2. Thêm field quản lý lỗi từ API
   });
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Kiểm tra rỗng
-    const isNameEmpty = form.name.trim() === '';
+    const isNameEmpty = form.fullName.trim() === '';
     const isInstitutionEmpty = form.institution.trim() === '';
     const isEmailEmpty = form.email.trim() === '';
     const isPasswordEmpty = form.password.trim() === '';
     const isConfirmEmpty = form.confirmPassword.trim() === '';
 
-    // 2. Kiểm tra định dạng Email (Regex)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isEmailFormatInvalid = !isEmailEmpty && !emailRegex.test(form.email);
 
-    // Kiểm tra mật khẩu khớp
     const isMismatch =
       !isPasswordEmpty &&
       !isConfirmEmpty &&
@@ -67,42 +146,89 @@ export default function RegisterPage() {
       isMismatch
     ) {
       setErrors({
-        name: isNameEmpty,
+        fullName: isNameEmpty,
         institution: isInstitutionEmpty,
         email: isEmailEmpty,
         emailFormat: isEmailFormatInvalid,
         password: isPasswordEmpty,
         confirmPassword: isConfirmEmpty || isMismatch,
         mismatch: isMismatch,
+        apiError: '', // Reset API error nếu có lỗi validate local
       });
-      return; // Chặn lại nếu có lỗi
+      return;
     }
 
     setLoading(true);
-    setTimeout(() => {
+    setErrors((prev) => ({ ...prev, apiError: '' }));
+    // 4. Logic gọi API bằng Axios
+    try {
+      // Bỏ confirmPassword ra khỏi payload gửi lên server vì không cần thiết
+      const payload = {
+        fullName: form.fullName,
+        institution: form.institution,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      };
+
+      // Đổi endpoint '/register' thành endpoint đúng của backend bạn
+      const response = await authAPI.register(payload);
+      const { accessToken, user } = response;
+      if (accessToken) {
+        setTokens(accessToken);
+      }
+      toast.success('Registration successful!', {
+        description:
+          'Welcome aboard. Your account has been created successfully.',
+      });
+
+      // Delay khoảng 1.5s để user kịp đọc thông báo rồi mới chuyển trang
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+      // navigate('/login');
+    } catch (error) {
+      console.error('Lỗi đăng ký:', error);
+      // Lấy câu thông báo lỗi từ backend trả về (nếu có), nếu không có thì dùng câu mặc định
+
+      // Lấy chính xác trường "message" từ JSON bạn vừa cung cấp
+      const errorMessage =
+        error.response?.data?.message ||
+        'Registration failed. Please try again later.';
+
+      // 1. Hiển thị qua Sonner Toast
+      toast.error('Registration Failed', {
+        description: errorMessage,
+      });
+
+      // 2. Hiển thị dòng text màu đỏ ngay trên nút Create Account
+      setErrors((prev) => ({
+        ...prev,
+        apiError: errorMessage,
+      }));
+    } finally {
       setLoading(false);
-      navigate(form.role === 'admin' ? '/adminDash' : '/userDash');
-    }, 1100);
+    }
   };
 
-  // Hàm handle change thông minh để tự tắt lỗi khi user gõ
   const handleChange = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }));
 
-    // Tắt lỗi rỗng nếu user đang gõ
     if (errors[field]) {
       setErrors((e) => ({ ...e, [field]: false }));
     }
-    // Tắt lỗi format email khi user gõ lại
     if (field === 'email' && errors.emailFormat) {
       setErrors((e) => ({ ...e, emailFormat: false }));
     }
-    // Nếu đang sửa 1 trong 2 ô password, tự động tắt lỗi mismatch để user gõ lại
     if (
       (field === 'password' || field === 'confirmPassword') &&
       errors.mismatch
     ) {
       setErrors((e) => ({ ...e, mismatch: false, confirmPassword: false }));
+    }
+    // Xóa thông báo lỗi API khi user bắt đầu gõ lại để sửa
+    if (errors.apiError) {
+      setErrors((e) => ({ ...e, apiError: '' }));
     }
   };
 
@@ -111,7 +237,6 @@ export default function RegisterPage() {
       className="min-h-screen flex items-center justify-center relative overflow-hidden"
       style={{ background: '#0B1020' }}
     >
-      {/* Background Effect */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]"
@@ -144,7 +269,6 @@ export default function RegisterPage() {
         ))}
       </div>
 
-      {/* Form Container */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
@@ -180,12 +304,27 @@ export default function RegisterPage() {
           >
             Create account
           </h2>
-          <p className="text-sm mb-6" style={{ color: '#A0AEC0' }}>
-            Start your academic intelligence journey
-          </p>
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => {
+                navigate('/auth');
+              }}
+              className="p-2 rounded-lg hover:bg-white/5 transition-colors mr-3"
+              style={{ color: '#A0AEC0' }}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div>
+              <p className="text-xs mt-1" style={{ color: '#4F8CFF' }}>
+                Create account for{' '}
+                <span className="font-bold uppercase tracking-wider">
+                  {incomingRole}
+                </span>
+              </p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            {/* Full Name */}
             <div>
               <label className="text-xs font-semibold text-white block mb-1.5">
                 Full Name
@@ -193,8 +332,8 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Dr. Sarah Chen"
-                value={form.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={form.fullName}
+                onChange={(e) => handleChange('fullName', e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                   errors.name
                     ? 'border-red-500 bg-red-500/5 focus:border-red-400'
@@ -204,8 +343,8 @@ export default function RegisterPage() {
               />
             </div>
 
-            {/* Institution */}
-            <div>
+            {/* --- KHỐI INSTITUTION ĐƯỢC CẬP NHẬT --- */}
+            <div className="relative">
               <label className="text-xs font-semibold text-white block mb-1.5">
                 Institution / University
               </label>
@@ -217,9 +356,16 @@ export default function RegisterPage() {
                 />
                 <input
                   type="text"
-                  placeholder="Massachusetts Institute of Technology"
+                  placeholder="FPT University"
                   value={form.institution}
-                  onChange={(e) => handleChange('institution', e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() =>
+                    setTimeout(() => setShowSuggestions(false), 200)
+                  }
+                  onChange={(e) => {
+                    handleChange('institution', e.target.value);
+                    setShowSuggestions(true);
+                  }}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                     errors.institution
                       ? 'border-red-500 bg-red-500/5 focus:border-red-400'
@@ -227,10 +373,40 @@ export default function RegisterPage() {
                   }`}
                   style={{ color: '#E2E8F0' }}
                 />
+                {loadingUnis && (
+                  <RefreshCw
+                    size={12}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-white/50"
+                  />
+                )}
               </div>
+
+              {/* Menu thả xuống gợi ý */}
+              {showSuggestions && suggestions.length > 0 && (
+                <ul
+                  className="absolute z-50 w-full mt-1.5 rounded-xl border overflow-hidden shadow-2xl"
+                  style={{
+                    background: '#131A2A',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                  }}
+                >
+                  {suggestions.map((uni, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => {
+                        handleChange('institution', uni.name);
+                        setShowSuggestions(false);
+                      }}
+                      className="px-4 py-2.5 text-xs text-white hover:bg-[#4F8CFF1A] cursor-pointer border-b last:border-b-0 transition-colors"
+                      style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+                    >
+                      {uni.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
-            {/* Email Address */}
             <div>
               <label className="text-xs font-semibold text-white block mb-1.5">
                 Email Address
@@ -247,20 +423,18 @@ export default function RegisterPage() {
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
-                    errors.email
+                    errors.email || errors.emailFormat
                       ? 'border-red-500 bg-red-500/5 focus:border-red-400'
                       : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
                   }`}
                   style={{ color: '#E2E8F0' }}
                 />
               </div>
-              {/* Hiển thị lỗi rỗng */}
               {errors.email && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
                   <AlertCircle size={10} /> Vui lòng nhập email
                 </div>
               )}
-              {/* Hiển thị lỗi sai định dạng */}
               {errors.emailFormat && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
                   <AlertCircle size={10} /> Email không đúng định dạng (vd:
@@ -268,9 +442,8 @@ export default function RegisterPage() {
                 </div>
               )}
             </div>
-            {/* Khối Grid chứa Password và Confirm Password */}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Password */}
               <div>
                 <label className="text-xs font-semibold text-white block mb-1.5">
                   Password
@@ -296,7 +469,6 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="text-xs font-semibold text-white block mb-1.5">
                   Confirm Password
@@ -327,14 +499,18 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            {/* Thông báo lỗi nếu mật khẩu không khớp */}
             {errors.mismatch && (
               <div className="flex items-center gap-1 mt-1 text-[10px] font-medium text-red-500">
                 <AlertCircle size={10} /> Passwords do not match
               </div>
             )}
-
-            {/* 3. Chuyển class border-t và padding lên đây bao quanh nút bấm */}
+            {/* 5. Hiển thị thông báo lỗi từ API ngay trên nút Submit */}
+            {errors.apiError && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2 mt-2">
+                <AlertCircle size={14} />
+                {errors.apiError}
+              </div>
+            )}
             <div
               className="mt-8 pt-5 border-t"
               style={{ borderColor: 'rgba(255,255,255,0.07)' }}
