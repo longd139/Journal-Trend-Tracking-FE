@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import {
   Microscope,
   Mail,
@@ -11,6 +12,8 @@ import {
   ChevronLeft,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
+import { authAPI } from '../../lib/api/auth.api';
+import { useAuthStore } from '../../store/useAuthStore';
 
 const LOCAL_UNIS = [
   'Văn Lang University',
@@ -35,7 +38,7 @@ export default function RegisterPage() {
   const incomingRole = location.state?.role || '';
 
   const [form, setForm] = useState({
-    name: '',
+    fullName: '',
     institution: '',
     email: '',
     password: '',
@@ -47,6 +50,8 @@ export default function RegisterPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingUnis, setLoadingUnis] = useState(false);
+
+  const setTokens = useAuthStore((state) => state.setTokens);
 
   // --- USE-EFFECT BẢO MẬT LUỒNG ---
   useEffect(() => {
@@ -104,19 +109,20 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const [errors, setErrors] = useState({
-    name: false,
+    fullName: false,
     institution: false,
     email: false,
     emailFormat: false,
     password: false,
     confirmPassword: false,
     mismatch: false,
+    apiError: '', // 2. Thêm field quản lý lỗi từ API
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const isNameEmpty = form.name.trim() === '';
+    const isNameEmpty = form.fullName.trim() === '';
     const isInstitutionEmpty = form.institution.trim() === '';
     const isEmailEmpty = form.email.trim() === '';
     const isPasswordEmpty = form.password.trim() === '';
@@ -140,22 +146,69 @@ export default function RegisterPage() {
       isMismatch
     ) {
       setErrors({
-        name: isNameEmpty,
+        fullName: isNameEmpty,
         institution: isInstitutionEmpty,
         email: isEmailEmpty,
         emailFormat: isEmailFormatInvalid,
         password: isPasswordEmpty,
         confirmPassword: isConfirmEmpty || isMismatch,
         mismatch: isMismatch,
+        apiError: '', // Reset API error nếu có lỗi validate local
       });
       return;
     }
 
     setLoading(true);
-    setTimeout(() => {
+    setErrors((prev) => ({ ...prev, apiError: '' }));
+    // 4. Logic gọi API bằng Axios
+    try {
+      // Bỏ confirmPassword ra khỏi payload gửi lên server vì không cần thiết
+      const payload = {
+        fullName: form.fullName,
+        institution: form.institution,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      };
+
+      // Đổi endpoint '/register' thành endpoint đúng của backend bạn
+      const response = await authAPI.register(payload);
+      const { accessToken, user } = response;
+      if (accessToken) {
+        setTokens(accessToken);
+      }
+      toast.success('Registration successful!', {
+        description:
+          'Welcome aboard. Your account has been created successfully.',
+      });
+
+      // Delay khoảng 1.5s để user kịp đọc thông báo rồi mới chuyển trang
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+      // navigate('/login');
+    } catch (error) {
+      console.error('Lỗi đăng ký:', error);
+      // Lấy câu thông báo lỗi từ backend trả về (nếu có), nếu không có thì dùng câu mặc định
+
+      // Lấy chính xác trường "message" từ JSON bạn vừa cung cấp
+      const errorMessage =
+        error.response?.data?.message ||
+        'Registration failed. Please try again later.';
+
+      // 1. Hiển thị qua Sonner Toast
+      toast.error('Registration Failed', {
+        description: errorMessage,
+      });
+
+      // 2. Hiển thị dòng text màu đỏ ngay trên nút Create Account
+      setErrors((prev) => ({
+        ...prev,
+        apiError: errorMessage,
+      }));
+    } finally {
       setLoading(false);
-      navigate(form.role === 'admin' ? '/adminDash' : '/userDash');
-    }, 1100);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -172,6 +225,10 @@ export default function RegisterPage() {
       errors.mismatch
     ) {
       setErrors((e) => ({ ...e, mismatch: false, confirmPassword: false }));
+    }
+    // Xóa thông báo lỗi API khi user bắt đầu gõ lại để sửa
+    if (errors.apiError) {
+      setErrors((e) => ({ ...e, apiError: '' }));
     }
   };
 
@@ -275,8 +332,8 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Dr. Sarah Chen"
-                value={form.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                value={form.fullName}
+                onChange={(e) => handleChange('fullName', e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                   errors.name
                     ? 'border-red-500 bg-red-500/5 focus:border-red-400'
@@ -447,7 +504,13 @@ export default function RegisterPage() {
                 <AlertCircle size={10} /> Passwords do not match
               </div>
             )}
-
+            {/* 5. Hiển thị thông báo lỗi từ API ngay trên nút Submit */}
+            {errors.apiError && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2 mt-2">
+                <AlertCircle size={14} />
+                {errors.apiError}
+              </div>
+            )}
             <div
               className="mt-8 pt-5 border-t"
               style={{ borderColor: 'rgba(255,255,255,0.07)' }}

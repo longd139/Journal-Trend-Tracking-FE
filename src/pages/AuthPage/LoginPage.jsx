@@ -11,11 +11,14 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
+import { authAPI } from '../../lib/api/auth.api';
+import { useAuthStore } from '../../store/useAuthStore';
+// import useAuthStore from '../../store/useAuthStore';
 // import { PARTICLES } from '../constants/mockData';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '', role: 'user' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
   // 1. Thêm state quản lý lỗi
@@ -23,9 +26,13 @@ export default function LoginPage() {
     email: false,
     emailFormat: false,
     password: false,
+    apiError: '', // Thêm state để hứng lỗi từ API trả về
   });
 
-  const handleSubmit = (e) => {
+  // 2. Lấy hàm setAuth từ Zustand
+  const setTokens = useAuthStore((state) => state.setTokens);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // 2. Logic kiểm tra rỗng
@@ -37,31 +44,68 @@ export default function LoginPage() {
 
     if (isEmailEmpty || isPasswordEmpty || isEmailFormatInvalid) {
       // Cập nhật state lỗi để làm đỏ viền
-      setErrors({
+      setErrors((prev) => ({
+        ...prev,
         email: isEmailEmpty,
         password: isPasswordEmpty,
         emailFormat: isEmailFormatInvalid,
-      });
+      }));
       return; // Dừng hàm lại, không cho gọi API đăng nhập
     }
 
     // Nếu đã nhập đủ thì mới chạy tiếp
     setLoading(true);
-    setTimeout(() => {
+    setErrors((prev) => ({ ...prev, apiError: '' })); // Xóa lỗi cũ trước khi gọi API mới
+    try {
+      // Gọi API đăng nhập (thay '/login' bằng endpoint thực tế của bạn)
+      const response = await authAPI.login({
+        email: form.email,
+        password: form.password,
+      });
+
+      // Lấy data từ response (cấu trúc này phụ thuộc vào backend của bạn)
+      const { token, user } = response.data;
+
+      // Lưu token vào localStorage để giữ trạng thái đăng nhập
+      if (accessToken) {
+        setTokens(accessToken);
+      }
+
+      // Thông thường role sẽ được backend trả về qua object user
+      // Nếu backend có trả về role, dùng user.role, nếu không thì dùng form.role tạm thời
+      const userRole = user?.role || form.role;
+
+      navigate(userRole === 'admin' ? '/adminDash' : '/userDash');
+    } catch (error) {
+      // Xử lý lỗi từ server (ví dụ: 401 Unauthorized, 404 Not Found)
+      console.error('Lỗi đăng nhập:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        'Đăng nhập thất bại. Vui lòng thử lại sau.';
+
+      setErrors((prev) => ({
+        ...prev,
+        apiError: errorMessage,
+      }));
+    } finally {
       setLoading(false);
-      navigate(form.role === 'admin' ? '/adminDash' : '/userDash');
-    }, 1100);
+    }
   };
 
   // Hàm hỗ trợ xóa lỗi khi người dùng bắt đầu gõ lại
   const handleChange = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }));
+
+    // Xóa lỗi field khi người dùng gõ
     if (errors[field]) {
       setErrors((e) => ({ ...e, [field]: false }));
     }
-    // Tắt lỗi format email khi user gõ lại
+    // Xóa lỗi định dạng email và lỗi API chung
     if (field === 'email' && errors.emailFormat) {
       setErrors((e) => ({ ...e, emailFormat: false }));
+    }
+    if (errors.apiError) {
+      setErrors((e) => ({ ...e, apiError: '' }));
     }
   };
 
@@ -236,7 +280,13 @@ export default function LoginPage() {
                 Forgot password?
               </button>
             </div>
-
+            {/* Hiển thị lỗi API (sai pass, không tìm thấy user) ngay trên nút Submit */}
+            {errors.apiError && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2">
+                <AlertCircle size={14} />
+                {errors.apiError}
+              </div>
+            )}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}

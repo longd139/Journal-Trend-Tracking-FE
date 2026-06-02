@@ -5,6 +5,7 @@ import './index.css';
 import App from './App.jsx';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes/AppRoutes.jsx';
+import { Toaster } from 'sonner';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <>
@@ -17,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       `}</style>
     {/* <StrictMode> */}
     <RouterProvider router={router} />
+    <Toaster richColors position="top-right" />
     {/* </StrictMode> */}
   </>,
 );

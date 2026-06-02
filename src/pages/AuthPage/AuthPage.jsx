@@ -13,7 +13,7 @@ import { PARTICLES } from '../../constants/mockData';
 // Data cấu hình cho 2 Role
 const ROLES_DATA = [
   {
-    id: 'student',
+    id: 'academic_user',
     title: 'Student',
     description: 'Dành cho sinh viên, học viên',
     icon: GraduationCap,
