@@ -53,27 +53,29 @@ export default function LoginPage() {
         password: form.password 
       });
 
-      console.log("Dữ liệu từ API Login:", response);
+      console.log("🔥 Dữ liệu từ API Login:", response);
 
-      // 3. GIẢI PHÁP AN TOÀN TRÁNH UNDEFINED
-      // Lấy role từ response. Nếu backend không trả role, mặc định là 'academic'
-      // Tuỳ thuộc vào cấu trúc backend trả về, có thể là response.role hoặc response.data.role
-      const userRole = response?.role || response?.data?.role || 'academic';
+      // 3. BÓC TÁCH DỮ LIỆU ĐÚNG CHUẨN SWAGGER BACKEND
+      const token = response?.accessToken;
+      const rawRole = response?.user?.roleName || 'ACADEMIC'; 
+      const safeRole = rawRole.toLowerCase();
+      const userName = response?.user?.username || 'Guest';
 
-      // 4. Lưu Token và Role vào sessionStorage
-      // Chú ý: Lấy accessToken tuỳ theo cấu trúc của backend
-      const token = response?.accessToken || response?.data?.accessToken || 'token_not_found';
-      
+      // 4. LƯU VÀO SESSION STORAGE
       sessionStorage.setItem('accessToken', token);
-      sessionStorage.setItem('userRole', userRole.toLowerCase()); // Ép kiểu chữ thường (admin, researcher, academic)
+      sessionStorage.setItem('userRole', safeRole);
+      sessionStorage.setItem('userName', userName); // Lưu tên để qua Settings/Sidebar dùng
 
-      // 5. Điều hướng an toàn
-      navigate(`/${userRole.toLowerCase()}/overview`);
+      // 5. ĐIỀU HƯỚNG AN TOÀN
+      // Nắn route: Nếu BE trả 'user' thì map về 'academic' (tránh lỗi 404 nếu FE không có route /user)
+      const routePrefix = safeRole === 'user' ? 'academic' : safeRole;
+      
+      navigate(`/${routePrefix}/overview`);
       
     } catch (error) {
-      console.error("Lỗi đăng nhập:", error);
+      console.error("❌ Lỗi đăng nhập:", error);
       // Xử lý thông báo lỗi từ Backend
-      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin hoặc kết nối mạng.';
+      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại email/password.';
       setErrors((prev) => ({
         ...prev,
         apiError: errorMessage,
