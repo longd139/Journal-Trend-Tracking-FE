@@ -14,7 +14,7 @@ import { PARTICLES } from '../../constants/mockData';
 const ROLES_DATA = [
   {
     id: 'academic_user',
-    title: 'Student',
+    title: 'Academic',
     description: 'Dành cho sinh viên, học viên',
     icon: GraduationCap,
     color: '#4F8CFF',

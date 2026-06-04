@@ -1,5 +1,17 @@
 // src/constants/mockData.js
 
+// ==========================================
+// 1. TÀI KHOẢN ĐĂNG NHẬP GIẢ (MOCK ACCOUNTS)
+// ==========================================
+export const MOCK_ACCOUNTS = [
+  { email: 'admin@scitrack.com', password: '123', role: 'admin' },
+  { email: 'researcher@scitrack.com', password: '123', role: 'researcher' },
+  { email: 'academic@scitrack.com', password: '123', role: 'academic' }
+];
+
+// ==========================================
+// 2. DỮ LIỆU HIỆU ỨNG (PARTICLES)
+// ==========================================
 export const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   id: i,
   size: ((i * 13) % 5) + 2,
@@ -10,6 +22,9 @@ export const PARTICLES = Array.from({ length: 28 }, (_, i) => ({
   dur: ((i * 0.71) % 8) + 12,
 }));
 
+// ==========================================
+// 3. DỮ LIỆU THỐNG KÊ BIỂU ĐỒ (ANALYTICS)
+// ==========================================
 export const FIELD_DATA = [
   { n: 'AI & ML', v: 34, c: '#4F8CFF' },
   { n: 'Biotech', v: 22, c: '#8B5CF6' },
@@ -42,7 +57,8 @@ export const CIT_DATA = [
   { y: '2024', v: 52.1 },
 ];
 
-const PAPERS = [
+// ĐÃ THÊM EXPORT CHO PAPERS
+export const PAPERS = [
   {
     title: 'Scaling Laws for Neural Language Models',
     authors: 'Kaplan, Brown et al.',
@@ -93,194 +109,52 @@ const PAPERS = [
   },
 ];
 
+// ==========================================
+// 4. DỮ LIỆU DASHBOARD ADMIN
+// ==========================================
 export const APIS = [
-  {
-    name: 'Google Scholar',
-    up: 98.7,
-    lat: '1.2ms',
-    req: '142.8K',
-    status: 'ok',
-  },
+  { name: 'Google Scholar', up: 98.7, lat: '1.2ms', req: '142.8K', status: 'ok' },
   { name: 'IEEE Xplore', up: 99.1, lat: '0.8ms', req: '98.4K', status: 'ok' },
-  {
-    name: 'Springer Link',
-    up: 97.8,
-    lat: '1.4ms',
-    req: '76.2K',
-    status: 'warn',
-  },
+  { name: 'Springer Link', up: 97.8, lat: '1.4ms', req: '76.2K', status: 'warn' },
   { name: 'Scopus API', up: 99.3, lat: '0.6ms', req: '112.0K', status: 'ok' },
 ];
 
-const USERS_TABLE = [
-  {
-    id: 'U-001',
-    name: 'Dr. Sarah Chen',
-    email: 's.chen@mit.edu',
-    role: 'Researcher',
-    status: 'active',
-    last: '2 min ago',
-    papers: 127,
-  },
-  {
-    id: 'U-002',
-    name: 'Prof. James Patel',
-    email: 'j.patel@stanford.edu',
-    role: 'Professor',
-    status: 'active',
-    last: '15 min ago',
-    papers: 284,
-  },
-  {
-    id: 'U-003',
-    name: 'Dr. Maria Santos',
-    email: 'm.santos@ox.ac.uk',
-    role: 'Researcher',
-    status: 'idle',
-    last: '1 hr ago',
-    papers: 93,
-  },
-  {
-    id: 'U-004',
-    name: 'Dr. Liu Wei',
-    email: 'l.wei@tsinghua.edu.cn',
-    role: 'Researcher',
-    status: 'active',
-    last: '5 min ago',
-    papers: 156,
-  },
-  {
-    id: 'U-005',
-    name: 'Prof. Anna Kowalski',
-    email: 'a.kowalski@eth.ch',
-    role: 'Professor',
-    status: 'offline',
-    last: '2 days ago',
-    papers: 312,
-  },
-  {
-    id: 'U-006',
-    name: 'Dr. Raj Sharma',
-    email: 'r.sharma@iit.ac.in',
-    role: 'Researcher',
-    status: 'active',
-    last: 'Just now',
-    papers: 78,
-  },
+// ĐÃ THÊM EXPORT CHO USERS_TABLE
+export const USERS_TABLE = [
+  { id: 'U-001', name: 'Dr. Sarah Chen', email: 's.chen@mit.edu', role: 'Researcher', status: 'active', last: '2 min ago', papers: 127 },
+  { id: 'U-002', name: 'Prof. James Patel', email: 'j.patel@stanford.edu', role: 'Professor', status: 'active', last: '15 min ago', papers: 284 },
+  { id: 'U-003', name: 'Dr. Maria Santos', email: 'm.santos@ox.ac.uk', role: 'Researcher', status: 'idle', last: '1 hr ago', papers: 93 },
+  { id: 'U-004', name: 'Dr. Liu Wei', email: 'l.wei@tsinghua.edu.cn', role: 'Researcher', status: 'active', last: '5 min ago', papers: 156 },
+  { id: 'U-005', name: 'Prof. Anna Kowalski', email: 'a.kowalski@eth.ch', role: 'Professor', status: 'offline', last: '2 days ago', papers: 312 },
+  { id: 'U-006', name: 'Dr. Raj Sharma', email: 'r.sharma@iit.ac.in', role: 'Researcher', status: 'active', last: 'Just now', papers: 78 },
+];
+
+// ĐÃ THÊM EXPORT CHO DB_TABLES
+export const DB_TABLES = [
+  { name: 'publications', rows: '50.2M', size: '840 GB', growth: '+2.1%', status: 'ok' },
+  { name: 'citations', rows: '412.8M', size: '1.1 TB', growth: '+3.4%', status: 'ok' },
+  { name: 'authors', rows: '8.4M', size: '120 GB', growth: '+1.2%', status: 'ok' },
+  { name: 'journals', rows: '148K', size: '8.4 GB', growth: '+0.4%', status: 'ok' },
+  { name: 'keywords', rows: '2.1M', size: '42 GB', growth: '+5.7%', status: 'ok' },
+  { name: 'api_logs', rows: '890M', size: '340 GB', growth: '+8.2%', status: 'warn' },
 ];
 
 export const INSIGHTS = [
-  {
-    topic: 'Large Multimodal Models',
-    growth: '+234%',
-    papers: 1847,
-    c: '#4F8CFF',
-    desc: 'Vision-language convergence enabling unprecedented cross-modal reasoning',
-  },
-  {
-    topic: 'mRNA Vaccine Platforms',
-    growth: '+189%',
-    papers: 1234,
-    c: '#8B5CF6',
-    desc: 'Expanding beyond infectious disease into targeted cancer immunotherapy',
-  },
-  {
-    topic: 'Carbon Capture Tech',
-    growth: '+156%',
-    papers: 892,
-    c: '#00D1B2',
-    desc: 'Direct air capture costs now below $200/tonne CO₂ at scale',
-  },
-  {
-    topic: 'Neuromorphic Computing',
-    growth: '+143%',
-    papers: 743,
-    c: '#F59E0B',
-    desc: 'Brain-inspired chips achieving ultra-low-power edge AI deployment',
-  },
+  { topic: 'Large Multimodal Models', growth: '+234%', papers: 1847, c: '#4F8CFF', desc: 'Vision-language convergence enabling unprecedented cross-modal reasoning' },
+  { topic: 'mRNA Vaccine Platforms', growth: '+189%', papers: 1234, c: '#8B5CF6', desc: 'Expanding beyond infectious disease into targeted cancer immunotherapy' },
+  { topic: 'Carbon Capture Tech', growth: '+156%', papers: 892, c: '#00D1B2', desc: 'Direct air capture costs now below $200/tonne CO₂ at scale' },
+  { topic: 'Neuromorphic Computing', growth: '+143%', papers: 743, c: '#F59E0B', desc: 'Brain-inspired chips achieving ultra-low-power edge AI deployment' },
 ];
 
+// ==========================================
+// 5. CÁC TÍNH NĂNG (FEATURES)
+// ==========================================
 import { BarChart2, TrendingUp, Brain, Eye, Search, Zap } from 'lucide-react';
 export const FEATURES = [
-  {
-    Icon: BarChart2,
-    label: 'Publication Analytics',
-    desc: 'Track trends across 50M+ papers from all major journals worldwide',
-    c: '#4F8CFF',
-  },
-  {
-    Icon: TrendingUp,
-    label: 'Citation Tracking',
-    desc: 'Monitor citation velocity and impact factor evolution in real time',
-    c: '#8B5CF6',
-  },
-  {
-    Icon: Brain,
-    label: 'AI Recommendations',
-    desc: 'GPT-powered research discovery tailored to your specific domain',
-    c: '#00D1B2',
-  },
-  {
-    Icon: Eye,
-    label: 'Research Visualization',
-    desc: 'Interactive knowledge graphs and citation network topology maps',
-    c: '#F59E0B',
-  },
-  {
-    Icon: Search,
-    label: 'Academic Search Engine',
-    desc: 'Semantic full-text search with context-aware relevance ranking',
-    c: '#EF4444',
-  },
-  {
-    Icon: Zap,
-    label: 'Trend Forecasting',
-    desc: 'Predictive models for emerging research directions and hot topics',
-    c: '#8B5CF6',
-  },
-];
-
-const DB_TABLES = [
-  {
-    name: 'publications',
-    rows: '50.2M',
-    size: '840 GB',
-    growth: '+2.1%',
-    status: 'ok',
-  },
-  {
-    name: 'citations',
-    rows: '412.8M',
-    size: '1.1 TB',
-    growth: '+3.4%',
-    status: 'ok',
-  },
-  {
-    name: 'authors',
-    rows: '8.4M',
-    size: '120 GB',
-    growth: '+1.2%',
-    status: 'ok',
-  },
-  {
-    name: 'journals',
-    rows: '148K',
-    size: '8.4 GB',
-    growth: '+0.4%',
-    status: 'ok',
-  },
-  {
-    name: 'keywords',
-    rows: '2.1M',
-    size: '42 GB',
-    growth: '+5.7%',
-    status: 'ok',
-  },
-  {
-    name: 'api_logs',
-    rows: '890M',
-    size: '340 GB',
-    growth: '+8.2%',
-    status: 'warn',
-  },
+  { Icon: BarChart2, label: 'Publication Analytics', desc: 'Track trends across 50M+ papers from all major journals worldwide', c: '#4F8CFF' },
+  { Icon: TrendingUp, label: 'Citation Tracking', desc: 'Monitor citation velocity and impact factor evolution in real time', c: '#8B5CF6' },
+  { Icon: Brain, label: 'AI Recommendations', desc: 'GPT-powered research discovery tailored to your specific domain', c: '#00D1B2' },
+  { Icon: Eye, label: 'Research Visualization', desc: 'Interactive knowledge graphs and citation network topology maps', c: '#F59E0B' },
+  { Icon: Search, label: 'Academic Search Engine', desc: 'Semantic full-text search with context-aware relevance ranking', c: '#EF4444' },
+  { Icon: Zap, label: 'Trend Forecasting', desc: 'Predictive models for emerging research directions and hot topics', c: '#8B5CF6' },
 ];

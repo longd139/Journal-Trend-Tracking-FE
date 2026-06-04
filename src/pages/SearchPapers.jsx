@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { useState, useEffect } from 'react'; // ---> Thêm useEffect
+import { Search, X, Bookmark } from 'lucide-react'; // ---> Thêm icon Bookmark
 import { motion } from 'framer-motion';
 
 // ==========================================
@@ -27,10 +27,42 @@ const PAPERS = [
 ];
 
 // ==========================================
-// 3. GIAO DIỆN CHÍNH (Đã thêm export default)
+// 3. GIAO DIỆN CHÍNH
 // ==========================================
 export default function SearchPapers() {
   const [query, setQuery] = useState('');
+  const [savedBookmarks, setSavedBookmarks] = useState([]);
+
+  // LẤY ROLE HIỆN TẠI RA ĐỂ LÀM CÁI TÊN KEY RIÊNG
+  const currentRole = sessionStorage.getItem('userRole') || 'academic';
+  const storageKey = `scitrack_bookmarks_${currentRole}`; // Tạo key riêng: scitrack_bookmarks_academic...
+
+  // Lấy dữ liệu theo Key riêng
+  useEffect(() => {
+    const localData = sessionStorage.getItem(storageKey); // Đổi thành storageKey
+    if (localData) {
+      setSavedBookmarks(JSON.parse(localData));
+    } else {
+      setSavedBookmarks([]); // Nếu đổi account thì reset lại state tránh bị lưu vết cũ
+    }
+  }, [storageKey]); // Thêm storageKey vào đây để khi đổi role nó tự chạy lại
+
+  // Hàm xử lý lưu
+  const toggleBookmark = (paper) => {
+    setSavedBookmarks((prev) => {
+      const isAlreadySaved = prev.some((p) => p.title === paper.title);
+      let newData;
+      if (isAlreadySaved) {
+        newData = prev.filter((p) => p.title !== paper.title);
+      } else {
+        newData = [...prev, paper];
+      }
+      sessionStorage.setItem(storageKey, JSON.stringify(newData)); // Đổi thành storageKey
+      return newData;
+    });
+  };
+  // ---> KẾT THÚC PHẦN THÊM MỚI CHO BOOKMARK
+
   const filtered = PAPERS.filter(
     (p) =>
       !query ||
@@ -100,67 +132,91 @@ export default function SearchPapers() {
 
       {/* Danh sách kết quả */}
       <div className="space-y-3">
-        {filtered.map((p, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            whileHover={{ x: 4 }}
-            className="rounded-xl border p-5 cursor-default"
-            style={{
-              background: '#1B2235',
-              borderColor: 'rgba(255,255,255,0.07)',
-            }}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <GlowBadge
-                    color={
-                      FIELD_DATA.find((f) => f.n === p.field)?.c ?? '#4F8CFF'
-                    }
-                  >
-                    {p.field}
-                  </GlowBadge>
-                  <span
-                    className="text-xs"
+        {filtered.map((p, i) => {
+          // ---> Kiểm tra xem bài này đã có trong danh sách lưu chưa
+          const isSaved = savedBookmarks.some(saved => saved.title === p.title);
+
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ x: 4 }}
+              className="rounded-xl border p-5 cursor-default"
+              style={{
+                background: '#1B2235',
+                borderColor: 'rgba(255,255,255,0.07)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <GlowBadge
+                      color={
+                        FIELD_DATA.find((f) => f.n === p.field)?.c ?? '#4F8CFF'
+                      }
+                    >
+                      {p.field}
+                    </GlowBadge>
+                    <span
+                      className="text-xs"
+                      style={{
+                        color: '#6B7280',
+                        fontFamily: "'JetBrains Mono', monospace",
+                      }}
+                    >
+                      {p.year}
+                    </span>
+                  </div>
+                  <h4 className="text-sm font-bold text-white mb-1">{p.title}</h4>
+                  <p className="text-xs" style={{ color: '#A0AEC0' }}>
+                    {p.authors}
+                  </p>
+                </div>
+                
+                {/* ---> GOM CHUNG CHỖ NÀY ĐỂ THÊM NÚT BOOKMARK KẾ BÊN CITATION */}
+                <div className="flex items-center gap-6 shrink-0">
+                  <div className="text-right">
+                    <div
+                      className="text-xl font-black text-white"
+                      style={{ fontFamily: "'Outfit', sans-serif" }}
+                    >
+                      {p.citations.toLocaleString()}
+                    </div>
+                    <div className="text-xs" style={{ color: '#6B7280' }}>
+                      citations
+                    </div>
+                    <div
+                      className="text-xs font-semibold mt-1"
+                      style={{
+                        color: '#00D1B2',
+                        fontFamily: "'JetBrains Mono', monospace",
+                      }}
+                    >
+                      {p.trend}
+                    </div>
+                  </div>
+
+                  {/* NÚT BOOKMARK TÍCH HỢP */}
+                  <button 
+                    onClick={() => toggleBookmark(p)}
+                    className="p-2.5 rounded-lg border transition-all hover:scale-110"
                     style={{
-                      color: '#6B7280',
-                      fontFamily: "'JetBrains Mono', monospace",
+                      background: isSaved ? 'rgba(79, 140, 255, 0.1)' : 'rgba(255,255,255,0.02)',
+                      borderColor: isSaved ? '#4F8CFF' : 'rgba(255,255,255,0.1)',
+                      color: isSaved ? '#4F8CFF' : '#A0AEC0'
                     }}
                   >
-                    {p.year}
-                  </span>
+                    <Bookmark size={18} fill={isSaved ? '#4F8CFF' : 'none'} />
+                  </button>
                 </div>
-                <h4 className="text-sm font-bold text-white mb-1">{p.title}</h4>
-                <p className="text-xs" style={{ color: '#A0AEC0' }}>
-                  {p.authors}
-                </p>
+                {/* ---> KẾT THÚC CHỖ GOM */}
+
               </div>
-              <div className="text-right shrink-0">
-                <div
-                  className="text-xl font-black text-white"
-                  style={{ fontFamily: "'Outfit', sans-serif" }}
-                >
-                  {p.citations.toLocaleString()}
-                </div>
-                <div className="text-xs" style={{ color: '#6B7280' }}>
-                  citations
-                </div>
-                <div
-                  className="text-xs font-semibold mt-1"
-                  style={{
-                    color: '#00D1B2',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  {p.trend}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
