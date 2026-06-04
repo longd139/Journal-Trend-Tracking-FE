@@ -8,9 +8,9 @@ import {
   RefreshCw,
   AlertCircle,
 } from 'lucide-react';
-import { PARTICLES, MOCK_ACCOUNTS } from '../../constants/mockData';
-// import { authAPI } from '../../lib/api/auth.api'; // ĐÃ TẮT API THẬT
-// import { useAuthStore } from '../../store/useAuthStore'; // Tạm tắt Zustand vì đang xài localStorage
+import { PARTICLES } from '../../constants/mockData';
+import { authAPI } from '../../lib/api/auth.api'; // API THẬT
+// import { useAuthStore } from '../../store/useAuthStore'; // Tạm tắt Zustand
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 1. Validation cơ bản
     const isEmailEmpty = form.email.trim() === '';
     const isPasswordEmpty = form.password.trim() === '';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,35 +46,41 @@ export default function LoginPage() {
     setLoading(true);
     setErrors((prev) => ({ ...prev, apiError: '' }));
 
-    // ==========================================
-    // LOGIC CHECK MOCK DATA (Thay cho API thật)
-    // ==========================================
-    setTimeout(() => { // Dùng setTimeout giả vờ loading cho có cảm giác giống gọi API
-      try {
-        const validUser = MOCK_ACCOUNTS.find(
-          (user) => user.email === form.email && user.password === form.password
-        );
+    try {
+      // 2. GỌI API THẬT
+      const response = await authAPI.login({ 
+        email: form.email, 
+        password: form.password 
+      });
 
-        if (validUser) {
-          // Lưu role vào localStorage
-          sessionStorage.setItem('userRole', validUser.role);
-          // Đá qua Overview Controller để nó tự chia luồng
-          navigate(`/${validUser.role}/overview`); 
-        } else {
-          setErrors((prev) => ({
-            ...prev,
-            apiError: 'Sai email hoặc mật khẩu. Vui lòng thử lại!',
-          }));
-        }
-      } catch (error) {
-        setErrors((prev) => ({
-          ...prev,
-          apiError: 'Hệ thống lỗi. Vui lòng thử lại sau.',
-        }));
-      } finally {
-        setLoading(false);
-      }
-    }, 800); // Giả lập chờ mạng 0.8 giây
+      console.log("Dữ liệu từ API Login:", response);
+
+      // 3. GIẢI PHÁP AN TOÀN TRÁNH UNDEFINED
+      // Lấy role từ response. Nếu backend không trả role, mặc định là 'academic'
+      // Tuỳ thuộc vào cấu trúc backend trả về, có thể là response.role hoặc response.data.role
+      const userRole = response?.role || response?.data?.role || 'academic';
+
+      // 4. Lưu Token và Role vào sessionStorage
+      // Chú ý: Lấy accessToken tuỳ theo cấu trúc của backend
+      const token = response?.accessToken || response?.data?.accessToken || 'token_not_found';
+      
+      sessionStorage.setItem('accessToken', token);
+      sessionStorage.setItem('userRole', userRole.toLowerCase()); // Ép kiểu chữ thường (admin, researcher, academic)
+
+      // 5. Điều hướng an toàn
+      navigate(`/${userRole.toLowerCase()}/overview`);
+      
+    } catch (error) {
+      console.error("Lỗi đăng nhập:", error);
+      // Xử lý thông báo lỗi từ Backend
+      const errorMessage = error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin hoặc kết nối mạng.';
+      setErrors((prev) => ({
+        ...prev,
+        apiError: errorMessage,
+      }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field, value) => {
@@ -83,7 +90,7 @@ export default function LoginPage() {
     if (errors.apiError) setErrors((e) => ({ ...e, apiError: '' }));
   };
 
-  // Hàm điền nhanh tài khoản giả
+  // Hàm điền nhanh tài khoản giả (Vẫn giữ để test UI cho nhanh)
   const autoFill = (role) => {
     handleChange('email', `${role}@scitrack.com`);
     handleChange('password', '123');
@@ -92,7 +99,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#0B1020' }}>
       
-      {/* Background Effect (Giữ nguyên của ông) */}
+      {/* Background Effect */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]" style={{ background: '#4F8CFF' }} />
         <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10" style={{ background: '#8B5CF6' }} />
@@ -181,7 +188,7 @@ export default function LoginPage() {
             </motion.button>
           </form>
 
-          {/* KHU VỰC TEST (Dành cho ông điền nhanh) */}
+          {/* KHU VỰC TEST */}
           <div className="mt-8 pt-6 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
             <p className="text-[11px] font-semibold text-center mb-3 tracking-widest uppercase" style={{ color: '#6B7280' }}>
               Test Accounts (Auto-fill)
