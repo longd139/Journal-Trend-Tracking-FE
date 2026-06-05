@@ -1,0 +1,213 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Microscope, Lock, RefreshCw, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { PARTICLES } from '../constants/mockData'; // Sửa lại đường dẫn nếu cần
+
+export default function ResetPasswordPage() {
+  const navigate = useNavigate();
+  // Lấy cái token từ URL (ví dụ: ?token=abc123xyz)
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token');
+
+  const [form, setForm] = useState({ password: '', confirmPassword: '' });
+  const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [errors, setErrors] = useState({
+    password: '',
+    confirmPassword: '',
+    apiError: '',
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // 1. Validation cơ bản
+    let hasError = false;
+    const newErrors = { password: '', confirmPassword: '', apiError: '' };
+
+    if (form.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+      hasError = true;
+    }
+    if (form.password !== form.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+      hasError = true;
+    }
+
+    if (hasError) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setLoading(true);
+    setErrors({ ...newErrors, apiError: '' });
+
+    try {
+      // GIẢ LẬP GỌI API: Gửi newPassword và token xuống backend
+      // await authAPI.resetPassword({ token, newPassword: form.password });
+      
+      await new Promise((resolve) => setTimeout(resolve, 1500)); // Delay 1.5s giả bộ load API
+      
+      // Thành công -> Hiện màn hình chúc mừng
+      setIsSuccess(true);
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        apiError: error.response?.data?.message || 'Reset link has expired or is invalid!',
+      }));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChange = (field, value) => {
+    setForm((f) => ({ ...f, [field]: value }));
+    if (errors[field]) setErrors((e) => ({ ...e, [field]: '' }));
+    if (errors.apiError) setErrors((e) => ({ ...e, apiError: '' }));
+  };
+
+  // Nếu người dùng mò vào trang này mà không có token trên URL -> Báo lỗi
+  if (!token) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1020]">
+        <div className="text-center space-y-4">
+          <AlertCircle size={48} className="text-red-500 mx-auto" />
+          <h2 className="text-xl font-bold text-white">Invalid Reset Link</h2>
+          <p className="text-sm text-[#A0AEC0]">The link is invalid or missing a confirmation token.</p>
+          <button onClick={() => navigate('/login')} className="text-[#4F8CFF] text-sm font-semibold hover:text-white transition-colors">
+            ← Back to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ background: '#0B1020' }}>
+      {/* Background Effect */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]" style={{ background: '#4F8CFF' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10" style={{ background: '#8B5CF6' }} />
+        {PARTICLES.slice(0, 18).map((p) => (
+          <motion.div
+            key={p.id}
+            className="absolute rounded-full"
+            style={{ width: p.size, height: p.size, left: `${p.left}%`, top: `${p.top}%`, background: p.color, opacity: 0.18 }}
+            animate={{ y: [0, -20, 0] }}
+            transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        ))}
+      </div>
+
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-md mx-6">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-3 mb-8">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}>
+            <Microscope size={18} className="text-white" />
+          </div>
+          <span className="text-lg font-black text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>SCITRACK</span>
+        </div>
+
+        {/* Form Box */}
+        <div className="rounded-2xl border p-8" style={{ background: 'rgba(27,34,53,0.85)', borderColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(24px)' }}>
+          {isSuccess ? (
+            // ==========================================
+            // MÀN HÌNH THÀNH CÔNG
+            // ==========================================
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+                <CheckCircle2 size={32} className="text-emerald-500" />
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>Password Updated!</h2>
+              <p className="text-sm mb-6" style={{ color: '#A0AEC0' }}>Your password has been successfully changed. Please log in again.</p>
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+              >
+                Go to Login
+              </button>
+            </motion.div>
+          ) : (
+            // ==========================================
+            // MÀN HÌNH ĐỔI MẬT KHẨU
+            // ==========================================
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <h2 className="text-2xl font-black text-white mb-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Create New Password</h2>
+              <p className="text-sm mb-6" style={{ color: '#A0AEC0' }}>Enter a new password for your account.</p>
+
+              <form onSubmit={handleSubmit} noValidate className="space-y-4">
+                {/* Mật khẩu mới */}
+                <div>
+                  <label className="text-xs font-semibold text-white block mb-1.5">New Password</label>
+                  <div className="relative">
+                    <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: errors.password ? '#EF4444' : '#A0AEC0' }} />
+                    <input
+                      type="password"
+                      placeholder="At least 6 characters"
+                      value={form.password}
+                      onChange={(e) => handleChange('password', e.target.value)}
+                      className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                        errors.password ? 'border-red-500 bg-red-500/5 focus:border-red-400' : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
+                      }`}
+                      style={{ color: '#E2E8F0' }}
+                    />
+                  </div>
+                  {errors.password && (
+                    <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500"><AlertCircle size={10} /> {errors.password}</div>
+                  )}
+                </div>
+
+                {/* Nhập lại mật khẩu mới */}
+                <div>
+                  <label className="text-xs font-semibold text-white block mb-1.5">Confirm New Password</label>
+                  <div className="relative">
+                    <Lock size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: errors.confirmPassword ? '#EF4444' : '#A0AEC0' }} />
+                    <input
+                      type="password"
+                      placeholder="Confirm your new password"
+                      value={form.confirmPassword}
+                      onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                      className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                        errors.confirmPassword ? 'border-red-500 bg-red-500/5 focus:border-red-400' : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
+                      }`}
+                      style={{ color: '#E2E8F0' }}
+                    />
+                  </div>
+                  {errors.confirmPassword && (
+                    <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500"><AlertCircle size={10} /> {errors.confirmPassword}</div>
+                  )}
+                </div>
+
+                {/* Lỗi API */}
+                {errors.apiError && (
+                  <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2">
+                    <AlertCircle size={14} /> {errors.apiError}
+                  </div>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-2"
+                  style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)', opacity: loading ? 0.8 : 1 }}
+                >
+                  {loading ? <><RefreshCw size={14} className="animate-spin" /> Updating...</> : 'Update Password'}
+                </button>
+              </form>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Nút Back (Chỉ hiện khi chưa đổi pass thành công) */}
+        {!isSuccess && (
+          <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs transition-colors hover:text-white" style={{ color: '#6B7280' }}>
+            <ArrowLeft size={12} /> Back to login
+          </button>
+        )}
+      </motion.div>
+    </div>
+  );
+}
