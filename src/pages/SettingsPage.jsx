@@ -1,22 +1,27 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Building, Shield, Save, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-// NHỚ CHỈNH LẠI ĐƯỜNG DẪN IMPORT NÀY NẾU BỊ LỖI NHÉ
-import axiosClient from '../lib/http/axiosClient'; 
+import { authAPI } from '../lib/api/auth.api';
+import { userAPI } from '../lib/api/user.api';
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [role, setRole] = useState('academic');
+  const [error, setError] = useState(null);
+  const [role, setRole] = useState('');
 
+<<<<<<< HEAD
+=======
+  // Khởi tạo state cho form (để trống chờ API trả về)
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     institution: '',
-    bio: ''
+    bio: '',
   });
 
+<<<<<<< HEAD
   // HÀM TIỆN ÍCH: Tự động trả về đường dẫn API đúng theo Role
   const getApiUrlByRole = (currentRole) => {
     // Ông hỏi lại Backend xem đường dẫn thực tế là gì rồi sửa lại mấy chuỗi này nhé
@@ -29,11 +34,16 @@ export default function SettingsPage() {
   };
 
   // 1. GỌI API LẤY DATA KHI VỪA VÀO TRANG
+=======
+  // 1. GỌI API LẤY DỮ LIỆU KHI COMPONENT VỪA RENDER
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const currentRole = sessionStorage.getItem('userRole') || 'academic';
+        // Vẫn giữ việc lấy role dưới local nếu bạn cần dùng để ẩn/hiện nút trên UI
+        const currentRole = sessionStorage.getItem('userRole');
         setRole(currentRole);
+<<<<<<< HEAD
         
         const apiUrl = getApiUrlByRole(currentRole);
         
@@ -53,6 +63,25 @@ export default function SettingsPage() {
 
       } catch (error) {
         console.error("❌ Lỗi lấy thông tin:", error);
+=======
+
+        // Gọi API thật lấy dữ liệu profile (Thay '/api/users/profile' bằng endpoint thực tế)
+        // Lưu ý: Nếu có dùng Token, cấu hình axios gửi kèm Header Authorization nhé
+        const response = await userAPI.profile();
+        console.log(response);
+
+        // Cập nhật form với dữ liệu thật từ Backend
+        const userData = response;
+        setFormData({
+          name: userData.username || '',
+          email: userData.email || '',
+          institution: userData.institution || '',
+          bio: '',
+        });
+      } catch (err) {
+        console.error('Lỗi khi lấy thông tin user:', err);
+        setError('Không thể tải thông tin người dùng.');
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
       }
     };
 
@@ -63,12 +92,15 @@ export default function SettingsPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 2. GỌI API ĐỂ LƯU THÔNG TIN MỚI
+  // 2. GỌI API CẬP NHẬT DỮ LIỆU KHI BẤM SUBMIT
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+    setError(null); // Xóa thông báo lỗi cũ nếu có
+    setSuccess(false);
+
     try {
+<<<<<<< HEAD
       const currentRole = sessionStorage.getItem('userRole') || 'academic';
       const apiUrl = getApiUrlByRole(currentRole);
 
@@ -81,13 +113,31 @@ export default function SettingsPage() {
 
       // Lưu tạm tên mới vào Session để cái Sidebar bên trái nó cũng tự đổi tên theo
       sessionStorage.setItem('userName', formData.name);
+=======
+      // Gọi API gửi cục dữ liệu đi (Thay '/api/users/profile' bằng endpoint thực tế)
+      await axios.put('/api/users/profile', formData);
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
 
+      // Chạy xuống tới đây nghĩa là API trả về mã 200 OK -> Thành công
       setSuccess(true);
+<<<<<<< HEAD
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error("❌ Lỗi khi lưu:", error);
       alert("Cập nhật thất bại, vui lòng kiểm tra Console (F12)!");
+=======
+
+      // Tắt thông báo thành công sau 3 giây
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      console.error('Lỗi khi cập nhật profile:', err);
+      // Hứng message lỗi từ Global Exception Handler của Backend mà ta đã thống nhất
+      const errorMessage =
+        err.response?.data?.message || 'Cập nhật thất bại, vui lòng thử lại!';
+      setError(errorMessage);
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
     } finally {
+      // Khối finally luôn chạy để tắt hiệu ứng loading dù API thành công hay xịt
       setLoading(false);
     }
   };
@@ -95,20 +145,49 @@ export default function SettingsPage() {
   return (
     <div className="p-8 max-w-3xl mx-auto space-y-6">
       <div>
-        <h2 className="text-xl font-black text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Account Settings</h2>
-        <p className="text-sm" style={{ color: '#A0AEC0' }}>Manage your personal information and preferences.</p>
+        <h2
+          className="text-xl font-black text-white"
+          style={{ fontFamily: "'Outfit', sans-serif" }}
+        >
+          Account Settings
+        </h2>
+        <p className="text-sm" style={{ color: '#A0AEC0' }}>
+          Manage your personal information and preferences.
+        </p>
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border p-6" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
-        
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl border p-6"
+        style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}
+      >
         {/* Banner Avatar */}
+<<<<<<< HEAD
         <div className="flex items-center gap-6 mb-8 pb-8 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
           <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0" style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}>
             {formData.name ? formData.name.substring(0, 2).toUpperCase() : 'U'}
+=======
+        <div
+          className="flex items-center gap-6 mb-8 pb-8 border-b"
+          style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+        >
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0"
+            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          >
+            {formData.name.substring(0, 2).toUpperCase()}
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">{formData.name || 'Đang tải...'}</h3>
-            <div className="flex items-center gap-2 mt-1 text-xs font-medium px-2.5 py-1 rounded-md w-fit" style={{ background: 'rgba(79, 140, 255, 0.1)', color: '#4F8CFF' }}>
+            <h3 className="text-lg font-bold text-white">{formData.name}</h3>
+            <div
+              className="flex items-center gap-2 mt-1 text-xs font-medium px-2.5 py-1 rounded-md w-fit"
+              style={{
+                background: 'rgba(79, 140, 255, 0.1)',
+                color: '#4F8CFF',
+              }}
+            >
               <Shield size={12} /> {role.toUpperCase()}
             </div>
           </div>
@@ -120,18 +199,50 @@ export default function SettingsPage() {
             {/* Cột 1 */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">Full Name</label>
+                <label className="text-xs font-semibold text-white block mb-1.5">
+                  Full Name
+                </label>
                 <div className="relative">
-                  <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }} />
+                  <User
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  />
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]"
+                    style={{
+                      background: '#131A2A',
+                      borderColor: 'rgba(255,255,255,0.09)',
+                      color: '#E2E8F0',
+                    }}
+                  />
                 </div>
               </div>
-              
+
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">Institution / University</label>
+                <label className="text-xs font-semibold text-white block mb-1.5">
+                  Institution / University
+                </label>
                 <div className="relative">
-                  <Building size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input type="text" name="institution" value={formData.institution} onChange={handleChange} className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }} />
+                  <Building
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  />
+                  <input
+                    type="text"
+                    name="institution"
+                    value={formData.institution}
+                    onChange={handleChange}
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]"
+                    style={{
+                      background: '#131A2A',
+                      borderColor: 'rgba(255,255,255,0.09)',
+                      color: '#E2E8F0',
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -139,33 +250,86 @@ export default function SettingsPage() {
             {/* Cột 2 */}
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">Email Address</label>
+                <label className="text-xs font-semibold text-white block mb-1.5">
+                  Email Address
+                </label>
                 <div className="relative">
+<<<<<<< HEAD
                   <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                   <input type="email" name="email" value={formData.email} disabled className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors opacity-70 cursor-not-allowed" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }} />
+=======
+                  <Mail
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]"
+                    style={{
+                      background: '#131A2A',
+                      borderColor: 'rgba(255,255,255,0.09)',
+                      color: '#E2E8F0',
+                    }}
+                  />
+>>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
                 </div>
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">Bio / Research Focus</label>
+                <label className="text-xs font-semibold text-white block mb-1.5">
+                  Bio / Research Focus
+                </label>
                 <div className="relative">
-                  <textarea name="bio" value={formData.bio} onChange={handleChange} rows="3" className="w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF] resize-none" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }}></textarea>
+                  <textarea
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF] resize-none"
+                    style={{
+                      background: '#131A2A',
+                      borderColor: 'rgba(255,255,255,0.09)',
+                      color: '#E2E8F0',
+                    }}
+                  ></textarea>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-            <div className="text-xs text-green-400 flex items-center gap-1 opacity-0 transition-opacity" style={{ opacity: success ? 1 : 0 }}>
+          <div
+            className="pt-4 border-t flex items-center justify-between"
+            style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+          >
+            <div
+              className="text-xs text-green-400 flex items-center gap-1 opacity-0 transition-opacity"
+              style={{ opacity: success ? 1 : 0 }}
+            >
               <CheckCircle2 size={14} /> Profile updated successfully!
             </div>
-            
-            <button type="submit" disabled={loading} className="px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:scale-105 transition-all" style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)', opacity: loading ? 0.7 : 1 }}>
-              {loading ? 'Saving...' : <><Save size={16} /> Save Changes</>}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:scale-105 transition-all"
+              style={{
+                background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              {loading ? (
+                'Saving...'
+              ) : (
+                <>
+                  <Save size={16} /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </form>
-
       </motion.div>
     </div>
   );
