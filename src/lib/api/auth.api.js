@@ -6,9 +6,10 @@ export const authAPI = {
       email,
       password,
     });
-    console.log(data);
+    // console.log(data);
     return {
       accessToken: data.accessToken,
+      role: data.user.roleName,
     };
   },
   async register(userData) {
