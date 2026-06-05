@@ -21,4 +21,19 @@ export const authAPI = {
       accessToken: data.accessToken,
     };
   },
+  async forgotPassword({ email }) {
+    const { data } = await axiosClient.post('api/auth/forgot-password', {
+      email,
+    });
+    // response: { status, message, errors, timestamp }
+    return data;
+  },
+  async resetPassword({ token, newPassword }) {
+    const { data } = await axiosClient.post('api/auth/reset-password', {
+      token,
+      newPassword,
+    });
+    // response: { status, message, timestamp }
+    return data;
+  },
 };

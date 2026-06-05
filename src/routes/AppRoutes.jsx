@@ -3,7 +3,8 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
 import RegisterPage from '../pages/AuthPage/RegisterPage.jsx';
 import LoginPage from '../pages/AuthPage/LoginPage.jsx';
-import ResetPasswordPage from '../pages/ResetPasswordPage.jsx';
+import ResetPasswordPage from '../pages/AuthPage/ResetPasswordPage.jsx';
+import ForgotPasswordPage from '../pages/AuthPage/ForgotPasswordPage.jsx';
 
 // ==========================================
 // 1. IMPORT CÁC TRANG (Lazy Loading)
@@ -96,9 +97,13 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  { 
-    path: '/reset-password', 
-    element: <Suspense fallback={<FallbackLoading />}><ResetPasswordPage /></Suspense> 
+  {
+    path: '/reset-password',
+    element: <Suspense fallback={<FallbackLoading />}><ResetPasswordPage /></Suspense>
+  },
+  {
+    path: '/forgot-password',
+    element: <Suspense fallback={<FallbackLoading />}><ForgotPasswordPage /></Suspense>
   },
 
   // --- Nhóm Routes Dashboard (Cấu trúc Cha - Con) ---
