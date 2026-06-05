@@ -39,7 +39,7 @@ export function PaperItemCard({
               <span className="text-xs text-slate-500 font-mono">{paper.year}</span>
               {paper.citations > 50000 && (
                 <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">
-                  Kinh Điển
+                  Classic
                 </Badge>
               )}
             </div>
@@ -55,7 +55,7 @@ export function PaperItemCard({
               <div className="text-lg font-black text-white font-sans tracking-tight">
                 {paper.citations.toLocaleString()}
               </div>
-              <div className="text-[11px] text-slate-500">trích dẫn</div>
+              <div className="text-[11px] text-slate-500">citations</div>
               <div className="text-[10px] font-semibold font-mono mt-0.5 text-[#00D1B2]">
                 {paper.trend}
               </div>

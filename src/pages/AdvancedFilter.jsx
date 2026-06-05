@@ -26,9 +26,9 @@ export function AdvancedFilter({
       {userRole === "academic" && (
         <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center text-center p-4">
           <SlidersHorizontal className="w-6 h-6 text-slate-500 mb-2" />
-          <p className="text-sm font-semibold text-slate-300">Tính năng bị khóa</p>
+          <p className="text-sm font-semibold text-slate-300">Feature Locked</p>
           <p className="text-[11px] text-slate-500 mt-1 px-4 leading-relaxed">
-            Bộ lọc nâng cao theo năm và trích dẫn chỉ dành cho Premium Researcher.
+            Advanced filtering by year and citations is exclusive to Premium Researchers.
           </p>
         </div>
       )}
@@ -36,14 +36,14 @@ export function AdvancedFilter({
       <CardHeader className="pb-3 border-b border-white/5">
         <div className="flex items-center justify-between">
           <CardTitle className="text-xs text-white flex items-center gap-2 uppercase tracking-wider font-bold">
-            <Filter size={13} className="text-blue-400" /> Bộ lọc nâng cao
+            <Filter size={13} className="text-blue-400" /> Advanced Filter
           </CardTitle>
           <button 
             type="button"
             onClick={clearFilters} 
             className="text-[11px] text-slate-500 hover:text-blue-400 transition-colors"
           >
-            Xóa bộ lọc
+            Clear filters
           </button>
         </div>
       </CardHeader>
@@ -51,19 +51,19 @@ export function AdvancedFilter({
       <CardContent className="space-y-5 pt-4">
         <div className="space-y-2">
           <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-            <Calendar size={13} /> Năm xuất bản
+            <Calendar size={13} /> Publication Year
           </label>
           <div className="grid grid-cols-2 gap-2">
             <input 
               type="number" 
-              placeholder="Từ" 
+              placeholder="From" 
               value={filters.startYear || ""}
               onChange={(e) => setFilters(p => ({ ...p, startYear: e.target.value }))}
               className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
             />
             <input 
               type="number" 
-              placeholder="Đến" 
+              placeholder="To" 
               value={filters.endYear || ""}
               onChange={(e) => setFilters(p => ({ ...p, endYear: e.target.value }))}
               className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
@@ -73,7 +73,7 @@ export function AdvancedFilter({
 
         <div className="space-y-2">
           <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-            <Layers size={13} /> Lĩnh vực nghiên cứu
+            <Layers size={13} /> Research Field
           </label>
           <div className="space-y-2.5 pt-1">
             {fieldData.map((f) => (
@@ -93,11 +93,11 @@ export function AdvancedFilter({
 
         <div className="space-y-2">
           <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
-            <Quote size={13} /> Trích dẫn tối thiểu
+            <Quote size={13} /> Minimum Citations
           </label>
           <input 
             type="number" 
-            placeholder="Ví dụ: 500" 
+            placeholder="e.g., 500" 
             value={filters.minCitations || ""}
             onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
             className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
@@ -105,7 +105,7 @@ export function AdvancedFilter({
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-white/5">
-          <label htmlFor="filter-oa" className="text-xs font-medium text-slate-400 cursor-pointer">Chỉ bài viết Open Access</label>
+          <label htmlFor="filter-oa" className="text-xs font-medium text-slate-400 cursor-pointer">Open Access articles only</label>
           <Checkbox 
             id="filter-oa"
             checked={!!filters.openAccess}
