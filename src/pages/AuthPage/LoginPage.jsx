@@ -22,6 +22,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // 1. Validation cơ bản
     const isEmailEmpty = form.email.trim() === '';
     const isPasswordEmpty = form.password.trim() === '';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -87,7 +88,7 @@ export default function LoginPage() {
     if (errors.apiError) setErrors((e) => ({ ...e, apiError: '' }));
   };
 
-  // Hàm điền nhanh tài khoản giả
+  // Hàm điền nhanh tài khoản giả (Vẫn giữ để test UI cho nhanh)
   const autoFill = (role) => {
     handleChange('email', `${role}@scitrack.com`);
     handleChange('password', '123');

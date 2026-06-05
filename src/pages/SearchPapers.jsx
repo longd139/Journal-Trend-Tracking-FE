@@ -1,222 +1,154 @@
-import { useState, useEffect } from 'react'; // ---> Thêm useEffect
-import { Search, X, Bookmark } from 'lucide-react'; // ---> Thêm icon Bookmark
-import { motion } from 'framer-motion';
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { Search, X } from "lucide-react";
 
-// ==========================================
-// 1. COMPONENT
-// ==========================================
-const GlowBadge = ({ color, children }) => (
-  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border" style={{ background: `${color}10`, color: color, borderColor: `${color}25`, textShadow: `0 0 10px ${color}40` }}>
-    {children}
-  </span>
-);
+// Thay đổi import từ đường dẫn tương đối chính xác đến file input của bạn
+import { Input } from "../components/ui/input";
 
-// ==========================================
-// 2. DỮ LIỆU GIẢ 
-// ==========================================
+// Gọi các sub-components nằm ngay cùng cấp thư mục pages
+import { AcademicLimitAlert } from "./AcademicLimitAlert";
+import { AdvancedFilter } from "./AdvancedFilter";
+import { PaperItemCard } from "./PaperItemCard";
+
 const FIELD_DATA = [
-  { n: 'AI & ML', v: 45, c: '#4F8CFF' },
-  { n: 'Biotech', v: 30, c: '#8B5CF6' },
-  { n: 'Climate', v: 25, c: '#00D1B2' }
+  { n: "AI & ML", v: 45, c: "#4F8CFF" },
+  { n: "Biotech", v: 30, c: "#8B5CF6" },
+  { n: "Climate", v: 25, c: "#00D1B2" }
 ];
 
 const PAPERS = [
-  { title: 'Attention Is All You Need', authors: 'Vaswani et al.', year: 2017, citations: 85432, field: 'AI & ML', trend: 'Super Hot' },
-  { title: 'Deep Residual Learning for Image Recognition', authors: 'He et al.', year: 2016, citations: 124500, field: 'AI & ML', trend: 'Stable' },
-  { title: 'CRISPR-Cas9 Structures and Mechanisms', authors: 'Jiang et al.', year: 2017, citations: 4500, field: 'Biotech', trend: 'Rising' },
+  { title: "Attention Is All You Need", authors: "Vaswani et al.", year: 2017, citations: 85432, field: "AI & ML", trend: "Super Hot", openAccess: true },
+  { title: "Deep Residual Learning for Image Recognition", authors: "He et al.", year: 2016, citations: 124500, field: "AI & ML", trend: "Stable", openAccess: true },
+  { title: "CRISPR-Cas9 Structures and Mechanisms", authors: "Jiang et al.", year: 2017, citations: 4500, field: "Biotech", trend: "Rising", openAccess: false },
 ];
 
-// ==========================================
-// 3. GIAO DIỆN CHÍNH
-// ==========================================
 export default function SearchPapers() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [savedBookmarks, setSavedBookmarks] = useState([]);
+  const [filters, setFilters] = useState({
+    startYear: "",
+    endYear: "",
+    fields: [],
+    minCitations: "",
+    openAccess: false
+  });
 
-  // LẤY ROLE HIỆN TẠI RA ĐỂ LÀM CÁI TÊN KEY RIÊNG
-  const currentRole = sessionStorage.getItem('userRole') || 'academic';
-  const storageKey = `scitrack_bookmarks_${currentRole}`; // Tạo key riêng: scitrack_bookmarks_academic...
+  const currentRole = sessionStorage.getItem("userRole") || "academic";
+  const storageKey = `scitrack_bookmarks_${currentRole}`;
 
-  // Lấy dữ liệu theo Key riêng
   useEffect(() => {
-    const localData = sessionStorage.getItem(storageKey); // Đổi thành storageKey
+    const localData = sessionStorage.getItem(storageKey);
     if (localData) {
-      setSavedBookmarks(JSON.parse(localData));
+      try {
+        setSavedBookmarks(JSON.parse(localData));
+      } catch (e) {
+        setSavedBookmarks([]);
+      }
     } else {
-      setSavedBookmarks([]); // Nếu đổi account thì reset lại state tránh bị lưu vết cũ
+      setSavedBookmarks([]);
     }
-  }, [storageKey]); // Thêm storageKey vào đây để khi đổi role nó tự chạy lại
+  }, [storageKey]);
 
-  // Hàm xử lý lưu
   const toggleBookmark = (paper) => {
     setSavedBookmarks((prev) => {
       const isAlreadySaved = prev.some((p) => p.title === paper.title);
-      let newData;
-      if (isAlreadySaved) {
-        newData = prev.filter((p) => p.title !== paper.title);
-      } else {
-        newData = [...prev, paper];
-      }
-      sessionStorage.setItem(storageKey, JSON.stringify(newData)); // Đổi thành storageKey
+      const newData = isAlreadySaved
+        ? prev.filter((p) => p.title !== paper.title)
+        : [...prev, paper];
+      sessionStorage.setItem(storageKey, JSON.stringify(newData));
       return newData;
     });
   };
-  // ---> KẾT THÚC PHẦN THÊM MỚI CHO BOOKMARK
 
-  const filtered = PAPERS.filter(
-    (p) =>
-      !query ||
+  const clearAllFilters = () => {
+    setFilters({ startYear: "", endYear: "", fields: [], minCitations: "", openAccess: false });
+  };
+
+  const filteredPapers = PAPERS.filter((p) => {
+    const matchesQuery = !query ||
       p.title.toLowerCase().includes(query.toLowerCase()) ||
       p.authors.toLowerCase().includes(query.toLowerCase()) ||
-      p.field.toLowerCase().includes(query.toLowerCase()),
-  );
+      p.field.toLowerCase().includes(query.toLowerCase());
+
+    if (!matchesQuery) return false;
+
+    if (currentRole === "researcher") {
+      if (filters.startYear && p.year < parseInt(filters.startYear, 10)) return false;
+      if (filters.endYear && p.year > parseInt(filters.endYear, 10)) return false;
+      if (filters.fields.length > 0 && !filters.fields.includes(p.field)) return false;
+      if (filters.minCitations && p.citations < parseInt(filters.minCitations, 10)) return false;
+      if (filters.openAccess && !p.openAccess) return false;
+    }
+
+    return true;
+  });
 
   return (
-    <div className="space-y-5 p-8">
-      {/* Ô Tìm kiếm */}
+    <div className="space-y-5 p-8 max-w-6xl mx-auto text-slate-100 min-h-screen bg-[#0B0F19]">
+      <AcademicLimitAlert userRole={currentRole} searchCount={3} maxLimit={10} />
+
       <div className="relative">
-        <Search
-          size={16}
-          className="absolute left-4 top-1/2 -translate-y-1/2"
-          style={{ color: '#A0AEC0' }}
-        />
-        <input
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-400" />
+        <Input
           type="text"
-          placeholder="Search papers by title, author, or field…"
+          placeholder="Tìm kiếm tài liệu khoa học theo tiêu đề, tác giả, lĩnh vực..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full pl-11 pr-4 py-3.5 rounded-xl border text-sm outline-none transition-colors"
-          style={{
-            background: '#1B2235',
-            borderColor: 'rgba(255,255,255,0.09)',
-            color: '#E2E8F0',
-          }}
+          className="pl-11 pr-4 py-5 rounded-xl text-sm bg-[#1B2235] border-white/10 text-slate-200 focus-visible:border-blue-500/50"
         />
       </div>
 
-      {/* Các nút Lọc (Filter) */}
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 flex-wrap items-center text-xs">
+        <span className="text-slate-500 mr-1">Tìm nhanh:</span>
         {FIELD_DATA.map((f) => (
           <button
             key={f.n}
+            type="button"
             onClick={() => setQuery(f.n)}
-            className="px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:scale-105"
-            style={{
-              background: `${f.c}1A`,
-              color: f.c,
-              border: `1px solid ${f.c}44`,
-            }}
+            className="px-3 py-1.5 rounded-full font-medium transition-transform hover:scale-105"
+            style={{ background: `${f.c}1A`, color: f.c, border: `1px solid ${f.c}33` }}
           >
             {f.n}
           </button>
         ))}
         {query && (
           <button
-            onClick={() => setQuery('')}
-            className="px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 hover:bg-white/10 transition-colors"
-            style={{
-              background: 'rgba(255,255,255,0.05)',
-              color: '#A0AEC0',
-              border: '1px solid rgba(255,255,255,0.1)',
-            }}
+            type="button"
+            onClick={() => setQuery("")}
+            className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"
           >
-            <X size={10} /> Clear
+            <X size={10} /> Xóa truy vấn
           </button>
         )}
       </div>
 
-      {/* Đếm số lượng kết quả */}
-      <p className="text-xs" style={{ color: '#6B7280' }}>
-        {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-      </p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pt-2 items-start">
+        <div className="md:col-span-1">
+          <AdvancedFilter 
+            userRole={currentRole}
+            filters={filters}
+            setFilters={setFilters}
+            clearFilters={clearAllFilters}
+            fieldData={FIELD_DATA}
+          />
+        </div>
 
-      {/* Danh sách kết quả */}
-      <div className="space-y-3">
-        {filtered.map((p, i) => {
-          // ---> Kiểm tra xem bài này đã có trong danh sách lưu chưa
-          const isSaved = savedBookmarks.some(saved => saved.title === p.title);
+        <div className="md:col-span-3 space-y-3">
+          <p className="text-xs text-slate-500 pl-1">
+            Tìm thấy {filteredPapers.length} bài báo phù hợp tiêu chí
+          </p>
 
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              whileHover={{ x: 4 }}
-              className="rounded-xl border p-5 cursor-default"
-              style={{
-                background: '#1B2235',
-                borderColor: 'rgba(255,255,255,0.07)',
-              }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <GlowBadge
-                      color={
-                        FIELD_DATA.find((f) => f.n === p.field)?.c ?? '#4F8CFF'
-                      }
-                    >
-                      {p.field}
-                    </GlowBadge>
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: '#6B7280',
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      {p.year}
-                    </span>
-                  </div>
-                  <h4 className="text-sm font-bold text-white mb-1">{p.title}</h4>
-                  <p className="text-xs" style={{ color: '#A0AEC0' }}>
-                    {p.authors}
-                  </p>
-                </div>
-                
-                {/* ---> GOM CHUNG CHỖ NÀY ĐỂ THÊM NÚT BOOKMARK KẾ BÊN CITATION */}
-                <div className="flex items-center gap-6 shrink-0">
-                  <div className="text-right">
-                    <div
-                      className="text-xl font-black text-white"
-                      style={{ fontFamily: "'Outfit', sans-serif" }}
-                    >
-                      {p.citations.toLocaleString()}
-                    </div>
-                    <div className="text-xs" style={{ color: '#6B7280' }}>
-                      citations
-                    </div>
-                    <div
-                      className="text-xs font-semibold mt-1"
-                      style={{
-                        color: '#00D1B2',
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      {p.trend}
-                    </div>
-                  </div>
-
-                  {/* NÚT BOOKMARK TÍCH HỢP */}
-                  <button 
-                    onClick={() => toggleBookmark(p)}
-                    className="p-2.5 rounded-lg border transition-all hover:scale-110"
-                    style={{
-                      background: isSaved ? 'rgba(79, 140, 255, 0.1)' : 'rgba(255,255,255,0.02)',
-                      borderColor: isSaved ? '#4F8CFF' : 'rgba(255,255,255,0.1)',
-                      color: isSaved ? '#4F8CFF' : '#A0AEC0'
-                    }}
-                  >
-                    <Bookmark size={18} fill={isSaved ? '#4F8CFF' : 'none'} />
-                  </button>
-                </div>
-                {/* ---> KẾT THÚC CHỖ GOM */}
-
-              </div>
-            </motion.div>
-          );
-        })}
+          {filteredPapers.map((paper, i) => (
+            <PaperItemCard
+              key={paper.title}
+              paper={paper}
+              index={i}
+              badgeColor={FIELD_DATA.find((f) => f.n === paper.field)?.c || "#4F8CFF"}
+              isSaved={savedBookmarks.some((saved) => saved.title === paper.title)}
+              onToggleBookmark={toggleBookmark}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
