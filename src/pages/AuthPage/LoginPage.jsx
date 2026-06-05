@@ -89,10 +89,10 @@ export default function LoginPage() {
   };
 
   // Hàm điền nhanh tài khoản giả (Vẫn giữ để test UI cho nhanh)
-  const autoFill = (role) => {
-    handleChange('email', `${role}@scitrack.com`);
-    handleChange('password', '123');
-  };
+  // const autoFill = (role) => {
+  //   handleChange('email', `${role}@scitrack.com`);
+  //   handleChange('password', '123');
+  // };
 
   return (
     <div
@@ -293,7 +293,7 @@ export default function LoginPage() {
           </form>
 
           {/* KHU VỰC TEST (Dành cho ông điền nhanh) */}
-          <div
+          {/* <div
             className="mt-8 pt-6 border-t"
             style={{ borderColor: 'rgba(255,255,255,0.05)' }}
           >
@@ -323,7 +323,7 @@ export default function LoginPage() {
                 Academic
               </button>
             </div>
-          </div>
+          </div> */}
 
           <div
             className="mt-6 pt-5 border-t text-center text-xs"

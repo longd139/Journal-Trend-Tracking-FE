@@ -10,10 +10,7 @@ export default function SettingsPage() {
   const [error, setError] = useState(null);
   const [role, setRole] = useState('');
 
-<<<<<<< HEAD
-=======
   // Khởi tạo state cho form (để trống chờ API trả về)
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -21,49 +18,13 @@ export default function SettingsPage() {
     bio: '',
   });
 
-<<<<<<< HEAD
-  // HÀM TIỆN ÍCH: Tự động trả về đường dẫn API đúng theo Role
-  const getApiUrlByRole = (currentRole) => {
-    // Ông hỏi lại Backend xem đường dẫn thực tế là gì rồi sửa lại mấy chuỗi này nhé
-    switch (currentRole) {
-      case 'admin': return '/api/admin/profile';
-      case 'researcher': return '/api/researcher/profile';
-      case 'academic': return '/api/academic/profile';
-      default: return '/api/users/me'; // Fallback an toàn
-    }
-  };
-
-  // 1. GỌI API LẤY DATA KHI VỪA VÀO TRANG
-=======
   // 1. GỌI API LẤY DỮ LIỆU KHI COMPONENT VỪA RENDER
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         // Vẫn giữ việc lấy role dưới local nếu bạn cần dùng để ẩn/hiện nút trên UI
         const currentRole = sessionStorage.getItem('userRole');
         setRole(currentRole);
-<<<<<<< HEAD
-        
-        const apiUrl = getApiUrlByRole(currentRole);
-        
-        // Gọi API lấy thông tin (Dùng đúng endpoint đã được tạo theo role)
-        const response = await axiosClient.get(apiUrl);
-        console.log("🔥 Data API trả về:", response);
-
-        const userData = response?.data || response?.result || response;
-
-        // Đổ data thật lên form, kèm fallback mặc định cho khỏi trống
-        setFormData({
-          name: userData.fullName || userData.name || 'Nguyễn Phương Nguyên',
-          email: userData.email || '',
-          institution: userData.institution || userData.university || 'FPT University',
-          bio: userData.bio || 'Aspiring IoT and Embedded Systems Developer.'
-        });
-
-      } catch (error) {
-        console.error("❌ Lỗi lấy thông tin:", error);
-=======
 
         // Gọi API thật lấy dữ liệu profile (Thay '/api/users/profile' bằng endpoint thực tế)
         // Lưu ý: Nếu có dùng Token, cấu hình axios gửi kèm Header Authorization nhé
@@ -81,7 +42,6 @@ export default function SettingsPage() {
       } catch (err) {
         console.error('Lỗi khi lấy thông tin user:', err);
         setError('Không thể tải thông tin người dùng.');
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
       }
     };
 
@@ -100,32 +60,11 @@ export default function SettingsPage() {
     setSuccess(false);
 
     try {
-<<<<<<< HEAD
-      const currentRole = sessionStorage.getItem('userRole') || 'academic';
-      const apiUrl = getApiUrlByRole(currentRole);
-
-      // Gọi API update (Dùng PUT và đúng endpoint theo role)
-      await axiosClient.put(apiUrl, {
-        fullName: formData.name,      
-        institution: formData.institution, 
-        bio: formData.bio
-      });
-
-      // Lưu tạm tên mới vào Session để cái Sidebar bên trái nó cũng tự đổi tên theo
-      sessionStorage.setItem('userName', formData.name);
-=======
       // Gọi API gửi cục dữ liệu đi (Thay '/api/users/profile' bằng endpoint thực tế)
       await axios.put('/api/users/profile', formData);
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
 
       // Chạy xuống tới đây nghĩa là API trả về mã 200 OK -> Thành công
       setSuccess(true);
-<<<<<<< HEAD
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (error) {
-      console.error("❌ Lỗi khi lưu:", error);
-      alert("Cập nhật thất bại, vui lòng kiểm tra Console (F12)!");
-=======
 
       // Tắt thông báo thành công sau 3 giây
       setTimeout(() => setSuccess(false), 3000);
@@ -135,7 +74,6 @@ export default function SettingsPage() {
       const errorMessage =
         err.response?.data?.message || 'Cập nhật thất bại, vui lòng thử lại!';
       setError(errorMessage);
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
     } finally {
       // Khối finally luôn chạy để tắt hiệu ứng loading dù API thành công hay xịt
       setLoading(false);
@@ -163,11 +101,6 @@ export default function SettingsPage() {
         style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}
       >
         {/* Banner Avatar */}
-<<<<<<< HEAD
-        <div className="flex items-center gap-6 mb-8 pb-8 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-          <div className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0" style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}>
-            {formData.name ? formData.name.substring(0, 2).toUpperCase() : 'U'}
-=======
         <div
           className="flex items-center gap-6 mb-8 pb-8 border-b"
           style={{ borderColor: 'rgba(255,255,255,0.05)' }}
@@ -177,7 +110,6 @@ export default function SettingsPage() {
             style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
           >
             {formData.name.substring(0, 2).toUpperCase()}
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
           </div>
           <div>
             <h3 className="text-lg font-bold text-white">{formData.name}</h3>
@@ -254,10 +186,6 @@ export default function SettingsPage() {
                   Email Address
                 </label>
                 <div className="relative">
-<<<<<<< HEAD
-                  <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                  <input type="email" name="email" value={formData.email} disabled className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors opacity-70 cursor-not-allowed" style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }} />
-=======
                   <Mail
                     size={14}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
@@ -274,7 +202,6 @@ export default function SettingsPage() {
                       color: '#E2E8F0',
                     }}
                   />
->>>>>>> 99008a76f787c3de873a46c3d0fa3fd4b18ca06d
                 </div>
               </div>
 

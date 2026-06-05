@@ -47,6 +47,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
   let nav = academicNav; // Mặc định
   if (role === 'admin') nav = adminNav;
   if (role === 'researcher') nav = researcherNav;
+
   // Hàm sinh chữ cái viết tắt từ tên thật (Ví dụ: "Nguyen Van Long" -> "NL")
   const getInitials = (name) => {
     if (!name) return '??';
@@ -54,6 +55,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
+
   return (
     <aside
       className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0"
@@ -87,12 +89,12 @@ function Sidebar({ role, activeTab, navigate, user }) {
             <button
               key={id}
               onClick={() => navigate(`/${role}/${id}`)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left"
-              style={{
-                background: active ? '#4F8CFF1A' : 'transparent',
-                color: active ? '#4F8CFF' : '#A0AEC0',
-                borderLeft: `2px solid ${active ? '#4F8CFF' : 'transparent'}`,
-              }}
+              // CHỈNH SỬA: Đã bỏ style cứng, thay bằng Tailwind để ăn hiệu ứng hover màu trắng trong suốt
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
+                active
+                  ? 'bg-[#4F8CFF]/10 text-[#4F8CFF] border-[#4F8CFF]'
+                  : 'border-transparent text-[#A0AEC0] hover:bg-white/10 hover:text-white'
+              }`}
             >
               <Icon size={15} />
               {label}
@@ -102,7 +104,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
       </nav>
 
       <div
-        className="p-4 border-t space-y-2"
+        className="p-4 border-t space-y-3"
         style={{ borderColor: 'rgba(255,255,255,0.07)' }}
       >
         {/* LOGIC PROFILE TỰ ĐỘNG ĐỔI THEO ROLE */}
@@ -152,22 +154,22 @@ function Sidebar({ role, activeTab, navigate, user }) {
                 </div>
               </div>
               <Settings
-                size={12}
+                size={14}
                 style={{ color: '#A0AEC0' }}
-                className="cursor-pointer hover:text-white transition-colors"
+                className="cursor-pointer hover:text-white transition-colors hover:rotate-90 duration-300"
                 onClick={() => navigate(`/${role}/settings`)}
               />
             </div>
           );
         })()}
 
+        {/* CHỈNH SỬA: Nút Sign Out đã được độ lại hover nền đỏ, chữ trắng, kèm bóng đổ nhẹ */}
         <button
           onClick={() => {
             sessionStorage.removeItem('userRole'); // Xóa role
             navigate('/login'); // Đá thẳng về form đăng nhập
           }}
-          className="w-full text-xs py-2 rounded-lg font-medium transition-all hover:text-white"
-          style={{ color: '#A0AEC0', background: 'rgba(255,255,255,0.04)' }}
+          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-[#A0AEC0] hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
         >
           Sign Out
         </button>
@@ -234,6 +236,7 @@ export default function DashboardLayout({ children }) {
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[pathParts.length - 1] || 'overview';
   const role = sessionStorage.getItem('userRole') || 'academic';
+  
   // TỰ ĐỘNG GỌI API KHI LAYOUT ĐƯỢC LOAD
   useEffect(() => {
     const fetchUserProfile = async () => {
