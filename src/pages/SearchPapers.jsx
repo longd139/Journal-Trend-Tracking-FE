@@ -91,7 +91,7 @@ export default function SearchPapers() {
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-400" />
         <Input
           type="text"
-          placeholder="Tìm kiếm tài liệu khoa học theo tiêu đề, tác giả, lĩnh vực..."
+          placeholder="Search academic papers by title, author, field..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-11 pr-4 py-5 rounded-xl text-sm bg-[#1B2235] border-white/10 text-slate-200 focus-visible:border-blue-500/50"
@@ -99,7 +99,7 @@ export default function SearchPapers() {
       </div>
 
       <div className="flex gap-2 flex-wrap items-center text-xs">
-        <span className="text-slate-500 mr-1">Tìm nhanh:</span>
+        <span className="text-slate-500 mr-1">Quick search:</span>
         {FIELD_DATA.map((f) => (
           <button
             key={f.n}
@@ -117,7 +117,7 @@ export default function SearchPapers() {
             onClick={() => setQuery("")}
             className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"
           >
-            <X size={10} /> Xóa truy vấn
+            <X size={10} /> Clear query
           </button>
         )}
       </div>
@@ -135,7 +135,7 @@ export default function SearchPapers() {
 
         <div className="md:col-span-3 space-y-3">
           <p className="text-xs text-slate-500 pl-1">
-            Tìm thấy {filteredPapers.length} bài báo phù hợp tiêu chí
+            Found {filteredPapers.length} {filteredPapers.length === 1 ? "paper" : "papers"} matching your criteria
           </p>
 
           {filteredPapers.map((paper, i) => (
