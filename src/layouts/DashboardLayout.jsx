@@ -140,11 +140,11 @@ function Sidebar({ role, activeTab, navigate, user }) {
                   background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
                 }}
               >
-                {getInitials(user?.username)}
+                {getInitials(user?.fullName)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-xs font-semibold text-white truncate">
-                  {user ? user.username : 'Loading...'}
+                  {user ? user.fullName : 'Loading...'}
                 </div>
                 <div
                   className="text-[10px] truncate"
@@ -236,7 +236,7 @@ export default function DashboardLayout({ children }) {
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[pathParts.length - 1] || 'overview';
   const role = sessionStorage.getItem('userRole') || 'academic';
-  
+
   // TỰ ĐỘNG GỌI API KHI LAYOUT ĐƯỢC LOAD
   useEffect(() => {
     const fetchUserProfile = async () => {
