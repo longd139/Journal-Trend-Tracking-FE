@@ -34,7 +34,7 @@ export default function SettingsPage() {
         // Cập nhật form với dữ liệu thật từ Backend
         const userData = response;
         setFormData({
-          name: userData.username || '',
+          name: userData.fullName || '',
           email: userData.email || '',
           institution: userData.institution || '',
           bio: '',
@@ -194,12 +194,12 @@ export default function SettingsPage() {
                     type="email"
                     name="email"
                     value={formData.email}
-                    onChange={handleChange}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]"
+                    readOnly
+                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none opacity-60 cursor-allowed"
                     style={{
                       background: '#131A2A',
                       borderColor: 'rgba(255,255,255,0.09)',
-                      color: '#E2E8F0',
+                      color: '#94A3B8',
                     }}
                   />
                 </div>

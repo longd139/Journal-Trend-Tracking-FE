@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FileText, TrendingUp, Users, Star } from 'lucide-react';
-import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar, Cell, PieChart, Pie } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import Neo4jGraphCard from '../components/Neo4jGraphCard';
 
 // ==========================================
 // 1. COMPONENT BỊ THIẾU
@@ -29,15 +30,6 @@ const FIELD_DATA = [
   { n: 'AI & ML', v: 45, c: '#4F8CFF' },
   { n: 'Biotech', v: 30, c: '#8B5CF6' },
   { n: 'Climate', v: 25, c: '#00D1B2' }
-];
-
-const CIT_DATA = [
-  { y: '2019', v: 12.5 },
-  { y: '2020', v: 18.2 },
-  { y: '2021', v: 25.4 },
-  { y: '2022', v: 34.1 },
-  { y: '2023', v: 45.8 },
-  { y: '2024', v: 52.1 }
 ];
 
 // ==========================================
@@ -78,59 +70,8 @@ export default function AnalyticsView() {
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Biểu đồ Cột */}
-        <div
-          className="rounded-xl border p-5"
-          style={{
-            background: '#1B2235',
-            borderColor: 'rgba(255,255,255,0.07)',
-          }}
-        >
-          <h3 className="text-sm font-bold text-white mb-1">
-            Citation Growth (Global)
-          </h3>
-          <p className="text-xs mb-4" style={{ color: '#A0AEC0' }}>
-            Total citations indexed 2019–2024
-          </p>
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={CIT_DATA}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="rgba(255,255,255,0.04)"
-              />
-              <XAxis
-                dataKey="y"
-                tick={{ fill: '#A0AEC0', fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: '#A0AEC0', fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-                unit="M"
-                width={40}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: '#0B1020',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 8,
-                  fontSize: 11,
-                }}
-                formatter={(v) => [`${v}M`, 'Citations']}
-              />
-              <Bar dataKey="v" radius={[4, 4, 0, 0]} name="Citations">
-                {CIT_DATA.map((_, i) => (
-                  <Cell
-                    key={i}
-                    fill={i === CIT_DATA.length - 1 ? '#4F8CFF' : '#4F8CFF44'}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {/* Neo4j Knowledge Graph */}
+        <Neo4jGraphCard />
 
         {/* Biểu đồ Tròn */}
         <div
