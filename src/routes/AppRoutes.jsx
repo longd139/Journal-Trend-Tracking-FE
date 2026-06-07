@@ -96,9 +96,13 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  { 
-    path: '/reset-password', 
-    element: <Suspense fallback={<FallbackLoading />}><ResetPasswordPage /></Suspense> 
+  {
+    path: '/reset-password',
+    element: (
+      <Suspense fallback={<FallbackLoading />}>
+        <ResetPasswordPage />
+      </Suspense>
+    ),
   },
 
   // --- Nhóm Routes Dashboard (Cấu trúc Cha - Con) ---

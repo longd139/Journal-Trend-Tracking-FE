@@ -71,7 +71,7 @@ export default function LoginPage() {
         });
         console.log(response);
         setToken(response.accessToken);
-        const userRole = response.roleName || 'user';
+        const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
         navigate(`/${userRole}/overview`);
       }
