@@ -22,7 +22,7 @@ export function AdvancedFilter({
   };
 
   return (
-    <Card className="bg-[#1B2235] border-white/5 relative overflow-hidden h-fit">
+    <Card className="bg-[#1B2235] border-white/5 relative overflow-hidden h-fit rounded-xl shadow-sm">
       {userRole === "academic" && (
         <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center text-center p-4">
           <SlidersHorizontal className="w-6 h-6 text-slate-500 mb-2" />
