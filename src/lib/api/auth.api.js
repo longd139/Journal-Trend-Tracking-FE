@@ -8,8 +8,8 @@ export const authAPI = {
     });
     // console.log(data);
     return {
-      accessToken: data.accessToken,
-      role: data.user.roleName,
+      accessToken: data.data.accessToken,
+      role: data.data.user.roleName,
     };
   },
   async register(userData) {
@@ -18,7 +18,7 @@ export const authAPI = {
     // backend trả: {message, result:{access_token, refresh_token}}
     // fe nhận : {accessToken,refreshToken}
     return {
-      accessToken: data.accessToken,
+      accessToken: data.data.accessToken,
     };
   },
 };
