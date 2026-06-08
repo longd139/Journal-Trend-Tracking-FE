@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState('');
 
   const [formData, setFormData] = useState({
-    name: '',
+    fullName: '',
     email: '',
     institution: '',
     bio: '',
@@ -31,7 +31,7 @@ export default function SettingsPage() {
         const userData = response;
         
         setFormData({
-          name: userData.fullName || '',
+          fullName: userData.fullName || '',
           email: userData.email || '',
           institution: userData.institution || '',
           bio: '', 
@@ -47,27 +47,39 @@ export default function SettingsPage() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: value 
+    }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setSuccess(false);
 
-    try {
-      await axios.put('/api/users/profile', formData);
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      const errorMessage = err.response?.data?.message || 'Update failed, please try again!';
-      setError(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const payload = {
+        fullName: formData.fullName,
+        institution: formData.institution,
+        avatarUrl: formData.avatarUrl || "string" // Tạm thời để trống hoặc default theo API
+      };
+    // Gọi API thông qua service
+    await userAPI.updateProfile(payload); 
+    
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 3000);
+  } catch (err) {
+    console.error('Error updating profile:', err);
+    // Interceptor thường vẫn ném lỗi ra đây nên việc bắt err.response.data.message vẫn hoạt động bình thường
+    const errorMessage = err.response?.data?.message || 'Update failed, please try again!';
+    setError(errorMessage);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleVerifyEmail = () => {
     navigate('/verify-email');
@@ -102,10 +114,10 @@ export default function SettingsPage() {
             className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0 uppercase shadow-lg border border-white/5"
             style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
           >
-            {formData.name ? formData.name.substring(0, 2) : 'U'}
+            {formData.fullName ? formData.fullName.substring(0, 2) : 'U'}
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">{formData.name || 'Loading...'}</h3>
+            <h3 className="text-lg font-bold text-white">{formData.fullName || 'Loading...'}</h3>
             <div
               className="flex items-center gap-2 mt-1.5 text-xs font-medium px-2.5 py-1 rounded-md w-fit"
               style={{
@@ -134,11 +146,11 @@ export default function SettingsPage() {
                   <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
                   <input
                     type="text"
-                    name="name"
-                    value={formData.name}
+                    name="fullName"
+                    value={formData.fullName}
                     onChange={handleChange}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF]"
-                    style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.09)', color: '#E2E8F0' }}
+                    style={{ background: '#131A2A', borderColor: 'rgba(57, 51, 51, 0.09)', color: '#E2E8F0' }}
                   />
                 </div>
               </div>
