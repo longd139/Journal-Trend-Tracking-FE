@@ -1,0 +1,18 @@
+{
+  "heading": {
+    "title": "Phân tích",
+    "subtitle": "Phân tích chuyên sâu dữ liệu nghiên cứu"
+  },
+  "cards": {
+    "trendAnalysis": "Phân tích xu hướng",
+    "fieldDistribution": "Phân bố lĩnh vực",
+    "citationImpact": "Tác động trích dẫn",
+    "geographicDistribution": "Phân bố địa lý"
+  },
+  "charts": {
+    "publicationsOverTime": "Công bố theo thời gian",
+    "citationsPerField": "Trích dẫn theo lĩnh vực",
+    "impactByYear": "Tác động theo năm",
+    "researchGrowth": "Tăng trưởng nghiên cứu"
+  }
+}

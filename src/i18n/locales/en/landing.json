@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "trends": "Trends",
+    "features": "Features",
+    "integrations": "Integrations",
+    "signIn": "Sign In",
+    "register": "Register"
+  },
+  "hero": {
+    "badge": "AI-Powered Academic Intelligence Platform",
+    "heading1": "Track the Future",
+    "heading2": "of Scientific",
+    "heading3": "Research",
+    "description": "Analyze publication trends, discover emerging research topics, and visualize academic intelligence with AI-powered analytics across 50M+ papers.",
+    "cta": "Explore Trends"
+  },
+  "stats": {
+    "papers": "Research Papers",
+    "apis": "Live Data Sources",
+    "uptime": "System Uptime"
+  },
+  "preview": {
+    "title": "Publication Trends — 2024",
+    "live": "Live",
+    "aiMl": "AI & ML",
+    "biotech": "Biotech",
+    "climate": "Climate",
+    "totalCitations": "Total Citations 2024",
+    "yoy": "YoY",
+    "aiInsight": "AI Insight",
+    "insightSuffix": "now the fastest-growing field in 2024."
+  },
+  "trends": {
+    "badge": "Live Trend Analytics",
+    "heading": "Publication Velocity by Field",
+    "description": "Monthly paper counts across major research disciplines — 2024",
+    "papersLabel": "papers",
+    "fields": {
+      "aiMl": "AI & ML",
+      "biotechnology": "Biotechnology",
+      "climateScience": "Climate Science",
+      "quantumComputing": "Quantum Computing"
+    }
+  },
+  "features": {
+    "badge": "Platform Capabilities",
+    "heading": "Built for Academic Excellence",
+    "description": "Everything you need to navigate the scientific literature landscape at scale",
+    "items": {
+      "analytics": { "label": "Publication Analytics", "desc": "Track trends across 50M+ papers from all major journals worldwide" },
+      "citations": { "label": "Citation Tracking", "desc": "Monitor citation velocity and impact factor evolution in real time" },
+      "aiRecs": { "label": "AI Recommendations", "desc": "GPT-powered research discovery tailored to your specific domain" },
+      "viz": { "label": "Research Visualization", "desc": "Interactive knowledge graphs and citation network topology maps" },
+      "search": { "label": "Academic Search Engine", "desc": "Semantic full-text search with context-aware relevance ranking" },
+      "forecasting": { "label": "Trend Forecasting", "desc": "Predictive models for emerging research directions and hot topics" }
+    }
+  },
+  "integrations": {
+    "badge": "Live Integrations",
+    "heading": "Connected to Leading Databases",
+    "description": "Real-time synchronization with the world's major academic repositories",
+    "uptime": "Uptime",
+    "latency": "Latency",
+    "reqPerDay": "Req / day"
+  },
+  "cta": {
+    "heading": "Start Exploring Scientific Trends",
+    "description": "Join 12,000+ researchers using SciTrack to navigate the future of academic publishing.",
+    "login": "Login",
+    "register": "Register Free",
+    "exploreDashboard": "Explore Dashboard"
+  },
+  "insights": {
+    "llm": { "topic": "Large Multimodal Models", "desc": "Vision-language convergence enabling unprecedented cross-modal reasoning" },
+    "mrna": { "topic": "mRNA Vaccine Platforms", "desc": "Expanding beyond infectious disease into targeted cancer immunotherapy" },
+    "carbon": { "topic": "Carbon Capture Tech", "desc": "Direct air capture costs now below $200/tonne CO₂ at scale" },
+    "neuro": { "topic": "Neuromorphic Computing", "desc": "Brain-inspired chips achieving ultra-low-power edge AI deployment" }
+  }
+}

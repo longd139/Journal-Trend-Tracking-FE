@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
@@ -10,6 +11,19 @@ import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
 import { PaperItemCard } from './PaperItemCard';
 import { paperAPI } from '../lib/api/paper.api';
+=======
+import * as React from "react";
+import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Search, X } from "lucide-react";
+import { Input } from "../components/ui/input";
+import { AcademicLimitAlert } from "./AcademicLimitAlert";
+import { AdvancedFilter } from "./AdvancedFilter";
+import { PaperItemCard } from "./PaperItemCard";
+
+// ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
+import { paperAPI } from "../lib/api/paper.api";
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
 
 const FIELD_DATA = [
   { n: 'AI & ML', v: 45, c: '#4F8CFF' },
@@ -27,11 +41,21 @@ const SUGGESTED_KEYWORDS = [
 ];
 
 export default function SearchPapers() {
+  const { t } = useTranslation('search');
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+<<<<<<< HEAD
   const [query, setQuery] = useState('');
+=======
+  // State quản lý phân trang
+  const [currentPage, setCurrentPage] = useState(0); 
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+
+  const [query, setQuery] = useState("");
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
   const [savedBookmarks, setSavedBookmarks] = useState([]);
   const [filters, setFilters] = useState({
     startYear: '',
@@ -44,13 +68,11 @@ export default function SearchPapers() {
   const currentRole = sessionStorage.getItem('userRole');
   const storageKey = `scitrack_bookmarks_${currentRole}`;
 
-  // TỰ ĐỘNG GỌI ENDPOINT CHUẨN THÔNG QUA LAYER API
   useEffect(() => {
     const loadPapersData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Chuẩn hóa params lọc bỏ các trường rỗng/undefined
         const apiParams = {
           search: query || undefined,
           startYear: filters.startYear || undefined,
@@ -58,10 +80,15 @@ export default function SearchPapers() {
           field: filters.fields.length > 0 ? filters.fields[0] : undefined,
           minCitations: filters.minCitations || undefined,
           openAccess: filters.openAccess ? true : undefined,
+<<<<<<< HEAD
+=======
+          page: currentPage, 
+          size: 5 
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         };
 
-        // Gọi API từ instance paperAPI đã import thành công
         const response = await paperAPI.search(apiParams);
+<<<<<<< HEAD
         console.log('Dữ liệu bài báo thu được từ API:', response);
 
         // Kiểm tra cấu trúc phản hồi lồng `.papers` theo console log thực tế
@@ -70,35 +97,58 @@ export default function SearchPapers() {
           const validPapers = response.papers.filter(
             (p) => p !== null && p !== undefined,
           );
+=======
+
+        if (response && response.papers && Array.isArray(response.papers)) {
+          const validPapers = response.papers.filter(p => p !== null && p !== undefined);
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
           setPapers(validPapers);
+          setTotalPages(response.totalPages || 1);
+          setTotalElements(response.totalElements || validPapers.length);
         } else if (Array.isArray(response)) {
+<<<<<<< HEAD
           setPapers(response.filter((p) => p !== null && p !== undefined));
+=======
+          const validPapers = response.filter(p => p !== null && p !== undefined);
+          setPapers(validPapers);
+          setTotalPages(Math.ceil(validPapers.length / 5) || 1);
+          setTotalElements(validPapers.length);
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         } else {
-          setPapers(response?.list || []);
+          const validPapers = response?.list || [];
+          setPapers(validPapers);
+          setTotalPages(response?.totalPages || 1);
+          setTotalElements(response?.totalElements || validPapers.length);
         }
       } catch (err) {
+<<<<<<< HEAD
         console.error('Chi tiết lỗi API:', err);
+=======
+        console.error("API error:", err);
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         if (err.response && err.response.status === 401) {
           setError(
             'Phiên làm việc đã hết hạn hoặc Token không hợp lệ. Bạn hãy bấm Sign Out rồi đăng nhập lại nhé!',
           );
         } else {
+<<<<<<< HEAD
           setError('Không thể tải danh sách bài báo từ hệ thống.');
+=======
+          setError(t('results.error'));
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         }
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Cơ chế hoãn 400ms để giảm spam request khi gõ chữ nhanh
     const delayDebounce = setTimeout(() => {
       loadPapersData();
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [query, filters]);
+  }, [query, filters, currentPage]);
 
-  // Đồng bộ trạng thái Bookmark lưu trữ
   useEffect(() => {
     const localData = sessionStorage.getItem(storageKey);
     if (localData) {
@@ -112,6 +162,7 @@ export default function SearchPapers() {
     }
   }, [storageKey]);
 
+<<<<<<< HEAD
   // Logic ép style CSS cho thanh input search nhỏ phía trên Header
   useEffect(() => {
     const colorTopSearch = () => {
@@ -137,6 +188,8 @@ export default function SearchPapers() {
     return () => clearInterval(interval);
   }, []);
 
+=======
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
   const toggleBookmark = (paper) => {
     if (!paper || !paper.title) return;
     setSavedBookmarks((prev) => {
@@ -159,43 +212,85 @@ export default function SearchPapers() {
     });
   };
 
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5; 
+    let startPage = Math.max(0, currentPage - 2);
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          type="button"
+          onClick={() => setCurrentPage(i)}
+          className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+            currentPage === i
+              ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+              : "bg-transparent text-slate-400 hover:bg-white/5 hover:text-white border border-white/[0.08]"
+          }`}
+        >
+          {i + 1}
+        </button>
+      );
+    }
+    return pages;
+  };
+
   return (
+<<<<<<< HEAD
     <div className="space-y-5 p-8 max-w-6xl mx-auto text-slate-100 min-h-screen bg-[#0B0F19]">
       <AcademicLimitAlert
         userRole={currentRole}
         searchCount={3}
         maxLimit={10}
       />
+=======
+    <div className="space-y-5 p-8 max-w-6xl mx-auto min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
+      <AcademicLimitAlert userRole={currentRole} searchCount={3} maxLimit={10} />
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
 
-      {/* Thanh Search chính */}
+      {/* Search Bar */}
       <div className="relative">
+<<<<<<< HEAD
         <Search
           size={16}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-400"
         />
+=======
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 dark:text-slate-400" />
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         <Input
           type="text"
-          placeholder="Search academic papers by title, author, field, abstract..."
+          placeholder={t('placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-11 pr-4 py-5 rounded-xl text-sm bg-[#1B2235] border-white/10 text-slate-200 focus-visible:border-blue-500/50"
+          className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-blue-500/50 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-slate-200 shadow-sm dark:shadow-none"
         />
       </div>
 
-      {/* Quick Search nhãn */}
+      {/* Quick Search Tags */}
       <div className="flex gap-2 flex-wrap items-center text-xs">
-        <span className="text-slate-500 mr-1">Quick search:</span>
+        <span className="text-gray-500 dark:text-slate-500 mr-1">{t('quickSearch')}</span>
         {FIELD_DATA.map((f) => (
           <button
             key={f.n}
             type="button"
             onClick={() => setQuery(f.n)}
             className="px-3 py-1.5 rounded-full font-medium transition-transform hover:scale-105"
+<<<<<<< HEAD
             style={{
               background: `${f.c}1A`,
               color: f.c,
               border: `1px solid ${f.c}33`,
             }}
+=======
+            style={{ background: `${f.c}1A`, color: f.c, border: `1px solid ${f.c}25` }}
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
           >
             {f.n}
           </button>
@@ -203,17 +298,27 @@ export default function SearchPapers() {
         {query && (
           <button
             type="button"
+<<<<<<< HEAD
             onClick={() => setQuery('')}
             className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"
+=======
+            onClick={() => setQuery("")}
+            className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-white/5 dark:border dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/10"
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
           >
-            <X size={10} /> Clear query
+            <X size={10} /> {t('clearQuery')}
           </button>
         )}
       </div>
 
-      {/* Bố cục hai cột */}
+      {/* Two-column layout */}
       <div className="flex flex-col lg:flex-row items-stretch gap-6 pt-2 w-full">
+<<<<<<< HEAD
         {/* Cột trái */}
+=======
+
+        {/* Left Column */}
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
         <div className="w-full lg:w-[320px] shrink-0 flex flex-col justify-between gap-4">
           <div className="flex-1 flex flex-col">
             <AdvancedFilter
@@ -225,10 +330,15 @@ export default function SearchPapers() {
             />
           </div>
 
+<<<<<<< HEAD
           <div className="bg-[#1B2235] border border-white/5 rounded-xl p-4 space-y-3">
             <h5 className="text-xs uppercase tracking-wider font-bold text-slate-400">
               Suggested Keywords
             </h5>
+=======
+          <div className="rounded-xl p-4 space-y-3 transition-colors duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
+            <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">{t('suggestedKeywords')}</h5>
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
             <div className="flex flex-wrap gap-1.5">
               {SUGGESTED_KEYWORDS.map((kw) => (
                 <button
@@ -237,8 +347,13 @@ export default function SearchPapers() {
                   onClick={() => setQuery(kw)}
                   className={`text-[11px] px-2.5 py-1 rounded-md border transition-all duration-200 text-left truncate max-w-full ${
                     query.toLowerCase() === kw.toLowerCase()
+<<<<<<< HEAD
                       ? 'bg-blue-500/20 text-blue-400 border-blue-500/40 font-medium'
                       : 'bg-[#121824]/60 text-slate-300 border-white/5 hover:bg-white/5 hover:text-white'
+=======
+                      ? "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40 font-medium"
+                      : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:bg-[#121824]/60 dark:text-slate-300 dark:border-white/5 dark:hover:bg-white/5 dark:hover:text-white"
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
                   }`}
                 >
                   {kw}
@@ -248,15 +363,21 @@ export default function SearchPapers() {
           </div>
         </div>
 
-        {/* Cột phải */}
+        {/* Right Column */}
         <div className="flex-1 min-w-0 space-y-3 w-full flex flex-col">
+<<<<<<< HEAD
           <p className="text-xs text-slate-500 pl-1">
             Found {papers.length} {papers.length === 1 ? 'paper' : 'papers'}{' '}
             matching your criteria
+=======
+          <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
+            {t('results.found', { count: papers.length })}
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
           </p>
 
           <div className="space-y-3 flex-1">
             {isLoading && (
+<<<<<<< HEAD
               <div className="text-center py-12 text-xs text-slate-400 animate-pulse">
                 Đang tải dữ liệu bài báo...
               </div>
@@ -272,6 +393,17 @@ export default function SearchPapers() {
               <div className="text-center py-12 text-xs text-slate-500 border border-white/5 bg-[#1B2235]/30 rounded-xl">
                 Không tìm thấy bài báo nào.
               </div>
+=======
+              <div className="text-center py-12 text-xs animate-pulse text-gray-500 dark:text-slate-400">{t('results.loading')}</div>
+            )}
+
+            {error && (
+              <div className="text-center py-12 text-xs rounded-xl text-red-600 bg-red-50 border border-red-200 dark:text-red-400 dark:border-red-500/10 dark:bg-red-500/5">{error}</div>
+            )}
+
+            {!isLoading && !error && papers.length === 0 && (
+              <div className="text-center py-12 text-xs rounded-xl border text-gray-500 bg-white border-gray-200 dark:text-slate-500 dark:border-white/5 dark:bg-[#1B2235]/30">{t('results.noResults')}</div>
+>>>>>>> 48f2749e15940531d5e0ee518e6f9855e2a91d95
             )}
 
             {!isLoading &&
@@ -291,6 +423,33 @@ export default function SearchPapers() {
                 />
               ))}
           </div>
+
+          {/* THANH PHÂN TRANG */}
+          {!isLoading && !error && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-1.5 pt-6 pb-2">
+              <button
+                type="button"
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              >
+                <ChevronLeft size={14} /> Prev
+              </button>
+
+              <div className="flex items-center gap-1.5 mx-1">
+                {renderPageNumbers()}
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              >
+                Next <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

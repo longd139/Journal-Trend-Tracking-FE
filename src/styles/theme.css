@@ -2,6 +2,30 @@
 
 :root {
   --font-size: 16px;
+
+  /* ─── Font stacks ─────────────────────────────────────────────────────── */
+  /* Be Vietnam Pro is ALWAYS first — it's the only font in the stack with
+     FULL Vietnamese diacritic support. Putting Outfit or Inter first causes
+     per-glyph fallback (ransom-note effect) because they lack Vietnamese
+     characters like ăắễỏụơư. Be Vietnam Pro handles both EN and VI natively
+     with a clean geometric sans-serif design similar to Outfit.               */
+
+  /* Body text: Be Vietnam Pro → system fallbacks. Inter and Noto Sans are
+     kept only as emergency fallbacks in case the Google Fonts CDN is down.    */
+  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Inter', 'Noto Sans', sans-serif;
+
+  /* Display/heading: Be Vietnam Pro for consistent Vietnamese + English.
+     Outfit is available via the .font-outfit utility for English-only text
+     (e.g., the SCITRACK logo).                                                */
+  --font-display: 'Be Vietnam Pro', system-ui, -apple-system, 'Inter', 'Noto Sans', sans-serif;
+
+  /* Monospace — JetBrains Mono for data, code, and tabular figures.          */
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* Outfit — kept as an opt-in utility (.font-outfit) for English-only
+     elements like the SCITRACK logo. Do NOT use for bilingual content.        */
+  --font-outfit: 'Outfit', 'Be Vietnam Pro', system-ui, sans-serif;
+
   --background: #0B1020;
   --foreground: #FFFFFF;
   --card: #1B2235;
@@ -117,6 +141,12 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ─── Font family theme tokens ────────────────────────────────────────── */
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-mono: var(--font-mono);
+  --font-outfit: var(--font-outfit);
 }
 
 @layer base {
@@ -126,6 +156,15 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  code, pre, kbd, samp, .font-mono {
+    font-family: var(--font-mono);
   }
 
   /**

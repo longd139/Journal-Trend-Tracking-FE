@@ -12,12 +12,17 @@ const axiosClient = axios.create({
 // Thêm Request Interceptor
 axiosClient.interceptors.request.use(
   (config) => {
-    // 1. Lấy token từ nơi bạn lưu trữ (ví dụ: localStorage, sessionStorage, hoặc state)
+    // 1. Attach auth token
     const token = useAuthStore.getState().accessToken;
 
-    // 2. Nếu có token, đính kèm vào header 'Authorization'
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // 2. Attach preferred language header
+    const preferredLanguage = localStorage.getItem('preferredLanguage');
+    if (preferredLanguage) {
+      config.headers['Accept-Language'] = preferredLanguage;
     }
 
     return config;

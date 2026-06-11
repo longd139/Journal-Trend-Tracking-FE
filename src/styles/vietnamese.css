@@ -1,0 +1,177 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Vietnamese Text Resilience Utilities
+
+   Vietnamese words are on average 30-40% longer than their English equivalents
+   (due to diacritics and compound words). These utilities prevent layout
+   breakage when switching between EN ↔ VI.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Responsive font-size clamping ──────────────────────────────────────── */
+/* Use these instead of fixed font-sizes on cards/labels that switch language. */
+@utility text-clamp-xs {
+  font-size: clamp(0.625rem, 0.6rem + 0.25vw, 0.75rem);
+}
+
+@utility text-clamp-sm {
+  font-size: clamp(0.75rem, 0.7rem + 0.3vw, 0.875rem);
+}
+
+@utility text-clamp-base {
+  font-size: clamp(0.8125rem, 0.75rem + 0.35vw, 1rem);
+}
+
+@utility text-clamp-lg {
+  font-size: clamp(0.9375rem, 0.85rem + 0.45vw, 1.125rem);
+}
+
+@utility text-clamp-xl {
+  font-size: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem);
+}
+
+/* ─── Card/label text overflow protection ────────────────────────────────── */
+/* Prevents Vietnamese text from overflowing fixed-width card areas.           */
+
+@utility text-ellipsis-safe {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@utility text-line-clamp-safe {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--line-clamp, 2);
+  word-break: break-word;
+}
+
+/* ─── Flexible card content ──────────────────────────────────────────────── */
+/* Cards that host bilingual content should use these for consistent spacing. */
+
+@utility card-flexible {
+  /* Allow cards to grow with longer Vietnamese text */
+  min-height: fit-content;
+  /* Keep internal spacing proportional */
+  padding: clamp(0.75rem, 1rem + 0.5vw, 1.5rem);
+}
+
+@utility stat-value-resilient {
+  /* Stat numbers that auto-scale down when Vietnamese labels push width */
+  font-size: clamp(1.125rem, 1rem + 1vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@utility stat-label-resilient {
+  /* Labels that auto-shrink without wrapping */
+  font-size: clamp(0.625rem, 0.55rem + 0.3vw, 0.75rem);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Flex-wrap guard for tag/badge clusters ─────────────────────────────── */
+/* Vietnamese keyword lists tend to be longer; allow wrapping without overflow. */
+
+@utility flex-wrap-safe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.25rem, 0.25rem + 0.2vw, 0.5rem);
+  overflow: hidden;
+}
+
+/* ─── Button text resilience ─────────────────────────────────────────────── */
+/* Buttons with Vietnamese labels ("Đăng xuất" vs "Sign Out") stay single-line. */
+
+@utility btn-text-resilient {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: fit-content;
+}
+
+/* ─── Table / data-grid cell resilience ──────────────────────────────────── */
+/* Data cells that receive both EN and VI content.                             */
+
+@utility td-resilient {
+  max-width: clamp(120px, 10rem + 5vw, 300px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Spacing: language-switch transition ─────────────────────────────────── */
+/* Apply to containers whose height changes when switching languages.
+   The transition prevents jarring "jumps".                                    */
+
+@utility lang-transition {
+  transition: height 0.25s ease, min-height 0.25s ease, padding 0.25s ease;
+}
+
+/* ─── Scrollbar consistency (already in main.jsx, reinforced here) ───────── */
+/* Vietnamese content can push containers to scroll; keep scrollbar styled.    */
+@utility scrollbar-thin-vi {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-muted) transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Vietnamese Bold Text Rendering Optimizations
+
+   Vietnamese diacritics (dấu thanh + dấu mũ/móc) add vertical density to
+   characters. At bold weights (700+), these marks can appear cramped or
+   bleed into adjacent letters. The utilities below ensure crisp, readable
+   Vietnamese text at all font weights.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Apply to root to improve all Vietnamese text rendering ─────────────── */
+/* These properties benefit Vietnamese text globally without side effects.     */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ─── Vietnamese bold text — slightly wider tracking for diacritics ──────── */
+/* At font-bold (700) and above, Vietnamese diacritics need extra breathing
+   room. Apply `tracking-vi-bold` alongside any `font-bold`/`font-extrabold`
+   /`font-black` class when the content contains Vietnamese text.              */
+@utility tracking-vi-bold {
+  letter-spacing: 0.01em;
+}
+
+/* ─── Vietnamese heading — optimized for display text ────────────────────── */
+/* Headings in Vietnamese need even more room. Combines display font,
+   bold weight, and wider tracking in one utility.                             */
+@utility heading-vi {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.015em;
+  line-height: 1.25;
+}
+
+/* ─── Vietnamese data/metric text — monospace variant ────────────────────── */
+/* For stat cards showing numbers alongside Vietnamese labels.                 */
+@utility metric-vi {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Vietnamese-safe bold — ensures diacritics stay within bounds ───────── */
+/* Use this on any bold element where Vietnamese diacritics might clip.        */
+@utility bold-vi {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Ensure diacritics never overflow at line edges ─────────────────────── */
+@utility overflow-diacritics-safe {
+  overflow-wrap: break-word;
+  word-break: keep-all;
+  hyphens: none;
+}

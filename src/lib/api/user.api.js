@@ -11,4 +11,14 @@ export const userAPI = {
     // };
     return data.data;
   },
+  async updateProfile(formData) {
+    // Sử dụng axiosClient đã có interceptor
+    const { data } = await axiosClient.put('/api/users/me', formData);
+    return data; // Bạn có thể return data.data nếu API của bạn bọc dữ liệu trong trường data
+  },
+
+  async updateLanguagePreference(language) {
+    const { data } = await axiosClient.put('/api/users/me/language', { language });
+    return data;
+  },
 };

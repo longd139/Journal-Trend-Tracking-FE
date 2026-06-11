@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import {
@@ -10,6 +11,8 @@ import {
   Building2,
   AlertCircle,
   ChevronLeft,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
 import { authAPI } from '../../lib/api/auth.api';
@@ -34,6 +37,7 @@ const LOCAL_UNIS = [
 export default function RegisterPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('auth');
 
   const incomingRole = location.state?.role || '';
 
@@ -46,23 +50,21 @@ export default function RegisterPage() {
     role: incomingRole,
   });
 
-  // --- THÊM STATE QUẢN LÝ GỢI Ý TRƯỜNG ĐẠI HỌC ---
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingUnis, setLoadingUnis] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const setTokens = useAuthStore((state) => state.setTokens);
 
-  // --- USE-EFFECT BẢO MẬT LUỒNG ---
   useEffect(() => {
     if (!incomingRole) {
       navigate('/auth');
     }
   }, [incomingRole, navigate]);
 
-  // --- USE-EFFECT TÌM KIẾM TRƯỜNG ĐẠI HỌC ---
   useEffect(() => {
-    // Bỏ điều kiện currentMode vì ở trang này luôn là register
     if (form.institution.trim().length < 1) {
       setSuggestions([]);
       return;
@@ -70,14 +72,12 @@ export default function RegisterPage() {
 
     const searchTerm = form.institution.toLowerCase();
 
-    // 1. Tìm ngay lập tức trong danh sách Local VN
     const localMatches = LOCAL_UNIS.filter((uni) =>
       uni.toLowerCase().includes(searchTerm),
     ).map((name) => ({ name }));
 
     setSuggestions(localMatches.slice(0, 5));
 
-    // 2. Gọi API để tìm thêm trường quốc tế
     const timer = setTimeout(async () => {
       setLoadingUnis(true);
       try {
@@ -87,7 +87,6 @@ export default function RegisterPage() {
         const data = await res.json();
         const apiMatches = data.map((u) => ({ name: u.name }));
 
-        // 3. Trộn và lọc kết quả trùng lặp
         const combined = [...localMatches, ...apiMatches];
         const uniqueSuggestions = Array.from(
           new Set(combined.map((a) => a.name)),
@@ -97,7 +96,7 @@ export default function RegisterPage() {
 
         setSuggestions(uniqueSuggestions);
       } catch (error) {
-        console.error('Lỗi khi tải danh sách trường:', error);
+        console.error('Error loading universities:', error);
       } finally {
         setLoadingUnis(false);
       }
@@ -116,7 +115,7 @@ export default function RegisterPage() {
     password: false,
     confirmPassword: false,
     mismatch: false,
-    apiError: '', // 2. Thêm field quản lý lỗi từ API
+    apiError: '',
   });
 
   const handleSubmit = async (e) => {
@@ -153,16 +152,15 @@ export default function RegisterPage() {
         password: isPasswordEmpty,
         confirmPassword: isConfirmEmpty || isMismatch,
         mismatch: isMismatch,
-        apiError: '', // Reset API error nếu có lỗi validate local
+        apiError: '',
       });
       return;
     }
 
     setLoading(true);
     setErrors((prev) => ({ ...prev, apiError: '' }));
-    // 4. Logic gọi API bằng Axios
+
     try {
-      // Bỏ confirmPassword ra khỏi payload gửi lên server vì không cần thiết
       const payload = {
         fullName: form.fullName,
         institution: form.institution,
@@ -171,37 +169,28 @@ export default function RegisterPage() {
         role: form.role,
       };
 
-      // Đổi endpoint '/register' thành endpoint đúng của backend bạn
       const response = await authAPI.register(payload);
-      const { accessToken, user } = response;
+      const { accessToken } = response;
       if (accessToken) {
         setTokens(accessToken);
       }
-      toast.success('Registration successful!', {
-        description:
-          'Welcome aboard. Your account has been created successfully.',
+      toast.success(t('register.successTitle'), {
+        description: t('register.successDescription'),
       });
 
-      // Delay khoảng 1.5s để user kịp đọc thông báo rồi mới chuyển trang
       setTimeout(() => {
         navigate('/login');
       }, 1000);
-      // navigate('/login');
     } catch (error) {
-      console.error('Lỗi đăng ký:', error);
-      // Lấy câu thông báo lỗi từ backend trả về (nếu có), nếu không có thì dùng câu mặc định
-
-      // Lấy chính xác trường "message" từ JSON bạn vừa cung cấp
+      console.error('Registration error:', error);
       const errorMessage =
         error.response?.data?.message ||
-        'Registration failed. Please try again later.';
+        t('register.failedDefault');
 
-      // 1. Hiển thị qua Sonner Toast
-      toast.error('Registration Failed', {
+      toast.error(t('register.failedTitle'), {
         description: errorMessage,
       });
 
-      // 2. Hiển thị dòng text màu đỏ ngay trên nút Create Account
       setErrors((prev) => ({
         ...prev,
         apiError: errorMessage,
@@ -226,26 +215,16 @@ export default function RegisterPage() {
     ) {
       setErrors((e) => ({ ...e, mismatch: false, confirmPassword: false }));
     }
-    // Xóa thông báo lỗi API khi user bắt đầu gõ lại để sửa
     if (errors.apiError) {
       setErrors((e) => ({ ...e, apiError: '' }));
     }
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: '#0B1020' }}
-    >
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]"
-          style={{ background: '#4F8CFF' }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10"
-          style={{ background: '#8B5CF6' }}
-        />
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 dark:opacity-[0.14] bg-blue-500" />
+        <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10 dark:opacity-10 bg-purple-600" />
         {PARTICLES.slice(0, 18).map((p) => (
           <motion.div
             key={p.id}
@@ -276,47 +255,34 @@ export default function RegisterPage() {
         className="relative z-10 w-full max-w-md mx-6"
       >
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
-          >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
             <Microscope size={18} className="text-white" />
           </div>
           <span
-            className="text-lg font-black text-white tracking-widest"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            className="text-lg font-black text-gray-900 dark:text-white tracking-widest font-outfit"
           >
             SCITRACK
           </span>
         </div>
 
-        <div
-          className="rounded-2xl border p-8"
-          style={{
-            background: 'rgba(27,34,53,0.85)',
-            borderColor: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(24px)',
-          }}
-        >
+        <div className="rounded-2xl border p-8 bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <h2
-            className="text-2xl font-black text-white mb-1"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            className="text-2xl font-black text-gray-900 dark:text-white mb-1 font-display"
           >
-            Create account
+            {t('register.createAccount')}
           </h2>
           <div className="flex items-center mb-6">
             <button
               onClick={() => {
                 navigate('/auth');
               }}
-              className="p-2 rounded-lg hover:bg-white/5 transition-colors mr-3"
-              style={{ color: '#A0AEC0' }}
+              className="p-2 rounded-lg transition-colors mr-3 text-gray-500 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5"
             >
               <ChevronLeft size={20} />
             </button>
             <div>
-              <p className="text-xs mt-1" style={{ color: '#4F8CFF' }}>
-                Create account for{' '}
+              <p className="text-xs mt-1 text-blue-600 dark:text-[#4F8CFF]">
+                {t('register.createFor')}{' '}
                 <span className="font-bold uppercase tracking-wider">
                   {incomingRole}
                 </span>
@@ -325,44 +291,42 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-
             <div>
-              <label className="text-xs font-semibold text-white block mb-1.5">
-                Full Name
+              <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
+                {t('register.fullNameLabel')}
               </label>
               <input
                 type="text"
-                placeholder="Dr. Sarah Chen"
+                placeholder={t('register.fullNamePlaceholder')}
                 value={form.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
-                  errors.fullName // FIX Ở ĐÂY NÈ BR
-                    ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                    : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                }`}
-                style={{ color: '#E2E8F0' }}
+                  errors.fullName
+                    ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                    : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                } text-gray-900 dark:text-[#E2E8F0]`}
               />
               {errors.fullName && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please enter your full name
+                  <AlertCircle size={10} /> {t('register.validation.nameRequired')}
                 </div>
               )}
             </div>
 
-            {/* --- KHỐI INSTITUTION ĐƯỢC CẬP NHẬT --- */}
             <div className="relative">
-              <label className="text-xs font-semibold text-white block mb-1.5">
-                Institution / University
+              <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
+                {t('register.institutionLabel')}
               </label>
               <div className="relative">
                 <Building2
                   size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: errors.institution ? '#EF4444' : '#A0AEC0' }}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                    errors.institution ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                  }`}
                 />
                 <input
                   type="text"
-                  placeholder="FPT University"
+                  placeholder={t('register.institutionPlaceholder')}
                   value={form.institution}
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() =>
@@ -374,35 +338,26 @@ export default function RegisterPage() {
                   }}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                     errors.institution
-                      ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                      : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                  }`}
-                  style={{ color: '#E2E8F0' }}
+                      ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                      : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                  } text-gray-900 dark:text-[#E2E8F0]`}
                 />
                 {loadingUnis && (
                   <RefreshCw
                     size={12}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-white/50"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400 dark:text-white/50"
                   />
                 )}
               </div>
-              
-              {/* THÊM DÒNG BÁO LỖI CHO INSTITUTION LUÔN CHO ĐỒNG BỘ */}
+
               {errors.institution && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please select your institution
+                  <AlertCircle size={10} /> {t('register.validation.institutionRequired')}
                 </div>
               )}
 
-              {/* Menu thả xuống gợi ý */}
               {showSuggestions && suggestions.length > 0 && (
-                <ul
-                  className="absolute z-50 w-full mt-1.5 rounded-xl border overflow-hidden shadow-2xl"
-                  style={{
-                    background: '#131A2A',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                  }}
-                >
+                <ul className="absolute z-50 w-full mt-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#131A2A] overflow-hidden shadow-2xl">
                   {suggestions.map((uni, idx) => (
                     <li
                       key={idx}
@@ -410,8 +365,7 @@ export default function RegisterPage() {
                         handleChange('institution', uni.name);
                         setShowSuggestions(false);
                       }}
-                      className="px-4 py-2.5 text-xs text-white hover:bg-[#4F8CFF1A] cursor-pointer border-b last:border-b-0 transition-colors"
-                      style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+                      className="px-4 py-2.5 text-xs text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#4F8CFF1A] cursor-pointer border-b border-gray-100 dark:border-white/5 last:border-b-0 transition-colors"
                     >
                       {uni.name}
                     </li>
@@ -421,102 +375,115 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-white block mb-1.5">
-                Email Address
+              <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
+                {t('register.emailLabel')}
               </label>
               <div className="relative">
                 <Mail
                   size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: errors.email ? '#EF4444' : '#A0AEC0' }}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                    errors.email ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                  }`}
                 />
                 <input
                   type="email"
-                  placeholder="you@university.edu"
+                  placeholder={t('register.emailPlaceholder')}
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                     errors.email || errors.emailFormat
-                      ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                      : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                  }`}
-                  style={{ color: '#E2E8F0' }}
+                      ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                      : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                  } text-gray-900 dark:text-[#E2E8F0]`}
                 />
               </div>
               {errors.email && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please enter your email
+                  <AlertCircle size={10} /> {t('register.validation.emailRequired')}
                 </div>
               )}
               {errors.emailFormat && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Invalid email format (e.g., name@domain.com)
+                  <AlertCircle size={10} /> {t('register.validation.emailInvalid')}
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">
-                  Password
+                <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
+                  {t('register.passwordLabel')}
                 </label>
                 <div className="relative">
                   <Lock
                     size={13}
-                    className="absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{ color: errors.password ? '#EF4444' : '#A0AEC0' }}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      errors.password ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                    }`}
                   />
                   <input
-                    type="password"
-                    placeholder="••••••••"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder={t('register.passwordPlaceholder')}
                     value={form.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                    className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                       errors.password
-                        ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                        : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                    }`}
-                    style={{ color: '#E2E8F0' }}
+                        ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                        : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                    } text-gray-900 dark:text-[#E2E8F0]`}
                   />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0] hover:text-gray-600 dark:hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
                 {errors.password && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                    <AlertCircle size={10} /> Please enter a password
+                    <AlertCircle size={10} /> {t('register.validation.passwordRequired')}
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-white block mb-1.5">
-                  Confirm Password
+                <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
+                  {t('register.confirmPasswordLabel')}
                 </label>
                 <div className="relative">
                   <Lock
                     size={13}
-                    className="absolute left-3 top-1/2 -translate-y-1/2"
-                    style={{
-                      color: errors.confirmPassword ? '#EF4444' : '#A0AEC0',
-                    }}
+                    className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                      errors.confirmPassword ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                    }`}
                   />
                   <input
-                    type="password"
-                    placeholder="••••••••"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder={t('register.confirmPasswordPlaceholder')}
                     value={form.confirmPassword}
                     onChange={(e) =>
                       handleChange('confirmPassword', e.target.value)
                     }
-                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                    className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                       errors.confirmPassword
-                        ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                        : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                    }`}
-                    style={{ color: '#E2E8F0' }}
+                        ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                        : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                    } text-gray-900 dark:text-[#E2E8F0]`}
                   />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0] hover:text-gray-600 dark:hover:text-white transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
-                {/* Check lỗi rỗng trước, nếu không rỗng mà sai thì báo mismatch */}
                 {errors.confirmPassword && !errors.mismatch && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                    <AlertCircle size={10} /> Please confirm your password
+                    <AlertCircle size={10} /> {t('register.validation.confirmRequired')}
                   </div>
                 )}
               </div>
@@ -524,64 +491,52 @@ export default function RegisterPage() {
 
             {errors.mismatch && (
               <div className="flex items-center gap-1 mt-1 text-[10px] font-medium text-red-500">
-                <AlertCircle size={10} /> Passwords do not match
+                <AlertCircle size={10} /> {t('register.validation.mismatch')}
               </div>
             )}
-            
-            {/* 5. Hiển thị thông báo lỗi từ API ngay trên nút Submit */}
+
             {errors.apiError && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2 mt-2">
+              <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-xs font-medium text-red-600 dark:text-red-500 flex items-center gap-2 mt-2">
                 <AlertCircle size={14} />
                 {errors.apiError}
               </div>
             )}
-            <div
-              className="mt-8 pt-5 border-t"
-              style={{ borderColor: 'rgba(255,255,255,0.07)' }}
-            >
+            <div className="mt-8 pt-5 border-t border-gray-200 dark:border-white/5">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2"
-                style={{
-                  background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-                  opacity: loading ? 0.8 : 1,
-                }}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20 transition-opacity"
+                style={{ opacity: loading ? 0.8 : 1 }}
               >
                 {loading ? (
                   <>
-                    <RefreshCw size={14} className="animate-spin" /> Creating
-                    account…
+                    <RefreshCw size={14} className="animate-spin" />{' '}
+                    {t('register.creating')}
                   </>
                 ) : (
-                  'Create Account'
+                  t('register.createButton')
                 )}
               </motion.button>
             </div>
           </form>
-          <div
-            className="mt-5 text-center text-xs"
-            style={{ color: '#A0AEC0' }}
-          >
-            Already have an account?{' '}
+          <div className="mt-5 text-center text-xs text-gray-500 dark:text-[#A0AEC0]">
+            {t('register.haveAccount')}{' '}
             <Link
               to="/login"
-              className="font-semibold"
-              style={{ color: '#4F8CFF' }}
+              className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
             >
-              Sign In
+              {t('register.signIn')}
             </Link>
           </div>
         </div>
 
         <button
           onClick={() => navigate('/')}
-          className="mt-5 w-full text-center text-xs transition-colors hover:text-white"
-          style={{ color: '#6B7280' }}
+          className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
-          ← Back to landing page
+          {t('register.backToLanding')}
         </button>
       </motion.div>
     </div>

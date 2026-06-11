@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -19,13 +20,14 @@ export function GlowBadge({ children, color }) {
 
 // Thêm chữ export vào đây
 export function StatusPill({ status }) {
+  const { t } = useTranslation('common');
   const map = {
-    active: { bg: '#00D1B21A', c: '#00D1B2', label: 'Active' },
-    idle: { bg: '#F59E0B1A', c: '#F59E0B', label: 'Idle' },
-    offline: { bg: '#6B72801A', c: '#6B7280', label: 'Offline' },
-    ok: { bg: '#00D1B21A', c: '#00D1B2', label: 'Online' },
-    warn: { bg: '#F59E0B1A', c: '#F59E0B', label: 'Degraded' },
-    ready: { bg: '#00D1B21A', c: '#00D1B2', label: 'Ready' },
+    active: { bg: '#00D1B21A', c: '#00D1B2', label: t('status.active') },
+    idle: { bg: '#F59E0B1A', c: '#F59E0B', label: t('status.idle') },
+    offline: { bg: '#6B72801A', c: '#6B7280', label: t('status.offline') },
+    ok: { bg: '#00D1B21A', c: '#00D1B2', label: t('status.online') },
+    warn: { bg: '#F59E0B1A', c: '#F59E0B', label: t('status.degraded') },
+    ready: { bg: '#00D1B21A', c: '#00D1B2', label: t('status.ready') },
   };
   const s = map[status] ?? map.offline;
   return (
@@ -58,10 +60,9 @@ export function StatCard({ label, value, change, Icon, accent }) {
           <Icon size={16} style={{ color: accent }} />
         </div>
         <span
-          className="text-xs font-semibold flex items-center gap-0.5"
+          className="text-xs font-semibold flex items-center gap-0.5 font-mono"
           style={{
             color: up ? '#00D1B2' : '#EF4444',
-            fontFamily: "'JetBrains Mono', monospace",
           }}
         >
           <ArrowUpRight
@@ -72,8 +73,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
         </span>
       </div>
       <div
-        className="text-2xl font-black text-white mb-0.5"
-        style={{ fontFamily: "'Outfit', sans-serif" }}
+        className="text-2xl font-black text-white mb-0.5 font-display"
       >
         {value}
       </div>

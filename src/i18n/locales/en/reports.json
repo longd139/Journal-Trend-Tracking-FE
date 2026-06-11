@@ -1,0 +1,64 @@
+{
+  "heading": {
+    "title": "Reports & Exports",
+    "subtitle": "Generate, customize, and download your analytical data."
+  },
+  "templates": {
+    "trendAnalysis": {
+      "name": "Trend Analysis Summary",
+      "description": "Visual charts and stats covering your primary research fields.",
+      "quickPdf": "Quick PDF →"
+    },
+    "readingList": {
+      "name": "Reading List Export",
+      "description": "Export your saved papers with full citations (APA/IEEE format).",
+      "quickCsv": "Quick CSV →"
+    },
+    "authorImpact": {
+      "name": "Author Impact Report",
+      "description": "Detailed metrics on your H-Index and global citations.",
+      "quickPdf": "Quick PDF →"
+    },
+    "courseworkRefs": {
+      "name": "Coursework References",
+      "description": "Compile references for your academic thesis or assignments.",
+      "quickPdf": "Quick PDF →"
+    },
+    "detailedMetrics": "Detailed Metrics Report"
+  },
+  "history": {
+    "title": "Report History",
+    "showing": "Showing last 30 days",
+    "columns": {
+      "reportName": "Report Name",
+      "type": "Type",
+      "dateGenerated": "Date Generated",
+      "size": "Size",
+      "status": "Status",
+      "action": "Action"
+    }
+  },
+  "modal": {
+    "title": "Customize Report",
+    "reportName": "Report Name",
+    "format": "Format",
+    "dateRange": "Date Range",
+    "includeDataColumns": "Include Data Columns",
+    "citationCounts": "Citation Counts & Metrics",
+    "fullAbstracts": "Full Paper Abstracts",
+    "formatOptions": {
+      "pdf": "PDF Document",
+      "csv": "CSV / Excel",
+      "zip": "ZIP Archive"
+    },
+    "dateOptions": {
+      "30days": "Last 30 Days",
+      "6months": "Last 6 Months",
+      "1year": "Last 1 Year",
+      "all": "All Time"
+    }
+  },
+  "button": {
+    "customReport": "Custom Report"
+  }
+}
