@@ -6,6 +6,8 @@ import { Input } from "../components/ui/input";
 import { AcademicLimitAlert } from "./AcademicLimitAlert";
 import { AdvancedFilter } from "./AdvancedFilter";
 import { PaperItemCard } from "./PaperItemCard";
+
+// ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
 import { paperAPI } from "../lib/api/paper.api";
 
 const FIELD_DATA = [
@@ -23,6 +25,11 @@ export default function SearchPapers() {
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // State quản lý phân trang
+  const [currentPage, setCurrentPage] = useState(0); 
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
 
   const [query, setQuery] = useState("");
   const [savedBookmarks, setSavedBookmarks] = useState([]);
@@ -48,7 +55,9 @@ export default function SearchPapers() {
           endYear: filters.endYear || undefined,
           field: filters.fields.length > 0 ? filters.fields[0] : undefined,
           minCitations: filters.minCitations || undefined,
-          openAccess: filters.openAccess ? true : undefined
+          openAccess: filters.openAccess ? true : undefined,
+          page: currentPage, 
+          size: 5 
         };
 
         const response = await paperAPI.search(apiParams);
@@ -56,10 +65,18 @@ export default function SearchPapers() {
         if (response && response.papers && Array.isArray(response.papers)) {
           const validPapers = response.papers.filter(p => p !== null && p !== undefined);
           setPapers(validPapers);
+          setTotalPages(response.totalPages || 1);
+          setTotalElements(response.totalElements || validPapers.length);
         } else if (Array.isArray(response)) {
-          setPapers(response.filter(p => p !== null && p !== undefined));
+          const validPapers = response.filter(p => p !== null && p !== undefined);
+          setPapers(validPapers);
+          setTotalPages(Math.ceil(validPapers.length / 5) || 1);
+          setTotalElements(validPapers.length);
         } else {
-          setPapers(response?.list || []);
+          const validPapers = response?.list || [];
+          setPapers(validPapers);
+          setTotalPages(response?.totalPages || 1);
+          setTotalElements(response?.totalElements || validPapers.length);
         }
 
       } catch (err) {
@@ -79,7 +96,7 @@ export default function SearchPapers() {
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [query, filters]);
+  }, [query, filters, currentPage]);
 
   useEffect(() => {
     const localData = sessionStorage.getItem(storageKey);
@@ -100,6 +117,35 @@ export default function SearchPapers() {
 
   const clearAllFilters = () => {
     setFilters({ startYear: "", endYear: "", fields: [], minCitations: "", openAccess: false });
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5; 
+    let startPage = Math.max(0, currentPage - 2);
+    let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(0, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          type="button"
+          onClick={() => setCurrentPage(i)}
+          className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+            currentPage === i
+              ? "bg-blue-500 text-white shadow-md shadow-blue-500/20"
+              : "bg-transparent text-slate-400 hover:bg-white/5 hover:text-white border border-white/[0.08]"
+          }`}
+        >
+          {i + 1}
+        </button>
+      );
+    }
+    return pages;
   };
 
   return (
@@ -127,7 +173,7 @@ export default function SearchPapers() {
             type="button"
             onClick={() => setQuery(f.n)}
             className="px-3 py-1.5 rounded-full font-medium transition-transform hover:scale-105"
-            style={{ background: `${f.c}1A`, color: f.c, border: `1px solid ${f.c}33` }}
+            style={{ background: `${f.c}1A`, color: f.c, border: `1px solid ${f.c}25` }}
           >
             {f.n}
           </button>
@@ -209,6 +255,33 @@ export default function SearchPapers() {
               />
             ))}
           </div>
+
+          {/* THANH PHÂN TRANG */}
+          {!isLoading && !error && totalPages > 1 && (
+            <div className="flex items-center justify-center gap-1.5 pt-6 pb-2">
+              <button
+                type="button"
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              >
+                <ChevronLeft size={14} /> Prev
+              </button>
+
+              <div className="flex items-center gap-1.5 mx-1">
+                {renderPageNumbers()}
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              >
+                Next <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
         </div>
 
       </div>

@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import { Bookmark, ExternalLink, BookOpen, Link2, ChevronDown, ChevronUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Badge } from "../components/ui/badge";
 
 export function PaperItemCard({ 
   paper, 
@@ -17,10 +15,9 @@ export function PaperItemCard({
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
   const { t } = useTranslation('search');
 
-  const handleRedirect = () => {
-    if (!paper?.title) return;
-    window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(paper.title)}`, "_blank");
-  };
+  // FIX LỖI CRASH 404: Ép kiểu an toàn số lượng trích dẫn, phòng hờ dữ liệu undefined/null
+  const rawCitations = paper.citations !== undefined && paper.citations !== null ? paper.citations : 0;
+  const displayCitations = typeof rawCitations === "number" ? rawCitations : parseInt(rawCitations, 10) || 0;
 
   if (!paper) return null;
 
@@ -82,6 +79,11 @@ export function PaperItemCard({
                 </p>
               )}
             </div>
+            <div className="flex items-center gap-1">
+              <BookOpen size={12} className="shrink-0 text-slate-500" />
+              <span className="truncate max-w-[280px] italic">{paperJournal}</span>
+            </div>
+          </div>
 
             {/* Abstract Section */}
             {paper.abstract && (
@@ -104,6 +106,17 @@ export function PaperItemCard({
               </div>
             )}
           </div>
+
+          {/* 5. Tóm tắt Abstract */}
+          {paper.abstractText && (
+            <p className="text-xs text-slate-400/70 line-clamp-2 pt-1.5 leading-relaxed">
+              {paper.abstractText}
+            </p>
+          )}
+        </div>
+
+        {/* Khối số lượng Citations & Nút thao tác (Bên phải) */}
+        <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 w-full md:w-auto shrink-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
           
           {/* Cột hiển thị số lượng citation & hành động */}
           <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-200 dark:border-white/5 sm:pl-4">
@@ -118,6 +131,7 @@ export function PaperItemCard({
                 </div>
               )}
             </div>
+          </div>
 
             <div className="flex gap-2 sm:mt-1">
               <Button
@@ -146,8 +160,9 @@ export function PaperItemCard({
             </div>
           </div>
 
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+
+      </CardContent>
+    </Card>
   );
 }
