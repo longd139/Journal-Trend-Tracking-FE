@@ -74,5 +74,26 @@
     "login": {
       "register": "Đăng ký"
     }
+  },
+  "notifications": {
+    "title": "Thông báo",
+    "back": "← Quay lại",
+    "viewDocument": "Xem tài liệu",
+    "newCitations": "Trích dẫn mới",
+    "newCitationsDesc": "Bài báo \"IoT Architecture\" nhận được 5 trích dẫn mới.",
+    "newCitationsDetail": "Bài báo của bạn đã được tham chiếu bởi 5 bài báo mới trên tạp chí IEEE Internet of Things.",
+    "trendAlert": "Cảnh báo xu hướng",
+    "trendAlertDesc": "Mức sử dụng Embedded C/C++ tăng 15%.",
+    "trendAlertDetail": "Nhu cầu Embedded C/C++ trong điện toán biên IoT đã tăng đáng kể trong Q2 2026.",
+    "systemNotification": "Thông báo hệ thống",
+    "systemNotifDesc": "Báo cáo hệ thống hàng tháng đã sẵn sàng.",
+    "systemNotifDetail": "Báo cáo \"Xu hướng tháng 5/2026\" của bạn đã được tổng hợp và sẵn sàng để tải xuống.",
+    "securityAlert": "Cảnh báo bảo mật",
+    "securityAlertDesc": "Phát hiện đăng nhập mới vào tài khoản của bạn.",
+    "securityAlertDetail": "Đã phát hiện đăng nhập mới từ IP 192.168.1.1. Nếu không phải bạn, vui lòng đổi mật khẩu.",
+    "2mAgo": "2 phút trước",
+    "1hAgo": "1 giờ trước",
+    "3hAgo": "3 giờ trước",
+    "1dAgo": "1 ngày trước"
   }
 }

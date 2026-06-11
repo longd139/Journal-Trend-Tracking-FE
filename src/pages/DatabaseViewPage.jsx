@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Database, Hash, Zap, Cpu } from 'lucide-react';
 
 // ==========================================
@@ -54,26 +55,28 @@ const DB_TABLES = [
 // 3. GIAO DIỆN CHÍNH
 // ==========================================
 export default function DatabaseView() {
+  const { t } = useTranslation('dashboard');
+
   return (
     <div className="space-y-6 p-8 bg-gray-50 dark:bg-[#0B1020] min-h-screen transition-colors duration-300">
       {/* 4 Cục Thống kê */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Size" value="2.4 TB" change="+5.1%" Icon={Database} accent="#8B5CF6" />
-        <StatCard label="Total Records" value="471M" change="+3.8%" Icon={Hash} accent="#4F8CFF" />
-        <StatCard label="Queries / sec" value="18.4K" change="+12%" Icon={Zap} accent="#00D1B2" />
-        <StatCard label="Cache Hit Rate" value="94.2%" change="+1.8%" Icon={Cpu} accent="#F59E0B" />
+        <StatCard label={t('database.totalSize')} value="2.4 TB" change="+5.1%" Icon={Database} accent="#8B5CF6" />
+        <StatCard label={t('database.totalRecords')} value="471M" change="+3.8%" Icon={Hash} accent="#4F8CFF" />
+        <StatCard label={t('database.queriesPerSec')} value="18.4K" change="+12%" Icon={Zap} accent="#00D1B2" />
+        <StatCard label={t('database.cacheHitRate')} value="94.2%" change="+1.8%" Icon={Cpu} accent="#F59E0B" />
       </div>
 
       {/* Bảng Database Tables */}
       <div className="rounded-xl border overflow-hidden bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none">
         <div className="p-5 border-b border-gray-200 dark:border-white/5">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Database Tables</h3>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('database.databaseTables')}</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.01]">
-                {['Table', 'Rows', 'Size', 'Growth', 'Status'].map((h) => (
+                {[t('database.columns.table'), t('database.columns.rows'), t('database.columns.size'), t('database.columns.growth'), t('database.columns.status')].map((h) => (
                   <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
                     {h}
                   </th>

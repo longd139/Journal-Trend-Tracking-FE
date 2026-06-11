@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle, Activity, Zap, AlertCircle } from 'lucide-react';
 
 // ==========================================
@@ -53,14 +54,16 @@ const APIS = [
 // 3. GIAO DIỆN CHÍNH
 // ==========================================
 export default function APIMonitoring() {
+  const { t } = useTranslation('dashboard');
+
   return (
     <div className="space-y-6 p-8 min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       {/* 4 Cục Thống kê Tổng quan */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Avg Uptime" value="98.7%" change="+0.3%" Icon={CheckCircle} accent="#00D1B2" />
-        <StatCard label="Requests / day" value="429.4K" change="+11%" Icon={Activity} accent="#4F8CFF" />
-        <StatCard label="Avg Latency" value="1.0ms" change="-8%" Icon={Zap} accent="#8B5CF6" />
-        <StatCard label="Error Rate" value="0.03%" change="-15%" Icon={AlertCircle} accent="#F59E0B" />
+        <StatCard label={t('apiMonitoring.avgUptime')} value="98.7%" change="+0.3%" Icon={CheckCircle} accent="#00D1B2" />
+        <StatCard label={t('apiMonitoring.requestsPerDay')} value="429.4K" change="+11%" Icon={Activity} accent="#4F8CFF" />
+        <StatCard label={t('apiMonitoring.avgLatency')} value="1.0ms" change="-8%" Icon={Zap} accent="#8B5CF6" />
+        <StatCard label={t('apiMonitoring.errorRate')} value="0.03%" change="-15%" Icon={AlertCircle} accent="#F59E0B" />
       </div>
 
       {/* Danh sách các API */}
@@ -74,7 +77,7 @@ export default function APIMonitoring() {
               <div>
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white">{api.name}</h3>
                 <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
-                  {api.req} requests today
+                  {api.req} {t('apiMonitoring.requestsToday')}
                 </p>
               </div>
               <StatusPill status={api.status} />
@@ -82,9 +85,9 @@ export default function APIMonitoring() {
 
             <div className="grid grid-cols-3 gap-2 mb-4">
               {[
-                { l: 'Uptime', v: `${api.up}%`, c: '#00D1B2' },
-                { l: 'Latency', v: api.lat, c: '#4F8CFF' },
-                { l: 'Requests', v: api.req, c: '#8B5CF6' },
+                { l: t('apiMonitoring.uptime'), v: `${api.up}%`, c: '#00D1B2' },
+                { l: t('apiMonitoring.latency'), v: api.lat, c: '#4F8CFF' },
+                { l: t('apiMonitoring.requests'), v: api.req, c: '#8B5CF6' },
               ].map((s) => (
                 <div key={s.l} className="rounded-lg p-3 text-center bg-gray-50 dark:bg-[#131A2A] transition-colors">
                   <div className="text-base font-black font-outfit" style={{ color: s.c }}>{s.v}</div>
@@ -96,7 +99,7 @@ export default function APIMonitoring() {
             {/* Thanh tiến trình Uptime */}
             <div>
               <div className="flex justify-between text-[10px] mb-1.5 text-gray-500 dark:text-[#A0AEC0]">
-                <span>Uptime</span>
+                <span>{t('apiMonitoring.uptime')}</span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>{api.up}%</span>
               </div>
               <div className="h-1.5 rounded-full overflow-hidden bg-gray-200 dark:bg-[#131A2A]">

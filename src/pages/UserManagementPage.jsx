@@ -215,7 +215,7 @@ export default function UserManagement() {
 
                         {/* Cột Status */}
                         <td className="px-5 py-4">
-                          <StatusPill status="Active" />
+                          <StatusPill status={t('userManagement.status.active')} />
                         </td>
 
                         {/* Cột Actions */}
@@ -286,15 +286,15 @@ export default function UserManagement() {
 
                 {/* Role */}
                 <div>
-                  <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5">Role</label>
+                  <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5">{t('userManagement.form.role')}</label>
                   <select
                     value={formData.roleName}
                     onChange={(e) => setFormData({ ...formData, roleName: e.target.value })}
                     disabled={isSubmitting}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] text-sm text-gray-900 dark:text-[#E2E8F0] outline-none transition-colors focus:border-blue-500 dark:focus:border-[#4F8CFF] appearance-none disabled:opacity-50"
                   >
-                    <option value="Researcher">Researcher</option>
-                    <option value="Academic">Academic</option>
+                    <option value="Researcher">{t('userManagement.form.roleResearcher')}</option>
+                    <option value="Academic">{t('userManagement.form.roleAcademic')}</option>
                   </select>
                 </div>
 
@@ -306,7 +306,7 @@ export default function UserManagement() {
                     disabled={isSubmitting}
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-50"
                   >
-                    Cancel
+                    {t('userManagement.form.cancel')}
                   </button>
                   <button
                     type="submit"

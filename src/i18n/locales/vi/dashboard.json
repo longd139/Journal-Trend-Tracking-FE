@@ -35,6 +35,30 @@
     "recentUserActivity": "Hoạt động gần đây",
     "requests": "Yêu cầu"
   },
+  "apiMonitoring": {
+    "avgUptime": "Thời gian hoạt động TB",
+    "requestsPerDay": "Yêu cầu / ngày",
+    "avgLatency": "Độ trễ TB",
+    "errorRate": "Tỷ lệ lỗi",
+    "requestsToday": "yêu cầu hôm nay",
+    "uptime": "Thời gian hoạt động",
+    "latency": "Độ trễ",
+    "requests": "Yêu cầu"
+  },
+  "database": {
+    "totalSize": "Tổng dung lượng",
+    "totalRecords": "Tổng bản ghi",
+    "queriesPerSec": "Truy vấn / giây",
+    "cacheHitRate": "Tỷ lệ cache hit",
+    "databaseTables": "Bảng cơ sở dữ liệu",
+    "columns": {
+      "table": "Bảng",
+      "rows": "Hàng",
+      "size": "Kích thước",
+      "growth": "Tăng trưởng",
+      "status": "Trạng thái"
+    }
+  },
   "user": {
     "publishedPapers": "Bài báo đã xuất bản",
     "totalCitations": "Tổng trích dẫn",
@@ -64,6 +88,8 @@
       "email": "Email",
       "organization": "Tổ chức",
       "role": "Vai trò",
+      "roleResearcher": "Nghiên cứu viên",
+      "roleAcademic": "Học thuật",
       "cancel": "Hủy",
       "save": "Lưu người dùng",
       "saving": "Đang lưu..."

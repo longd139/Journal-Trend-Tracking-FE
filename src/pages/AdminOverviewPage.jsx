@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { Users, Server, Database, Cpu, Activity } from 'lucide-react';
 import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts';
 
@@ -74,6 +75,8 @@ const FIELD_DATA = [
 // 3. GIAO DIỆN CHÍNH (Đã thêm export default)
 // ==========================================
 export default function AdminOverview() {
+  const { t } = useTranslation('dashboard');
+
   const hourlyData = PUB_DATA.slice(-8).map((d, i) => ({
     h: `${8 + i * 2}:00`,
     req: Math.round((d.ai + d.bio) / 14),
@@ -84,28 +87,28 @@ export default function AdminOverview() {
       {/* 4 Cục Thống kê */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          label="Active Users"
+          label={t('admin.activeUsers')}
           value="12,847"
           change="+8.4%"
           Icon={Users}
           accent="#4F8CFF"
         />
         <StatCard
-          label="API Health"
+          label={t('admin.apiHealth')}
           value="98.7%"
           change="+0.3%"
           Icon={Server}
           accent="#00D1B2"
         />
         <StatCard
-          label="DB Size"
+          label={t('admin.dbSize')}
           value="2.4 TB"
           change="+5.1%"
           Icon={Database}
           accent="#8B5CF6"
         />
         <StatCard
-          label="System Load"
+          label={t('admin.systemLoad')}
           value="34%"
           change="-12%"
           Icon={Cpu}
@@ -123,8 +126,7 @@ export default function AdminOverview() {
           }}
         >
           <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-            <Activity size={14} style={{ color: '#00D1B2' }} /> API Status
-            Overview
+            <Activity size={14} style={{ color: '#00D1B2' }} /> {t('admin.apiStatusOverview')}
           </h3>
           <div className="space-y-2.5">
             {APIS.map((api) => (
@@ -160,7 +162,7 @@ export default function AdminOverview() {
           }}
         >
           <h3 className="text-sm font-bold text-white mb-4">
-            Request Volume (24h)
+            {t('admin.requestVolume')}
           </h3>
           <ResponsiveContainer width="100%" height={185}>
             <BarChart data={hourlyData}>
@@ -193,7 +195,7 @@ export default function AdminOverview() {
                 fill="#4F8CFF"
                 radius={[3, 3, 0, 0]}
                 opacity={0.8}
-                name="Requests"
+                name={t('admin.requests')}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -209,7 +211,7 @@ export default function AdminOverview() {
           className="p-5 border-b flex items-center justify-between"
           style={{ borderColor: 'rgba(255,255,255,0.07)' }}
         >
-          <h3 className="text-sm font-bold text-white">Recent User Activity</h3>
+          <h3 className="text-sm font-bold text-white">{t('admin.recentUserActivity')}</h3>
         </div>
         {USERS_TABLE.slice(0, 4).map((u, i) => (
           <div

@@ -74,5 +74,26 @@
     "login": {
       "register": "Register"
     }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "back": "← Back",
+    "viewDocument": "View Document",
+    "newCitations": "New Citations",
+    "newCitationsDesc": "Paper \"IoT Architecture\" got 5 new citations.",
+    "newCitationsDetail": "Your paper has been referenced by 5 new articles in IEEE Internet of Things journal.",
+    "trendAlert": "Trend Alert",
+    "trendAlertDesc": "Embedded C/C++ usage increased by 15%.",
+    "trendAlertDetail": "The demand for Embedded C/C++ in IoT edge computing has seen a significant surge in Q2 2026.",
+    "systemNotification": "System Notification",
+    "systemNotifDesc": "Monthly system report is ready.",
+    "systemNotifDetail": "Your report \"May 2026 Trends\" has been compiled and is ready for download.",
+    "securityAlert": "Security Alert",
+    "securityAlertDesc": "New login detected on your account.",
+    "securityAlertDetail": "A new login from IP 192.168.1.1 was detected. If this wasn't you, please change your password.",
+    "2mAgo": "2m ago",
+    "1hAgo": "1h ago",
+    "3hAgo": "3h ago",
+    "1dAgo": "1d ago"
   }
 }

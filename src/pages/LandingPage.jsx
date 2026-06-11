@@ -6,6 +6,7 @@ import { ArrowRight, TrendingUp, Brain, Zap, ArrowUpRight, Microscope, Globe } f
 import { useNavigate } from 'react-router-dom';
 import { PARTICLES, PUB_DATA, INSIGHTS, FEATURES, APIS } from '../constants/mockData';
 import { SectionBadge, StatusPill } from '../components/SharedUI';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -48,6 +49,7 @@ export default function LandingPage() {
           ))}
         </div>
         <div className="flex items-center gap-2">
+          <LanguageSwitcher variant="topbar" />
           <button onClick={() => handleAuthRedirect('login')} className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-all">{t('nav.signIn')}</button>
           <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">{t('nav.register')}</motion.button>
         </div>
@@ -77,7 +79,7 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Zap size={10} /> {t('hero.badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-black leading-[1.05] mb-6 text-gray-900 dark:text-white font-outfit" style={{ letterSpacing: '-0.025em' }}>
+            <h1 className="text-5xl lg:text-6xl font-bold leading-[1.15] mb-6 text-gray-900 dark:text-white overflow-diacritics-safe" style={{ fontFamily: "'Be Vietnam Pro', 'Inter', 'Noto Sans', sans-serif" }}>
               {t('hero.heading1')}<br />
               <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400">{t('hero.heading2')}</span><br />
               {t('hero.heading3')}

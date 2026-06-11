@@ -35,6 +35,30 @@
     "recentUserActivity": "Recent User Activity",
     "requests": "Requests"
   },
+  "apiMonitoring": {
+    "avgUptime": "Avg Uptime",
+    "requestsPerDay": "Requests / day",
+    "avgLatency": "Avg Latency",
+    "errorRate": "Error Rate",
+    "requestsToday": "requests today",
+    "uptime": "Uptime",
+    "latency": "Latency",
+    "requests": "Requests"
+  },
+  "database": {
+    "totalSize": "Total Size",
+    "totalRecords": "Total Records",
+    "queriesPerSec": "Queries / sec",
+    "cacheHitRate": "Cache Hit Rate",
+    "databaseTables": "Database Tables",
+    "columns": {
+      "table": "Table",
+      "rows": "Rows",
+      "size": "Size",
+      "growth": "Growth",
+      "status": "Status"
+    }
+  },
   "user": {
     "publishedPapers": "Published Papers",
     "totalCitations": "Total Citations",
@@ -64,6 +88,8 @@
       "email": "Email",
       "organization": "Organization",
       "role": "Role",
+      "roleResearcher": "Researcher",
+      "roleAcademic": "Academic",
       "cancel": "Cancel",
       "save": "Save User",
       "saving": "Saving..."

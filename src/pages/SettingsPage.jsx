@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, Building, Shield, Save, CheckCircle2, AlertTriangle, ArrowRight, Moon, Sun, Monitor, Globe } from 'lucide-react';
+import { User, Mail, Building, Shield, Save, CheckCircle2, AlertTriangle, ArrowRight, Moon, Sun, Monitor, Globe, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -9,6 +9,22 @@ import { userAPI } from '../lib/api/user.api';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../utils/localization';
 import { useTheme } from '../hooks/useTheme';
+
+const LOCAL_UNIS = [
+  'Văn Lang University',
+  'FPT University',
+  'Bách khoa University',
+  'Khoa học Tự nhiên University',
+  'Công nghệ Thông tin (UIT) University',
+  'Quốc tế TP.HCM University',
+  'RMIT University',
+  'Tôn Đức Thắng University',
+  'Kinh tế TP.HCM University',
+  'Ngoại thương University',
+  'Y Dược University',
+  'Sư phạm Kỹ thuật University',
+  'Công nghiệp University',
+];
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -24,12 +40,24 @@ export default function SettingsPage() {
   // Language preview state
   const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
 
+  // University autocomplete
+  const [uniSuggestions, setUniSuggestions] = useState([]);
+  const [showUniSuggestions, setShowUniSuggestions] = useState(false);
+  const [loadingUnis, setLoadingUnis] = useState(false);
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     institution: '',
     bio: '',
     isVerified: false,
+  });
+
+  // Separate edit state so display name only updates after save
+  const [editForm, setEditForm] = useState({
+    fullName: '',
+    institution: '',
+    bio: '',
   });
 
   useEffect(() => {
@@ -48,6 +76,11 @@ export default function SettingsPage() {
           bio: '',
           isVerified: userData.isVerified || false,
         });
+        setEditForm({
+          fullName: userData.fullName || '',
+          institution: userData.institution || '',
+          bio: '',
+        });
       } catch (err) {
         console.error('Error fetching user info:', err);
         setError(t('errors.loadFailed', { ns: 'common' }));
@@ -62,13 +95,55 @@ export default function SettingsPage() {
     setLangPreview(getLocalePreview(i18n.language));
   }, [i18n.language]);
 
+  // University autocomplete search
+  useEffect(() => {
+    if (!editForm.institution || editForm.institution.trim().length < 1) {
+      setUniSuggestions([]);
+      return;
+    }
+
+    const searchTerm = editForm.institution.toLowerCase();
+
+    const localMatches = LOCAL_UNIS.filter((uni) =>
+      uni.toLowerCase().includes(searchTerm),
+    ).map((name) => ({ name }));
+
+    setUniSuggestions(localMatches.slice(0, 5));
+
+    const timer = setTimeout(async () => {
+      setLoadingUnis(true);
+      try {
+        const res = await fetch(
+          `http://universities.hipolabs.com/search?name=${editForm.institution}`,
+        );
+        const data = await res.json();
+        const apiMatches = data.map((u) => ({ name: u.name }));
+
+        const combined = [...localMatches, ...apiMatches];
+        const uniqueSuggestions = Array.from(
+          new Set(combined.map((a) => a.name)),
+        )
+          .map((name) => ({ name }))
+          .slice(0, 5);
+
+        setUniSuggestions(uniqueSuggestions);
+      } catch (error) {
+        console.error('Error loading universities:', error);
+      } finally {
+        setLoadingUnis(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [editForm.institution]);
+
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
+    setEditForm((prev) => ({
       ...prev,
       [name]: value
     }));
@@ -82,11 +157,18 @@ export default function SettingsPage() {
 
     try {
       const payload = {
-        fullName: formData.fullName,
-        institution: formData.institution,
+        fullName: editForm.fullName,
+        institution: editForm.institution,
         avatarUrl: formData.avatarUrl || "string"
       };
       await userAPI.updateProfile(payload);
+      // Only sync display state after successful save
+      setFormData((prev) => ({
+        ...prev,
+        fullName: editForm.fullName,
+        institution: editForm.institution,
+        bio: editForm.bio,
+      }));
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
@@ -173,14 +255,14 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     name="fullName"
-                    value={formData.fullName}
+                    value={editForm.fullName}
                     onChange={handleChange}
                     className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF] bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="relative">
                 <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
                   {t('profile.institution')}
                 </label>
@@ -189,11 +271,39 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     name="institution"
-                    value={formData.institution}
-                    onChange={handleChange}
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF] bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
+                    value={editForm.institution}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setShowUniSuggestions(true);
+                    }}
+                    onFocus={() => setShowUniSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowUniSuggestions(false), 200)}
+                    className="w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors focus:border-[#4F8CFF] bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
                   />
+                  {loadingUnis && (
+                    <RefreshCw
+                      size={12}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-gray-400 dark:text-white/50"
+                    />
+                  )}
                 </div>
+
+                {showUniSuggestions && uniSuggestions.length > 0 && (
+                  <ul className="absolute z-50 w-full mt-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#131A2A] overflow-hidden shadow-2xl">
+                    {uniSuggestions.map((uni, idx) => (
+                      <li
+                        key={idx}
+                        onMouseDown={() => {
+                          setEditForm((prev) => ({ ...prev, institution: uni.name }));
+                          setShowUniSuggestions(false);
+                        }}
+                        className="px-4 py-2.5 text-xs text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-[#4F8CFF1A] cursor-pointer border-b border-gray-100 dark:border-white/5 last:border-b-0 transition-colors"
+                      >
+                        {uni.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
             <div>
@@ -248,7 +358,7 @@ export default function SettingsPage() {
             <div className="relative">
               <textarea
                 name="bio"
-                value={formData.bio}
+                value={editForm.bio}
                 onChange={handleChange}
                 rows="4"
                 placeholder={t('profile.bioPlaceholder')}
@@ -288,7 +398,7 @@ export default function SettingsPage() {
         transition={{ delay: 0.1 }}
         className="rounded-2xl border p-6 shadow-xl bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300"
       >
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 dark:bg-blue-500/10">
             <Globe size={18} className="text-blue-500 dark:text-[#4F8CFF]" />
           </div>
@@ -298,23 +408,26 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {/* Language Selector */}
-          <div>
-            <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-2">
+          <div className="p-4 rounded-xl border bg-gray-50 dark:bg-white/[0.02] border-gray-200 dark:border-white/5 flex flex-col">
+            <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-3">
               {t('language.title')}
             </label>
-            <div className="max-w-[220px]">
+            <div className="flex-1 flex flex-col justify-center">
               <LanguageSwitcher variant="inline" />
             </div>
+            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 leading-relaxed">
+              {t('language.description')}
+            </p>
           </div>
 
           {/* Preview */}
-          <div className="p-4 rounded-xl border bg-gray-50 dark:bg-white/[0.02] border-gray-200 dark:border-white/5">
+          <div className="p-4 rounded-xl border bg-gray-50 dark:bg-white/[0.02] border-gray-200 dark:border-white/5 flex flex-col">
             <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-3">
               {t('language.preview')}
             </label>
-            <div className="space-y-2">
+            <div className="flex-1 flex flex-col justify-center space-y-3">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-gray-500 dark:text-[#A0AEC0]">{t('language.dateSample')}</span>
                 <span className="font-mono font-semibold text-gray-900 dark:text-white">
@@ -334,13 +447,13 @@ export default function SettingsPage() {
         <div className="flex items-center gap-3 mt-5 pt-5 border-t border-gray-200 dark:border-white/5">
           <button
             onClick={handleSaveLanguagePreference}
-            className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 transition-opacity shadow-md"
+            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 transition-all shadow-md shadow-blue-500/20 flex items-center gap-2"
           >
-            {t('language.savePreference')}
+            <Save size={13} /> {t('language.savePreference')}
           </button>
           <button
             onClick={handleResetLanguage}
-            className="px-4 py-2 rounded-lg text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
           >
             {t('language.resetDefault')}
           </button>
