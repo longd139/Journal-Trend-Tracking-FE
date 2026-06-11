@@ -12,13 +12,13 @@ import {
   Settings,
   Bell,
   Bookmark,
+  AlertTriangle // Thêm icon chấm than
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../lib/api/user.api';
 
-// 1. SIDEBAR
+// 1. SIDEBAR (Giữ nguyên không đổi)
 function Sidebar({ role, activeTab, navigate, user }) {
-  // Menu cho Academic (Không có Analytics)
   const academicNav = [
     { id: 'overview', Icon: Home, label: 'Overview' },
     { id: 'search', Icon: Search, label: 'Search Papers' },
@@ -26,7 +26,6 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'reports', Icon: FileText, label: 'Reports' },
   ];
 
-  // Menu cho Researcher (Full tính năng)
   const researcherNav = [
     { id: 'overview', Icon: Home, label: 'Overview' },
     { id: 'search', Icon: Search, label: 'Search Papers' },
@@ -35,7 +34,6 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'reports', Icon: FileText, label: 'Reports' },
   ];
 
-  // Menu cho Admin
   const adminNav = [
     { id: 'overview', Icon: Home, label: 'Dashboard' },
     { id: 'users', Icon: Users, label: 'User Management' },
@@ -43,12 +41,10 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'database', Icon: Database, label: 'Database' },
   ];
 
-  // CHỌN MENU TỰ ĐỘNG THEO ROLE
-  let nav = academicNav; // Mặc định
+  let nav = academicNav;
   if (role === 'admin') nav = adminNav;
   if (role === 'researcher') nav = researcherNav;
 
-  // Hàm sinh chữ cái viết tắt từ tên thật (Ví dụ: "Nguyen Van Long" -> "NL")
   const getInitials = (name) => {
     if (!name) return '??';
     const parts = name.trim().split(' ');
@@ -89,7 +85,6 @@ function Sidebar({ role, activeTab, navigate, user }) {
             <button
               key={id}
               onClick={() => navigate(`/${role}/${id}`)}
-              // CHỈNH SỬA: Đã bỏ style cứng, thay bằng Tailwind để ăn hiệu ứng hover màu trắng trong suốt
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
                   ? 'bg-[#4F8CFF]/10 text-[#4F8CFF] border-[#4F8CFF]'
@@ -107,67 +102,41 @@ function Sidebar({ role, activeTab, navigate, user }) {
         className="p-4 border-t space-y-3"
         style={{ borderColor: 'rgba(255,255,255,0.07)' }}
       >
-        {/* LOGIC PROFILE TỰ ĐỘNG ĐỔI THEO ROLE */}
-        {(() => {
-          const profileConfig = {
-            admin: {
-              initials: 'AD',
-              name: 'System Admin',
-              desc: 'SCITRACK Administrator',
-            },
-            researcher: {
-              initials: 'SC',
-              name: 'Dr. Sarah Chen',
-              desc: 'MIT · Researcher',
-            },
-            academic: {
-              initials: 'JP',
-              name: 'Prof. James Patel',
-              desc: 'Stanford · Academic',
-            },
-          };
-
-          const currentProfile = profileConfig[role] || profileConfig.academic;
-
-          return (
-            <div
-              className="flex items-center gap-3 p-2 rounded-lg"
-              style={{ background: '#1B2235' }}
-            >
-              <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0"
-                style={{
-                  background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-                }}
-              >
-                {getInitials(user?.fullName)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-xs font-semibold text-white truncate">
-                  {user ? user.fullName : 'Loading...'}
-                </div>
-                <div
-                  className="text-[10px] truncate"
-                  style={{ color: '#A0AEC0' }}
-                >
-                  {user ? role.toUpperCase() : 'Please wait...'}
-                </div>
-              </div>
-              <Settings
-                size={14}
-                style={{ color: '#A0AEC0' }}
-                className="cursor-pointer hover:text-white transition-colors hover:rotate-90 duration-300"
-                onClick={() => navigate(`/${role}/settings`)}
-              />
+        <div
+          className="flex items-center gap-3 p-2 rounded-lg"
+          style={{ background: '#1B2235' }}
+        >
+          <div
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
+            }}
+          >
+            {getInitials(user?.fullName)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-xs font-semibold text-white truncate">
+              {user ? user.fullName : 'Loading...'}
             </div>
-          );
-        })()}
+            <div
+              className="text-[10px] truncate"
+              style={{ color: '#A0AEC0' }}
+            >
+              {user ? role.toUpperCase() : 'Please wait...'}
+            </div>
+          </div>
+          <Settings
+            size={14}
+            style={{ color: '#A0AEC0' }}
+            className="cursor-pointer hover:text-white transition-colors hover:rotate-90 duration-300"
+            onClick={() => navigate(`/${role}/settings`)}
+          />
+        </div>
 
-        {/* CHỈNH SỬA: Nút Sign Out đã được độ lại hover nền đỏ, chữ trắng, kèm bóng đổ nhẹ */}
         <button
           onClick={() => {
-            sessionStorage.removeItem('userRole'); // Xóa role
-            navigate('/login'); // Đá thẳng về form đăng nhập
+            sessionStorage.removeItem('userRole'); 
+            navigate('/login'); 
           }}
           className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-[#A0AEC0] hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
         >
@@ -178,8 +147,18 @@ function Sidebar({ role, activeTab, navigate, user }) {
   );
 }
 
-// 2. TOPBAR
-function TopBar({ title, subtitle }) {
+// 2. TOPBAR (ĐÃ ĐỘ LẠI PHẦN AVATAR CẢNH BÁO)
+function TopBar({ title, subtitle, user, role }) {
+  const navigate = useNavigate();
+
+  // Hàm sinh chữ cái viết tắt cho Avatar TopBar
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
     <header
       className="flex items-center justify-between px-6 py-4 border-b shrink-0"
@@ -198,7 +177,7 @@ function TopBar({ title, subtitle }) {
           </p>
         )}
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         {/* Thanh Search */}
         <div className="relative hidden md:block">
           <Search
@@ -209,7 +188,7 @@ function TopBar({ title, subtitle }) {
           <input
             type="text"
             placeholder="Search papers, topics…"
-            className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border"
+            className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border transition-all focus:border-[#4F8CFF]"
             style={{
               background: '#1B2235',
               borderColor: 'rgba(255,255,255,0.08)',
@@ -218,8 +197,36 @@ function TopBar({ title, subtitle }) {
           />
         </div>
 
-        {/* GẮN CÁI CHUÔNG VÀO ĐÂY (Thay thế cho nút chuông tĩnh cũ) */}
+        {/* Chuông thông báo */}
         <NotificationBell />
+
+        {/* ĐƯỜNG KẺ NGĂN CÁCH NHẸ */}
+        <div className="h-6 w-px bg-white/10 mx-1"></div>
+
+        {/* KHU VỰC AVATAR CÓ CẢNH BÁO CHƯA XÁC THỰC EMAIL */}
+        <button 
+          onClick={() => navigate(`/${role}/settings`)}
+          className="relative flex items-center justify-center w-8 h-8 rounded-full transition-transform hover:scale-105"
+          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          title={user?.isVerified ? "Profile Settings" : "Please verify your email"}
+        >
+          <span className="text-[11px] font-black text-white">
+            {getInitials(user?.fullName)}
+          </span>
+
+          {/* Dấu chấm than cảnh báo nếu isVerified = false */}
+          {user && user.isVerified === false && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
+              {/* Hiệu ứng chớp chớp ở vòng ngoài */}
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              {/* Vòng chấm than ở trong */}
+              <span className="relative flex items-center justify-center rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-[#0B1020] text-[#0B1020]">
+                <AlertTriangle size={8} strokeWidth={4} />
+              </span>
+            </span>
+          )}
+        </button>
+
       </div>
     </header>
   );
@@ -230,24 +237,20 @@ export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // State lưu trữ thông tin người dùng thực tế
   const [user, setUser] = useState(null);
 
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[pathParts.length - 1] || 'overview';
   const role = sessionStorage.getItem('userRole') || 'academic';
 
-  // TỰ ĐỘNG GỌI API KHI LAYOUT ĐƯỢC LOAD
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // Thay đường dẫn '/api/users/me' bằng chuẩn endpoint của Backend bạn thiết kế
         const response = await userAPI.profile();
-        setUser(response); // Lưu dữ liệu (gồm fullName, institution, v.v.) vào state
+        setUser(response); 
         console.log(response);
       } catch (error) {
         console.error('Không thể lấy thông tin tài khoản:', error);
-        // Nếu lỗi 401 do hết hạn token, có thể đá user về trang login tại đây
         if (error.response?.status === 401) {
           navigate('/login');
         }
@@ -257,7 +260,6 @@ export default function DashboardLayout({ children }) {
     fetchUserProfile();
   }, [navigate]);
 
-  // CẬP NHẬT TỪ ĐIỂN ĐỂ HỖ TRỢ CẢ TRANG ADMIN VÀ USER
   const titles = {
     overview: {
       title: role === 'admin' ? 'System Dashboard' : 'Research Overview',
@@ -272,7 +274,6 @@ export default function DashboardLayout({ children }) {
     },
     analytics: { title: 'Analytics', sub: 'Deep dive into your data' },
     reports: { title: 'Reports', sub: 'Exported tracking documents' },
-    // Thêm dòng này vào trong mảng titles:
     bookmarks: {
       title: 'Saved Papers',
       sub: 'Your personal reading list and references',
@@ -299,7 +300,6 @@ export default function DashboardLayout({ children }) {
       className="flex h-screen overflow-hidden"
       style={{ background: '#0B1020' }}
     >
-      {/* TRUYỀN STATE USER XUỐNG SIDEBAR */}
       <Sidebar
         role={role}
         activeTab={activeTab}
@@ -307,7 +307,13 @@ export default function DashboardLayout({ children }) {
         user={user}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar title={currentHeader.title} subtitle={currentHeader.sub} />
+        {/* ĐÃ TRUYỀN THÊM USER VÀ ROLE XUỐNG TOPBAR */}
+        <TopBar 
+          title={currentHeader.title} 
+          subtitle={currentHeader.sub} 
+          user={user}
+          role={role}
+        />
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {children}
         </main>
