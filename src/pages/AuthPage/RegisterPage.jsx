@@ -325,6 +325,7 @@ export default function RegisterPage() {
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
+
             <div>
               <label className="text-xs font-semibold text-white block mb-1.5">
                 Full Name
@@ -335,12 +336,17 @@ export default function RegisterPage() {
                 value={form.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
-                  errors.name
+                  errors.fullName // FIX Ở ĐÂY NÈ BR
                     ? 'border-red-500 bg-red-500/5 focus:border-red-400'
                     : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
                 }`}
                 style={{ color: '#E2E8F0' }}
               />
+              {errors.fullName && (
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
+                  <AlertCircle size={10} /> Please enter your full name
+                </div>
+              )}
             </div>
 
             {/* --- KHỐI INSTITUTION ĐƯỢC CẬP NHẬT --- */}
@@ -380,6 +386,13 @@ export default function RegisterPage() {
                   />
                 )}
               </div>
+              
+              {/* THÊM DÒNG BÁO LỖI CHO INSTITUTION LUÔN CHO ĐỒNG BỘ */}
+              {errors.institution && (
+                <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
+                  <AlertCircle size={10} /> Please select your institution
+                </div>
+              )}
 
               {/* Menu thả xuống gợi ý */}
               {showSuggestions && suggestions.length > 0 && (
@@ -432,13 +445,12 @@ export default function RegisterPage() {
               </div>
               {errors.email && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Vui lòng nhập email
+                  <AlertCircle size={10} /> Please enter your email
                 </div>
               )}
               {errors.emailFormat && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Email không đúng định dạng (vd:
-                  name@domain.com)
+                  <AlertCircle size={10} /> Invalid email format (e.g., name@domain.com)
                 </div>
               )}
             </div>
@@ -467,6 +479,11 @@ export default function RegisterPage() {
                     style={{ color: '#E2E8F0' }}
                   />
                 </div>
+                {errors.password && (
+                  <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
+                    <AlertCircle size={10} /> Please enter a password
+                  </div>
+                )}
               </div>
 
               <div>
@@ -496,6 +513,12 @@ export default function RegisterPage() {
                     style={{ color: '#E2E8F0' }}
                   />
                 </div>
+                {/* Check lỗi rỗng trước, nếu không rỗng mà sai thì báo mismatch */}
+                {errors.confirmPassword && !errors.mismatch && (
+                  <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
+                    <AlertCircle size={10} /> Please confirm your password
+                  </div>
+                )}
               </div>
             </div>
 
@@ -504,6 +527,7 @@ export default function RegisterPage() {
                 <AlertCircle size={10} /> Passwords do not match
               </div>
             )}
+            
             {/* 5. Hiển thị thông báo lỗi từ API ngay trên nút Submit */}
             {errors.apiError && (
               <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2 mt-2">

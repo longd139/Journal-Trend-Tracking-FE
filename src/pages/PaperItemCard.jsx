@@ -20,6 +20,9 @@ export function PaperItemCard({
     window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(paper.title)}`, "_blank");
   };
 
+  // Phòng vệ tránh crash nếu object paper truyền vào bị null/undefined
+  if (!paper) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -33,14 +36,16 @@ export function PaperItemCard({
           <div className="flex-1 space-y-3 w-full">
             {/* Tag Badges */}
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge 
-                variant="outline" 
-                className="text-[10px] font-bold uppercase tracking-wide bg-opacity-10"
-                style={{ backgroundColor: `${badgeColor}15`, color: badgeColor, borderColor: `${badgeColor}35` }}
-              >
-                {paper.field}
-              </Badge>
-              <span className="text-xs text-slate-500 font-mono">{paper.year}</span>
+              {paper.field && (
+                <Badge 
+                  variant="outline" 
+                  className="text-[10px] font-bold uppercase tracking-wide bg-opacity-10"
+                  style={{ backgroundColor: `${badgeColor}15`, color: badgeColor, borderColor: `${badgeColor}35` }}
+                >
+                  {paper.field}
+                </Badge>
+              )}
+              {paper.year && <span className="text-xs text-slate-500 font-mono">{paper.year}</span>}
               {paper.citations > 50000 && (
                 <Badge variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px]">
                   Classic
@@ -50,12 +55,12 @@ export function PaperItemCard({
             
             {/* Title */}
             <h4 onClick={handleRedirect} className="text-base font-bold text-white hover:text-blue-400 transition-colors cursor-pointer leading-snug">
-              {paper.title}
+              {paper.title || "Untitled Paper"}
             </h4>
 
             {/* Authors & Journal Metadata */}
             <div className="space-y-1">
-              <p className="text-xs text-slate-300 font-medium">{paper.authors}</p>
+              {paper.authors && <p className="text-xs text-slate-300 font-medium">{paper.authors}</p>}
               {paper.journal && (
                 <p className="text-xs text-slate-400 flex items-center gap-1.5">
                   <BookOpen size={13} className="text-slate-500 flex-shrink-0" />
@@ -104,13 +109,16 @@ export function PaperItemCard({
           {/* Cột hiển thị số lượng citation & hành động */}
           <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-white/5 sm:pl-4">
             <div className="text-left sm:text-right">
+              {/* ✅ ĐÃ SỬA LỖI: Thêm phòng vệ nếu paper.citations bị null hoặc undefined */}
               <div className="text-2xl font-black text-white font-sans tracking-tight">
-                {paper.citations.toLocaleString()}
+                {(paper.citations ?? 0).toLocaleString()}
               </div>
               <div className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold">citations</div>
-              <div className="text-[10px] font-semibold font-mono mt-0.5 text-[#00D1B2] bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-[#00D1B2]/10 inline-block">
-                {paper.trend}
-              </div>
+              {paper.trend && (
+                <div className="text-[10px] font-semibold font-mono mt-0.5 text-[#00D1B2] bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-[#00D1B2]/10 inline-block">
+                  {paper.trend}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 sm:mt-1">
