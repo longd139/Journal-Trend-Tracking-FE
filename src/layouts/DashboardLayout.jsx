@@ -12,12 +12,12 @@ import {
   Settings,
   Bell,
   Bookmark,
-  AlertTriangle // Thêm icon chấm than
+  AlertTriangle // Icon chấm than
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../lib/api/user.api';
 
-// 1. SIDEBAR (Giữ nguyên không đổi)
+// 1. SIDEBAR
 function Sidebar({ role, activeTab, navigate, user }) {
   const academicNav = [
     { id: 'overview', Icon: Home, label: 'Overview' },
@@ -53,26 +53,22 @@ function Sidebar({ role, activeTab, navigate, user }) {
   };
 
   return (
-    <aside
-      className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0"
-      style={{ background: '#131A2A', borderColor: 'rgba(255,255,255,0.07)' }}
-    >
+    <aside className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0 bg-white dark:bg-[#131A2A] border-gray-200 dark:border-white/5 transition-colors duration-300">
       <div
         onClick={() => navigate(`/${role}/overview`)}
-        className="p-5 border-b flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
-        style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+        className="p-5 border-b border-gray-200 dark:border-white/5 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
       >
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-md"
           style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
         >
           <Microscope size={14} className="text-white" />
         </div>
         <div>
-          <div className="text-xs font-black text-white tracking-widest">
+          <div className="text-xs font-black text-gray-900 dark:text-white tracking-widest">
             SCITRACK
           </div>
-          <div className="text-[10px] mt-0.5" style={{ color: '#A0AEC0' }}>
+          <div className="text-[10px] mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
             {role === 'admin' ? 'Admin Console' : 'Research Platform'}
           </div>
         </div>
@@ -87,8 +83,8 @@ function Sidebar({ role, activeTab, navigate, user }) {
               onClick={() => navigate(`/${role}/${id}`)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
-                  ? 'bg-[#4F8CFF]/10 text-[#4F8CFF] border-[#4F8CFF]'
-                  : 'border-transparent text-[#A0AEC0] hover:bg-white/10 hover:text-white'
+                  ? 'bg-blue-50 dark:bg-[#4F8CFF]/10 text-blue-600 dark:text-[#4F8CFF] border-blue-600 dark:border-[#4F8CFF]'
+                  : 'border-transparent text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               <Icon size={15} />
@@ -98,16 +94,10 @@ function Sidebar({ role, activeTab, navigate, user }) {
         })}
       </nav>
 
-      <div
-        className="p-4 border-t space-y-3"
-        style={{ borderColor: 'rgba(255,255,255,0.07)' }}
-      >
-        <div
-          className="flex items-center gap-3 p-2 rounded-lg"
-          style={{ background: '#1B2235' }}
-        >
+      <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-3">
+        <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-[#1B2235] border border-gray-100 dark:border-transparent transition-colors">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 shadow-sm"
             style={{
               background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
             }}
@@ -115,20 +105,24 @@ function Sidebar({ role, activeTab, navigate, user }) {
             {getInitials(user?.fullName)}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-white truncate">
+            <div className="text-xs font-semibold text-gray-900 dark:text-white truncate">
               {user ? user.fullName : 'Loading...'}
             </div>
-            <div
-              className="text-[10px] truncate"
-              style={{ color: '#A0AEC0' }}
-            >
-              {user ? role.toUpperCase() : 'Please wait...'}
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className="text-[10px] truncate text-gray-500 dark:text-[#A0AEC0]">
+                {user ? role.toUpperCase() : 'Please wait...'}
+              </div>
+              {/* Badge cảnh báo ở Sidebar */}
+              {user && user.isVerified === false && (
+                <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 bg-amber-100 dark:bg-amber-500/10 px-1 py-0.5 rounded">
+                  <AlertTriangle size={8} /> UNVERIFIED
+                </div>
+              )}
             </div>
           </div>
           <Settings
             size={14}
-            style={{ color: '#A0AEC0' }}
-            className="cursor-pointer hover:text-white transition-colors hover:rotate-90 duration-300"
+            className="cursor-pointer text-gray-400 hover:text-gray-900 dark:text-[#A0AEC0] dark:hover:text-white transition-colors hover:rotate-90 duration-300"
             onClick={() => navigate(`/${role}/settings`)}
           />
         </div>
@@ -138,7 +132,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
             sessionStorage.removeItem('userRole'); 
             navigate('/login'); 
           }}
-          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-[#A0AEC0] hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
+          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#A0AEC0] hover:bg-red-500 dark:hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
         >
           Sign Out
         </button>
@@ -147,11 +141,10 @@ function Sidebar({ role, activeTab, navigate, user }) {
   );
 }
 
-// 2. TOPBAR (ĐÃ ĐỘ LẠI PHẦN AVATAR CẢNH BÁO)
+// 2. TOPBAR
 function TopBar({ title, subtitle, user, role }) {
   const navigate = useNavigate();
 
-  // Hàm sinh chữ cái viết tắt cho Avatar TopBar
   const getInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -160,19 +153,16 @@ function TopBar({ title, subtitle, user, role }) {
   };
 
   return (
-    <header
-      className="flex items-center justify-between px-6 py-4 border-b shrink-0"
-      style={{ background: '#0B1020', borderColor: 'rgba(255,255,255,0.07)' }}
-    >
+    <header className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-white dark:bg-[#0B1020] border-gray-200 dark:border-white/5 transition-colors duration-300">
       <div>
         <h1
-          className="text-base font-black text-white"
+          className="text-base font-black text-gray-900 dark:text-white"
           style={{ fontFamily: "'Outfit', sans-serif" }}
         >
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs mt-0.5" style={{ color: '#A0AEC0' }}>
+          <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
             {subtitle}
           </p>
         )}
@@ -182,18 +172,12 @@ function TopBar({ title, subtitle, user, role }) {
         <div className="relative hidden md:block">
           <Search
             size={13}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: '#A0AEC0' }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]"
           />
           <input
             type="text"
             placeholder="Search papers, topics…"
-            className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border transition-all focus:border-[#4F8CFF]"
-            style={{
-              background: '#1B2235',
-              borderColor: 'rgba(255,255,255,0.08)',
-              color: '#E2E8F0',
-            }}
+            className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border transition-all focus:border-[#4F8CFF] bg-gray-100 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
           />
         </div>
 
@@ -201,12 +185,12 @@ function TopBar({ title, subtitle, user, role }) {
         <NotificationBell />
 
         {/* ĐƯỜNG KẺ NGĂN CÁCH NHẸ */}
-        <div className="h-6 w-px bg-white/10 mx-1"></div>
+        <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1"></div>
 
-        {/* KHU VỰC AVATAR CÓ CẢNH BÁO CHƯA XÁC THỰC EMAIL */}
+        {/* KHU VỰC AVATAR */}
         <button 
           onClick={() => navigate(`/${role}/settings`)}
-          className="relative flex items-center justify-center w-8 h-8 rounded-full transition-transform hover:scale-105"
+          className="relative flex items-center justify-center w-8 h-8 rounded-full transition-transform hover:scale-105 shadow-md"
           style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
           title={user?.isVerified ? "Profile Settings" : "Please verify your email"}
         >
@@ -214,19 +198,18 @@ function TopBar({ title, subtitle, user, role }) {
             {getInitials(user?.fullName)}
           </span>
 
-          {/* Dấu chấm than cảnh báo nếu isVerified = false */}
+          {/* Dấu chấm than cảnh báo */}
           {user && user.isVerified === false && (
             <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-              {/* Hiệu ứng chớp chớp ở vòng ngoài */}
+                            {/* Hiệu ứng chớp chớp ở vòng ngoài */}
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              {/* Vòng chấm than ở trong */}
-              <span className="relative flex items-center justify-center rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-[#0B1020] text-[#0B1020]">
+                            {/* Vòng chấm than ở trong */}
+              <span className="relative flex items-center justify-center rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-white dark:border-[#0B1020] text-white dark:text-[#0B1020]">
                 <AlertTriangle size={8} strokeWidth={4} />
               </span>
             </span>
           )}
         </button>
-
       </div>
     </header>
   );
@@ -263,10 +246,7 @@ export default function DashboardLayout({ children }) {
   const titles = {
     overview: {
       title: role === 'admin' ? 'System Dashboard' : 'Research Overview',
-      sub:
-        role === 'admin'
-          ? 'Platform health and metrics'
-          : 'Your personalized academic intelligence dashboard',
+      sub: role === 'admin' ? 'Platform health and metrics' : 'Your personalized academic intelligence dashboard',
     },
     search: {
       title: 'Search Papers',
@@ -296,10 +276,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: '#0B1020' }}
-    >
+    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0B1020] transition-colors duration-300">
       <Sidebar
         role={role}
         activeTab={activeTab}
@@ -307,7 +284,7 @@ export default function DashboardLayout({ children }) {
         user={user}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* ĐÃ TRUYỀN THÊM USER VÀ ROLE XUỐNG TOPBAR */}
+                {/* ĐÃ TRUYỀN THÊM USER VÀ ROLE XUỐNG TOPBAR */}
         <TopBar 
           title={currentHeader.title} 
           subtitle={currentHeader.sub} 

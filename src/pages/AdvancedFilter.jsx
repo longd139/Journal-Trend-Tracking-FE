@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Filter, SlidersHorizontal, Calendar, Layers, Quote } from "lucide-react";
-// Import chuẩn xác theo cấu trúc thư mục của bạn
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Checkbox } from "../components/ui/checkbox";
 
@@ -22,26 +21,26 @@ export function AdvancedFilter({
   };
 
   return (
-    <Card className="bg-[#1B2235] border-white/5 relative overflow-hidden h-fit rounded-xl shadow-sm">
+    <Card className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 relative overflow-hidden h-fit rounded-xl shadow-sm transition-colors duration-300">
       {userRole === "academic" && (
-        <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center text-center p-4">
-          <SlidersHorizontal className="w-6 h-6 text-slate-500 mb-2" />
-          <p className="text-sm font-semibold text-slate-300">Feature Locked</p>
-          <p className="text-[11px] text-slate-500 mt-1 px-4 leading-relaxed">
+        <div className="absolute inset-0 bg-white/90 dark:bg-slate-950/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center text-center p-4">
+          <SlidersHorizontal className="w-6 h-6 text-gray-400 dark:text-slate-500 mb-2" />
+          <p className="text-sm font-semibold text-gray-900 dark:text-slate-300">Feature Locked</p>
+          <p className="text-[11px] text-gray-500 dark:text-slate-500 mt-1 px-4 leading-relaxed">
             Advanced filtering by year and citations is exclusive to Premium Researchers.
           </p>
         </div>
       )}
 
-      <CardHeader className="pb-3 border-b border-white/5">
+      <CardHeader className="pb-3 border-b border-gray-200 dark:border-white/5 transition-colors duration-300">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xs text-white flex items-center gap-2 uppercase tracking-wider font-bold">
-            <Filter size={13} className="text-blue-400" /> Advanced Filter
+          <CardTitle className="text-xs text-gray-900 dark:text-white flex items-center gap-2 uppercase tracking-wider font-bold">
+            <Filter size={13} className="text-blue-500 dark:text-blue-400" /> Advanced Filter
           </CardTitle>
           <button 
             type="button"
             onClick={clearFilters} 
-            className="text-[11px] text-slate-500 hover:text-blue-400 transition-colors"
+            className="text-[11px] text-gray-500 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
             Clear filters
           </button>
@@ -50,7 +49,7 @@ export function AdvancedFilter({
 
       <CardContent className="space-y-5 pt-4">
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+          <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
             <Calendar size={13} /> Publication Year
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -59,20 +58,20 @@ export function AdvancedFilter({
               placeholder="From" 
               value={filters.startYear || ""}
               onChange={(e) => setFilters(p => ({ ...p, startYear: e.target.value }))}
-              className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
+              className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 dark:border-white/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
             />
             <input 
               type="number" 
               placeholder="To" 
               value={filters.endYear || ""}
               onChange={(e) => setFilters(p => ({ ...p, endYear: e.target.value }))}
-              className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
+              className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 dark:border-white/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+          <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
             <Layers size={13} /> Research Field
           </label>
           <div className="space-y-2.5 pt-1">
@@ -83,7 +82,7 @@ export function AdvancedFilter({
                   checked={(filters.fields || []).includes(f.n)}
                   onCheckedChange={() => handleFieldToggle(f.n)}
                 />
-                <label htmlFor={`field-${f.n}`} className="text-xs font-medium text-slate-300 cursor-pointer select-none">
+                <label htmlFor={`field-${f.n}`} className="text-xs font-medium text-gray-700 dark:text-slate-300 cursor-pointer select-none">
                   {f.n}
                 </label>
               </div>
@@ -92,7 +91,7 @@ export function AdvancedFilter({
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+          <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
             <Quote size={13} /> Minimum Citations
           </label>
           <input 
@@ -100,12 +99,12 @@ export function AdvancedFilter({
             placeholder="e.g., 500" 
             value={filters.minCitations || ""}
             onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
-            className="w-full px-2.5 py-1.5 bg-[#121824]/60 border border-white/5 rounded-md text-xs text-slate-200 outline-none focus:border-blue-500/50"
+            className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 dark:border-white/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
           />
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-white/5">
-          <label htmlFor="filter-oa" className="text-xs font-medium text-slate-400 cursor-pointer">Open Access articles only</label>
+        <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-white/5">
+          <label htmlFor="filter-oa" className="text-xs font-medium text-gray-600 dark:text-slate-400 cursor-pointer">Open Access articles only</label>
           <Checkbox 
             id="filter-oa"
             checked={!!filters.openAccess}
