@@ -10,30 +10,30 @@ import {
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
 
-// Data cấu hình cho 2 Role
+// Data cấu hình cho 2 Role (Đã dịch sang tiếng Anh)
 const ROLES_DATA = [
   {
     id: 'academic_user',
     title: 'Academic',
-    description: 'Dành cho sinh viên, học viên',
+    description: 'For students and learners',
     icon: GraduationCap,
     color: '#4F8CFF',
     features: [
-      'Truy cập tài liệu học tập',
-      'Theo dõi tiến độ đồ án',
-      'Tham gia nhóm nghiên cứu',
+      'Access study materials',
+      'Track project progress',
+      'Join research groups',
     ],
   },
   {
     id: 'researcher',
     title: 'Researcher',
-    description: 'Dành cho giảng viên, nhà nghiên cứu',
+    description: 'For lecturers and researchers',
     icon: FlaskConical,
     color: '#8B5CF6',
     features: [
-      'Quản lý dự án khoa học',
-      'Xuất bản & chia sẻ bài báo',
-      'Cấp quyền cho sinh viên',
+      'Manage scientific projects',
+      'Publish & share papers',
+      'Grant permissions to students',
     ],
   },
 ];
@@ -57,20 +57,11 @@ export default function AuthPage({ mode = 'register' }) {
 
   // 2. GIAO DIỆN CHỌN ROLE DÀNH CHO REGISTER
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: '#0B1020' }}
-    >
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       {/* Background Particles */}
       <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]"
-          style={{ background: '#4F8CFF' }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10"
-          style={{ background: '#8B5CF6' }}
-        />
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-10 dark:opacity-[0.14] bg-blue-500" />
+        <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10 dark:opacity-10 bg-purple-600" />
         {PARTICLES.slice(0, 18).map((p) => (
           <motion.div
             key={p.id}
@@ -102,37 +93,21 @@ export default function AuthPage({ mode = 'register' }) {
       >
         {/* Header Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
-          >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
             <Microscope size={18} className="text-white" />
           </div>
-          <span
-            className="text-lg font-black text-white tracking-widest"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
-          >
+          <span className="text-lg font-black text-gray-900 dark:text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>
             SCITRACK
           </span>
         </div>
 
         {/* Khối chứa Form chọn Role */}
-        <div
-          className="rounded-2xl border p-8 overflow-hidden"
-          style={{
-            background: 'rgba(27,34,53,0.85)',
-            borderColor: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(24px)',
-          }}
-        >
+        <div className="rounded-2xl border p-8 overflow-hidden bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <div className="text-center mb-8">
-            <h2
-              className="text-2xl font-black text-white mb-2"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Choose your path
             </h2>
-            <p className="text-sm" style={{ color: '#A0AEC0' }}>
+            <p className="text-sm text-gray-500 dark:text-[#A0AEC0]">
               Select how you want to use SCITRACK
             </p>
           </div>
@@ -144,12 +119,14 @@ export default function AuthPage({ mode = 'register' }) {
                 <div
                   key={role.id}
                   onClick={() => setSelectedRole(role.id)}
-                  className="relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 group overflow-hidden"
+                  className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 group overflow-hidden ${
+                    isSelected 
+                      ? 'shadow-md dark:shadow-none' 
+                      : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] hover:border-gray-300 dark:hover:border-white/20'
+                  }`}
                   style={{
-                    background: isSelected ? `${role.color}15` : '#131A2A',
-                    borderColor: isSelected
-                      ? role.color
-                      : 'rgba(255,255,255,0.08)',
+                    backgroundColor: isSelected ? `${role.color}15` : undefined,
+                    borderColor: isSelected ? role.color : undefined,
                   }}
                 >
                   {isSelected && (
@@ -161,11 +138,11 @@ export default function AuthPage({ mode = 'register' }) {
 
                   <div className="flex items-start gap-4">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                      className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        !isSelected ? 'bg-gray-200 dark:bg-white/5' : ''
+                      }`}
                       style={{
-                        background: isSelected
-                          ? role.color
-                          : 'rgba(255,255,255,0.05)',
+                        backgroundColor: isSelected ? role.color : undefined,
                       }}
                     >
                       <role.icon
@@ -174,10 +151,10 @@ export default function AuthPage({ mode = 'register' }) {
                       />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-base font-bold text-white mb-1">
+                      <h3 className="text-base font-bold text-gray-900 dark:text-white mb-1">
                         {role.title}
                       </h3>
-                      <p className="text-xs mb-3" style={{ color: '#A0AEC0' }}>
+                      <p className="text-xs mb-3 text-gray-500 dark:text-[#A0AEC0]">
                         {role.description}
                       </p>
 
@@ -185,8 +162,7 @@ export default function AuthPage({ mode = 'register' }) {
                         {role.features.map((feature, idx) => (
                           <li
                             key={idx}
-                            className="flex items-center gap-2 text-xs"
-                            style={{ color: '#CBD5E1' }}
+                            className="flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300"
                           >
                             <CheckCircle2
                               size={12}
@@ -211,13 +187,13 @@ export default function AuthPage({ mode = 'register' }) {
               // 3. ĐIỀU HƯỚNG SANG TRANG REGISTER VÀ MANG THEO ROLE
               navigate('/register', { state: { role: selectedRole } });
             }}
-            className="w-full py-3.5 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-8 transition-all"
+            className={`w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 mt-8 transition-all ${
+              selectedRole 
+                ? 'text-white shadow-lg shadow-blue-500/20' 
+                : 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+            }`}
             style={{
-              background: selectedRole
-                ? 'linear-gradient(135deg, #4F8CFF, #8B5CF6)'
-                : 'rgba(255,255,255,0.1)',
-              opacity: selectedRole ? 1 : 0.5,
-              cursor: selectedRole ? 'pointer' : 'not-allowed',
+              background: selectedRole ? 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' : undefined,
             }}
           >
             Continue <ArrowRight size={16} />
@@ -226,8 +202,7 @@ export default function AuthPage({ mode = 'register' }) {
 
         <button
           onClick={() => navigate('/')}
-          className="mt-5 w-full text-center text-xs transition-colors hover:text-white"
-          style={{ color: '#6B7280' }}
+          className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
           ← Back to landing page
         </button>

@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-// ĐÃ IMPORT THÊM EYE VÀ EYEOFF Ở ĐÂY NÈ BR:
 import {
   Microscope,
   Mail,
@@ -23,7 +22,7 @@ export default function LoginPage() {
 
   // States điều khiển giao diện
   const [isForgotMode, setIsForgotMode] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // STATE MỚI ĐỂ HIỆN/ẨN MẬT KHẨU
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
@@ -57,28 +56,37 @@ export default function LoginPage() {
     setLoading(true);
     setErrors((prev) => ({ ...prev, apiError: '', successMsg: '' }));
 
-    try {
+try {
       if (isForgotMode) {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
+        // GỌI API THẬT CHO CHỨC NĂNG QUÊN MẬT KHẨU
+        const response = await authAPI.forgotPassword({ email: form.email });
+        
+        // Hiện thông báo thành công từ Backend trả về
         setErrors((prev) => ({
           ...prev,
-          successMsg: 'Reset link has been sent to your email!',
+          successMsg: response.message || 'Reset link has been sent to your email!',
         }));
       } else {
+        // GỌI API LOGIN
         const response = await authAPI.login({
           email: form.email,
           password: form.password,
         });
+        
         console.log(response);
         setToken(response.accessToken);
+        
         const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
         navigate(`/${userRole}/overview`);
       }
     } catch (error) {
-      const errorMessage = isForgotMode
-        ? 'Email does not exist in the system.'
-        : 'Incorrect email or password. Please try again!';
+      // BẮT LỖI TỪ BACKEND
+      // Ưu tiên lấy lỗi từ BE, nếu không có mới dùng câu mặc định
+      const errorMessage = error.response?.data?.message || 
+        (isForgotMode 
+          ? 'Email does not exist in the system.' 
+          : 'Incorrect email or password. Please try again!');
 
       setErrors((prev) => ({
         ...prev,
@@ -111,20 +119,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center relative overflow-hidden"
-      style={{ background: '#0B1020' }}
-    >
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       {/* Background Effect */}
       <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-[0.14]"
-          style={{ background: '#4F8CFF' }}
-        />
-        <div
-          className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-10"
-          style={{ background: '#8B5CF6' }}
-        />
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-5 dark:opacity-[0.14] bg-blue-500" />
+        <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-purple-600" />
         {PARTICLES.slice(0, 18).map((p) => (
           <motion.div
             key={p.id}
@@ -156,14 +155,11 @@ export default function LoginPage() {
       >
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
-          >
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
             <Microscope size={18} className="text-white" />
           </div>
           <span
-            className="text-lg font-black text-white tracking-widest"
+            className="text-lg font-black text-gray-900 dark:text-white tracking-widest"
             style={{ fontFamily: "'Outfit', sans-serif" }}
           >
             SCITRACK
@@ -171,22 +167,15 @@ export default function LoginPage() {
         </div>
 
         {/* Form Box */}
-        <div
-          className="rounded-2xl border p-8"
-          style={{
-            background: 'rgba(27,34,53,0.85)',
-            borderColor: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(24px)',
-          }}
-        >
+        <div className="rounded-2xl border p-8 bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <motion.div layout>
             <h2
-              className="text-2xl font-black text-white mb-1"
+              className="text-2xl font-black text-gray-900 dark:text-white mb-1"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
               {isForgotMode ? 'Reset Password' : 'Welcome back'}
             </h2>
-            <p className="text-sm mb-6" style={{ color: '#A0AEC0' }}>
+            <p className="text-sm mb-6 text-gray-500 dark:text-[#A0AEC0]">
               {isForgotMode
                 ? 'Enter your email to receive a reset link'
                 : 'Sign in to your research dashboard'}
@@ -196,14 +185,15 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* Input Email */}
             <motion.div layout>
-              <label className="text-xs font-semibold text-white block mb-1.5">
+              <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
                 Email Address
               </label>
               <div className="relative">
                 <Mail
                   size={13}
-                  className="absolute left-3 top-1/2 -translate-y-1/2"
-                  style={{ color: errors.email ? '#EF4444' : '#A0AEC0' }}
+                  className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                    errors.email ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                  }`}
                 />
                 <input
                   type="email"
@@ -212,10 +202,9 @@ export default function LoginPage() {
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                     errors.email || errors.emailFormat
-                      ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                      : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                  }`}
-                  style={{ color: '#E2E8F0' }}
+                      ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                      : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                  } text-gray-900 dark:text-[#E2E8F0]`}
                 />
               </div>
               {errors.email && (
@@ -240,19 +229,17 @@ export default function LoginPage() {
                   className="space-y-4 overflow-hidden"
                 >
                   <div>
-                    <label className="text-xs font-semibold text-white block mb-1.5">
+                    <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
                       Password
                     </label>
                     <div className="relative">
                       <Lock
                         size={13}
-                        className="absolute left-3 top-1/2 -translate-y-1/2"
-                        style={{
-                          color: errors.password ? '#EF4444' : '#A0AEC0',
-                        }}
+                        className={`absolute left-3 top-1/2 -translate-y-1/2 ${
+                          errors.password ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'
+                        }`}
                       />
 
-                      {/* CÁI Ô INPUT MẬT KHẨU NÀY ĐÃ ĐƯỢC CHỈNH TYPE */}
                       <input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••"
@@ -260,21 +247,18 @@ export default function LoginPage() {
                         onChange={(e) =>
                           handleChange('password', e.target.value)
                         }
-                        // LƯU Ý: Tui đã tăng padding right lên pr-10 để chữ không đè lên con mắt
                         className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                           errors.password
-                            ? 'border-red-500 bg-red-500/5 focus:border-red-400'
-                            : 'border-white/10 bg-[#131A2A] focus:border-[#4F8CFF]'
-                        }`}
-                        style={{ color: '#E2E8F0' }}
+                            ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
+                            : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
+                        } text-gray-900 dark:text-[#E2E8F0]`}
                       />
 
                       {/* NÚT CON MẮT */}
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors hover:bg-white/10"
-                        style={{ color: '#A0AEC0' }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md transition-colors text-gray-400 dark:text-[#A0AEC0] hover:bg-gray-200 dark:hover:bg-white/10"
                       >
                         {showPassword ? (
                           <EyeOff size={14} />
@@ -291,21 +275,17 @@ export default function LoginPage() {
                   </div>
 
                   <div className="flex items-center justify-between text-xs pt-1">
-                    <label
-                      className="flex items-center gap-2 cursor-pointer"
-                      style={{ color: '#A0AEC0' }}
-                    >
+                    <label className="flex items-center gap-2 cursor-pointer text-gray-500 dark:text-[#A0AEC0]">
                       <input
                         type="checkbox"
-                        className="rounded bg-[#131A2A] border-white/10"
+                        className="rounded border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] accent-blue-500"
                       />{' '}
                       Remember me
                     </label>
                     <button
                       type="button"
                       onClick={toggleMode}
-                      className="font-semibold transition-colors hover:text-white"
-                      style={{ color: '#4F8CFF' }}
+                      className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
                     >
                       Forgot password?
                     </button>
@@ -319,7 +299,7 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs font-medium text-red-500 flex items-center gap-2"
+                className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-xs font-medium text-red-600 dark:text-red-500 flex items-center gap-2"
               >
                 <AlertCircle size={14} /> {errors.apiError}
               </motion.div>
@@ -330,7 +310,7 @@ export default function LoginPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-xs font-medium text-emerald-500 flex items-center gap-2"
+                className="p-3 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl text-xs font-medium text-emerald-600 dark:text-emerald-500 flex items-center gap-2"
               >
                 <CheckCircle2 size={14} /> {errors.successMsg}
               </motion.div>
@@ -343,11 +323,8 @@ export default function LoginPage() {
               whileTap={{ scale: 0.97 }}
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-4"
-              style={{
-                background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-                opacity: loading ? 0.8 : 1,
-              }}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-4 bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20 transition-opacity"
+              style={{ opacity: loading ? 0.8 : 1 }}
             >
               {loading ? (
                 <>
@@ -365,14 +342,12 @@ export default function LoginPage() {
           {/* Footer Card */}
           <motion.div
             layout
-            className="mt-6 pt-5 border-t text-center text-xs flex flex-col gap-3"
-            style={{ borderColor: 'rgba(255,255,255,0.07)', color: '#A0AEC0' }}
+            className="mt-6 pt-5 border-t border-gray-200 dark:border-white/5 text-center text-xs flex flex-col gap-3 text-gray-500 dark:text-[#A0AEC0]"
           >
             {isForgotMode ? (
               <button
                 onClick={toggleMode}
-                className="font-semibold flex items-center justify-center gap-1.5 transition-colors hover:text-white"
-                style={{ color: '#A0AEC0' }}
+                className="font-semibold flex items-center justify-center gap-1.5 transition-colors text-gray-500 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white"
               >
                 <ArrowLeft size={12} /> Back to login
               </button>
@@ -381,8 +356,7 @@ export default function LoginPage() {
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-semibold hover:text-white transition-colors"
-                  style={{ color: '#4F8CFF' }}
+                  className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
                 >
                   Register
                 </Link>
@@ -393,8 +367,7 @@ export default function LoginPage() {
 
         <button
           onClick={() => navigate('/')}
-          className="mt-5 w-full text-center text-xs transition-colors hover:text-white"
-          style={{ color: '#6B7280' }}
+          className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
           ← Back to landing page
         </button>

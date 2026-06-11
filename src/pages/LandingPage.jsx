@@ -1,769 +1,263 @@
-import { motion } from 'motion/react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  YAxis,
-} from 'recharts';
-import {
-  ArrowRight,
-  TrendingUp,
-  Brain,
-  Zap,
-  ArrowUpRight,
-  Microscope,
-  Globe,
-} from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, YAxis } from 'recharts';
+import { ArrowRight, TrendingUp, Brain, Zap, ArrowUpRight, Microscope, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 // Import Data
-import {
-  PARTICLES,
-  PUB_DATA,
-  INSIGHTS,
-  FEATURES,
-  APIS,
-} from '../constants/mockData';
-
+import { PARTICLES, PUB_DATA, INSIGHTS, FEATURES, APIS } from '../constants/mockData';
 // Import Shared Components
 import { SectionBadge, StatusPill } from '../components/SharedUI';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [isDark, setIsDark] = useState(true);
 
-  // Hàm xử lý chung: Tất cả các nút điều hướng về trang Auth để bắt buộc chọn Role trước
-  const handleAuthRedirect = (mode) => {
-    navigate('/auth', { state: { mode: mode } });
-  };
+  // Quan sát thẻ HTML để biết web đang ở chế độ nào (để render lại đồ thị Recharts)
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDark(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+    setIsDark(document.documentElement.classList.contains('dark')); // Check lần đầu
+    return () => observer.disconnect();
+  }, []);
+
+  const handleAuthRedirect = (mode) => navigate('/auth', { state: { mode: mode } });
+
+  const chartTextColor = isDark ? '#A0AEC0' : '#6B7280';
+  const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
+  const tooltipBg = isDark ? '#131A2A' : '#ffffff';
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ background: '#0B1020', fontFamily: "'Inter', sans-serif" }}
-    >
+    <div className="min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]" style={{ fontFamily: "'Inter', sans-serif" }}>
       {/* Navbar */}
-      <nav
-        className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 lg:px-10 py-4 border-b"
-        style={{
-          background: 'rgba(11,16,32,0.85)',
-          backdropFilter: 'blur(16px)',
-          borderColor: 'rgba(255,255,255,0.07)',
-        }}
-      >
+      <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 lg:px-10 py-4 border-b border-gray-200 dark:border-white/5 bg-white/85 dark:bg-[#0B1020]/85 backdrop-blur-md transition-colors">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-            }}
-          >
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
             <Microscope size={13} className="text-white" />
           </div>
-          <span
-            className="text-sm font-black text-white tracking-widest"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
-          >
-            SCITRACK
-          </span>
+          <span className="text-sm font-black text-gray-900 dark:text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>SCITRACK</span>
         </div>
-        <div
-          className="hidden md:flex items-center gap-7 text-sm font-medium"
-          style={{ color: '#A0AEC0' }}
-        >
+        <div className="hidden md:flex items-center gap-7 text-sm font-medium text-gray-500 dark:text-[#A0AEC0]">
           {['Trends', 'Features', 'Integrations'].map((l) => (
-            <a
-              key={l}
-              href={`#${l.toLowerCase()}`}
-              className="hover:text-white transition-colors"
-            >
-              {l}
-            </a>
+            <a key={l} href={`#${l.toLowerCase()}`} className="hover:text-blue-600 dark:hover:text-white transition-colors">{l}</a>
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleAuthRedirect('login')} // Chỉnh lại chuyển hướng
-            className="px-4 py-2 text-sm font-medium rounded-lg border transition-all hover:text-white"
-            style={{
-              color: '#A0AEC0',
-              borderColor: 'rgba(255,255,255,0.12)',
-            }}
-          >
-            Log in
-          </button>
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => handleAuthRedirect('register')} // Chỉnh lại chuyển hướng
-            className="px-4 py-2 text-sm font-bold rounded-lg text-white"
-            style={{
-              background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-            }}
-          >
-            Get Started
-          </motion.button>
+          <button onClick={() => handleAuthRedirect('login')} className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-all">Log in</button>
+          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">Get Started</motion.button>
         </div>
       </nav>
 
       {/* Hero */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Ambient glows (Giữ nguyên) */}
+        {/* Ambient glows */}
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute top-1/4 left-1/4 w-[480px] h-[480px] rounded-full blur-3xl opacity-[0.14]"
-            style={{ background: '#4F8CFF' }}
-          />
-          <div
-            className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full blur-3xl opacity-10"
-            style={{ background: '#8B5CF6' }}
-          />
-          <div
-            className="absolute bottom-0 left-1/2 w-72 h-72 rounded-full blur-3xl opacity-10"
-            style={{ background: '#00D1B2' }}
-          />
+          <div className="absolute top-1/4 left-1/4 w-[480px] h-[480px] rounded-full blur-3xl opacity-5 dark:opacity-[0.14] bg-blue-500" />
+          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-purple-600" />
+          <div className="absolute bottom-0 left-1/2 w-72 h-72 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-teal-500" />
           {PARTICLES.map((p) => (
             <motion.div
               key={p.id}
               className="absolute rounded-full"
-              style={{
-                width: p.size,
-                height: p.size,
-                left: `${p.left}%`,
-                top: `${p.top}%`,
-                background: p.color,
-                opacity: 0.2,
-              }}
+              style={{ width: p.size, height: p.size, left: `${p.left}%`, top: `${p.top}%`, background: p.color, opacity: 0.2 }}
               animate={{ y: [0, -28, 0], opacity: [0.15, 0.38, 0.15] }}
-              transition={{
-                duration: p.dur,
-                delay: p.delay,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
+              transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
             />
           ))}
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
           {/* Left col */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <div
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border"
-              style={{
-                background: '#4F8CFF1A',
-                color: '#4F8CFF',
-                borderColor: '#4F8CFF44',
-              }}
-            >
+          <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Zap size={10} /> AI-Powered Academic Intelligence Platform
             </div>
-            <h1
-              className="text-5xl lg:text-6xl font-black leading-[1.05] mb-6"
-              style={{
-                fontFamily: "'Outfit', sans-serif",
-                letterSpacing: '-0.025em',
-              }}
-            >
-              <span className="text-white">Track the Future</span>
-              <br />
-              <span
-                style={{
-                  background:
-                    'linear-gradient(135deg, #4F8CFF 0%, #8B5CF6 50%, #00D1B2 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                }}
-              >
-                of Scientific
-              </span>
-              <br />
-              <span className="text-white">Research</span>
+            <h1 className="text-5xl lg:text-6xl font-black leading-[1.05] mb-6 text-gray-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.025em' }}>
+              Track the Future<br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400">of Scientific</span><br />
+              Research
             </h1>
-            <p
-              className="text-base lg:text-lg mb-8 leading-relaxed"
-              style={{ color: '#A0AEC0', maxWidth: 480 }}
-            >
-              Analyze publication trends, discover emerging research topics, and
-              visualize academic intelligence with AI-powered analytics across
-              50M+ papers.
+            <p className="text-base lg:text-lg mb-8 leading-relaxed text-gray-600 dark:text-[#A0AEC0] max-w-[480px]">
+              Analyze publication trends, discover emerging research topics, and visualize academic intelligence with AI-powered analytics across 50M+ papers.
             </p>
             <div className="flex flex-wrap gap-3">
-              <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleAuthRedirect('register')} // Chỉnh lại chuyển hướng
-                className="px-6 py-3 rounded-xl text-sm font-bold text-white flex items-center gap-2"
-                style={{
-                  background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-                }}
-              >
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-6 py-3 rounded-xl text-sm font-bold text-white flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">
                 Explore Trends <ArrowRight size={15} />
               </motion.button>
             </div>
-            <div
-              className="flex gap-10 mt-10 pt-8 border-t"
-              style={{ borderColor: 'rgba(255,255,255,0.07)' }}
-            >
-              {[
-                { v: '50M+', l: 'Research Papers' },
-                { v: '4 APIs', l: 'Live Data Sources' },
-                { v: '98.7%', l: 'System Uptime' },
-              ].map((s) => (
+            <div className="flex gap-10 mt-10 pt-8 border-t border-gray-200 dark:border-white/10">
+              {[{ v: '50M+', l: 'Research Papers' }, { v: '4 APIs', l: 'Live Data Sources' }, { v: '98.7%', l: 'System Uptime' }].map((s) => (
                 <div key={s.l}>
-                  <div
-                    className="text-2xl font-black text-white"
-                    style={{ fontFamily: "'Outfit', sans-serif" }}
-                  >
-                    {s.v}
-                  </div>
-                  <div className="text-xs mt-0.5" style={{ color: '#A0AEC0' }}>
-                    {s.l}
-                  </div>
+                  <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>{s.v}</div>
+                  <div className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          {/* Right col — Dashboard preview (Giữ nguyên) */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative hidden lg:block"
-          >
-            <div
-              className="rounded-2xl border p-5 relative overflow-hidden"
-              style={{
-                background: 'rgba(27,34,53,0.92)',
-                borderColor: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(20px)',
-              }}
-            >
+          {/* Right col — Dashboard preview */}
+          <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="relative hidden lg:block">
+            <div className="rounded-2xl border border-gray-200 dark:border-white/10 p-5 relative overflow-hidden bg-white/60 dark:bg-[#1B2235]/90 backdrop-blur-xl shadow-xl dark:shadow-none">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-white">
-                  Publication Trends — 2024
-                </span>
-                <span
-                  className="text-xs font-semibold flex items-center gap-1.5"
-                  style={{
-                    color: '#00D1B2',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-                  Live
+                <span className="text-xs font-bold text-gray-900 dark:text-white">Publication Trends — 2024</span>
+                <span className="text-xs font-semibold flex items-center gap-1.5 text-teal-600 dark:text-teal-400 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> Live
                 </span>
               </div>
               <ResponsiveContainer width="100%" height={160}>
                 <AreaChart data={PUB_DATA.slice(-6)}>
                   <defs>
-                    <linearGradient id="hgAI" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4F8CFF" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#4F8CFF" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="hgBio" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="hgCli" x1="0" y1="0" x2="0" y2="1">
-                      <stop
-                        offset="5%"
-                        stopColor="#00D1B2"
-                        stopOpacity={0.25}
-                      />
-                      <stop offset="95%" stopColor="#00D1B2" stopOpacity={0} />
-                    </linearGradient>
+                    <linearGradient id="hgAI" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} /><stop offset="95%" stopColor="#3b82f6" stopOpacity={0} /></linearGradient>
+                    <linearGradient id="hgBio" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} /><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} /></linearGradient>
+                    <linearGradient id="hgCli" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} /><stop offset="95%" stopColor="#14b8a6" stopOpacity={0} /></linearGradient>
                   </defs>
-                  <XAxis
-                    dataKey="m"
-                    tick={{ fill: '#A0AEC0', fontSize: 10 }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#131A2A',
-                      border: 'none',
-                      borderRadius: 8,
-                      fontSize: 11,
-                    }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="ai"
-                    stroke="#4F8CFF"
-                    fill="url(#hgAI)"
-                    strokeWidth={2}
-                    name="AI & ML"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="bio"
-                    stroke="#8B5CF6"
-                    fill="url(#hgBio)"
-                    strokeWidth={2}
-                    name="Biotech"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="cli"
-                    stroke="#00D1B2"
-                    fill="url(#hgCli)"
-                    strokeWidth={2}
-                    name="Climate"
-                  />
+                  <XAxis dataKey="m" tick={{ fill: chartTextColor, fontSize: 10 }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={{ background: tooltipBg, border: `1px solid ${gridColor}`, borderRadius: 8, fontSize: 11, color: isDark ? '#fff' : '#000' }} />
+                  <Area type="monotone" dataKey="ai" stroke="#3b82f6" fill="url(#hgAI)" strokeWidth={2} name="AI & ML" />
+                  <Area type="monotone" dataKey="bio" stroke="#8b5cf6" fill="url(#hgBio)" strokeWidth={2} name="Biotech" />
+                  <Area type="monotone" dataKey="cli" stroke="#14b8a6" fill="url(#hgCli)" strokeWidth={2} name="Climate" />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="grid grid-cols-3 gap-2 mt-3">
-                {[
-                  { l: 'AI & ML', v: '7,200', c: '#4F8CFF', d: '+18%' },
-                  { l: 'Biotech', v: '3,680', c: '#8B5CF6', d: '+12%' },
-                  { l: 'Climate', v: '2,720', c: '#00D1B2', d: '+24%' },
-                ].map((s) => (
-                  <div
-                    key={s.l}
-                    className="rounded-lg p-2.5 text-center"
-                    style={{ background: '#131A2A' }}
-                  >
-                    <div
-                      className="text-[10px] mb-1"
-                      style={{ color: '#A0AEC0' }}
-                    >
-                      {s.l}
-                    </div>
-                    <div
-                      className="text-base font-black text-white"
-                      style={{ fontFamily: "'Outfit', sans-serif" }}
-                    >
-                      {s.v}
-                    </div>
-                    <div
-                      className="text-[10px] font-semibold"
-                      style={{
-                        color: s.c,
-                        fontFamily: "'JetBrains Mono', monospace",
-                      }}
-                    >
-                      {s.d}
-                    </div>
+                {[{ l: 'AI & ML', v: '7,200', c: 'text-blue-500', d: '+18%' }, { l: 'Biotech', v: '3,680', c: 'text-purple-500', d: '+12%' }, { l: 'Climate', v: '2,720', c: 'text-teal-500', d: '+24%' }].map((s) => (
+                  <div key={s.l} className="rounded-lg p-2.5 text-center bg-gray-50 dark:bg-[#131A2A]">
+                    <div className="text-[10px] mb-1 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
+                    <div className="text-base font-black text-gray-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>{s.v}</div>
+                    <div className={`text-[10px] font-semibold font-mono ${s.c}`}>{s.d}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Floating AI insight card (Giữ nguyên) */}
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="absolute -top-8 -right-6 rounded-xl p-4 border w-52"
-              style={{
-                background: 'rgba(27,34,53,0.97)',
-                borderColor: 'rgba(79,140,255,0.35)',
-                backdropFilter: 'blur(16px)',
-              }}
-            >
+            {/* Floating AI insight card */}
+            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} className="absolute -top-8 -right-6 rounded-xl p-4 border w-52 bg-white/95 dark:bg-[#1B2235]/95 border-blue-200 dark:border-blue-500/30 backdrop-blur-md shadow-xl">
               <div className="flex items-center gap-2 mb-2">
-                <Brain size={13} style={{ color: '#00D1B2' }} />
-                <span className="text-[10px] font-bold text-white">
-                  AI Insight
-                </span>
+                <Brain size={13} className="text-teal-500" />
+                <span className="text-[10px] font-bold text-gray-900 dark:text-white">AI Insight</span>
               </div>
-              <p
-                className="text-[10px] leading-relaxed"
-                style={{ color: '#A0AEC0' }}
-              >
-                <span style={{ color: '#4F8CFF' }}>LLM research</span> surged{' '}
-                <span
-                  style={{
-                    color: '#00D1B2',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  +234%
-                </span>{' '}
-                — now the fastest-growing field in 2024.
+              <p className="text-[10px] leading-relaxed text-gray-600 dark:text-[#A0AEC0]">
+                <span className="text-blue-600 dark:text-blue-400">LLM research</span> surged{' '}
+                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">+234%</span> — now the fastest-growing field in 2024.
               </p>
             </motion.div>
 
-            {/* Floating citation card (Giữ nguyên) */}
-            <motion.div
-              animate={{ y: [0, 10, 0] }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: 'easeInOut',
-                delay: 1.2,
-              }}
-              className="absolute -bottom-8 -left-6 rounded-xl p-4 border"
-              style={{
-                background: 'rgba(27,34,53,0.97)',
-                borderColor: 'rgba(0,209,178,0.3)',
-                backdropFilter: 'blur(16px)',
-              }}
-            >
-              <div className="text-[10px] mb-1" style={{ color: '#A0AEC0' }}>
-                Total Citations 2024
-              </div>
-              <div
-                className="text-3xl font-black text-white"
-                style={{ fontFamily: "'Outfit', sans-serif" }}
-              >
-                52.1M
-              </div>
+            {/* Floating citation card */}
+            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }} className="absolute -bottom-8 -left-6 rounded-xl p-4 border bg-white/95 dark:bg-[#1B2235]/95 border-teal-200 dark:border-teal-500/30 backdrop-blur-md shadow-xl">
+              <div className="text-[10px] mb-1 text-gray-500 dark:text-[#A0AEC0]">Total Citations 2024</div>
+              <div className="text-3xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>52.1M</div>
               <div className="flex items-center gap-1 mt-1">
-                <ArrowUpRight size={11} style={{ color: '#00D1B2' }} />
-                <span
-                  className="text-[10px] font-semibold"
-                  style={{
-                    color: '#00D1B2',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  +35.7% YoY
-                </span>
+                <ArrowUpRight size={11} className="text-teal-500" />
+                <span className="text-[10px] font-semibold text-teal-600 dark:text-teal-400 font-mono">+35.7% YoY</span>
               </div>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Trending Showcase (Giữ nguyên nội dung bên trong) */}
-      <section
-        id="trends"
-        className="py-24 px-6 lg:px-10"
-        style={{ background: '#131A2A' }}
-      >
+      {/* Trending Showcase */}
+      <section id="trends" className="py-24 px-6 lg:px-10 bg-white dark:bg-[#131A2A] transition-colors">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <SectionBadge color="#8B5CF6">
-              <TrendingUp size={11} /> Live Trend Analytics
-            </SectionBadge>
-            <h2
-              className="text-4xl font-black text-white mb-3"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              Publication Velocity by Field
-            </h2>
-            <p style={{ color: '#A0AEC0' }}>
-              Monthly paper counts across major research disciplines — 2024
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <SectionBadge color="#8B5CF6"><TrendingUp size={11} /> Live Trend Analytics</SectionBadge>
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>Publication Velocity by Field</h2>
+            <p className="text-gray-600 dark:text-[#A0AEC0]">Monthly paper counts across major research disciplines — 2024</p>
           </motion.div>
 
-          {/* ... (Đoạn AreaChart và INSIGHTS giữ nguyên) ... */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="rounded-2xl border p-6 mb-8"
-            style={{
-              background: '#1B2235',
-              borderColor: 'rgba(255,255,255,0.07)',
-            }}
-          >
+          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border p-6 mb-8 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
             <div className="flex flex-wrap gap-5 mb-4">
-              {[
-                { k: 'ai', c: '#4F8CFF', l: 'AI & ML' },
-                { k: 'bio', c: '#8B5CF6', l: 'Biotechnology' },
-                { k: 'cli', c: '#00D1B2', l: 'Climate Science' },
-                { k: 'qc', c: '#F59E0B', l: 'Quantum Computing' },
-              ].map((f) => (
-                <div
-                  key={f.k}
-                  className="flex items-center gap-1.5 text-xs"
-                  style={{
-                    color: '#A0AEC0',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  <span
-                    className="w-2.5 h-2.5 rounded-sm"
-                    style={{ background: f.c }}
-                  />
-                  {f.l}
+              {[{ k: 'ai', c: '#3b82f6', l: 'AI & ML' }, { k: 'bio', c: '#8b5cf6', l: 'Biotechnology' }, { k: 'cli', c: '#14b8a6', l: 'Climate Science' }, { k: 'qc', c: '#f59e0b', l: 'Quantum Computing' }].map((f) => (
+                <div key={f.k} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-[#A0AEC0] font-mono">
+                  <span className="w-2.5 h-2.5 rounded-sm" style={{ background: f.c }} />{f.l}
                 </div>
               ))}
             </div>
             <ResponsiveContainer width="100%" height={280}>
               <AreaChart data={PUB_DATA}>
                 <defs>
-                  {[
-                    { id: 'lai', c: '#4F8CFF' },
-                    { id: 'lbio', c: '#8B5CF6' },
-                    { id: 'lcli', c: '#00D1B2' },
-                    { id: 'lqc', c: '#F59E0B' },
-                  ].map((g) => (
-                    <linearGradient
-                      key={g.id}
-                      id={g.id}
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop offset="5%" stopColor={g.c} stopOpacity={0.22} />
-                      <stop offset="95%" stopColor={g.c} stopOpacity={0} />
-                    </linearGradient>
+                  {[{ id: 'lai', c: '#3b82f6' }, { id: 'lbio', c: '#8b5cf6' }, { id: 'lcli', c: '#14b8a6' }, { id: 'lqc', c: '#f59e0b' }].map((g) => (
+                    <linearGradient key={g.id} id={g.id} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={g.c} stopOpacity={0.22} /><stop offset="95%" stopColor={g.c} stopOpacity={0} /></linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="rgba(255,255,255,0.04)"
-                />
-                <XAxis
-                  dataKey="m"
-                  tick={{ fill: '#A0AEC0', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: '#A0AEC0', fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={44}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: '#131A2A',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="ai"
-                  stroke="#4F8CFF"
-                  fill="url(#lai)"
-                  strokeWidth={2}
-                  name="AI & ML"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="bio"
-                  stroke="#8B5CF6"
-                  fill="url(#lbio)"
-                  strokeWidth={2}
-                  name="Biotech"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="cli"
-                  stroke="#00D1B2"
-                  fill="url(#lcli)"
-                  strokeWidth={2}
-                  name="Climate"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="qc"
-                  stroke="#F59E0B"
-                  fill="url(#lqc)"
-                  strokeWidth={2}
-                  name="Quantum"
-                />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis dataKey="m" tick={{ fill: chartTextColor, fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: chartTextColor, fontSize: 11 }} axisLine={false} tickLine={false} width={44} />
+                <Tooltip contentStyle={{ background: tooltipBg, border: `1px solid ${gridColor}`, borderRadius: 8, fontSize: 12, color: isDark ? '#fff' : '#000' }} />
+                <Area type="monotone" dataKey="ai" stroke="#3b82f6" fill="url(#lai)" strokeWidth={2} name="AI & ML" />
+                <Area type="monotone" dataKey="bio" stroke="#8b5cf6" fill="url(#lbio)" strokeWidth={2} name="Biotech" />
+                <Area type="monotone" dataKey="cli" stroke="#14b8a6" fill="url(#lcli)" strokeWidth={2} name="Climate" />
+                <Area type="monotone" dataKey="qc" stroke="#f59e0b" fill="url(#lqc)" strokeWidth={2} name="Quantum" />
               </AreaChart>
             </ResponsiveContainer>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {INSIGHTS.map((ins, i) => (
-              <motion.div
-                key={ins.topic}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.09 }}
-                whileHover={{ y: -5 }}
-                className="rounded-xl border p-5 cursor-default"
-                style={{
-                  background: '#1B2235',
-                  borderColor: 'rgba(255,255,255,0.07)',
-                }}
-              >
+              <motion.div key={ins.topic} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
                 <div className="flex items-start justify-between mb-3">
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center"
-                    style={{ background: `${ins.c}1A` }}
-                  >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${ins.c}1A` }}>
                     <TrendingUp size={14} style={{ color: ins.c }} />
                   </div>
-                  <span
-                    className="text-sm font-black"
-                    style={{
-                      color: ins.c,
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
-                    {ins.growth}
-                  </span>
+                  <span className="text-sm font-black font-mono" style={{ color: ins.c }}>{ins.growth}</span>
                 </div>
-                <div className="text-sm font-bold text-white mb-1.5">
-                  {ins.topic}
-                </div>
-                <div
-                  className="text-xs leading-relaxed mb-3"
-                  style={{ color: '#A0AEC0' }}
-                >
-                  {ins.desc}
-                </div>
-                <div
-                  className="text-xs"
-                  style={{
-                    color: '#6B7280',
-                    fontFamily: "'JetBrains Mono', monospace",
-                  }}
-                >
-                  {ins.papers.toLocaleString()} papers
-                </div>
+                <div className="text-sm font-bold text-gray-900 dark:text-white mb-1.5">{ins.topic}</div>
+                <div className="text-xs leading-relaxed mb-3 text-gray-600 dark:text-[#A0AEC0]">{ins.desc}</div>
+                <div className="text-xs font-mono text-gray-500 dark:text-gray-400">{ins.papers.toLocaleString()} papers</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features (Giữ nguyên nội dung bên trong) */}
-      <section id="features" className="py-24 px-6 lg:px-10">
+      {/* Features */}
+      <section id="features" className="py-24 px-6 lg:px-10 bg-gray-50 dark:bg-[#0B1020] transition-colors">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <SectionBadge color="#00D1B2">
-              <Zap size={11} /> Platform Capabilities
-            </SectionBadge>
-            <h2
-              className="text-4xl font-black text-white mb-3"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              Built for Academic Excellence
-            </h2>
-            <p style={{ color: '#A0AEC0' }}>
-              Everything you need to navigate the scientific literature
-              landscape at scale
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <SectionBadge color="#00D1B2"><Zap size={11} /> Platform Capabilities</SectionBadge>
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>Built for Academic Excellence</h2>
+            <p className="text-gray-600 dark:text-[#A0AEC0]">Everything you need to navigate the scientific literature landscape at scale</p>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {FEATURES.map(({ Icon, label, desc, c }, i) => (
-              <motion.div
-                key={label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07 }}
-                whileHover={{ y: -6, scale: 1.02 }}
-                className="rounded-xl border p-6 cursor-default"
-                style={{
-                  background: '#1B2235',
-                  borderColor: 'rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: `${c}1A` }}
-                >
+              <motion.div key={label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} whileHover={{ y: -6, scale: 1.02 }} className="rounded-xl border p-6 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: `${c}1A` }}>
                   <Icon size={20} style={{ color: c }} />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-2">{label}</h3>
-                <p
-                  className="text-xs leading-relaxed"
-                  style={{ color: '#A0AEC0' }}
-                >
-                  {desc}
-                </p>
+                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">{label}</h3>
+                <p className="text-xs leading-relaxed text-gray-600 dark:text-[#A0AEC0]">{desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* API Integrations (Giữ nguyên nội dung bên trong) */}
-      <section
-        id="integrations"
-        className="py-24 px-6 lg:px-10"
-        style={{ background: '#131A2A' }}
-      >
+      {/* API Integrations */}
+      <section id="integrations" className="py-24 px-6 lg:px-10 bg-white dark:bg-[#131A2A] transition-colors">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <SectionBadge color="#4F8CFF">
-              <Globe size={11} /> Live Integrations
-            </SectionBadge>
-            <h2
-              className="text-4xl font-black text-white mb-3"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              Connected to Leading Databases
-            </h2>
-            <p style={{ color: '#A0AEC0' }}>
-              Real-time synchronization with the world's major academic
-              repositories
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+            <SectionBadge color="#4F8CFF"><Globe size={11} /> Live Integrations</SectionBadge>
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>Connected to Leading Databases</h2>
+            <p className="text-gray-600 dark:text-[#A0AEC0]">Real-time synchronization with the world's major academic repositories</p>
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {APIS.map((api, i) => (
-              <motion.div
-                key={api.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="rounded-xl border p-5"
-                style={{
-                  background: '#1B2235',
-                  borderColor: 'rgba(255,255,255,0.07)',
-                }}
-              >
+              <motion.div key={api.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
                 <div className="flex items-start justify-between mb-4">
-                  <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center"
-                    style={{ background: '#4F8CFF1A' }}
-                  >
-                    <Globe size={16} style={{ color: '#4F8CFF' }} />
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-500/10">
+                    <Globe size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <StatusPill status={api.status} />
                 </div>
-                <div className="text-sm font-bold text-white mb-3">
-                  {api.name}
-                </div>
+                <div className="text-sm font-bold text-gray-900 dark:text-white mb-3">{api.name}</div>
                 <div className="space-y-1.5">
-                  {[
-                    { l: 'Uptime', v: `${api.up}%`, c: '#00D1B2' },
-                    { l: 'Latency', v: api.lat, c: 'white' },
-                    { l: 'Req / day', v: api.req, c: 'white' },
-                  ].map((s) => (
+                  {[{ l: 'Uptime', v: `${api.up}%`, c: 'text-teal-600 dark:text-[#00D1B2]' }, { l: 'Latency', v: api.lat, c: 'text-gray-900 dark:text-white' }, { l: 'Req / day', v: api.req, c: 'text-gray-900 dark:text-white' }].map((s) => (
                     <div key={s.l} className="flex justify-between text-xs">
-                      <span style={{ color: '#A0AEC0' }}>{s.l}</span>
-                      <span
-                        className="font-semibold"
-                        style={{
-                          color: s.c,
-                          fontFamily: "'JetBrains Mono', monospace",
-                        }}
-                      >
-                        {s.v}
-                      </span>
+                      <span className="text-gray-500 dark:text-[#A0AEC0]">{s.l}</span>
+                      <span className={`font-semibold font-mono ${s.c}`}>{s.v}</span>
                     </div>
                   ))}
                 </div>
@@ -774,73 +268,18 @@ export default function LandingPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-28 px-6 relative overflow-hidden">
+      <section className="py-28 px-6 relative overflow-hidden bg-gray-50 dark:bg-[#0B1020] transition-colors">
         <div className="absolute inset-0 pointer-events-none">
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[320px] rounded-full blur-3xl opacity-12"
-            style={{
-              background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-            }}
-          />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[320px] rounded-full blur-3xl opacity-10 dark:opacity-12 bg-gradient-to-r from-blue-500 to-purple-600" />
         </div>
         <div className="max-w-3xl mx-auto text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <h2
-              className="text-5xl font-black text-white mb-5"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              Start Exploring Scientific Trends
-            </h2>
-            <p className="text-lg mb-10" style={{ color: '#A0AEC0' }}>
-              Join 12,000+ researchers using SciTrack to navigate the future of
-              academic publishing.
-            </p>
+          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-5" style={{ fontFamily: "'Outfit', sans-serif" }}>Start Exploring Scientific Trends</h2>
+            <p className="text-lg mb-10 text-gray-600 dark:text-[#A0AEC0]">Join 12,000+ researchers using SciTrack to navigate the future of academic publishing.</p>
             <div className="flex flex-wrap gap-3 justify-center">
-              {[
-                {
-                  label: 'Login',
-                  action: () => handleAuthRedirect('login'), // Chỉnh lại chuyển hướng
-                  style: {
-                    background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-                  },
-                  text: 'text-white',
-                },
-                {
-                  label: 'Register Free',
-                  action: () => handleAuthRedirect('register'), // Chỉnh lại chuyển hướng
-                  style: {
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#A0AEC0',
-                  },
-                  text: '',
-                },
-              ].map((b) => (
-                <motion.button
-                  key={b.label}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={b.action}
-                  className={`px-8 py-3.5 rounded-xl text-sm font-bold ${b.text}`}
-                  style={b.style}
-                >
-                  {b.label}
-                </motion.button>
-              ))}
-              <motion.button
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => handleAuthRedirect('register')} // Nút Explore Dashboard cũng đưa về Auth luôn
-                className="px-8 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2"
-                style={{
-                  color: '#00D1B2',
-                  background: '#00D1B21A',
-                  border: '1px solid #00D1B244',
-                }}
-              >
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('login')} className="px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">Login</motion.button>
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-8 py-3.5 rounded-xl text-sm font-bold border border-gray-300 dark:border-white/15 text-gray-700 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">Register Free</motion.button>
+              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-8 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30">
                 Explore Dashboard <ArrowRight size={14} />
               </motion.button>
             </div>
@@ -848,34 +287,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer (Giữ nguyên) */}
-      <footer
-        className="border-t py-8 px-6"
-        style={{
-          background: '#131A2A',
-          borderColor: 'rgba(255,255,255,0.07)',
-        }}
-      >
+      {/* Footer */}
+      <footer className="border-t py-8 px-6 bg-white dark:bg-[#131A2A] border-gray-200 dark:border-white/10 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div
-              className="w-6 h-6 rounded-md flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-              }}
-            >
-              <Microscope size={10} className="text-white" />
-            </div>
-            <span
-              className="text-xs font-black text-white tracking-widest"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              SCITRACK
-            </span>
+            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600"><Microscope size={10} className="text-white" /></div>
+            <span className="text-xs font-black text-gray-900 dark:text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>SCITRACK</span>
           </div>
-          <p className="text-xs" style={{ color: '#A0AEC0' }}>
-            © 2026 SciTrack — AI-Powered Academic Research Analytics Platform
-          </p>
+          <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">© 2026 SciTrack — AI-Powered Academic Research Analytics Platform</p>
         </div>
       </footer>
     </div>
