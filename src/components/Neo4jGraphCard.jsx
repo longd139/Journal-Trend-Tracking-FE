@@ -81,18 +81,18 @@ function transformToGraph(papers) {
   return { nodes: new DataSet([...nodesMap.values()]), edges: new DataSet(edges) };
 }
 
-// ─── Vis-network config ──────────────────────────────────────────────────────
-const GRAPH_OPTIONS = {
+// ─── Vis-network config động theo Theme ──────────────────────────────────────
+const getGraphOptions = (isDark) => ({
   nodes: {
-    font: { color: '#E2E8F0', size: 12, face: 'Inter, system-ui, sans-serif', strokeWidth: 0 },
+    font: { color: isDark ? '#E2E8F0' : '#1F2937', size: 12, face: 'Inter, system-ui, sans-serif', strokeWidth: 0 },
     borderWidth: 2,
-    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 6 },
+    shadow: { enabled: true, color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)', size: 6 },
     scaling: { min: 8, max: 50, label: { enabled: true, min: 10, max: 18 } },
   },
   edges: {
     width: 1,
     smooth: { type: 'continuous' },
-    color: { color: 'rgba(255,255,255,0.12)' },
+    color: { color: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)' },
     arrows: { to: { enabled: false } },
   },
   groups: {
@@ -104,22 +104,22 @@ const GRAPH_OPTIONS = {
     author: {
       shape: 'triangle',
       color: { background: '#8B5CF6', border: '#8B5CF6', highlight: { background: '#A87DFF', border: '#A87DFF' } },
-      font: { size: 11, color: '#D4C4FF' },
+      font: { size: 11, color: '#FFFFFF' },
     },
     keyword: {
       shape: 'diamond',
       color: { background: '#00D1B2', border: '#00D1B2', highlight: { background: '#33DDC5', border: '#33DDC5' } },
-      font: { size: 10, color: '#CCFBF1' },
+      font: { size: 10, color: '#FFFFFF' },
     },
     journal: {
       shape: 'square',
       color: { background: '#F59E0B', border: '#F59E0B', highlight: { background: '#F7B32B', border: '#F7B32B' } },
-      font: { size: 11, color: '#FEF3C7' },
+      font: { size: 11, color: '#FFFFFF' },
     },
     field: {
       shape: 'square',
       color: { background: '#EF4444', border: '#EF4444', highlight: { background: '#F26363', border: '#F26363' } },
-      font: { size: 11, color: '#FEE2E2' },
+      font: { size: 11, color: '#FFFFFF' },
     },
   },
   physics: {
@@ -135,7 +135,7 @@ const GRAPH_OPTIONS = {
   },
   interaction: { hover: true, tooltipDelay: 150, zoomView: true, dragView: true, navigationButtons: false },
   layout: { improvedLayout: true },
-};
+});
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Neo4jGraphCard() {
@@ -162,7 +162,11 @@ export default function Neo4jGraphCard() {
     const { nodes, edges } = transformToGraph(papers);
     dataRef.current = { nodes, edges };
 
-    networkRef.current = new Network(containerRef.current, { nodes, edges }, GRAPH_OPTIONS);
+    // Kiểm tra xem web đang ở chế độ Dark hay Light để set màu đồ thị
+    const isDark = document.documentElement.classList.contains('dark');
+    const options = getGraphOptions(isDark);
+
+    networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
 
     // Fit to container after stabilization
     networkRef.current.once('stabilizationIterationsDone', () => {
@@ -227,22 +231,18 @@ export default function Neo4jGraphCard() {
   const cardHeight = expanded ? 'h-[620px]' : 'h-[420px]';
 
   return (
-    <div
-      className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300`}
-      style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}
-    >
+    <div className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none`}>
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
         <div>
-          <h3 className="text-sm font-bold text-white">Knowledge Graph Explorer</h3>
-          <p className="text-xs mt-0.5" style={{ color: '#A0AEC0' }}>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Knowledge Graph Explorer</h3>
+          <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
             Visualize paper, author & keyword relationships
           </p>
         </div>
         <button
           onClick={() => setExpanded((p) => !p)}
-          className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
-          style={{ color: '#A0AEC0' }}
+          className="p-1.5 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-[#A0AEC0]"
           title={expanded ? 'Collapse' : 'Expand'}
         >
           {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
@@ -252,23 +252,14 @@ export default function Neo4jGraphCard() {
       {/* Search bar */}
       <form onSubmit={handleSubmit} className="px-5 pb-3 shrink-0 flex gap-2">
         <div className="relative flex-1">
-          <Search
-            size={13}
-            className="absolute left-3 top-1/2 -translate-y-1/2"
-            style={{ color: '#A0AEC0' }}
-          />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]" />
           <input
             type="text"
             placeholder="Enter keyword (e.g., machine learning, CRISPR)…"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             disabled={loading}
-            className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50"
-            style={{
-              background: '#131A2A',
-              borderColor: 'rgba(255,255,255,0.08)',
-              color: '#E2E8F0',
-            }}
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#4F8CFF]"
           />
         </div>
         <motion.button
@@ -276,25 +267,20 @@ export default function Neo4jGraphCard() {
           whileTap={{ scale: 0.97 }}
           type="submit"
           disabled={loading || !keyword.trim()}
-          className="px-4 py-2.5 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40"
-          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          className="px-4 py-2.5 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40 bg-gradient-to-r from-blue-500 to-purple-600 shadow-md shadow-blue-500/20"
         >
-          {loading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            'Explore'
-          )}
+          {loading ? <Loader2 size={14} className="animate-spin" /> : 'Explore'}
         </motion.button>
       </form>
 
       {/* Graph area */}
-      <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative" style={{ background: '#0B1020' }}>
+      <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-gray-50 dark:bg-[#0B1020] border border-gray-200 dark:border-transparent">
         {/* Loading overlay */}
         {loading && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#0B1020]/80 backdrop-blur-sm">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 dark:bg-[#0B1020]/80 backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 size={28} className="animate-spin" style={{ color: '#4F8CFF' }} />
-              <span className="text-xs font-medium" style={{ color: '#A0AEC0' }}>
+              <Loader2 size={28} className="animate-spin text-blue-500 dark:text-[#4F8CFF]" />
+              <span className="text-xs font-medium text-gray-600 dark:text-[#A0AEC0]">
                 Building knowledge graph…
               </span>
             </div>
@@ -303,16 +289,15 @@ export default function Neo4jGraphCard() {
 
         {/* Error / empty state */}
         {!loading && error && (
-          <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#0B1020]/90">
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/90 dark:bg-[#0B1020]/90">
             <div className="flex flex-col items-center gap-3 px-6 text-center">
-              <AlertCircle size={28} style={{ color: '#F59E0B' }} />
-              <span className="text-sm font-medium" style={{ color: '#A0AEC0' }}>
+              <AlertCircle size={28} className="text-amber-500" />
+              <span className="text-sm font-medium text-gray-600 dark:text-[#A0AEC0]">
                 {error}
               </span>
               <button
                 onClick={handleSubmit}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-gradient-to-r from-blue-500 to-purple-600 shadow-md"
               >
                 <RefreshCw size={12} /> Retry
               </button>
@@ -323,7 +308,7 @@ export default function Neo4jGraphCard() {
         {/* Idle state (no data yet) */}
         {!loading && !error && !dataRef.current && (
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-            <p className="text-xs" style={{ color: '#6B7280' }}>
+            <p className="text-xs text-gray-500 dark:text-[#6B7280]">
               Enter a keyword above to explore the knowledge graph
             </p>
           </div>
@@ -340,7 +325,7 @@ export default function Neo4jGraphCard() {
         <LegendItem color="#00D1B2" label="Keyword" shape="◆" />
         <LegendItem color="#F59E0B" label="Journal" shape="■" />
         <LegendItem color="#EF4444" label="Field" shape="■" />
-        <span className="ml-auto" style={{ color: '#6B7280' }}>
+        <span className="ml-auto text-gray-500 dark:text-[#6B7280]">
           Double-click node to focus · Scroll to zoom
         </span>
       </div>
@@ -350,7 +335,7 @@ export default function Neo4jGraphCard() {
 
 function LegendItem({ color, label, shape }) {
   return (
-    <span className="inline-flex items-center gap-1.5" style={{ color: '#A0AEC0' }}>
+    <span className="inline-flex items-center gap-1.5 text-gray-600 dark:text-[#A0AEC0]">
       <span style={{ color, fontSize: 11 }}>{shape}</span>
       {label}
     </span>

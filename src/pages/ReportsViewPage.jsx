@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { FileText, Download, FileSpreadsheet, Plus, BarChart2, BookOpen, Clock, CheckCircle2, AlertCircle, FileArchive, X, Settings2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FileText, Download, FileSpreadsheet, BarChart2, BookOpen, Clock, CheckCircle2, AlertCircle, FileArchive, X, Settings2 } from 'lucide-react';
 
 // ==========================================
 // 1. MOCK DATA
@@ -53,19 +53,18 @@ export default function ReportsViewPage() {
   };
 
   return (
-    <div className="w-full h-full min-h-screen bg-[#0B1020] p-8 space-y-6 overflow-y-auto relative">
+    <div className="w-full h-full min-h-screen p-8 space-y-6 overflow-y-auto relative bg-gray-50 dark:bg-[#0B1020] transition-colors duration-300">
       
       {/* HEADER */}
       <div className="flex justify-between items-end mb-6">
         <div>
-          <h2 className="text-2xl font-black text-white">Reports & Exports</h2>
-          <p className="text-sm text-gray-400 mt-1">Generate, customize, and download your analytical data.</p>
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">Reports & Exports</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Generate, customize, and download your analytical data.</p>
         </div>
         <button 
           disabled={isGenerating}
-          onClick={() => setShowModal(true)} // Bấm vào đây để mở Modal thay vì tạo luôn
-          className="px-5 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
-          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          onClick={() => setShowModal(true)}
+          className="px-5 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 shadow-md shadow-blue-500/20 bg-gradient-to-r from-blue-500 to-purple-600"
         >
           {isGenerating ? <Clock size={16} className="animate-spin" /> : <Settings2 size={16} />}
           {isGenerating ? 'Generating...' : 'Custom Report'}
@@ -74,82 +73,82 @@ export default function ReportsViewPage() {
 
       {/* QUICK TEMPLATES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border bg-[#1B2235] border-white/10 relative overflow-hidden group">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-blue-500/10 text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white">
             <BarChart2 size={20} />
           </div>
-          <h3 className="text-sm font-bold text-white mb-1">Trend Analysis Summary</h3>
-          <p className="text-xs text-gray-400 mb-4 line-clamp-2">Visual charts and stats covering your primary research fields.</p>
-          <button onClick={() => handleGenerateReport('Trend Analysis Summary', 'PDF')} className="text-xs font-semibold text-[#4F8CFF] hover:text-white transition-colors">Quick PDF →</button>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Trend Analysis Summary</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">Visual charts and stats covering your primary research fields.</p>
+          <button onClick={() => handleGenerateReport('Trend Analysis Summary', 'PDF')} className="text-xs font-semibold text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white transition-colors">Quick PDF →</button>
         </motion.div>
 
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border bg-[#1B2235] border-white/10 relative overflow-hidden group">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-purple-500/10 text-purple-400 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-purple-50 dark:bg-purple-500/10 text-purple-500 dark:text-purple-400 group-hover:bg-purple-500 group-hover:text-white">
             <BookOpen size={20} />
           </div>
-          <h3 className="text-sm font-bold text-white mb-1">Reading List Export</h3>
-          <p className="text-xs text-gray-400 mb-4 line-clamp-2">Export your saved papers with full citations (APA/IEEE format).</p>
-          <button onClick={() => handleGenerateReport('Reading List Export', 'CSV')} className="text-xs font-semibold text-[#8B5CF6] hover:text-white transition-colors">Quick CSV →</button>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Reading List Export</h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">Export your saved papers with full citations (APA/IEEE format).</p>
+          <button onClick={() => handleGenerateReport('Reading List Export', 'CSV')} className="text-xs font-semibold text-purple-600 dark:text-[#8B5CF6] hover:text-purple-800 dark:hover:text-white transition-colors">Quick CSV →</button>
         </motion.div>
 
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border bg-[#1B2235] border-white/10 relative overflow-hidden group">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 bg-teal-500/10 text-teal-400 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-teal-50 dark:bg-teal-500/10 text-teal-500 dark:text-teal-400 group-hover:bg-teal-500 group-hover:text-white">
             <FileText size={20} />
           </div>
-          <h3 className="text-sm font-bold text-white mb-1">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
             {role === 'researcher' ? 'Author Impact Report' : 'Coursework References'}
           </h3>
-          <p className="text-xs text-gray-400 mb-4 line-clamp-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 line-clamp-2">
             {role === 'researcher' ? 'Detailed metrics on your H-Index and global citations.' : 'Compile references for your academic thesis or assignments.'}
           </p>
-          <button onClick={() => handleGenerateReport('Detailed Metrics Report', 'PDF')} className="text-xs font-semibold text-[#00D1B2] hover:text-white transition-colors">Quick PDF →</button>
+          <button onClick={() => handleGenerateReport('Detailed Metrics Report', 'PDF')} className="text-xs font-semibold text-teal-600 dark:text-[#00D1B2] hover:text-teal-800 dark:hover:text-white transition-colors">Quick PDF →</button>
         </motion.div>
       </div>
 
       {/* REPORT HISTORY TABLE */}
-      <div className="rounded-xl border overflow-hidden mt-8" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <h3 className="text-sm font-bold text-white">Report History</h3>
-          <span className="text-xs text-gray-400">Showing last 30 days</span>
+      <div className="rounded-xl border overflow-hidden mt-8 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/5">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Report History</h3>
+          <span className="text-xs text-gray-500 dark:text-gray-400">Showing last 30 days</span>
         </div>
         
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+              <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-transparent">
                 {['Report Name', 'Type', 'Date Generated', 'Size', 'Status', 'Action'].map((h) => (
-                  <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-500">{h}</th>
+                  <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-500 dark:text-gray-400">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {reports.map((report) => (
-                <tr key={report.id} className="border-b hover:bg-white/[0.02] transition-colors" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
+                <tr key={report.id} className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      {report.type === 'PDF' && <FileText size={16} className="text-red-400" />}
-                      {report.type === 'CSV' && <FileSpreadsheet size={16} className="text-green-400" />}
-                      {report.type === 'ZIP' && <FileArchive size={16} className="text-yellow-400" />}
-                      <span className="text-sm font-semibold text-white">{report.name}</span>
+                      {report.type === 'PDF' && <FileText size={16} className="text-red-500 dark:text-red-400" />}
+                      {report.type === 'CSV' && <FileSpreadsheet size={16} className="text-emerald-500 dark:text-green-400" />}
+                      {report.type === 'ZIP' && <FileArchive size={16} className="text-amber-500 dark:text-yellow-400" />}
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{report.name}</span>
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-[10px] font-bold px-2 py-1 rounded bg-white/5 text-gray-300">{report.type}</span>
+                    <span className="text-[10px] font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300">{report.type}</span>
                   </td>
-                  <td className="px-5 py-4 text-xs text-gray-400">{report.date}</td>
-                  <td className="px-5 py-4 text-xs text-gray-400 font-mono">{report.size}</td>
+                  <td className="px-5 py-4 text-xs text-gray-500 dark:text-gray-400">{report.date}</td>
+                  <td className="px-5 py-4 text-xs text-gray-500 dark:text-gray-400 font-mono">{report.size}</td>
                   <td className="px-5 py-4">
                     {report.status === 'ready' ? (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md"><CheckCircle2 size={12} /> Ready</span>
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md"><CheckCircle2 size={12} /> Ready</span>
                     ) : (
-                      <span className="flex items-center gap-1.5 text-xs font-medium text-red-400 bg-red-400/10 w-fit px-2.5 py-1 rounded-md"><AlertCircle size={12} /> Expired</span>
+                      <span className="flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-400/10 w-fit px-2.5 py-1 rounded-md"><AlertCircle size={12} /> Expired</span>
                     )}
                   </td>
                   <td className="px-5 py-4">
                     <button 
                       onClick={() => handleDownload(report.id)}
                       disabled={report.status === 'expired' || downloadingId === report.id}
-                      className="flex items-center gap-2 text-xs font-semibold text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-white/10 w-[110px] justify-center"
+                      className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-white bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-gray-100 dark:disabled:hover:bg-white/10 w-[110px] justify-center"
                     >
                       {downloadingId === report.id ? <><Clock size={14} className="animate-spin" /> Downloading</> : <><Download size={14} /> Download</>}
                     </button>
@@ -165,35 +164,35 @@ export default function ReportsViewPage() {
       <AnimatePresence>
         {showModal && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm z-40" />
             
             <motion.div 
               initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[#131A2A] border border-white/10 rounded-2xl p-6 z-50 shadow-2xl"
+              className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-[#131A2A] border border-gray-200 dark:border-white/10 rounded-2xl p-6 z-50 shadow-2xl transition-colors"
             >
               <div className="flex justify-between items-center mb-5">
-                <h3 className="text-lg font-bold text-white">Customize Report</h3>
-                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors"><X size={20} /></button>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">Customize Report</h3>
+                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"><X size={20} /></button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-semibold text-white block mb-1.5">Report Name</label>
-                  <input type="text" value={customForm.name} onChange={(e) => setCustomForm({...customForm, name: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#1B2235] text-sm text-white outline-none focus:border-[#4F8CFF]" />
+                  <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5">Report Name</label>
+                  <input type="text" value={customForm.name} onChange={(e) => setCustomForm({...customForm, name: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#1B2235] text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 dark:focus:border-[#4F8CFF] transition-colors" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold text-white block mb-1.5">Format</label>
-                    <select value={customForm.format} onChange={(e) => setCustomForm({...customForm, format: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#1B2235] text-sm text-white outline-none focus:border-[#4F8CFF] appearance-none">
+                    <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5">Format</label>
+                    <select value={customForm.format} onChange={(e) => setCustomForm({...customForm, format: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#1B2235] text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 dark:focus:border-[#4F8CFF] appearance-none transition-colors">
                       <option value="PDF">PDF Document</option>
                       <option value="CSV">CSV / Excel</option>
                       <option value="ZIP">ZIP Archive</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-white block mb-1.5">Date Range</label>
-                    <select value={customForm.dateRange} onChange={(e) => setCustomForm({...customForm, dateRange: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-white/10 bg-[#1B2235] text-sm text-white outline-none focus:border-[#4F8CFF] appearance-none">
+                    <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5">Date Range</label>
+                    <select value={customForm.dateRange} onChange={(e) => setCustomForm({...customForm, dateRange: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#1B2235] text-sm text-gray-900 dark:text-white outline-none focus:border-blue-500 dark:focus:border-[#4F8CFF] appearance-none transition-colors">
                       <option value="30days">Last 30 Days</option>
                       <option value="6months">Last 6 Months</option>
                       <option value="1year">Last 1 Year</option>
@@ -203,26 +202,25 @@ export default function ReportsViewPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold text-white block mb-2 mt-2">Include Data Columns</label>
+                  <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-2 mt-2">Include Data Columns</label>
                   <div className="space-y-2">
                     <label className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" checked={customForm.includeCitations} onChange={(e) => setCustomForm({...customForm, includeCitations: e.target.checked})} className="w-4 h-4 rounded border-white/20 bg-[#1B2235] accent-[#4F8CFF]" />
-                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Citation Counts & Metrics</span>
+                      <input type="checkbox" checked={customForm.includeCitations} onChange={(e) => setCustomForm({...customForm, includeCitations: e.target.checked})} className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-50 dark:bg-[#1B2235] accent-blue-500" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Citation Counts & Metrics</span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" checked={customForm.includeAbstracts} onChange={(e) => setCustomForm({...customForm, includeAbstracts: e.target.checked})} className="w-4 h-4 rounded border-white/20 bg-[#1B2235] accent-[#4F8CFF]" />
-                      <span className="text-sm text-gray-300 group-hover:text-white transition-colors">Full Paper Abstracts</span>
+                      <input type="checkbox" checked={customForm.includeAbstracts} onChange={(e) => setCustomForm({...customForm, includeAbstracts: e.target.checked})} className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-50 dark:bg-[#1B2235] accent-blue-500" />
+                      <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">Full Paper Abstracts</span>
                     </label>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-white/10 flex justify-end gap-3">
-                <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-300 hover:bg-white/5 transition-colors">Cancel</button>
+              <div className="mt-6 pt-5 border-t border-gray-200 dark:border-white/10 flex justify-end gap-3 transition-colors">
+                <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">Cancel</button>
                 <button 
                   onClick={() => handleGenerateReport(customForm.name, customForm.format)}
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white hover:scale-105 transition-transform"
-                  style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity bg-gradient-to-r from-blue-500 to-purple-600 shadow-md shadow-blue-500/20"
                 >
                   Generate Now
                 </button>
