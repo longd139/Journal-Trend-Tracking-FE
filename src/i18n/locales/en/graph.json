@@ -1,0 +1,21 @@
+{
+  "title": "Knowledge Graph Explorer",
+  "subtitle": "Visualize paper, author & keyword relationships",
+  "searchPlaceholder": "Enter keyword (e.g., machine learning, CRISPR)…",
+  "explore": "Explore",
+  "expand": "Expand",
+  "collapse": "Collapse",
+  "loading": "Building knowledge graph…",
+  "noResults": "No results found for this keyword.",
+  "fetchError": "Failed to load graph data.",
+  "idleHint": "Enter a keyword above to explore the knowledge graph",
+  "retry": "Retry",
+  "legend": {
+    "paper": "Paper",
+    "author": "Author",
+    "keyword": "Keyword",
+    "journal": "Journal",
+    "field": "Field"
+  },
+  "tip": "Double-click node to focus · Scroll to zoom"
+}

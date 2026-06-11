@@ -1,14 +1,12 @@
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FileText, TrendingUp, Users, Star } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Neo4jGraphCard from '../components/Neo4jGraphCard';
 
-// ==========================================
-// 1. COMPONENT DÙNG CHUNG
-// ==========================================
 const StatCard = ({ label, value, change, Icon, accent }) => (
-  <motion.div 
-    whileHover={{ y: -4 }} 
+  <motion.div
+    whileHover={{ y: -4 }}
     className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
   >
     <div className="flex items-start justify-between mb-2">
@@ -26,37 +24,31 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
   </motion.div>
 );
 
-// ==========================================
-// 2. DỮ LIỆU GIẢ
-// ==========================================
 const FIELD_DATA = [
   { n: 'AI & ML', v: 45, c: '#4F8CFF' },
   { n: 'Biotech', v: 30, c: '#8B5CF6' },
   { n: 'Climate', v: 25, c: '#00D1B2' }
 ];
 
-// ==========================================
-// 3. GIAO DIỆN CHÍNH
-// ==========================================
 export default function AnalyticsView() {
+  const { t } = useTranslation('analytics');
+
   return (
     <div className="space-y-6 p-8 min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Publications" value="50.2M" change="+14%" Icon={FileText} accent="#4F8CFF" />
-        <StatCard label="Citation Index" value="52.1M" change="+35.7%" Icon={TrendingUp} accent="#8B5CF6" />
-        <StatCard label="Active Researchers" value="284K" change="+8.2%" Icon={Users} accent="#00D1B2" />
-        <StatCard label="Impact Score" value="9.4" change="+0.8" Icon={Star} accent="#F59E0B" />
+        <StatCard label={t('cards.trendAnalysis')} value="50.2M" change="+14%" Icon={FileText} accent="#4F8CFF" />
+        <StatCard label={t('cards.citationImpact')} value="52.1M" change="+35.7%" Icon={TrendingUp} accent="#8B5CF6" />
+        <StatCard label={t('cards.fieldDistribution')} value="284K" change="+8.2%" Icon={Users} accent="#00D1B2" />
+        <StatCard label={t('cards.geographicDistribution')} value="9.4" change="+0.8" Icon={Star} accent="#F59E0B" />
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Neo4j Knowledge Graph */}
         <Neo4jGraphCard />
 
-        {/* Biểu đồ Tròn */}
         <div className="rounded-xl border p-5 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">Field Distribution</h3>
-          <p className="text-xs mb-4 text-gray-500 dark:text-[#A0AEC0]">Share of total publications by research area</p>
-          
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{t('cards.fieldDistribution')}</h3>
+          <p className="text-xs mb-4 text-gray-500 dark:text-[#A0AEC0]">{t('charts.citationsPerField')}</p>
+
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -85,8 +77,7 @@ export default function AnalyticsView() {
               />
             </PieChart>
           </ResponsiveContainer>
-          
-          {/* Chú thích biểu đồ */}
+
           <div className="flex flex-wrap gap-3 mt-1 justify-center">
             {FIELD_DATA.map((f) => (
               <div key={f.n} className="flex items-center gap-1.5 text-xs">

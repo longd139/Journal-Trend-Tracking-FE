@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Search, Loader2, AlertCircle, Maximize2, Minimize2, RefreshCw } from 'lucide-react';
 import { Network } from 'vis-network';
@@ -84,7 +85,7 @@ function transformToGraph(papers) {
 // ─── Vis-network config động theo Theme ──────────────────────────────────────
 const getGraphOptions = (isDark) => ({
   nodes: {
-    font: { color: isDark ? '#E2E8F0' : '#1F2937', size: 12, face: 'Inter, system-ui, sans-serif', strokeWidth: 0 },
+    font: { color: isDark ? '#E2E8F0' : '#1F2937', size: 12, face: '"Be Vietnam Pro", Inter, "Noto Sans", system-ui, sans-serif', strokeWidth: 0 },
     borderWidth: 2,
     shadow: { enabled: true, color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)', size: 6 },
     scaling: { min: 8, max: 50, label: { enabled: true, min: 10, max: 18 } },
@@ -139,6 +140,7 @@ const getGraphOptions = (isDark) => ({
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Neo4jGraphCard() {
+  const { t } = useTranslation('graph');
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -212,7 +214,7 @@ export default function Neo4jGraphCard() {
       const papers = data?.papers ?? [];
 
       if (papers.length === 0) {
-        setError('No results found for this keyword.');
+        setError(t('noResults'));
         destroyNetwork();
         return;
       }
@@ -220,7 +222,7 @@ export default function Neo4jGraphCard() {
       buildGraph(papers);
     } catch (err) {
       console.error('Graph fetch error:', err);
-      const msg = err?.response?.data?.message ?? err?.message ?? 'Failed to load graph data.';
+      const msg = err?.response?.data?.message ?? err?.message ?? t('fetchError');
       setError(msg);
       destroyNetwork();
     } finally {
@@ -235,15 +237,15 @@ export default function Neo4jGraphCard() {
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
         <div>
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">Knowledge Graph Explorer</h3>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('title')}</h3>
           <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
-            Visualize paper, author & keyword relationships
+            {t('subtitle')}
           </p>
         </div>
         <button
           onClick={() => setExpanded((p) => !p)}
           className="p-1.5 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-[#A0AEC0]"
-          title={expanded ? 'Collapse' : 'Expand'}
+          title={expanded ? t('collapse') : t('expand')}
         >
           {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
         </button>
@@ -255,7 +257,7 @@ export default function Neo4jGraphCard() {
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]" />
           <input
             type="text"
-            placeholder="Enter keyword (e.g., machine learning, CRISPR)…"
+            placeholder={t('searchPlaceholder')}
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
             disabled={loading}
@@ -269,7 +271,7 @@ export default function Neo4jGraphCard() {
           disabled={loading || !keyword.trim()}
           className="px-4 py-2.5 rounded-lg text-xs font-bold text-white transition-opacity disabled:opacity-40 bg-gradient-to-r from-blue-500 to-purple-600 shadow-md shadow-blue-500/20"
         >
-          {loading ? <Loader2 size={14} className="animate-spin" /> : 'Explore'}
+          {loading ? <Loader2 size={14} className="animate-spin" /> : t('explore')}
         </motion.button>
       </form>
 
@@ -281,7 +283,7 @@ export default function Neo4jGraphCard() {
             <div className="flex flex-col items-center gap-3">
               <Loader2 size={28} className="animate-spin text-blue-500 dark:text-[#4F8CFF]" />
               <span className="text-xs font-medium text-gray-600 dark:text-[#A0AEC0]">
-                Building knowledge graph…
+                {t('loading')}
               </span>
             </div>
           </div>
@@ -299,7 +301,7 @@ export default function Neo4jGraphCard() {
                 onClick={handleSubmit}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-gradient-to-r from-blue-500 to-purple-600 shadow-md"
               >
-                <RefreshCw size={12} /> Retry
+                <RefreshCw size={12} /> {t('retry')}
               </button>
             </div>
           </div>
@@ -309,7 +311,7 @@ export default function Neo4jGraphCard() {
         {!loading && !error && !dataRef.current && (
           <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
             <p className="text-xs text-gray-500 dark:text-[#6B7280]">
-              Enter a keyword above to explore the knowledge graph
+              {t('idleHint')}
             </p>
           </div>
         )}
@@ -320,13 +322,13 @@ export default function Neo4jGraphCard() {
 
       {/* Legend */}
       <div className="px-5 pb-4 shrink-0 flex flex-wrap gap-3 text-[10px] font-medium">
-        <LegendItem color="#4F8CFF" label="Paper" shape="●" />
-        <LegendItem color="#8B5CF6" label="Author" shape="▲" />
-        <LegendItem color="#00D1B2" label="Keyword" shape="◆" />
-        <LegendItem color="#F59E0B" label="Journal" shape="■" />
-        <LegendItem color="#EF4444" label="Field" shape="■" />
+        <LegendItem color="#4F8CFF" label={t('legend.paper')} shape="●" />
+        <LegendItem color="#8B5CF6" label={t('legend.author')} shape="▲" />
+        <LegendItem color="#00D1B2" label={t('legend.keyword')} shape="◆" />
+        <LegendItem color="#F59E0B" label={t('legend.journal')} shape="■" />
+        <LegendItem color="#EF4444" label={t('legend.field')} shape="■" />
         <span className="ml-auto text-gray-500 dark:text-[#6B7280]">
-          Double-click node to focus · Scroll to zoom
+          {t('tip')}
         </span>
       </div>
     </div>

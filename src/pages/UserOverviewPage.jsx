@@ -1,22 +1,20 @@
 import React from 'react';
-import { motion } from 'motion/react'; 
+import { useTranslation } from 'react-i18next';
+import { motion } from 'motion/react';
 import { AreaChart, Area, BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, YAxis, PieChart, Pie, Cell } from 'recharts';
 import { FileText, TrendingUp, Hash, Brain, Filter, Download, Star, Users, Bookmark, Cpu, Wifi, BookOpen } from 'lucide-react';
 
-// ==========================================
-// 1. COMPONENT DÙNG CHUNG
-// ==========================================
 const StatCard = ({ label, value, change, Icon, accent }) => (
-  <motion.div 
-    whileHover={{ y: -4 }} 
+  <motion.div
+    whileHover={{ y: -4 }}
     className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
   >
     <div className="flex items-start justify-between mb-2">
       <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
         <Icon size={18} />
       </div>
-      <span 
-        className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/5" 
+      <span
+        className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/5"
         style={{ color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}
       >
         {change}
@@ -30,17 +28,14 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
 );
 
 const GlowBadge = ({ color, children }) => (
-  <span 
-    className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border whitespace-nowrap" 
+  <span
+    className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border whitespace-nowrap"
     style={{ background: `${color}10`, color: color, borderColor: `${color}25`, textShadow: `0 0 10px ${color}40` }}
   >
     {children}
   </span>
 );
 
-// ==========================================
-// 2. DATA DÀNH RIÊNG CHO TỪNG ROLE
-// ==========================================
 const ACADEMIC_TRENDS = [
   { m: 'Jan', iot: 120, emb: 80, ai: 40 }, { m: 'Feb', iot: 150, emb: 90, ai: 45 },
   { m: 'Mar', iot: 180, emb: 110, ai: 60 }, { m: 'Apr', iot: 220, emb: 130, ai: 75 },
@@ -72,18 +67,16 @@ const MY_PUBLICATIONS = [
   { title: 'Security Vulnerabilities in Early Arduino Deployments', journal: 'ACM Embedded', year: 2024, citations: 430, role: 'First Author' },
 ];
 
-// ==========================================
-// 3. GIAO DIỆN CHÍNH
-// ==========================================
 export default function UserOverviewPage() {
+  const { t } = useTranslation('dashboard');
   const role = sessionStorage.getItem('userRole') || 'academic';
   const isResearcher = role === 'researcher';
 
-  const statCards = isResearcher 
+  const statCards = isResearcher
     ? [
-        { label: 'Total Citations', value: '1,284', change: '+12%', Icon: TrendingUp, accent: '#4F8CFF' },
-        { label: 'Publications', value: '18', change: '+2', Icon: FileText, accent: '#8B5CF6' },
-        { label: 'H-Index', value: '14', change: '+1', Icon: Star, accent: '#F59E0B' },
+        { label: t('user.totalCitations'), value: '1,284', change: '+12%', Icon: TrendingUp, accent: '#4F8CFF' },
+        { label: t('user.publishedPapers'), value: '18', change: '+2', Icon: FileText, accent: '#8B5CF6' },
+        { label: t('user.hIndex'), value: '14', change: '+1', Icon: Star, accent: '#F59E0B' },
         { label: 'Co-authors', value: '42', change: '+3', Icon: Users, accent: '#00D1B2' },
       ]
     : [
@@ -100,7 +93,7 @@ export default function UserOverviewPage() {
       <div className="mb-2 flex justify-between items-end">
         <div>
           <h2 className="text-2xl font-black text-gray-900 dark:text-white">
-            {isResearcher ? 'Researcher Impact Dashboard' : 'Academic Discovery Space'}
+            {isResearcher ? t('user.publicationTrends') : t('user.researchFields')}
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {isResearcher ? 'Track your publication metrics and global academic reach.' : 'Discover trends in embedded systems and organize your research.'}
@@ -117,21 +110,20 @@ export default function UserOverviewPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-                {isResearcher ? 'Citation Growth History' : 'Global Tech Publication Trends'}
+                {isResearcher ? t('user.researchImpact') : t('user.publicationTrends')}
               </h3>
               <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
                 {isResearcher ? 'Total citations received per year' : 'Monthly papers in IoT & Embedded fields'}
               </p>
             </div>
           </div>
-          
+
           <ResponsiveContainer width="100%" height={200}>
             {isResearcher ? (
               <BarChart data={MY_CITATIONS_HISTORY}>
                 <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-200 dark:text-white/5" vertical={false} />
                 <XAxis dataKey="y" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
-                {/* Giữ nguyên màu nền dark cho Tooltip vì nó tạo điểm nhấn đẹp trên cả 2 giao diện */}
                 <Tooltip cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }} contentStyle={{ background: '#1B2235', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }} />
                 <Bar dataKey="citations" fill="#4F8CFF" radius={[4, 4, 0, 0]} name="Citations" />
               </BarChart>
@@ -159,7 +151,7 @@ export default function UserOverviewPage() {
 
         <div className="rounded-xl border p-5 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors duration-300">
           <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4">
-            {isResearcher ? 'My Publication Fields' : 'Your Reading Interests'}
+            {isResearcher ? t('user.researchFields') : t('user.fieldDistribution')}
           </h3>
           <ResponsiveContainer width="100%" height={130}>
             <PieChart>
@@ -186,7 +178,7 @@ export default function UserOverviewPage() {
       <div className="rounded-xl border overflow-hidden bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors duration-300">
         <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/5">
           <h3 className="text-sm font-bold text-gray-900 dark:text-white">
-            {isResearcher ? 'My Recent Publications' : 'Recommended Papers For You'}
+            {isResearcher ? t('user.recentPublications') : t('user.trendingTopics')}
           </h3>
           <div className="flex gap-2">
             <button className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#131A2A] dark:text-[#A0AEC0] dark:hover:bg-white/5">

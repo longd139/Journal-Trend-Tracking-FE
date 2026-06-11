@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Plus, Edit2, Trash2, X, ShieldAlert, RefreshCw, Building2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 // import axios from 'axios'; // Bật cái này lên nếu ông xài axios gọi API
@@ -27,6 +28,7 @@ const FIELD_DATA = ['#4F8CFF', '#8B5CF6', '#00D1B2', '#F59E0B'];
 // 2. GIAO DIỆN CHÍNH
 // ==========================================
 export default function UserManagement() {
+  const { t } = useTranslation('dashboard');
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState('');
   
@@ -126,7 +128,7 @@ export default function UserManagement() {
           <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]" />
           <input
             type="text"
-            placeholder="Search by username, email, or organization…"
+            placeholder={t('userManagement.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1B2235] text-sm text-gray-900 dark:text-[#E2E8F0] outline-none transition-colors focus:border-blue-500 dark:focus:border-[#4F8CFF] shadow-sm dark:shadow-none"
@@ -136,7 +138,7 @@ export default function UserManagement() {
           onClick={handleOpenAdd}
           className="px-4 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 hover:opacity-90 transition-opacity shadow-md shadow-blue-500/20 bg-gradient-to-r from-blue-500 to-purple-600"
         >
-          <Plus size={13} /> Add User
+          <Plus size={13} /> {t('userManagement.addUser')}
         </button>
       </div>
 
@@ -146,7 +148,7 @@ export default function UserManagement() {
           <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-white/[0.01] transition-colors">
-                {['User', 'Role', 'Organization', 'Status', 'Actions'].map((h) => (
+                {[t('userManagement.columns.user'), t('userManagement.columns.role'), t('userManagement.columns.organization'), t('userManagement.columns.status'), t('userManagement.columns.actions')].map((h) => (
                   <th key={h} className="text-left px-5 py-4 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-[#6B7280]">
                     {h}
                   </th>
@@ -158,7 +160,7 @@ export default function UserManagement() {
                 <tr>
                   <td colSpan="5" className="text-center py-16">
                     <RefreshCw size={24} className="animate-spin mx-auto text-blue-500 dark:text-[#4F8CFF] mb-2" />
-                    <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">Loading users from API...</p>
+                    <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">{t('userManagement.loading')}</p>
                   </td>
                 </tr>
               ) : (
@@ -258,8 +260,8 @@ export default function UserManagement() {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2 text-gray-900 dark:text-white">
                   <ShieldAlert size={18} className="text-blue-500 dark:text-[#4F8CFF]" />
-                  <h3 className="text-lg font-bold" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                    {editingUser ? 'Edit User Details' : 'Add New User'}
+                  <h3 className="text-lg font-bold font-display">
+                    {editingUser ? t('userManagement.editUser') : t('userManagement.addUser')}
                   </h3>
                 </div>
                 <button onClick={() => !isSubmitting && setIsModalOpen(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
@@ -270,7 +272,7 @@ export default function UserManagement() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {['username', 'email', 'organization'].map((field) => (
                   <div key={field}>
-                    <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5 capitalize">{field}</label>
+                    <label className="text-xs font-semibold text-gray-900 dark:text-white block mb-1.5 normal-case">{field}</label>
                     <input
                       required
                       type={field === 'email' ? 'email' : 'text'}

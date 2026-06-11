@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Microscope,
@@ -19,8 +20,8 @@ import { useAuthStore } from '../../store/useAuthStore';
 export default function LoginPage() {
   const navigate = useNavigate();
   const setToken = useAuthStore((state) => state.setTokens);
+  const { t } = useTranslation('auth');
 
-  // States điều khiển giao diện
   const [isForgotMode, setIsForgotMode] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,7 +38,6 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation cơ bản
     const isEmailEmpty = form.email.trim() === '';
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const isEmailFormatInvalid = !isEmailEmpty && !emailRegex.test(form.email);
@@ -56,36 +56,30 @@ export default function LoginPage() {
     setLoading(true);
     setErrors((prev) => ({ ...prev, apiError: '', successMsg: '' }));
 
-try {
+    try {
       if (isForgotMode) {
-        // GỌI API THẬT CHO CHỨC NĂNG QUÊN MẬT KHẨU
         const response = await authAPI.forgotPassword({ email: form.email });
-        
-        // Hiện thông báo thành công từ Backend trả về
         setErrors((prev) => ({
           ...prev,
-          successMsg: response.message || 'Reset link has been sent to your email!',
+          successMsg: response.message || t('login.resetDescription'),
         }));
       } else {
-        // GỌI API LOGIN
         const response = await authAPI.login({
           email: form.email,
           password: form.password,
         });
-        
+
         console.log(response);
         setToken(response.accessToken);
-        
+
         const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
         navigate(`/${userRole}/overview`);
       }
     } catch (error) {
-      // BẮT LỖI TỪ BACKEND
-      // Ưu tiên lấy lỗi từ BE, nếu không có mới dùng câu mặc định
-      const errorMessage = error.response?.data?.message || 
-        (isForgotMode 
-          ? 'Email does not exist in the system.' 
+      const errorMessage = error.response?.data?.message ||
+        (isForgotMode
+          ? 'Email does not exist in the system.'
           : 'Incorrect email or password. Please try again!');
 
       setErrors((prev) => ({
@@ -115,7 +109,7 @@ try {
       apiError: '',
       successMsg: '',
     });
-    setShowPassword(false); // Reset con mắt khi đổi tab
+    setShowPassword(false);
   };
 
   return (
@@ -159,8 +153,7 @@ try {
             <Microscope size={18} className="text-white" />
           </div>
           <span
-            className="text-lg font-black text-gray-900 dark:text-white tracking-widest"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            className="text-lg font-black text-gray-900 dark:text-white tracking-widest font-outfit"
           >
             SCITRACK
           </span>
@@ -170,23 +163,22 @@ try {
         <div className="rounded-2xl border p-8 bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <motion.div layout>
             <h2
-              className="text-2xl font-black text-gray-900 dark:text-white mb-1"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
+              className="text-2xl font-black text-gray-900 dark:text-white mb-1 font-display"
             >
-              {isForgotMode ? 'Reset Password' : 'Welcome back'}
+              {isForgotMode ? t('login.resetPassword') : t('login.welcomeBack')}
             </h2>
             <p className="text-sm mb-6 text-gray-500 dark:text-[#A0AEC0]">
               {isForgotMode
-                ? 'Enter your email to receive a reset link'
-                : 'Sign in to your research dashboard'}
+                ? t('login.resetDescription')
+                : t('login.signIn')}
             </p>
           </motion.div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            {/* Input Email */}
+            {/* Email Input */}
             <motion.div layout>
               <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                Email Address
+                {t('login.emailLabel')}
               </label>
               <div className="relative">
                 <Mail
@@ -197,7 +189,7 @@ try {
                 />
                 <input
                   type="email"
-                  placeholder="you@university.edu"
+                  placeholder={t('login.emailPlaceholder')}
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
@@ -209,12 +201,12 @@ try {
               </div>
               {errors.email && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please enter your email
+                  <AlertCircle size={10} /> {t('login.validation.emailRequired')}
                 </div>
               )}
               {errors.emailFormat && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Invalid email format
+                  <AlertCircle size={10} /> {t('login.validation.emailInvalid')}
                 </div>
               )}
             </motion.div>
@@ -230,7 +222,7 @@ try {
                 >
                   <div>
                     <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                      Password
+                      {t('login.passwordLabel')}
                     </label>
                     <div className="relative">
                       <Lock
@@ -242,7 +234,7 @@ try {
 
                       <input
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="••••••••"
+                        placeholder={t('login.passwordPlaceholder')}
                         value={form.password}
                         onChange={(e) =>
                           handleChange('password', e.target.value)
@@ -254,7 +246,7 @@ try {
                         } text-gray-900 dark:text-[#E2E8F0]`}
                       />
 
-                      {/* NÚT CON MẮT */}
+                      {/* Show/Hide password */}
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
@@ -269,7 +261,7 @@ try {
                     </div>
                     {errors.password && (
                       <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                        <AlertCircle size={10} /> Please enter your password
+                        <AlertCircle size={10} /> {t('login.validation.passwordRequired')}
                       </div>
                     )}
                   </div>
@@ -280,21 +272,21 @@ try {
                         type="checkbox"
                         className="rounded border-gray-300 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] accent-blue-500"
                       />{' '}
-                      Remember me
+                      {t('login.rememberMe')}
                     </label>
                     <button
                       type="button"
                       onClick={toggleMode}
                       className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
                     >
-                      Forgot password?
+                      {t('login.forgotPassword')}
                     </button>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Lỗi API */}
+            {/* API Error */}
             {errors.apiError && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -305,7 +297,7 @@ try {
               </motion.div>
             )}
 
-            {/* Thông báo thành công */}
+            {/* Success Message */}
             {errors.successMsg && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -316,7 +308,7 @@ try {
               </motion.div>
             )}
 
-            {/* Nút Submit */}
+            {/* Submit Button */}
             <motion.button
               layout
               whileHover={{ scale: 1.02 }}
@@ -329,12 +321,12 @@ try {
               {loading ? (
                 <>
                   <RefreshCw size={14} className="animate-spin" />{' '}
-                  {isForgotMode ? 'Sending…' : 'Signing in…'}
+                  {isForgotMode ? t('login.sending') : t('login.signingIn')}
                 </>
               ) : isForgotMode ? (
-                'Send Reset Link'
+                t('login.sendResetLink')
               ) : (
-                'Sign In'
+                t('login.signInButton')
               )}
             </motion.button>
           </form>
@@ -349,16 +341,16 @@ try {
                 onClick={toggleMode}
                 className="font-semibold flex items-center justify-center gap-1.5 transition-colors text-gray-500 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white"
               >
-                <ArrowLeft size={12} /> Back to login
+                <ArrowLeft size={12} /> {t('login.backToLogin')}
               </button>
             ) : (
               <span>
-                Don't have an account?{' '}
+                {t('login.noAccount')}{' '}
                 <Link
                   to="/register"
                   className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
                 >
-                  Register
+                  {t('login.register')}
                 </Link>
               </span>
             )}
@@ -369,7 +361,7 @@ try {
           onClick={() => navigate('/')}
           className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
-          ← Back to landing page
+          {t('login.backToLanding')}
         </button>
       </motion.div>
     </div>

@@ -1,0 +1,76 @@
+{
+  "headings": {
+    "systemDashboard": "System Dashboard",
+    "researchOverview": "Research Overview",
+    "searchPapers": "Search Papers",
+    "analytics": "Analytics",
+    "reports": "Reports",
+    "bookmarks": "Saved Papers",
+    "userManagement": "User Management",
+    "apiMonitoring": "API Monitoring",
+    "database": "Database Control",
+    "settings": "Settings",
+    "dashboard": "Dashboard"
+  },
+  "subtitles": {
+    "adminOverview": "Platform health and metrics",
+    "userOverview": "Your personalized academic intelligence dashboard",
+    "search": "Find global research publications",
+    "analytics": "Deep dive into your data",
+    "reports": "Exported tracking documents",
+    "bookmarks": "Your personal reading list and references",
+    "userManagement": "Manage accounts and permissions",
+    "apiMonitoring": "Monitor platform endpoints and traffic",
+    "database": "Manage schemas and data integrity",
+    "settings": "Manage your account profile",
+    "welcomeBack": "Welcome back"
+  },
+  "admin": {
+    "activeUsers": "Active Users",
+    "apiHealth": "API Health",
+    "dbSize": "DB Size",
+    "systemLoad": "System Load",
+    "apiStatusOverview": "API Status Overview",
+    "requestVolume": "Request Volume (24h)",
+    "recentUserActivity": "Recent User Activity",
+    "requests": "Requests"
+  },
+  "user": {
+    "publishedPapers": "Published Papers",
+    "totalCitations": "Total Citations",
+    "hIndex": "H-Index",
+    "researchFields": "Research Fields",
+    "publicationTrends": "Publication Trends",
+    "researchImpact": "Research Impact",
+    "recentPublications": "Recent Publications",
+    "trendingTopics": "Trending Topics",
+    "fieldDistribution": "Field Distribution"
+  },
+  "userManagement": {
+    "searchPlaceholder": "Search by username, email, or organization…",
+    "addUser": "Add New User",
+    "editUser": "Edit User Details",
+    "loading": "Loading users from API...",
+    "noUsers": "No users found.",
+    "columns": {
+      "user": "User",
+      "role": "Role",
+      "organization": "Organization",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "username": "Username",
+      "email": "Email",
+      "organization": "Organization",
+      "role": "Role",
+      "cancel": "Cancel",
+      "save": "Save User",
+      "saving": "Saving..."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    }
+  }
+}

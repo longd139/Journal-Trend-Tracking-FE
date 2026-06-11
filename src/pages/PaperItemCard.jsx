@@ -2,6 +2,7 @@ import * as React from "react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, ExternalLink, BookOpen, Link2, ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -14,6 +15,7 @@ export function PaperItemCard({
   onToggleBookmark 
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
+  const { t } = useTranslation('search');
 
   const handleRedirect = () => {
     if (!paper?.title) return;
@@ -94,9 +96,9 @@ export function PaperItemCard({
                   className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-0.5 font-medium transition-colors pt-0.5"
                 >
                   {isAbstractExpanded ? (
-                    <>Show less <ChevronUp size={12} /></>
+                    <>{t('card.readMore')} <ChevronUp size={12} /></>
                   ) : (
-                    <>Read abstract <ChevronDown size={12} /></>
+                    <>{t('card.readMore')} <ChevronDown size={12} /></>
                   )}
                 </button>
               </div>
@@ -109,7 +111,7 @@ export function PaperItemCard({
               <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
                 {(paper.citations ?? 0).toLocaleString()}
               </div>
-              <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">citations</div>
+              <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">{t('card.citations')}</div>
               {paper.trend && (
                 <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
                   {paper.trend}

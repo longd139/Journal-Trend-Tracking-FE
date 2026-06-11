@@ -87,7 +87,7 @@ export default function APIMonitoring() {
                 { l: 'Requests', v: api.req, c: '#8B5CF6' },
               ].map((s) => (
                 <div key={s.l} className="rounded-lg p-3 text-center bg-gray-50 dark:bg-[#131A2A] transition-colors">
-                  <div className="text-base font-black" style={{ color: s.c, fontFamily: "'Outfit', sans-serif" }}>{s.v}</div>
+                  <div className="text-base font-black font-outfit" style={{ color: s.c }}>{s.v}</div>
                   <div className="text-[10px] mt-0.5 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
                 </div>
               ))}

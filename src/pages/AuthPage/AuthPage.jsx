@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   Microscope,
@@ -10,40 +11,41 @@ import {
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
 
-// Data cấu hình cho 2 Role (Đã dịch sang tiếng Anh)
-const ROLES_DATA = [
-  {
-    id: 'academic_user',
-    title: 'Academic',
-    description: 'For students and learners',
-    icon: GraduationCap,
-    color: '#4F8CFF',
-    features: [
-      'Access study materials',
-      'Track project progress',
-      'Join research groups',
-    ],
-  },
-  {
-    id: 'researcher',
-    title: 'Researcher',
-    description: 'For lecturers and researchers',
-    icon: FlaskConical,
-    color: '#8B5CF6',
-    features: [
-      'Manage scientific projects',
-      'Publish & share papers',
-      'Grant permissions to students',
-    ],
-  },
-];
-
 export default function AuthPage({ mode = 'register' }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation('auth');
 
   const currentMode = location.state?.mode || mode;
   const [selectedRole, setSelectedRole] = useState(null);
+
+  // Build roles data using i18n
+  const rolesData = [
+    {
+      id: 'academic_user',
+      title: t('roleSelect.academic.title'),
+      description: t('roleSelect.academic.description'),
+      icon: GraduationCap,
+      color: '#4F8CFF',
+      features: [
+        t('roleSelect.academic.feature1'),
+        t('roleSelect.academic.feature2'),
+        t('roleSelect.academic.feature3'),
+      ],
+    },
+    {
+      id: 'researcher',
+      title: t('roleSelect.researcher.title'),
+      description: t('roleSelect.researcher.description'),
+      icon: FlaskConical,
+      color: '#8B5CF6',
+      features: [
+        t('roleSelect.researcher.feature1'),
+        t('roleSelect.researcher.feature2'),
+        t('roleSelect.researcher.feature3'),
+      ],
+    },
+  ];
 
   // 1. KIỂM TRA ĐIỀU HƯỚNG NGAY KHI VÀO TRANG
   useEffect(() => {
@@ -96,7 +98,7 @@ export default function AuthPage({ mode = 'register' }) {
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
             <Microscope size={18} className="text-white" />
           </div>
-          <span className="text-lg font-black text-gray-900 dark:text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          <span className="text-lg font-black text-gray-900 dark:text-white tracking-widest font-outfit">
             SCITRACK
           </span>
         </div>
@@ -104,16 +106,16 @@ export default function AuthPage({ mode = 'register' }) {
         {/* Khối chứa Form chọn Role */}
         <div className="rounded-2xl border p-8 overflow-hidden bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Choose your path
+            <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2 font-display">
+              {t('roleSelect.heading')}
             </h2>
             <p className="text-sm text-gray-500 dark:text-[#A0AEC0]">
-              Select how you want to use SCITRACK
+              {t('roleSelect.subtitle')}
             </p>
           </div>
 
           <div className="space-y-4">
-            {ROLES_DATA.map((role) => {
+            {rolesData.map((role) => {
               const isSelected = selectedRole === role.id;
               return (
                 <div
@@ -196,7 +198,7 @@ export default function AuthPage({ mode = 'register' }) {
               background: selectedRole ? 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' : undefined,
             }}
           >
-            Continue <ArrowRight size={16} />
+            {t('roleSelect.continue')} <ArrowRight size={16} />
           </motion.button>
         </div>
 
@@ -204,7 +206,7 @@ export default function AuthPage({ mode = 'register' }) {
           onClick={() => navigate('/')}
           className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
-          ← Back to landing page
+          {t('roleSelect.backToLanding')}
         </button>
       </motion.div>
     </div>

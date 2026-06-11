@@ -1,11 +1,8 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, X } from "lucide-react";
-
-// Đường dẫn tương đối đi vào thư mục components dùng chung
 import { Input } from "../components/ui/input";
-
-// Gọi các sub-components nằm ngay cùng cấp thư mục pages
 import { AcademicLimitAlert } from "./AcademicLimitAlert";
 import { AdvancedFilter } from "./AdvancedFilter";
 import { PaperItemCard } from "./PaperItemCard";
@@ -22,6 +19,7 @@ const SUGGESTED_KEYWORDS = [
 ];
 
 export default function SearchPapers() {
+  const { t } = useTranslation('search');
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -39,13 +37,11 @@ export default function SearchPapers() {
   const currentRole = sessionStorage.getItem("userRole") || "academic";
   const storageKey = `scitrack_bookmarks_${currentRole}`;
 
-  // TỰ ĐỘNG GỌI ENDPOINT CHUẨN THÔNG QUA LAYER API
   useEffect(() => {
     const loadPapersData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Chuẩn hóa params lọc bỏ các trường rỗng/undefined
         const apiParams = {
           search: query || undefined,
           startYear: filters.startYear || undefined,
@@ -55,12 +51,9 @@ export default function SearchPapers() {
           openAccess: filters.openAccess ? true : undefined
         };
 
-        // Gọi API từ instance paperAPI đã import thành công
         const response = await paperAPI.search(apiParams);
-        // Kiểm tra cấu trúc phản hồi lồng `.papers` theo console log thực tế
-        
+
         if (response && response.papers && Array.isArray(response.papers)) {
-          // Bổ sung map phòng vệ: Đảm bảo phần tử trong mảng không bị null/undefined
           const validPapers = response.papers.filter(p => p !== null && p !== undefined);
           setPapers(validPapers);
         } else if (Array.isArray(response)) {
@@ -70,18 +63,17 @@ export default function SearchPapers() {
         }
 
       } catch (err) {
-        console.error("Chi tiết lỗi API:", err);
+        console.error("API error:", err);
         if (err.response && err.response.status === 401) {
           setError("Phiên làm việc đã hết hạn hoặc Token không hợp lệ. Bạn hãy bấm Sign Out rồi đăng nhập lại nhé!");
         } else {
-          setError("Không thể tải danh sách bài báo từ hệ thống.");
+          setError(t('results.error'));
         }
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Cơ chế hoãn 400ms để giảm spam request khi gõ chữ nhanh
     const delayDebounce = setTimeout(() => {
       loadPapersData();
     }, 400);
@@ -89,18 +81,12 @@ export default function SearchPapers() {
     return () => clearTimeout(delayDebounce);
   }, [query, filters]);
 
-  // Đồng bộ trạng thái Bookmark lưu trữ
   useEffect(() => {
     const localData = sessionStorage.getItem(storageKey);
     if (localData) {
       try { setSavedBookmarks(JSON.parse(localData)); } catch (e) { setSavedBookmarks([]); }
     } else { setSavedBookmarks([]); }
   }, [storageKey]);
-
-  /* * ĐÃ XÓA ĐOẠN useEffect "colorTopSearch" Ở ĐÂY!
-   * Lý do: Nó ép style bằng Javascript đè lên CSS của Tailwind, làm cho Light/Dark mode bị lỗi.
-   * Thanh TopBar đã được xử lý màu chuẩn bằng Tailwind ở file DashboardLayout.jsx
-   */
 
   const toggleBookmark = (paper) => {
     if (!paper || !paper.title) return;
@@ -120,21 +106,21 @@ export default function SearchPapers() {
     <div className="space-y-5 p-8 max-w-6xl mx-auto min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <AcademicLimitAlert userRole={currentRole} searchCount={3} maxLimit={10} />
 
-      {/* Thanh Search chính */}
+      {/* Search Bar */}
       <div className="relative">
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 dark:text-slate-400" />
         <Input
           type="text"
-          placeholder="Search academic papers by title, author, field, abstract..."
+          placeholder={t('placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-blue-500/50 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-slate-200 shadow-sm dark:shadow-none"
         />
       </div>
 
-      {/* Quick Search nhãn */}
+      {/* Quick Search Tags */}
       <div className="flex gap-2 flex-wrap items-center text-xs">
-        <span className="text-gray-500 dark:text-slate-500 mr-1">Quick search:</span>
+        <span className="text-gray-500 dark:text-slate-500 mr-1">{t('quickSearch')}</span>
         {FIELD_DATA.map((f) => (
           <button
             key={f.n}
@@ -152,18 +138,18 @@ export default function SearchPapers() {
             onClick={() => setQuery("")}
             className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-white/5 dark:border dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/10"
           >
-            <X size={10} /> Clear query
+            <X size={10} /> {t('clearQuery')}
           </button>
         )}
       </div>
 
-      {/* Bố cục hai cột */}
+      {/* Two-column layout */}
       <div className="flex flex-col lg:flex-row items-stretch gap-6 pt-2 w-full">
-        
-        {/* Cột trái */}
+
+        {/* Left Column */}
         <div className="w-full lg:w-[320px] shrink-0 flex flex-col justify-between gap-4">
           <div className="flex-1 flex flex-col">
-            <AdvancedFilter 
+            <AdvancedFilter
               userRole={currentRole}
               filters={filters}
               setFilters={setFilters}
@@ -173,7 +159,7 @@ export default function SearchPapers() {
           </div>
 
           <div className="rounded-xl p-4 space-y-3 transition-colors duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
-            <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">Suggested Keywords</h5>
+            <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">{t('suggestedKeywords')}</h5>
             <div className="flex flex-wrap gap-1.5">
               {SUGGESTED_KEYWORDS.map((kw) => (
                 <button
@@ -193,15 +179,15 @@ export default function SearchPapers() {
           </div>
         </div>
 
-        {/* Cột phải */}
+        {/* Right Column */}
         <div className="flex-1 min-w-0 space-y-3 w-full flex flex-col">
           <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
-            Found {papers.length} {papers.length === 1 ? "paper" : "papers"} matching your criteria
+            {t('results.found', { count: papers.length })}
           </p>
 
           <div className="space-y-3 flex-1">
             {isLoading && (
-              <div className="text-center py-12 text-xs animate-pulse text-gray-500 dark:text-slate-400">Đang tải dữ liệu bài báo...</div>
+              <div className="text-center py-12 text-xs animate-pulse text-gray-500 dark:text-slate-400">{t('results.loading')}</div>
             )}
 
             {error && (
@@ -209,7 +195,7 @@ export default function SearchPapers() {
             )}
 
             {!isLoading && !error && papers.length === 0 && (
-              <div className="text-center py-12 text-xs rounded-xl border text-gray-500 bg-white border-gray-200 dark:text-slate-500 dark:border-white/5 dark:bg-[#1B2235]/30">Không tìm thấy bài báo nào.</div>
+              <div className="text-center py-12 text-xs rounded-xl border text-gray-500 bg-white border-gray-200 dark:text-slate-500 dark:border-white/5 dark:bg-[#1B2235]/30">{t('results.noResults')}</div>
             )}
 
             {!isLoading && !error && papers.map((paper, i) => (

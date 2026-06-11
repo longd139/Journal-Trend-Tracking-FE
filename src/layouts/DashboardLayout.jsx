@@ -1,5 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import NotificationBell from '../pages/NotificationBell';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import {
   Home,
   Search,
@@ -12,33 +14,35 @@ import {
   Settings,
   Bell,
   Bookmark,
-  AlertTriangle // Icon chấm than
+  AlertTriangle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../lib/api/user.api';
 
 // 1. SIDEBAR
 function Sidebar({ role, activeTab, navigate, user }) {
+  const { t } = useTranslation('common');
+
   const academicNav = [
-    { id: 'overview', Icon: Home, label: 'Overview' },
-    { id: 'search', Icon: Search, label: 'Search Papers' },
-    { id: 'bookmarks', Icon: Bookmark, label: 'Bookmarks' },
-    { id: 'reports', Icon: FileText, label: 'Reports' },
+    { id: 'overview', Icon: Home, label: t('sidebar.overview') },
+    { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const researcherNav = [
-    { id: 'overview', Icon: Home, label: 'Overview' },
-    { id: 'search', Icon: Search, label: 'Search Papers' },
-    { id: 'analytics', Icon: BarChart2, label: 'Analytics' },
-    { id: 'bookmarks', Icon: Bookmark, label: 'Bookmarks' },
-    { id: 'reports', Icon: FileText, label: 'Reports' },
+    { id: 'overview', Icon: Home, label: t('sidebar.overview') },
+    { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'analytics', Icon: BarChart2, label: t('sidebar.analytics') },
+    { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const adminNav = [
-    { id: 'overview', Icon: Home, label: 'Dashboard' },
-    { id: 'users', Icon: Users, label: 'User Management' },
-    { id: 'system-api', Icon: Globe, label: 'API Monitoring' },
-    { id: 'database', Icon: Database, label: 'Database' },
+    { id: 'overview', Icon: Home, label: t('sidebar.dashboard') },
+    { id: 'users', Icon: Users, label: t('sidebar.userManagement') },
+    { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
+    { id: 'database', Icon: Database, label: t('sidebar.database') },
   ];
 
   let nav = academicNav;
@@ -66,10 +70,10 @@ function Sidebar({ role, activeTab, navigate, user }) {
         </div>
         <div>
           <div className="text-xs font-black text-gray-900 dark:text-white tracking-widest">
-            SCITRACK
+            {t('app.name')}
           </div>
           <div className="text-[10px] mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
-            {role === 'admin' ? 'Admin Console' : 'Research Platform'}
+            {role === 'admin' ? t('app.adminConsole') : t('app.researchPlatform')}
           </div>
         </div>
       </div>
@@ -95,6 +99,9 @@ function Sidebar({ role, activeTab, navigate, user }) {
       </nav>
 
       <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-3">
+        {/* Language Switcher */}
+        <LanguageSwitcher variant="sidebar" />
+
         <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-[#1B2235] border border-gray-100 dark:border-transparent transition-colors">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 shadow-sm"
@@ -106,16 +113,15 @@ function Sidebar({ role, activeTab, navigate, user }) {
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-semibold text-gray-900 dark:text-white truncate">
-              {user ? user.fullName : 'Loading...'}
+              {user ? user.fullName : t('sidebar.loading')}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <div className="text-[10px] truncate text-gray-500 dark:text-[#A0AEC0]">
-                {user ? role.toUpperCase() : 'Please wait...'}
+                {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
               </div>
-              {/* Badge cảnh báo ở Sidebar */}
               {user && user.isVerified === false && (
                 <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 bg-amber-100 dark:bg-amber-500/10 px-1 py-0.5 rounded">
-                  <AlertTriangle size={8} /> UNVERIFIED
+                  <AlertTriangle size={8} /> {t('status.unverified')}
                 </div>
               )}
             </div>
@@ -129,12 +135,12 @@ function Sidebar({ role, activeTab, navigate, user }) {
 
         <button
           onClick={() => {
-            sessionStorage.removeItem('userRole'); 
-            navigate('/login'); 
+            sessionStorage.removeItem('userRole');
+            navigate('/login');
           }}
           className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#A0AEC0] hover:bg-red-500 dark:hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
         >
-          Sign Out
+          {t('sidebar.signOut')}
         </button>
       </div>
     </aside>
@@ -144,6 +150,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
 // 2. TOPBAR
 function TopBar({ title, subtitle, user, role }) {
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
 
   const getInitials = (name) => {
     if (!name) return 'U';
@@ -156,8 +163,7 @@ function TopBar({ title, subtitle, user, role }) {
     <header className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-white dark:bg-[#0B1020] border-gray-200 dark:border-white/5 transition-colors duration-300">
       <div>
         <h1
-          className="text-base font-black text-gray-900 dark:text-white"
-          style={{ fontFamily: "'Outfit', sans-serif" }}
+          className="text-base font-black text-gray-900 dark:text-white font-display"
         >
           {title}
         </h1>
@@ -168,7 +174,7 @@ function TopBar({ title, subtitle, user, role }) {
         )}
       </div>
       <div className="flex items-center gap-4">
-        {/* Thanh Search */}
+        {/* Search bar */}
         <div className="relative hidden md:block">
           <Search
             size={13}
@@ -176,34 +182,32 @@ function TopBar({ title, subtitle, user, role }) {
           />
           <input
             type="text"
-            placeholder="Search papers, topics…"
+            placeholder={t('topbar.searchPlaceholder')}
             className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border transition-all focus:border-[#4F8CFF] bg-gray-100 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
           />
         </div>
 
-        {/* Chuông thông báo */}
+        {/* Notification Bell */}
         <NotificationBell />
 
-        {/* ĐƯỜNG KẺ NGĂN CÁCH NHẸ */}
+        {/* Divider */}
         <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1"></div>
 
-        {/* KHU VỰC AVATAR */}
-        <button 
+        {/* Avatar area */}
+        <button
           onClick={() => navigate(`/${role}/settings`)}
           className="relative flex items-center justify-center w-8 h-8 rounded-full transition-transform hover:scale-105 shadow-md"
           style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
-          title={user?.isVerified ? "Profile Settings" : "Please verify your email"}
+          title={user?.isVerified ? t('topbar.profileSettings') : t('topbar.verifyEmail')}
         >
           <span className="text-[11px] font-black text-white">
             {getInitials(user?.fullName)}
           </span>
 
-          {/* Dấu chấm than cảnh báo */}
+          {/* Warning indicator */}
           {user && user.isVerified === false && (
             <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-                            {/* Hiệu ứng chớp chớp ở vòng ngoài */}
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                            {/* Vòng chấm than ở trong */}
               <span className="relative flex items-center justify-center rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-white dark:border-[#0B1020] text-white dark:text-[#0B1020]">
                 <AlertTriangle size={8} strokeWidth={4} />
               </span>
@@ -215,10 +219,11 @@ function TopBar({ title, subtitle, user, role }) {
   );
 }
 
-// 3. XUẤT LAYOUT
+// 3. DASHBOARD LAYOUT
 export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation('dashboard');
 
   const [user, setUser] = useState(null);
 
@@ -230,10 +235,10 @@ export default function DashboardLayout({ children }) {
     const fetchUserProfile = async () => {
       try {
         const response = await userAPI.profile();
-        setUser(response); 
+        setUser(response);
         console.log(response);
       } catch (error) {
-        console.error('Không thể lấy thông tin tài khoản:', error);
+        console.error('Cannot fetch user profile:', error);
         if (error.response?.status === 401) {
           navigate('/login');
         }
@@ -245,34 +250,34 @@ export default function DashboardLayout({ children }) {
 
   const titles = {
     overview: {
-      title: role === 'admin' ? 'System Dashboard' : 'Research Overview',
-      sub: role === 'admin' ? 'Platform health and metrics' : 'Your personalized academic intelligence dashboard',
+      title: role === 'admin' ? t('headings.systemDashboard') : t('headings.researchOverview'),
+      sub: role === 'admin' ? t('subtitles.adminOverview') : t('subtitles.userOverview'),
     },
     search: {
-      title: 'Search Papers',
-      sub: 'Find global research publications',
+      title: t('headings.searchPapers'),
+      sub: t('subtitles.search'),
     },
-    analytics: { title: 'Analytics', sub: 'Deep dive into your data' },
-    reports: { title: 'Reports', sub: 'Exported tracking documents' },
+    analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
+    reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     bookmarks: {
-      title: 'Saved Papers',
-      sub: 'Your personal reading list and references',
+      title: t('headings.bookmarks'),
+      sub: t('subtitles.bookmarks'),
     },
-    users: { title: 'User Management', sub: 'Manage accounts and permissions' },
+    users: { title: t('headings.userManagement'), sub: t('subtitles.userManagement') },
     'system-api': {
-      title: 'API Monitoring',
-      sub: 'Monitor platform endpoints and traffic',
+      title: t('headings.apiMonitoring'),
+      sub: t('subtitles.apiMonitoring'),
     },
     database: {
-      title: 'Database Control',
-      sub: 'Manage schemas and data integrity',
+      title: t('headings.database'),
+      sub: t('subtitles.database'),
     },
-    settings: { title: 'Settings', sub: 'Manage your account profile' },
+    settings: { title: t('headings.settings'), sub: t('subtitles.settings') },
   };
 
   const currentHeader = titles[activeTab] || {
-    title: 'Dashboard',
-    sub: 'Welcome back',
+    title: t('headings.dashboard'),
+    sub: t('subtitles.welcomeBack'),
   };
 
   return (
@@ -284,10 +289,9 @@ export default function DashboardLayout({ children }) {
         user={user}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-                {/* ĐÃ TRUYỀN THÊM USER VÀ ROLE XUỐNG TOPBAR */}
-        <TopBar 
-          title={currentHeader.title} 
-          subtitle={currentHeader.sub} 
+        <TopBar
+          title={currentHeader.title}
+          subtitle={currentHeader.sub}
           user={user}
           role={role}
         />

@@ -1,0 +1,35 @@
+{
+  "placeholder": "Search academic papers by title, author, field, abstract...",
+  "quickSearch": "Quick search:",
+  "clearQuery": "Clear query",
+  "suggestedKeywords": "Suggested Keywords",
+  "results": {
+    "found": "Found {{count}} paper matching your criteria",
+    "found_plural": "Found {{count}} papers matching your criteria",
+    "loading": "Loading papers...",
+    "noResults": "No papers found.",
+    "error": "Unable to load papers from the system."
+  },
+  "filters": {
+    "title": "Advanced Filters",
+    "yearRange": "Year Range",
+    "startYear": "Start Year",
+    "endYear": "End Year",
+    "researchField": "Research Field",
+    "minCitations": "Min. Citations",
+    "openAccessOnly": "Open Access Only",
+    "apply": "Apply Filters",
+    "clearAll": "Clear All Filters"
+  },
+  "card": {
+    "citations": "Citations",
+    "published": "Published",
+    "authors": "Authors",
+    "journal": "Journal",
+    "doi": "DOI",
+    "openAccess": "Open Access",
+    "save": "Save",
+    "saved": "Saved",
+    "readMore": "Read More"
+  }
+}

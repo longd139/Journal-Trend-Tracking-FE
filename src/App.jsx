@@ -126,8 +126,7 @@ function TopBar({ title, subtitle }) {
     >
       <div>
         <h1
-          className="text-base font-black text-white"
-          style={{ fontFamily: "'Outfit', sans-serif" }}
+          className="text-base font-black text-white font-display"
         >
           {title}
         </h1>

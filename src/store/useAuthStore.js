@@ -5,12 +5,15 @@ export const useAuthStore = create(
   devtools(
     persist(
       (set) => ({
-        // Initial state (2 prop muốn lưu)
+        // Initial state
         accessToken: null,
         refreshToken: null,
+        preferredLanguage: null,
 
         // Actions
         setTokens: (access) => set({ accessToken: access }),
+
+        setPreferredLanguage: (lang) => set({ preferredLanguage: lang }),
 
         clearTokens: () => set({ accessToken: null }),
       }),

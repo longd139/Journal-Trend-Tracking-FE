@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "SCITRACK",
+    "adminConsole": "Admin Console",
+    "researchPlatform": "Research Platform",
+    "loading": "Loading system..."
+  },
+  "sidebar": {
+    "overview": "Overview",
+    "searchPapers": "Search Papers",
+    "bookmarks": "Bookmarks",
+    "reports": "Reports",
+    "analytics": "Analytics",
+    "dashboard": "Dashboard",
+    "userManagement": "User Management",
+    "apiMonitoring": "API Monitoring",
+    "database": "Database",
+    "signOut": "Sign Out",
+    "signIn": "Sign In",
+    "settings": "Settings",
+    "unverified": "UNVERIFIED",
+    "loading": "Loading...",
+    "pleaseWait": "Please wait..."
+  },
+  "topbar": {
+    "searchPlaceholder": "Search papers, topics…",
+    "profileSettings": "Profile Settings",
+    "verifyEmail": "Please verify your email"
+  },
+  "status": {
+    "active": "Active",
+    "idle": "Idle",
+    "offline": "Offline",
+    "online": "Online",
+    "degraded": "Degraded",
+    "ready": "Ready",
+    "expired": "Expired",
+    "verified": "VERIFIED",
+    "unverified": "UNVERIFIED",
+    "suspended": "Suspended"
+  },
+  "actions": {
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "download": "Download",
+    "downloading": "Downloading",
+    "generate": "Generate Now",
+    "generating": "Generating...",
+    "export": "Export",
+    "search": "Search",
+    "clearFilters": "Clear Filters",
+    "reset": "Reset",
+    "back": "Back",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "errors": {
+    "generic": "Something went wrong",
+    "notFound": "Page not found",
+    "unauthorized": "Unauthorized access",
+    "sessionExpired": "Session expired. Please sign out and log in again.",
+    "loadFailed": "Unable to load data.",
+    "updateFailed": "Update failed, please try again!"
+  },
+  "toast": {
+    "languageUpdated": "Language updated successfully",
+    "profileUpdated": "Profile updated successfully!"
+  },
+  "footer": {
+    "copyright": "© 2026 SciTrack — AI-Powered Academic Research Analytics Platform"
+  },
+  "auth": {
+    "login": {
+      "register": "Register"
+    }
+  }
+}

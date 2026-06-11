@@ -1,0 +1,21 @@
+{
+  "title": "Trình khám phá đồ thị tri thức",
+  "subtitle": "Trực quan hóa mối quan hệ bài báo, tác giả & từ khóa",
+  "searchPlaceholder": "Nhập từ khóa (ví dụ: machine learning, CRISPR)…",
+  "explore": "Khám phá",
+  "expand": "Mở rộng",
+  "collapse": "Thu gọn",
+  "loading": "Đang xây dựng đồ thị tri thức…",
+  "noResults": "Không tìm thấy kết quả cho từ khóa này.",
+  "fetchError": "Không thể tải dữ liệu đồ thị.",
+  "idleHint": "Nhập từ khóa phía trên để khám phá đồ thị tri thức",
+  "retry": "Thử lại",
+  "legend": {
+    "paper": "Bài báo",
+    "author": "Tác giả",
+    "keyword": "Từ khóa",
+    "journal": "Tạp chí",
+    "field": "Lĩnh vực"
+  },
+  "tip": "Nhấn đúp vào nút để lấy nét · Cuộn để phóng to"
+}

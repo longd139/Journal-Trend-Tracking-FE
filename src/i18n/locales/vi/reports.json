@@ -1,0 +1,64 @@
+{
+  "heading": {
+    "title": "Báo cáo & Xuất dữ liệu",
+    "subtitle": "Tạo, tùy chỉnh và tải xuống dữ liệu phân tích của bạn."
+  },
+  "templates": {
+    "trendAnalysis": {
+      "name": "Tóm tắt phân tích xu hướng",
+      "description": "Biểu đồ và số liệu trực quan về các lĩnh vực nghiên cứu chính.",
+      "quickPdf": "PDF nhanh →"
+    },
+    "readingList": {
+      "name": "Xuất danh sách đọc",
+      "description": "Xuất bài báo đã lưu với trích dẫn đầy đủ (định dạng APA/IEEE).",
+      "quickCsv": "CSV nhanh →"
+    },
+    "authorImpact": {
+      "name": "Báo cáo tác động tác giả",
+      "description": "Số liệu chi tiết về chỉ số H và trích dẫn toàn cầu.",
+      "quickPdf": "PDF nhanh →"
+    },
+    "courseworkRefs": {
+      "name": "Tài liệu tham khảo khóa học",
+      "description": "Tổng hợp tài liệu tham khảo cho luận án hoặc bài tập.",
+      "quickPdf": "PDF nhanh →"
+    },
+    "detailedMetrics": "Báo cáo số liệu chi tiết"
+  },
+  "history": {
+    "title": "Lịch sử báo cáo",
+    "showing": "Hiển thị 30 ngày qua",
+    "columns": {
+      "reportName": "Tên báo cáo",
+      "type": "Loại",
+      "dateGenerated": "Ngày tạo",
+      "size": "Kích thước",
+      "status": "Trạng thái",
+      "action": "Thao tác"
+    }
+  },
+  "modal": {
+    "title": "Tùy chỉnh báo cáo",
+    "reportName": "Tên báo cáo",
+    "format": "Định dạng",
+    "dateRange": "Khoảng thời gian",
+    "includeDataColumns": "Bao gồm cột dữ liệu",
+    "citationCounts": "Số lượng & Số liệu trích dẫn",
+    "fullAbstracts": "Tóm tắt đầy đủ",
+    "formatOptions": {
+      "pdf": "Tài liệu PDF",
+      "csv": "CSV / Excel",
+      "zip": "Lưu trữ ZIP"
+    },
+    "dateOptions": {
+      "30days": "30 ngày qua",
+      "6months": "6 tháng qua",
+      "1year": "1 năm qua",
+      "all": "Tất cả"
+    }
+  },
+  "button": {
+    "customReport": "Báo cáo tùy chỉnh"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "placeholder": "Tìm kiếm bài báo theo tiêu đề, tác giả, lĩnh vực, tóm tắt...",
+  "quickSearch": "Tìm nhanh:",
+  "clearQuery": "Xóa tìm kiếm",
+  "suggestedKeywords": "Từ khóa gợi ý",
+  "results": {
+    "found": "Tìm thấy {{count}} bài báo phù hợp",
+    "found_plural": "Tìm thấy {{count}} bài báo phù hợp",
+    "loading": "Đang tải dữ liệu bài báo...",
+    "noResults": "Không tìm thấy bài báo nào.",
+    "error": "Không thể tải danh sách bài báo từ hệ thống."
+  },
+  "filters": {
+    "title": "Bộ lọc nâng cao",
+    "yearRange": "Khoảng năm",
+    "startYear": "Năm bắt đầu",
+    "endYear": "Năm kết thúc",
+    "researchField": "Lĩnh vực nghiên cứu",
+    "minCitations": "Trích dẫn tối thiểu",
+    "openAccessOnly": "Chỉ truy cập mở",
+    "apply": "Áp dụng bộ lọc",
+    "clearAll": "Xóa tất cả bộ lọc"
+  },
+  "card": {
+    "citations": "Trích dẫn",
+    "published": "Đã xuất bản",
+    "authors": "Tác giả",
+    "journal": "Tạp chí",
+    "doi": "DOI",
+    "openAccess": "Truy cập mở",
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "readMore": "Đọc thêm"
+  }
+}

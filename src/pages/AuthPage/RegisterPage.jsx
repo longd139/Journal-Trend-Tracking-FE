@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
 import {
@@ -34,6 +35,7 @@ const LOCAL_UNIS = [
 export default function RegisterPage() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation('auth');
 
   const incomingRole = location.state?.role || '';
 
@@ -90,7 +92,7 @@ export default function RegisterPage() {
 
         setSuggestions(uniqueSuggestions);
       } catch (error) {
-        console.error('Lỗi khi tải danh sách trường:', error);
+        console.error('Error loading universities:', error);
       } finally {
         setLoadingUnis(false);
       }
@@ -153,7 +155,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     setErrors((prev) => ({ ...prev, apiError: '' }));
-    
+
     try {
       const payload = {
         fullName: form.fullName,
@@ -168,20 +170,20 @@ export default function RegisterPage() {
       if (accessToken) {
         setTokens(accessToken);
       }
-      toast.success('Registration successful!', {
-        description: 'Welcome aboard. Your account has been created successfully.',
+      toast.success(t('register.successTitle'), {
+        description: t('register.successDescription'),
       });
 
       setTimeout(() => {
         navigate('/login');
       }, 1000);
     } catch (error) {
-      console.error('Lỗi đăng ký:', error);
+      console.error('Registration error:', error);
       const errorMessage =
         error.response?.data?.message ||
-        'Registration failed. Please try again later.';
+        t('register.failedDefault');
 
-      toast.error('Registration Failed', {
+      toast.error(t('register.failedTitle'), {
         description: errorMessage,
       });
 
@@ -253,8 +255,7 @@ export default function RegisterPage() {
             <Microscope size={18} className="text-white" />
           </div>
           <span
-            className="text-lg font-black text-gray-900 dark:text-white tracking-widest"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            className="text-lg font-black text-gray-900 dark:text-white tracking-widest font-outfit"
           >
             SCITRACK
           </span>
@@ -262,10 +263,9 @@ export default function RegisterPage() {
 
         <div className="rounded-2xl border p-8 bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           <h2
-            className="text-2xl font-black text-gray-900 dark:text-white mb-1"
-            style={{ fontFamily: "'Outfit', sans-serif" }}
+            className="text-2xl font-black text-gray-900 dark:text-white mb-1 font-display"
           >
-            Create account
+            {t('register.createAccount')}
           </h2>
           <div className="flex items-center mb-6">
             <button
@@ -278,7 +278,7 @@ export default function RegisterPage() {
             </button>
             <div>
               <p className="text-xs mt-1 text-blue-600 dark:text-[#4F8CFF]">
-                Create account for{' '}
+                {t('register.createFor')}{' '}
                 <span className="font-bold uppercase tracking-wider">
                   {incomingRole}
                 </span>
@@ -289,11 +289,11 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
               <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                Full Name
+                {t('register.fullNameLabel')}
               </label>
               <input
                 type="text"
-                placeholder="Dr. Sarah Chen"
+                placeholder={t('register.fullNamePlaceholder')}
                 value={form.fullName}
                 onChange={(e) => handleChange('fullName', e.target.value)}
                 className={`w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
@@ -304,14 +304,14 @@ export default function RegisterPage() {
               />
               {errors.fullName && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please enter your full name
+                  <AlertCircle size={10} /> {t('register.validation.nameRequired')}
                 </div>
               )}
             </div>
 
             <div className="relative">
               <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                Institution / University
+                {t('register.institutionLabel')}
               </label>
               <div className="relative">
                 <Building2
@@ -322,7 +322,7 @@ export default function RegisterPage() {
                 />
                 <input
                   type="text"
-                  placeholder="FPT University"
+                  placeholder={t('register.institutionPlaceholder')}
                   value={form.institution}
                   onFocus={() => setShowSuggestions(true)}
                   onBlur={() =>
@@ -345,10 +345,10 @@ export default function RegisterPage() {
                   />
                 )}
               </div>
-              
+
               {errors.institution && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please select your institution
+                  <AlertCircle size={10} /> {t('register.validation.institutionRequired')}
                 </div>
               )}
 
@@ -372,7 +372,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                Email Address
+                {t('register.emailLabel')}
               </label>
               <div className="relative">
                 <Mail
@@ -383,7 +383,7 @@ export default function RegisterPage() {
                 />
                 <input
                   type="email"
-                  placeholder="you@university.edu"
+                  placeholder={t('register.emailPlaceholder')}
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
@@ -395,12 +395,12 @@ export default function RegisterPage() {
               </div>
               {errors.email && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Please enter your email
+                  <AlertCircle size={10} /> {t('register.validation.emailRequired')}
                 </div>
               )}
               {errors.emailFormat && (
                 <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                  <AlertCircle size={10} /> Invalid email format (e.g., name@domain.com)
+                  <AlertCircle size={10} /> {t('register.validation.emailInvalid')}
                 </div>
               )}
             </div>
@@ -408,7 +408,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                  Password
+                  {t('register.passwordLabel')}
                 </label>
                 <div className="relative">
                   <Lock
@@ -419,7 +419,7 @@ export default function RegisterPage() {
                   />
                   <input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t('register.passwordPlaceholder')}
                     value={form.password}
                     onChange={(e) => handleChange('password', e.target.value)}
                     className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
@@ -431,14 +431,14 @@ export default function RegisterPage() {
                 </div>
                 {errors.password && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                    <AlertCircle size={10} /> Please enter a password
+                    <AlertCircle size={10} /> {t('register.validation.passwordRequired')}
                   </div>
                 )}
               </div>
 
               <div>
                 <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">
-                  Confirm Password
+                  {t('register.confirmPasswordLabel')}
                 </label>
                 <div className="relative">
                   <Lock
@@ -449,7 +449,7 @@ export default function RegisterPage() {
                   />
                   <input
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t('register.confirmPasswordPlaceholder')}
                     value={form.confirmPassword}
                     onChange={(e) =>
                       handleChange('confirmPassword', e.target.value)
@@ -463,7 +463,7 @@ export default function RegisterPage() {
                 </div>
                 {errors.confirmPassword && !errors.mismatch && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
-                    <AlertCircle size={10} /> Please confirm your password
+                    <AlertCircle size={10} /> {t('register.validation.confirmRequired')}
                   </div>
                 )}
               </div>
@@ -471,10 +471,10 @@ export default function RegisterPage() {
 
             {errors.mismatch && (
               <div className="flex items-center gap-1 mt-1 text-[10px] font-medium text-red-500">
-                <AlertCircle size={10} /> Passwords do not match
+                <AlertCircle size={10} /> {t('register.validation.mismatch')}
               </div>
             )}
-            
+
             {errors.apiError && (
               <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-xs font-medium text-red-600 dark:text-red-500 flex items-center gap-2 mt-2">
                 <AlertCircle size={14} />
@@ -492,22 +492,22 @@ export default function RegisterPage() {
               >
                 {loading ? (
                   <>
-                    <RefreshCw size={14} className="animate-spin" /> Creating
-                    account…
+                    <RefreshCw size={14} className="animate-spin" />{' '}
+                    {t('register.creating')}
                   </>
                 ) : (
-                  'Create Account'
+                  t('register.createButton')
                 )}
               </motion.button>
             </div>
           </form>
           <div className="mt-5 text-center text-xs text-gray-500 dark:text-[#A0AEC0]">
-            Already have an account?{' '}
+            {t('register.haveAccount')}{' '}
             <Link
               to="/login"
               className="font-semibold transition-colors text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white"
             >
-              Sign In
+              {t('register.signIn')}
             </Link>
           </div>
         </div>
@@ -516,7 +516,7 @@ export default function RegisterPage() {
           onClick={() => navigate('/')}
           className="mt-5 w-full text-center text-xs transition-colors text-gray-500 dark:text-[#6B7280] hover:text-gray-900 dark:hover:text-white"
         >
-          ← Back to landing page
+          {t('register.backToLanding')}
         </button>
       </motion.div>
     </div>

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Microscope, Lock, RefreshCw, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
-import { PARTICLES } from '../constants/mockData'; // Sửa lại đường dẫn nếu cần
+import { PARTICLES } from '../constants/mockData';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
-  // Lấy cái token từ URL (ví dụ: ?token=abc123xyz)
+  const { t } = useTranslation('auth');
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -22,7 +23,6 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Validation cơ bản
     let hasError = false;
     const newErrors = { password: '', confirmPassword: '', apiError: '' };
 
@@ -31,7 +31,7 @@ export default function ResetPasswordPage() {
       hasError = true;
     }
     if (form.password !== form.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('register.validation.mismatch');
       hasError = true;
     }
 
@@ -44,12 +44,7 @@ export default function ResetPasswordPage() {
     setErrors({ ...newErrors, apiError: '' });
 
     try {
-      // GIẢ LẬP GỌI API: Gửi newPassword và token xuống backend
-      // await authAPI.resetPassword({ token, newPassword: form.password });
-      
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Delay 1.5s giả bộ load API
-      
-      // Thành công -> Hiện màn hình chúc mừng
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setIsSuccess(true);
     } catch (error) {
       setErrors((prev) => ({
@@ -67,7 +62,6 @@ export default function ResetPasswordPage() {
     if (errors.apiError) setErrors((e) => ({ ...e, apiError: '' }));
   };
 
-  // Nếu người dùng mò vào trang này mà không có token trên URL -> Báo lỗi
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
@@ -76,7 +70,7 @@ export default function ResetPasswordPage() {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">Invalid Reset Link</h2>
           <p className="text-sm text-gray-500 dark:text-[#A0AEC0]">The link is invalid or missing a confirmation token.</p>
           <button onClick={() => navigate('/login')} className="text-blue-600 dark:text-[#4F8CFF] text-sm font-semibold hover:text-gray-900 dark:hover:text-white transition-colors">
-            ← Back to Login
+            {t('resetPassword.backToLogin')}
           </button>
         </div>
       </div>
@@ -85,7 +79,6 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
-      {/* Background Effect */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-5 dark:opacity-[0.14] bg-blue-500" />
         <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-purple-600" />
@@ -101,45 +94,36 @@ export default function ResetPasswordPage() {
       </div>
 
       <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-md mx-6">
-        {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
             <Microscope size={18} className="text-white" />
           </div>
-          <span className="text-lg font-black text-gray-900 dark:text-white tracking-widest" style={{ fontFamily: "'Outfit', sans-serif" }}>SCITRACK</span>
+          <span className="text-lg font-black text-gray-900 dark:text-white tracking-widest font-outfit">SCITRACK</span>
         </div>
 
-        {/* Form Box */}
         <div className="rounded-2xl border p-8 bg-white/90 dark:bg-[#1B2235]/85 border-gray-200 dark:border-white/10 backdrop-blur-2xl shadow-xl dark:shadow-none transition-colors duration-300">
           {isSuccess ? (
-            // ==========================================
-            // MÀN HÌNH THÀNH CÔNG
-            // ==========================================
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
               <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-200 dark:border-emerald-500/20">
                 <CheckCircle2 size={32} className="text-emerald-500" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>Password Updated!</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 font-display">{t('resetPassword.success')}</h2>
               <p className="text-sm mb-6 text-gray-500 dark:text-[#A0AEC0]">Your password has been successfully changed. Please log in again.</p>
               <button
                 onClick={() => navigate('/login')}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-500 to-purple-600"
               >
-                Go to Login
+                {t('resetPassword.backToLogin')}
               </button>
             </motion.div>
           ) : (
-            // ==========================================
-            // MÀN HÌNH ĐỔI MẬT KHẨU
-            // ==========================================
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1" style={{ fontFamily: "'Outfit', sans-serif" }}>Create New Password</h2>
+              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-1 font-display">{t('resetPassword.title')}</h2>
               <p className="text-sm mb-6 text-gray-500 dark:text-[#A0AEC0]">Enter a new password for your account.</p>
 
               <form onSubmit={handleSubmit} noValidate className="space-y-4">
-                {/* Mật khẩu mới */}
                 <div>
-                  <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">New Password</label>
+                  <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">{t('resetPassword.newPasswordLabel')}</label>
                   <div className="relative">
                     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.password ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'}`} />
                     <input
@@ -157,9 +141,8 @@ export default function ResetPasswordPage() {
                   )}
                 </div>
 
-                {/* Nhập lại mật khẩu mới */}
                 <div>
-                  <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">Confirm New Password</label>
+                  <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-1.5">{t('resetPassword.confirmLabel')}</label>
                   <div className="relative">
                     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.confirmPassword ? 'text-red-500' : 'text-gray-400 dark:text-[#A0AEC0]'}`} />
                     <input
@@ -177,31 +160,28 @@ export default function ResetPasswordPage() {
                   )}
                 </div>
 
-                {/* Lỗi API */}
                 {errors.apiError && (
                   <div className="p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-xs font-medium text-red-600 dark:text-red-500 flex items-center gap-2">
                     <AlertCircle size={14} /> {errors.apiError}
                   </div>
                 )}
 
-                {/* Submit */}
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-3 rounded-xl text-sm font-bold text-white flex items-center justify-center gap-2 mt-4 shadow-lg shadow-blue-500/20 transition-opacity bg-gradient-to-r from-blue-500 to-purple-600"
                   style={{ opacity: loading ? 0.8 : 1 }}
                 >
-                  {loading ? <><RefreshCw size={14} className="animate-spin" /> Updating...</> : 'Update Password'}
+                  {loading ? <><RefreshCw size={14} className="animate-spin" /> {t('resetPassword.submitting')}</> : t('resetPassword.submitButton')}
                 </button>
               </form>
             </motion.div>
           )}
         </div>
 
-        {/* Nút Back (Chỉ hiện khi chưa đổi pass thành công) */}
         {!isSuccess && (
           <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 dark:text-[#6B7280] transition-colors hover:text-gray-900 dark:hover:text-white">
-            <ArrowLeft size={12} /> Back to login
+            <ArrowLeft size={12} /> {t('resetPassword.backToLogin')}
           </button>
         )}
       </motion.div>
