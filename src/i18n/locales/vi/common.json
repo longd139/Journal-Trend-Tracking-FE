@@ -1,0 +1,78 @@
+{
+  "app": {
+    "name": "SCITRACK",
+    "adminConsole": "Bảng điều khiển quản trị",
+    "researchPlatform": "Nền tảng nghiên cứu",
+    "loading": "Đang tải hệ thống..."
+  },
+  "sidebar": {
+    "overview": "Tổng quan",
+    "searchPapers": "Tìm kiếm bài báo",
+    "bookmarks": "Đã lưu",
+    "reports": "Báo cáo",
+    "analytics": "Phân tích",
+    "dashboard": "Bảng điều khiển",
+    "userManagement": "Quản lý người dùng",
+    "apiMonitoring": "Giám sát API",
+    "database": "Cơ sở dữ liệu",
+    "signOut": "Đăng xuất",
+    "signIn": "Đăng nhập",
+    "settings": "Cài đặt",
+    "unverified": "CHƯA XÁC MINH",
+    "loading": "Đang tải...",
+    "pleaseWait": "Vui lòng đợi..."
+  },
+  "topbar": {
+    "searchPlaceholder": "Tìm kiếm bài báo, chủ đề…",
+    "profileSettings": "Cài đặt hồ sơ",
+    "verifyEmail": "Vui lòng xác minh email"
+  },
+  "status": {
+    "active": "Hoạt động",
+    "idle": "Không hoạt động",
+    "offline": "Ngoại tuyến",
+    "online": "Trực tuyến",
+    "degraded": "Suy giảm",
+    "ready": "Sẵn sàng",
+    "expired": "Hết hạn",
+    "verified": "ĐÃ XÁC MINH",
+    "unverified": "CHƯA XÁC MINH",
+    "suspended": "Tạm ngưng"
+  },
+  "actions": {
+    "save": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "cancel": "Hủy",
+    "download": "Tải xuống",
+    "downloading": "Đang tải xuống",
+    "generate": "Tạo ngay",
+    "generating": "Đang tạo...",
+    "export": "Xuất dữ liệu",
+    "search": "Tìm kiếm",
+    "clearFilters": "Xóa bộ lọc",
+    "reset": "Đặt lại",
+    "back": "Quay lại",
+    "submit": "Gửi",
+    "close": "Đóng"
+  },
+  "errors": {
+    "generic": "Đã xảy ra lỗi",
+    "notFound": "Không tìm thấy trang",
+    "unauthorized": "Truy cập không được phép",
+    "sessionExpired": "Phiên làm việc đã hết hạn. Vui lòng đăng xuất và đăng nhập lại.",
+    "loadFailed": "Không thể tải dữ liệu.",
+    "updateFailed": "Cập nhật thất bại, vui lòng thử lại!"
+  },
+  "toast": {
+    "languageUpdated": "Đã cập nhật ngôn ngữ",
+    "profileUpdated": "Đã cập nhật hồ sơ!"
+  },
+  "footer": {
+    "copyright": "© 2026 SciTrack — Nền tảng phân tích nghiên cứu học thuật"
+  },
+  "auth": {
+    "login": {
+      "register": "Đăng ký"
+    }
+  }
+}

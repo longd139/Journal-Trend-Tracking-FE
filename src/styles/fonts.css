@@ -1,1 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCITRACK Font Configuration — Vietnamese-Optimized
+
+   Strategy: "Be Vietnam Pro" is the primary sans-serif font because it was
+   purpose-built for Vietnamese diacritics (ắ, ễ, ỏ, ụ, ơ, ư…). Inter and
+   Noto Sans serve as robust fallbacks.
+
+   All font-weight variants from 300–900 are loaded to ensure crisp rendering
+   at every Tailwind weight class: font-light (300), font-normal (400),
+   font-medium (500), font-semibold (600), font-bold (700),
+   font-extrabold (800), font-black (900).
+
+   Tailwind v4 note: This project uses CSS-first config via @theme inline
+   in theme.css. There is NO tailwind.config.js — the font stacks are
+   registered as --font-sans, --font-display, --font-mono CSS variables
+   and consumed by Tailwind's font-* utilities.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─── Display / Heading font (Outfit — punchy geometric titles) ─────────── */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap');
+
+/* ─── Primary body font (Inter — workhorse sans-serif for Latin text) ───── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ─── Vietnamese-optimized sans-serif (Be Vietnam Pro) ──────────────────── */
+/* Full diacritic support for Vietnamese: á à ả ã ạ ă ắ ằ ẳ ẵ ặ â ấ ầ ẩ ẫ ậ
+   é è ẻ ẽ ẹ ê ế ề ể ễ ệ í ì ỉ ĩ ị ó ò ỏ õ ọ ô ố ồ ổ ỗ ộ ơ ớ ờ ở ỡ ợ
+   ú ù ủ ũ ụ ư ứ ừ ử ữ ự ý ỳ ỷ ỹ ỵ đ                                       */
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ─── Ultimate fallback (Noto Sans — broadest Unicode coverage) ─────────── */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800;900&display=swap');
+
+/* ─── Monospace (JetBrains Mono — data tables, code, metrics) ───────────── */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');

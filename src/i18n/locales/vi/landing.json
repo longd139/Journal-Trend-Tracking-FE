@@ -1,0 +1,79 @@
+{
+  "nav": {
+    "trends": "Xu hướng",
+    "features": "Tính năng",
+    "integrations": "Tích hợp",
+    "signIn": "Đăng nhập",
+    "register": "Đăng ký"
+  },
+  "hero": {
+    "badge": "Nền tảng phân tích học thuật hỗ trợ bởi AI",
+    "heading1": "Theo dõi tương lai",
+    "heading2": "của nghiên cứu",
+    "heading3": "khoa học",
+    "description": "Phân tích xu hướng công bố, khám phá chủ đề nghiên cứu mới nổi và trực quan hóa dữ liệu học thuật với phân tích AI trên hơn 50 triệu bài báo.",
+    "cta": "Khám phá xu hướng"
+  },
+  "stats": {
+    "papers": "Bài báo nghiên cứu",
+    "apis": "Nguồn dữ liệu trực tiếp",
+    "uptime": "Thời gian hoạt động"
+  },
+  "preview": {
+    "title": "Xu hướng công bố — 2024",
+    "live": "Trực tiếp",
+    "aiMl": "AI & ML",
+    "biotech": "Công nghệ sinh học",
+    "climate": "Khí hậu",
+    "totalCitations": "Tổng trích dẫn 2024",
+    "yoy": "So với năm trước",
+    "aiInsight": "Phân tích AI",
+    "insightSuffix": "hiện là lĩnh vực phát triển nhanh nhất năm 2024."
+  },
+  "trends": {
+    "badge": "Phân tích xu hướng trực tiếp",
+    "heading": "Tốc độ công bố theo lĩnh vực",
+    "description": "Số lượng bài báo hàng tháng trên các lĩnh vực nghiên cứu chính — 2024",
+    "papersLabel": "bài báo",
+    "fields": {
+      "aiMl": "AI & ML",
+      "biotechnology": "Công nghệ sinh học",
+      "climateScience": "Khoa học khí hậu",
+      "quantumComputing": "Máy tính lượng tử"
+    }
+  },
+  "features": {
+    "badge": "Khả năng nền tảng",
+    "heading": "Xây dựng cho chất lượng học thuật",
+    "description": "Mọi thứ bạn cần để điều hướng bối cảnh tài liệu khoa học ở quy mô lớn",
+    "items": {
+      "analytics": { "label": "Phân tích công bố", "desc": "Theo dõi xu hướng trên hơn 50 triệu bài báo từ các tạp chí lớn toàn cầu" },
+      "citations": { "label": "Theo dõi trích dẫn", "desc": "Giám sát tốc độ trích dẫn và sự phát triển của chỉ số tác động theo thời gian thực" },
+      "aiRecs": { "label": "Đề xuất bởi AI", "desc": "Khám phá nghiên cứu dựa trên GPT được tùy chỉnh theo lĩnh vực của bạn" },
+      "viz": { "label": "Trực quan hóa nghiên cứu", "desc": "Đồ thị tri thức tương tác và bản đồ mạng lưới trích dẫn" },
+      "search": { "label": "Công cụ tìm kiếm học thuật", "desc": "Tìm kiếm toàn văn ngữ nghĩa với xếp hạng theo ngữ cảnh" },
+      "forecasting": { "label": "Dự báo xu hướng", "desc": "Mô hình dự đoán cho các hướng nghiên cứu mới nổi và chủ đề nóng" }
+    }
+  },
+  "integrations": {
+    "badge": "Tích hợp trực tiếp",
+    "heading": "Kết nối với cơ sở dữ liệu hàng đầu",
+    "description": "Đồng bộ hóa thời gian thực với các kho lưu trữ học thuật lớn nhất thế giới",
+    "uptime": "Thời gian hoạt động",
+    "latency": "Độ trễ",
+    "reqPerDay": "Yêu cầu / ngày"
+  },
+  "cta": {
+    "heading": "Bắt đầu khám phá xu hướng khoa học",
+    "description": "Tham gia cùng hơn 12.000 nhà nghiên cứu sử dụng SciTrack để định hướng tương lai của xuất bản học thuật.",
+    "login": "Đăng nhập",
+    "register": "Đăng ký miễn phí",
+    "exploreDashboard": "Khám phá bảng điều khiển"
+  },
+  "insights": {
+    "llm": { "topic": "Mô hình đa phương thức lớn", "desc": "Hội tụ thị giác-ngôn ngữ cho phép suy luận xuyên miền chưa từng có" },
+    "mrna": { "topic": "Nền tảng vắc-xin mRNA", "desc": "Mở rộng từ bệnh truyền nhiễm sang liệu pháp miễn dịch ung thư có mục tiêu" },
+    "carbon": { "topic": "Công nghệ thu giữ carbon", "desc": "Chi phí thu giữ trực tiếp từ không khí hiện dưới $200/tấn CO₂ ở quy mô lớn" },
+    "neuro": { "topic": "Điện toán thần kinh", "desc": "Chip lấy cảm hứng từ não bộ đạt được triển khai AI biên với công suất cực thấp" }
+  }
+}

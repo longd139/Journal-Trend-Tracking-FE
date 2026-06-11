@@ -1,0 +1,76 @@
+{
+  "headings": {
+    "systemDashboard": "Bảng điều khiển hệ thống",
+    "researchOverview": "Tổng quan nghiên cứu",
+    "searchPapers": "Tìm kiếm bài báo",
+    "analytics": "Phân tích",
+    "reports": "Báo cáo",
+    "bookmarks": "Bài báo đã lưu",
+    "userManagement": "Quản lý người dùng",
+    "apiMonitoring": "Giám sát API",
+    "database": "Quản lý cơ sở dữ liệu",
+    "settings": "Cài đặt",
+    "dashboard": "Bảng điều khiển"
+  },
+  "subtitles": {
+    "adminOverview": "Tình trạng và số liệu nền tảng",
+    "userOverview": "Bảng điều khiển thông minh học thuật cá nhân",
+    "search": "Tìm kiếm ấn phẩm nghiên cứu toàn cầu",
+    "analytics": "Phân tích chuyên sâu dữ liệu",
+    "reports": "Tài liệu theo dõi đã xuất",
+    "bookmarks": "Danh sách đọc và tài liệu tham khảo cá nhân",
+    "userManagement": "Quản lý tài khoản và phân quyền",
+    "apiMonitoring": "Giám sát điểm cuối và lưu lượng",
+    "database": "Quản lý lược đồ và toàn vẹn dữ liệu",
+    "settings": "Quản lý hồ sơ tài khoản",
+    "welcomeBack": "Chào mừng trở lại"
+  },
+  "admin": {
+    "activeUsers": "Người dùng hoạt động",
+    "apiHealth": "Tình trạng API",
+    "dbSize": "Kích thước CSDL",
+    "systemLoad": "Tải hệ thống",
+    "apiStatusOverview": "Tổng quan trạng thái API",
+    "requestVolume": "Lượng yêu cầu (24h)",
+    "recentUserActivity": "Hoạt động gần đây",
+    "requests": "Yêu cầu"
+  },
+  "user": {
+    "publishedPapers": "Bài báo đã xuất bản",
+    "totalCitations": "Tổng trích dẫn",
+    "hIndex": "Chỉ số H",
+    "researchFields": "Lĩnh vực nghiên cứu",
+    "publicationTrends": "Xu hướng công bố",
+    "researchImpact": "Tác động nghiên cứu",
+    "recentPublications": "Công bố gần đây",
+    "trendingTopics": "Chủ đề thịnh hành",
+    "fieldDistribution": "Phân bố lĩnh vực"
+  },
+  "userManagement": {
+    "searchPlaceholder": "Tìm kiếm theo tên, email hoặc tổ chức…",
+    "addUser": "Thêm người dùng",
+    "editUser": "Chỉnh sửa người dùng",
+    "loading": "Đang tải danh sách người dùng...",
+    "noUsers": "Không tìm thấy người dùng.",
+    "columns": {
+      "user": "Người dùng",
+      "role": "Vai trò",
+      "organization": "Tổ chức",
+      "status": "Trạng thái",
+      "actions": "Thao tác"
+    },
+    "form": {
+      "username": "Tên đăng nhập",
+      "email": "Email",
+      "organization": "Tổ chức",
+      "role": "Vai trò",
+      "cancel": "Hủy",
+      "save": "Lưu người dùng",
+      "saving": "Đang lưu..."
+    },
+    "status": {
+      "active": "Hoạt động",
+      "inactive": "Không hoạt động"
+    }
+  }
+}

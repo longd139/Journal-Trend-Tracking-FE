@@ -1,0 +1,39 @@
+{
+  "heading": {
+    "title": "Cài đặt tài khoản",
+    "subtitle": "Quản lý thông tin cá nhân, tùy chọn và giao diện."
+  },
+  "profile": {
+    "avatar": "Ảnh đại diện",
+    "fullName": "Họ và tên",
+    "email": "Địa chỉ email",
+    "institution": "Trường / Đại học",
+    "bio": "Tiểu sử / Lĩnh vực nghiên cứu",
+    "bioPlaceholder": "Cho chúng tôi biết về nền tảng và sở thích nghiên cứu của bạn...",
+    "verifyEmail": "Xác minh email để mở khóa tất cả tính năng.",
+    "verifyNow": "Xác minh ngay"
+  },
+  "theme": {
+    "label": "Giao diện (Chủ đề)",
+    "light": "Chế độ sáng",
+    "dark": "Chế độ tối",
+    "system": "Tự động"
+  },
+  "language": {
+    "title": "Ngôn ngữ & Khu vực",
+    "description": "Chọn ngôn ngữ ưa thích cho giao diện nền tảng.",
+    "english": "English",
+    "vietnamese": "Tiếng Việt",
+    "preview": "Xem trước",
+    "dateSample": "Ngày",
+    "numberSample": "Số",
+    "savePreference": "Lưu tùy chọn",
+    "resetDefault": "Đặt về mặc định",
+    "saved": "Đã lưu tùy chọn ngôn ngữ!"
+  },
+  "saveChanges": {
+    "button": "Lưu thay đổi",
+    "saving": "Đang lưu...",
+    "success": "Đã cập nhật hồ sơ!"
+  }
+}

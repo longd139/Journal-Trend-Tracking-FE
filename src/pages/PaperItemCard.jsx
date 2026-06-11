@@ -1,48 +1,83 @@
 import * as React from "react";
-import { Bookmark, ExternalLink, Calendar, User, BookOpen } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Bookmark, ExternalLink, BookOpen, Link2, ChevronDown, ChevronUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../components/ui/card";
 
-export function PaperItemCard({ paper, index, badgeColor = "#4F8CFF", isSaved, onToggleBookmark }) {
-  // Phòng vệ: Nếu không có dữ liệu bài báo thì không render để tránh lỗi layout
-  if (!paper || !paper.title) return null;
+export function PaperItemCard({ 
+  paper, 
+  index = 0, 
+  badgeColor = "#4F8CFF", 
+  isSaved = false, 
+  onToggleBookmark 
+}) {
+  const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
+  const { t } = useTranslation('search');
 
   // FIX LỖI CRASH 404: Ép kiểu an toàn số lượng trích dẫn, phòng hờ dữ liệu undefined/null
   const rawCitations = paper.citations !== undefined && paper.citations !== null ? paper.citations : 0;
   const displayCitations = typeof rawCitations === "number" ? rawCitations : parseInt(rawCitations, 10) || 0;
 
-  // MAP CHÍNH XÁC CÁC TRƯỜNG DỮ LIỆU TỪ PAYLOAD API CỦA ĐẠI CA
-  const paperAuthors = paper.author || "Unknown Author"; 
-  const paperJournal = paper.journal || "Unspecified journal";
-  const paperYear = paper.publishYear || "N/A"; 
-
-  // Xác định link bài báo: Ưu tiên trường link trực tiếp, nếu không có mới dùng DOI
-  const articleUrl = paper.link || (paper.doi ? `https://doi.org/${paper.doi}` : "#");
+  if (!paper) return null;
 
   return (
-    <Card className="bg-transparent border-white/[0.08] p-5 shadow-none transition-all duration-200 hover:border-white/20">
-      <CardContent className="p-0 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        
-        {/* Khối thông tin bài báo (Bên trái) */}
-        <div className="space-y-2 flex-1 min-w-0">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.04 }}
+      whileHover={{ x: 3 }}
+    >
+      <Card className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07] p-5 shadow-sm dark:shadow-none transition-all duration-300">
+        <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
           
-          {/* 1. Tên tác giả hiển thị trên cùng */}
-          <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-            <User size={12} className="shrink-0 text-slate-500" />
-            <span className="truncate text-slate-300">{paperAuthors}</span>
-          </div>
+          <div className="flex-1 space-y-3 w-full">
+            {/* Tag Badges */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {paper.field && (
+                <Badge 
+                  variant="outline" 
+                  className="text-[10px] font-bold uppercase tracking-wide"
+                  style={{ backgroundColor: `${badgeColor}15`, color: badgeColor, borderColor: `${badgeColor}35` }}
+                >
+                  {paper.field}
+                </Badge>
+              )}
+              {paper.year && <span className="text-xs text-gray-500 dark:text-slate-400 font-mono">{paper.year}</span>}
+              {paper.citations > 50000 && (
+                <Badge variant="secondary" className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 text-[10px]">
+                  Classic
+                </Badge>
+              )}
+            </div>
+            
+            {/* Title */}
+            <h4 onClick={handleRedirect} className="text-base font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug">
+              {paper.title || "Untitled Paper"}
+            </h4>
 
-          {/* 2. Tiêu đề bài báo chính - Đã bọc thẻ <a> click mở link sang tab mới mượt mà */}
-          <h4 className="text-sm font-semibold text-slate-100 hover:text-blue-400 transition-colors line-clamp-2 pt-0.5">
-            <a href={articleUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-              {paper.title}
-            </a>
-          </h4>
-
-          {/* 3. Năm xuất bản (publishYear) & Tạp chí (journal) */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 pt-0.5">
-            <div className="flex items-center gap-1">
-              <Calendar size={12} className="shrink-0 text-slate-500" />
-              <span>{paperYear}</span>
+            {/* Authors & Journal Metadata */}
+            <div className="space-y-1">
+              {paper.authors && <p className="text-xs text-gray-700 dark:text-slate-300 font-medium">{paper.authors}</p>}
+              {paper.journal && (
+                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <BookOpen size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                  <span className="italic">{paper.journal}</span>
+                </p>
+              )}
+              {paper.doi && (
+                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <Link2 size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                  <a 
+                    href={`https://doi.org/${paper.doi}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400 hover:underline text-[11px] font-mono truncate max-w-[250px] sm:max-w-md"
+                  >
+                    {paper.doi}
+                  </a>
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-1">
               <BookOpen size={12} className="shrink-0 text-slate-500" />
@@ -50,23 +85,25 @@ export function PaperItemCard({ paper, index, badgeColor = "#4F8CFF", isSaved, o
             </div>
           </div>
 
-          {/* 4. Tags phân loại */}
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <span 
-              className="text-[10px] px-2 py-0.5 rounded-md font-semibold tracking-wide uppercase"
-              style={{ backgroundColor: `${badgeColor}15`, color: badgeColor }}
-            >
-              {paper.field || "General Academic"}
-            </span>
-            {paper.trend && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md font-medium bg-emerald-500/10 text-emerald-400">
-                {paper.trend}
-              </span>
-            )}
-            {paper.openAccess && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md font-medium bg-amber-500/10 text-amber-400">
-                Open Access
-              </span>
+            {/* Abstract Section */}
+            {paper.abstract && (
+              <div className="bg-gray-50 dark:bg-[#121824]/40 border border-gray-200 dark:border-white/[0.05] p-3 rounded-lg space-y-1.5 mt-2 transition-colors">
+                <p className={`text-xs text-gray-600 dark:text-slate-400 leading-relaxed transition-all duration-300 ${isAbstractExpanded ? "" : "line-clamp-2"}`}>
+                  <strong className="text-gray-900 dark:text-slate-300 font-medium mr-1">Abstract:</strong> 
+                  {paper.abstract}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsAbstractExpanded(!isAbstractExpanded)}
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 flex items-center gap-0.5 font-medium transition-colors pt-0.5"
+                >
+                  {isAbstractExpanded ? (
+                    <>{t('card.readMore')} <ChevronUp size={12} /></>
+                  ) : (
+                    <>{t('card.readMore')} <ChevronDown size={12} /></>
+                  )}
+                </button>
+              </div>
             )}
           </div>
 
@@ -81,40 +118,46 @@ export function PaperItemCard({ paper, index, badgeColor = "#4F8CFF", isSaved, o
         {/* Khối số lượng Citations & Nút thao tác (Bên phải) */}
         <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 w-full md:w-auto shrink-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
           
-          {/* Lượt trích dẫn */}
-          <div className="text-left md:text-right">
-            <div className="text-base font-bold text-slate-200 tracking-tight">
-              {displayCitations.toLocaleString()}
-            </div>
-            <div className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">
-              Citations
+          {/* Cột hiển thị số lượng citation & hành động */}
+          <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-200 dark:border-white/5 sm:pl-4">
+            <div className="text-left sm:text-right">
+              <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
+                {(paper.citations ?? 0).toLocaleString()}
+              </div>
+              <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">{t('card.citations')}</div>
+              {paper.trend && (
+                <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
+                  {paper.trend}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Bộ nút lưu bài báo & link icon */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => onToggleBookmark(paper)}
-              className={`p-2 rounded-lg border transition-all ${
-                isSaved
-                  ? "bg-blue-500/20 text-blue-400 border-blue-500/40"
-                  : "bg-white/[0.02] text-slate-400 border-white/[0.06] hover:bg-white/5 hover:text-white"
-              }`}
-              title={isSaved ? "Remove Bookmark" : "Save Bookmark"}
-            >
-              <Bookmark size={14} className={isSaved ? "fill-current" : ""} />
-            </button>
+            <div className="flex gap-2 sm:mt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => onToggleBookmark(paper)}
+                className={`w-9 h-9 border transition-transform active:scale-95 ${
+                  isSaved 
+                    ? "bg-blue-50 dark:bg-blue-600/10 border-blue-200 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-600/20" 
+                    : "bg-white dark:bg-white/[0.02] border-gray-200 dark:border-white/10 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
+                }`}
+              >
+                <Bookmark size={15} fill={isSaved ? "currentColor" : "none"} />
+              </Button>
 
-            <a
-              href={articleUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg border bg-white/[0.02] text-slate-400 border-white/[0.06] hover:bg-white/5 hover:text-white transition-all"
-              title="Open Full Article"
-            >
-              <ExternalLink size={14} />
-            </a>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleRedirect}
+                className="w-9 h-9 bg-white dark:bg-white/[0.02] border-gray-200 dark:border-white/10 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-transform active:scale-95"
+              >
+                <ExternalLink size={15} />
+              </Button>
+            </div>
           </div>
 
         </div>

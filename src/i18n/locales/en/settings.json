@@ -1,0 +1,39 @@
+{
+  "heading": {
+    "title": "Account Settings",
+    "subtitle": "Manage your personal information, preferences, and appearance."
+  },
+  "profile": {
+    "avatar": "Avatar",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "institution": "Institution / University",
+    "bio": "Bio / Research Focus",
+    "bioPlaceholder": "Tell us about your research background and interests...",
+    "verifyEmail": "Verify your email to unlock all features.",
+    "verifyNow": "Verify Now"
+  },
+  "theme": {
+    "label": "Appearance (Theme)",
+    "light": "Light Mode",
+    "dark": "Dark Mode",
+    "system": "System"
+  },
+  "language": {
+    "title": "Language & Region",
+    "description": "Choose your preferred language for the platform interface.",
+    "english": "English",
+    "vietnamese": "Tiếng Việt",
+    "preview": "Preview",
+    "dateSample": "Date",
+    "numberSample": "Number",
+    "savePreference": "Save Preference",
+    "resetDefault": "Reset to Default",
+    "saved": "Language preference saved!"
+  },
+  "saveChanges": {
+    "button": "Save Changes",
+    "saving": "Saving...",
+    "success": "Profile updated successfully!"
+  }
+}

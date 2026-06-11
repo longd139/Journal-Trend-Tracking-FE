@@ -4,7 +4,21 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>journal-trend-tracking-fe</title>
+    <title>SCITRACK — AI-Powered Academic Research Analytics</title>
+    <!-- Anti-flash: apply theme BEFORE first paint to prevent white/dark flicker -->
+    <script>
+      (function() {
+        var theme = localStorage.getItem('theme');
+        var isDark;
+        if (theme === 'dark' || theme === 'light') {
+          isDark = theme === 'dark';
+        } else {
+          // 'system' or unset — follow OS preference
+          isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        if (isDark) document.documentElement.classList.add('dark');
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
