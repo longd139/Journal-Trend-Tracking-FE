@@ -7,24 +7,33 @@ import { FileText, TrendingUp, Hash, Brain, Filter, Download, Star, Users, Bookm
 // 1. COMPONENT DÙNG CHUNG
 // ==========================================
 const StatCard = ({ label, value, change, Icon, accent }) => (
-  <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border flex flex-col justify-between" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
+  <motion.div 
+    whileHover={{ y: -4 }} 
+    className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
+  >
     <div className="flex items-start justify-between mb-2">
       <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
         <Icon size={18} />
       </div>
-      <span className="text-xs font-bold px-2 py-1 rounded-md" style={{ background: 'rgba(255,255,255,0.05)', color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>
+      <span 
+        className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/5" 
+        style={{ color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}
+      >
         {change}
       </span>
     </div>
     <div>
-      <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1" style={{ color: '#A0AEC0' }}>{label}</h4>
-      <div className="text-2xl font-black text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+      <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
+      <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
     </div>
   </motion.div>
 );
 
 const GlowBadge = ({ color, children }) => (
-  <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border whitespace-nowrap" style={{ background: `${color}10`, color: color, borderColor: `${color}25`, textShadow: `0 0 10px ${color}40` }}>
+  <span 
+    className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border whitespace-nowrap" 
+    style={{ background: `${color}10`, color: color, borderColor: `${color}25`, textShadow: `0 0 10px ${color}40` }}
+  >
     {children}
   </span>
 );
@@ -87,13 +96,13 @@ export default function UserOverviewPage() {
   const pieData = isResearcher ? MY_RESEARCH_FIELDS : ACADEMIC_FIELDS;
 
   return (
-    <div className="w-full h-full min-h-screen bg-[#0B1020] p-8 space-y-6 overflow-y-auto">
+    <div className="w-full h-full min-h-screen p-8 space-y-6 overflow-y-auto bg-gray-50 dark:bg-[#0B1020] transition-colors duration-300">
       <div className="mb-2 flex justify-between items-end">
         <div>
-          <h2 className="text-2xl font-black text-white">
+          <h2 className="text-2xl font-black text-gray-900 dark:text-white">
             {isResearcher ? 'Researcher Impact Dashboard' : 'Academic Discovery Space'}
           </h2>
-          <p className="text-sm text-gray-400 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {isResearcher ? 'Track your publication metrics and global academic reach.' : 'Discover trends in embedded systems and organize your research.'}
           </p>
         </div>
@@ -104,13 +113,13 @@ export default function UserOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <div className="lg:col-span-2 rounded-xl border p-5" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
+        <div className="lg:col-span-2 rounded-xl border p-5 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors duration-300">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-bold text-gray-900 dark:text-white">
                 {isResearcher ? 'Citation Growth History' : 'Global Tech Publication Trends'}
               </h3>
-              <p className="text-xs mt-0.5" style={{ color: '#A0AEC0' }}>
+              <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
                 {isResearcher ? 'Total citations received per year' : 'Monthly papers in IoT & Embedded fields'}
               </p>
             </div>
@@ -119,10 +128,11 @@ export default function UserOverviewPage() {
           <ResponsiveContainer width="100%" height={200}>
             {isResearcher ? (
               <BarChart data={MY_CITATIONS_HISTORY}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                <XAxis dataKey="y" tick={{ fill: '#A0AEC0', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#A0AEC0', fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
-                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: '#0B1020', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-200 dark:text-white/5" vertical={false} />
+                <XAxis dataKey="y" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} width={40} />
+                {/* Giữ nguyên màu nền dark cho Tooltip vì nó tạo điểm nhấn đẹp trên cả 2 giao diện */}
+                <Tooltip cursor={{ fill: 'rgba(156, 163, 175, 0.1)' }} contentStyle={{ background: '#1B2235', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }} />
                 <Bar dataKey="citations" fill="#4F8CFF" radius={[4, 4, 0, 0]} name="Citations" />
               </BarChart>
             ) : (
@@ -135,10 +145,10 @@ export default function UserOverviewPage() {
                     </linearGradient>
                   ))}
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                <XAxis dataKey="m" tick={{ fill: '#A0AEC0', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#A0AEC0', fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
-                <Tooltip contentStyle={{ background: '#0B1020', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="currentColor" className="text-gray-200 dark:text-white/5" />
+                <XAxis dataKey="m" tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#9CA3AF', fontSize: 10 }} axisLine={false} tickLine={false} width={30} />
+                <Tooltip contentStyle={{ background: '#1B2235', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }} />
                 <Area type="monotone" dataKey="iot" stroke="#4F8CFF" fill="url(#oa1)" strokeWidth={2} name="IoT Systems" />
                 <Area type="monotone" dataKey="emb" stroke="#00D1B2" fill="url(#oa2)" strokeWidth={2} name="Embedded C/C++" />
                 <Area type="monotone" dataKey="ai" stroke="#F59E0B" fill="url(#oa3)" strokeWidth={2} name="Hardware AI" />
@@ -147,8 +157,8 @@ export default function UserOverviewPage() {
           </ResponsiveContainer>
         </div>
 
-        <div className="rounded-xl border p-5" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
-          <h3 className="text-sm font-bold text-white mb-4">
+        <div className="rounded-xl border p-5 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors duration-300">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-4">
             {isResearcher ? 'My Publication Fields' : 'Your Reading Interests'}
           </h3>
           <ResponsiveContainer width="100%" height={130}>
@@ -156,7 +166,7 @@ export default function UserOverviewPage() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={38} outerRadius={58} dataKey="v" stroke="none" paddingAngle={2}>
                 {pieData.map((f, i) => <Cell key={i} fill={f.c} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#0B1020', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: '#1B2235', border: 'none', borderRadius: 8, fontSize: 11, color: '#fff' }} />
             </PieChart>
           </ResponsiveContainer>
           <div className="space-y-2 mt-3">
@@ -164,7 +174,7 @@ export default function UserOverviewPage() {
               <div key={f.n} className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full" style={{ background: f.c }} />
-                  <span style={{ color: '#A0AEC0' }}>{f.n}</span>
+                  <span className="text-gray-600 dark:text-[#A0AEC0]">{f.n}</span>
                 </div>
                 <span className="font-semibold" style={{ color: f.c, fontFamily: "'JetBrains Mono', monospace" }}>{f.v}%</span>
               </div>
@@ -173,13 +183,15 @@ export default function UserOverviewPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border overflow-hidden" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
-        <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <h3 className="text-sm font-bold text-white">
+      <div className="rounded-xl border overflow-hidden bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none transition-colors duration-300">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-white/5">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
             {isResearcher ? 'My Recent Publications' : 'Recommended Papers For You'}
           </h3>
           <div className="flex gap-2">
-            <button className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 hover:bg-white/5 transition-colors" style={{ background: '#131A2A', color: '#A0AEC0' }}><Filter size={11} /> Filter</button>
+            <button className="text-xs px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-[#131A2A] dark:text-[#A0AEC0] dark:hover:bg-white/5">
+              <Filter size={11} /> Filter
+            </button>
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -187,18 +199,18 @@ export default function UserOverviewPage() {
             {isResearcher ? (
               <>
                 <thead>
-                  <tr className="border-b" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                    {['Paper Title', 'Journal', 'Year', 'Role', 'Citations'].map((h) => <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500">{h}</th>)}
+                  <tr className="border-b border-gray-200 dark:border-white/5">
+                    {['Paper Title', 'Journal', 'Year', 'Role', 'Citations'].map((h) => <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {MY_PUBLICATIONS.map((p, i) => (
-                    <tr key={i} className="border-b hover:bg-white/[0.02] transition-colors" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                      <td className="px-5 py-3.5"><span className="text-xs font-semibold text-white block max-w-xs truncate">{p.title}</span></td>
+                    <tr key={i} className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                      <td className="px-5 py-3.5"><span className="text-xs font-semibold text-gray-900 dark:text-white block max-w-xs truncate">{p.title}</span></td>
                       <td className="px-5 py-3.5 text-xs text-[#4F8CFF] font-medium">{p.journal}</td>
-                      <td className="px-5 py-3.5 text-xs text-gray-400 font-mono">{p.year}</td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</td>
                       <td className="px-5 py-3.5"><GlowBadge color={p.role === 'First Author' ? '#F59E0B' : '#00D1B2'}>{p.role}</GlowBadge></td>
-                      <td className="px-5 py-3.5 text-xs font-bold text-white font-mono">{p.citations}</td>
+                      <td className="px-5 py-3.5 text-xs font-bold text-gray-900 dark:text-white font-mono">{p.citations}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -206,19 +218,19 @@ export default function UserOverviewPage() {
             ) : (
               <>
                 <thead>
-                  <tr className="border-b" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                    {['Title', 'Authors', 'Year', 'Field', 'Action'].map((h) => <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500">{h}</th>)}
+                  <tr className="border-b border-gray-200 dark:border-white/5">
+                    {['Title', 'Authors', 'Year', 'Field', 'Action'].map((h) => <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400">{h}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {RECOMMENDED_PAPERS.map((p, i) => (
-                    <tr key={i} className="border-b hover:bg-white/[0.02] transition-colors" style={{ borderColor: 'rgba(255,255,255,0.04)' }}>
-                      <td className="px-5 py-3.5"><span className="text-xs font-semibold text-white block max-w-[250px] truncate">{p.title}</span></td>
-                      <td className="px-5 py-3.5 text-xs text-gray-400">{p.authors}</td>
-                      <td className="px-5 py-3.5 text-xs text-gray-400 font-mono">{p.year}</td>
+                    <tr key={i} className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                      <td className="px-5 py-3.5"><span className="text-xs font-semibold text-gray-900 dark:text-white block max-w-[250px] truncate">{p.title}</span></td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400">{p.authors}</td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</td>
                       <td className="px-5 py-3.5"><GlowBadge color={ACADEMIC_FIELDS.find(f => f.n === p.field)?.c ?? '#4F8CFF'}>{p.field}</GlowBadge></td>
                       <td className="px-5 py-3.5">
-                        <button className="text-xs font-semibold text-[#4F8CFF] hover:text-white transition-colors bg-[#4F8CFF]/10 px-3 py-1 rounded-md">Save</button>
+                        <button className="text-xs font-semibold text-[#4F8CFF] hover:text-blue-700 dark:hover:text-white transition-colors bg-blue-50 dark:bg-[#4F8CFF]/10 px-3 py-1 rounded-md">Save</button>
                       </td>
                     </tr>
                   ))}

@@ -57,9 +57,8 @@ export default function SearchPapers() {
 
         // Gọi API từ instance paperAPI đã import thành công
         const response = await paperAPI.search(apiParams);
-        console.log("Dữ liệu bài báo thu được từ API:", response);
-        
         // Kiểm tra cấu trúc phản hồi lồng `.papers` theo console log thực tế
+        
         if (response && response.papers && Array.isArray(response.papers)) {
           // Bổ sung map phòng vệ: Đảm bảo phần tử trong mảng không bị null/undefined
           const validPapers = response.papers.filter(p => p !== null && p !== undefined);
@@ -98,22 +97,10 @@ export default function SearchPapers() {
     } else { setSavedBookmarks([]); }
   }, [storageKey]);
 
-  // Logic ép style CSS cho thanh input search nhỏ phía trên Header
-  useEffect(() => {
-    const colorTopSearch = () => {
-      const allInputs = document.querySelectorAll("input");
-      allInputs.forEach((input) => {
-        if (input.placeholder && (input.placeholder.includes("Search papers, topics") || input.placeholder.includes("topics..."))) {
-          input.style.setProperty("background-color", "#1B2235", "important");
-          input.style.setProperty("border-color", "rgba(255, 255, 255, 0.1)", "important");
-          input.style.setProperty("color", "#f1f5f9", "important");
-        }
-      });
-    };
-    colorTopSearch();
-    const interval = setInterval(colorTopSearch, 500);
-    return () => clearInterval(interval);
-  }, []);
+  /* * ĐÃ XÓA ĐOẠN useEffect "colorTopSearch" Ở ĐÂY!
+   * Lý do: Nó ép style bằng Javascript đè lên CSS của Tailwind, làm cho Light/Dark mode bị lỗi.
+   * Thanh TopBar đã được xử lý màu chuẩn bằng Tailwind ở file DashboardLayout.jsx
+   */
 
   const toggleBookmark = (paper) => {
     if (!paper || !paper.title) return;
@@ -130,24 +117,24 @@ export default function SearchPapers() {
   };
 
   return (
-    <div className="space-y-5 p-8 max-w-6xl mx-auto text-slate-100 min-h-screen bg-[#0B0F19]">
+    <div className="space-y-5 p-8 max-w-6xl mx-auto min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <AcademicLimitAlert userRole={currentRole} searchCount={3} maxLimit={10} />
 
       {/* Thanh Search chính */}
       <div className="relative">
-        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-slate-400" />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 dark:text-slate-400" />
         <Input
           type="text"
           placeholder="Search academic papers by title, author, field, abstract..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-11 pr-4 py-5 rounded-xl text-sm bg-[#1B2235] border-white/10 text-slate-200 focus-visible:border-blue-500/50"
+          className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-blue-500/50 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-slate-200 shadow-sm dark:shadow-none"
         />
       </div>
 
       {/* Quick Search nhãn */}
       <div className="flex gap-2 flex-wrap items-center text-xs">
-        <span className="text-slate-500 mr-1">Quick search:</span>
+        <span className="text-gray-500 dark:text-slate-500 mr-1">Quick search:</span>
         {FIELD_DATA.map((f) => (
           <button
             key={f.n}
@@ -163,7 +150,7 @@ export default function SearchPapers() {
           <button
             type="button"
             onClick={() => setQuery("")}
-            className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 bg-white/5 border border-white/10 text-slate-400 hover:bg-white/10"
+            className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-white/5 dark:border dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/10"
           >
             <X size={10} /> Clear query
           </button>
@@ -185,8 +172,8 @@ export default function SearchPapers() {
             />
           </div>
 
-          <div className="bg-[#1B2235] border border-white/5 rounded-xl p-4 space-y-3">
-            <h5 className="text-xs uppercase tracking-wider font-bold text-slate-400">Suggested Keywords</h5>
+          <div className="rounded-xl p-4 space-y-3 transition-colors duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
+            <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">Suggested Keywords</h5>
             <div className="flex flex-wrap gap-1.5">
               {SUGGESTED_KEYWORDS.map((kw) => (
                 <button
@@ -195,8 +182,8 @@ export default function SearchPapers() {
                   onClick={() => setQuery(kw)}
                   className={`text-[11px] px-2.5 py-1 rounded-md border transition-all duration-200 text-left truncate max-w-full ${
                     query.toLowerCase() === kw.toLowerCase()
-                      ? "bg-blue-500/20 text-blue-400 border-blue-500/40 font-medium"
-                      : "bg-[#121824]/60 text-slate-300 border-white/5 hover:bg-white/5 hover:text-white"
+                      ? "bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40 font-medium"
+                      : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:bg-[#121824]/60 dark:text-slate-300 dark:border-white/5 dark:hover:bg-white/5 dark:hover:text-white"
                   }`}
                 >
                   {kw}
@@ -208,21 +195,21 @@ export default function SearchPapers() {
 
         {/* Cột phải */}
         <div className="flex-1 min-w-0 space-y-3 w-full flex flex-col">
-          <p className="text-xs text-slate-500 pl-1">
+          <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
             Found {papers.length} {papers.length === 1 ? "paper" : "papers"} matching your criteria
           </p>
 
           <div className="space-y-3 flex-1">
             {isLoading && (
-              <div className="text-center py-12 text-xs text-slate-400 animate-pulse">Đang tải dữ liệu bài báo...</div>
+              <div className="text-center py-12 text-xs animate-pulse text-gray-500 dark:text-slate-400">Đang tải dữ liệu bài báo...</div>
             )}
 
             {error && (
-              <div className="text-center py-12 text-xs text-red-400 border border-red-500/10 rounded-xl bg-red-500/5">{error}</div>
+              <div className="text-center py-12 text-xs rounded-xl text-red-600 bg-red-50 border border-red-200 dark:text-red-400 dark:border-red-500/10 dark:bg-red-500/5">{error}</div>
             )}
 
             {!isLoading && !error && papers.length === 0 && (
-              <div className="text-center py-12 text-xs text-slate-500 border border-white/5 bg-[#1B2235]/30 rounded-xl">Không tìm thấy bài báo nào.</div>
+              <div className="text-center py-12 text-xs rounded-xl border text-gray-500 bg-white border-gray-200 dark:text-slate-500 dark:border-white/5 dark:bg-[#1B2235]/30">Không tìm thấy bài báo nào.</div>
             )}
 
             {!isLoading && !error && papers.map((paper, i) => (
