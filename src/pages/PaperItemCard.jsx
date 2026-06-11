@@ -5,12 +5,12 @@ import { Bookmark, ExternalLink, BookOpen, Link2, ChevronDown, ChevronUp } from 
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../components/ui/card";
 
-export function PaperItemCard({ 
-  paper, 
-  index = 0, 
-  badgeColor = "#4F8CFF", 
-  isSaved = false, 
-  onToggleBookmark 
+export function PaperItemCard({
+  paper,
+  index = 0,
+  badgeColor = "#4F8CFF",
+  isSaved = false,
+  onToggleBookmark
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
   const { t } = useTranslation('search');
@@ -30,13 +30,13 @@ export function PaperItemCard({
     >
       <Card className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07] p-5 shadow-sm dark:shadow-none transition-all duration-300">
         <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
-          
+
           <div className="flex-1 space-y-3 w-full">
             {/* Tag Badges */}
             <div className="flex items-center gap-2 flex-wrap">
               {paper.field && (
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className="text-[10px] font-bold uppercase tracking-wide"
                   style={{ backgroundColor: `${badgeColor}15`, color: badgeColor, borderColor: `${badgeColor}35` }}
                 >
@@ -50,7 +50,7 @@ export function PaperItemCard({
                 </Badge>
               )}
             </div>
-            
+
             {/* Title */}
             <h4 onClick={handleRedirect} className="text-base font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug">
               {paper.title || "Untitled Paper"}
@@ -68,9 +68,9 @@ export function PaperItemCard({
               {paper.doi && (
                 <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Link2 size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
-                  <a 
-                    href={`https://doi.org/${paper.doi}`} 
-                    target="_blank" 
+                  <a
+                    href={`https://doi.org/${paper.doi}`}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 dark:text-blue-400 hover:underline text-[11px] font-mono truncate max-w-[250px] sm:max-w-md"
                   >
@@ -83,13 +83,12 @@ export function PaperItemCard({
               <BookOpen size={12} className="shrink-0 text-slate-500" />
               <span className="truncate max-w-[280px] italic">{paperJournal}</span>
             </div>
-          </div>
 
             {/* Abstract Section */}
             {paper.abstract && (
               <div className="bg-gray-50 dark:bg-[#121824]/40 border border-gray-200 dark:border-white/[0.05] p-3 rounded-lg space-y-1.5 mt-2 transition-colors">
                 <p className={`text-xs text-gray-600 dark:text-slate-400 leading-relaxed transition-all duration-300 ${isAbstractExpanded ? "" : "line-clamp-2"}`}>
-                  <strong className="text-gray-900 dark:text-slate-300 font-medium mr-1">Abstract:</strong> 
+                  <strong className="text-gray-900 dark:text-slate-300 font-medium mr-1">Abstract:</strong>
                   {paper.abstract}
                 </p>
                 <button
@@ -105,33 +104,32 @@ export function PaperItemCard({
                 </button>
               </div>
             )}
+
+            {/* Tóm tắt Abstract */}
+            {paper.abstractText && (
+              <p className="text-xs text-slate-400/70 line-clamp-2 pt-1.5 leading-relaxed">
+                {paper.abstractText}
+              </p>
+            )}
           </div>
 
-          {/* 5. Tóm tắt Abstract */}
-          {paper.abstractText && (
-            <p className="text-xs text-slate-400/70 line-clamp-2 pt-1.5 leading-relaxed">
-              {paper.abstractText}
-            </p>
-          )}
-        </div>
+          {/* Khối số lượng Citations & Nút thao tác (Bên phải) */}
+          <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 w-full md:w-auto shrink-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
 
-        {/* Khối số lượng Citations & Nút thao tác (Bên phải) */}
-        <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 w-full md:w-auto shrink-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
-          
-          {/* Cột hiển thị số lượng citation & hành động */}
-          <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-200 dark:border-white/5 sm:pl-4">
-            <div className="text-left sm:text-right">
-              <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
-                {(paper.citations ?? 0).toLocaleString()}
-              </div>
-              <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">{t('card.citations')}</div>
-              {paper.trend && (
-                <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
-                  {paper.trend}
+            {/* Cột hiển thị số lượng citation & hành động */}
+            <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-200 dark:border-white/5 sm:pl-4">
+              <div className="text-left sm:text-right">
+                <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
+                  {(paper.citations ?? 0).toLocaleString()}
                 </div>
-              )}
+                <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">{t('card.citations')}</div>
+                {paper.trend && (
+                  <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
+                    {paper.trend}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
             <div className="flex gap-2 sm:mt-1">
               <Button
@@ -140,8 +138,8 @@ export function PaperItemCard({
                 size="icon"
                 onClick={() => onToggleBookmark(paper)}
                 className={`w-9 h-9 border transition-transform active:scale-95 ${
-                  isSaved 
-                    ? "bg-blue-50 dark:bg-blue-600/10 border-blue-200 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-600/20" 
+                  isSaved
+                    ? "bg-blue-50 dark:bg-blue-600/10 border-blue-200 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-600/20"
                     : "bg-white dark:bg-white/[0.02] border-gray-200 dark:border-white/10 text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
                 }`}
               >
@@ -160,9 +158,8 @@ export function PaperItemCard({
             </div>
           </div>
 
-        </div>
-
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
