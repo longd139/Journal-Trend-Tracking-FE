@@ -11,6 +11,8 @@ import {
   Building2,
   AlertCircle,
   ChevronLeft,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
 import { authAPI } from '../../lib/api/auth.api';
@@ -51,6 +53,8 @@ export default function RegisterPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingUnis, setLoadingUnis] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const setTokens = useAuthStore((state) => state.setTokens);
 
@@ -418,16 +422,24 @@ export default function RegisterPage() {
                     }`}
                   />
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     placeholder={t('register.passwordPlaceholder')}
                     value={form.password}
                     onChange={(e) => handleChange('password', e.target.value)}
-                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                    className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                       errors.password
                         ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
                         : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
                     } text-gray-900 dark:text-[#E2E8F0]`}
                   />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0] hover:text-gray-600 dark:hover:text-white transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
                 {errors.password && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
@@ -448,18 +460,26 @@ export default function RegisterPage() {
                     }`}
                   />
                   <input
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     placeholder={t('register.confirmPasswordPlaceholder')}
                     value={form.confirmPassword}
                     onChange={(e) =>
                       handleChange('confirmPassword', e.target.value)
                     }
-                    className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
+                    className={`w-full pl-9 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
                       errors.confirmPassword
                         ? 'border-red-500 bg-red-50 dark:bg-red-500/5 focus:border-red-400'
                         : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-[#131A2A] focus:border-blue-500 dark:focus:border-[#4F8CFF]'
                     } text-gray-900 dark:text-[#E2E8F0]`}
                   />
+                  <button
+                    type="button"
+                    tabIndex={-1}
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0] hover:text-gray-600 dark:hover:text-white transition-colors"
+                  >
+                    {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  </button>
                 </div>
                 {errors.confirmPassword && !errors.mismatch && (
                   <div className="flex items-center gap-1 mt-1.5 text-[10px] font-medium text-red-500">
