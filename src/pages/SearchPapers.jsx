@@ -307,7 +307,7 @@ export default function SearchPapers() {
           </div>
 
           {/* THANH PHÂN TRANG */}
-          {!isLoading && !error && totalPages > 1 && (
+          {/* {!isLoading && !error && totalPages > 1 && (
             <div className="flex items-center justify-center gap-1.5 pt-6 pb-2">
               <button
                 type="button"
@@ -333,7 +333,7 @@ export default function SearchPapers() {
                 Next <ChevronRight size={14} />
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
