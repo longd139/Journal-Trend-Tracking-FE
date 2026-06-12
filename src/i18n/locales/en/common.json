@@ -25,7 +25,9 @@
   "topbar": {
     "searchPlaceholder": "Search papers, topics…",
     "profileSettings": "Profile Settings",
-    "verifyEmail": "Please verify your email"
+    "verifyEmail": "Please verify your email",
+    "switchToLight": "Switch to Light Mode",
+    "switchToDark": "Switch to Dark Mode"
   },
   "status": {
     "active": "Active",

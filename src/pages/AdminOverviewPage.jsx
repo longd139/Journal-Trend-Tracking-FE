@@ -7,9 +7,9 @@ import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Ba
 // 1. COMPONENTS DÙNG CHUNG
 // ==========================================
 const StatCard = ({ label, value, change, Icon, accent }) => (
-  <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border flex flex-col justify-between" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
+  <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border flex flex-col justify-between group" style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}>
     <div className="flex items-start justify-between mb-2">
-      <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
+      <div className="p-2 rounded-lg card-icon-accent" style={{ '--icon-accent': accent, background: `${accent}1A`, color: accent }}>
         <Icon size={18} />
       </div>
       <span className="text-xs font-bold px-2 py-1 rounded-md" style={{ background: 'rgba(255,255,255,0.05)', color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>

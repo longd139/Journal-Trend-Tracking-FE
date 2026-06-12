@@ -2,3 +2,13 @@
 @import './tailwind.css';
 @import './theme.css';
 @import './vietnamese.css';
+
+/* ─── Icon glow effect on card hover ──────────────────────────────────── */
+.card-icon-glow {
+  transition: filter 0.3s ease, transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+.group:hover .card-icon-glow {
+  transform: scale(1.15);
+  background: var(--icon-accent, currentColor) !important;
+  color: white !important;
+}

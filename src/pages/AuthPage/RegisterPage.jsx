@@ -14,10 +14,13 @@ import {
   Eye,
   EyeOff,
   User,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
 import { authAPI } from '../../lib/api/auth.api';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useTheme } from '../../hooks/useTheme';
 
 const LOCAL_UNIS = [
   'Văn Lang University',
@@ -39,6 +42,7 @@ export default function RegisterPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation('auth');
+  const { resolvedTheme, setTheme } = useTheme();
 
   const incomingRole = location.state?.role || '';
 
@@ -243,6 +247,15 @@ export default function RegisterPage() {
         ))}
       </div>
 
+      {/* ─── Theme Toggle ────────────────────────────────────────────── */}
+      <button
+        onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-white/70 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/20 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 shadow-sm"
+        title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      >
+        {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
+
       {/* ═══════════════════════════════════════════════════════════════
          LEFT PANEL — Academic Branding
          ═══════════════════════════════════════════════════════════════ */}
@@ -338,7 +351,6 @@ export default function RegisterPage() {
                   {t('register.fullNameLabel')}
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-purple-500/20" />
                   <User
                     size={14}
                     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
@@ -370,7 +382,6 @@ export default function RegisterPage() {
                   {t('register.institutionLabel')}
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-purple-500/20" />
                   <Building2
                     size={14}
                     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
@@ -430,7 +441,6 @@ export default function RegisterPage() {
                   {t('register.emailLabel')}
                 </label>
                 <div className="relative group">
-                  <div className="absolute inset-0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-purple-500/20" />
                   <Mail
                     size={14}
                     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
@@ -469,7 +479,6 @@ export default function RegisterPage() {
                     {t('register.passwordLabel')}
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-purple-500/20" />
                     <Lock
                       size={14}
                       className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
@@ -508,7 +517,6 @@ export default function RegisterPage() {
                     {t('register.confirmPasswordLabel')}
                   </label>
                   <div className="relative group">
-                    <div className="absolute inset-0 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 bg-gradient-to-r from-blue-500/20 to-purple-500/20" />
                     <Lock
                       size={14}
                       className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
@@ -565,11 +573,9 @@ export default function RegisterPage() {
                 whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="relative w-full py-3.5 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2 overflow-hidden shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300"
+                className="relative w-full py-3.5 rounded-2xl text-sm font-bold text-white flex items-center justify-center gap-2 overflow-hidden transition-all duration-300 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 shadow-lg shadow-blue-500/20"
                 style={{ opacity: loading ? 0.85 : 1 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-400" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                 <span className="relative z-10 flex items-center gap-2">
                   {loading ? (
                     <>

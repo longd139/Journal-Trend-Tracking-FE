@@ -71,8 +71,8 @@ export default function ReportsViewPage() {
 
       {/* QUICK TEMPLATES */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white">
+        <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-blue-50 dark:bg-blue-500/10 text-blue-500 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white card-icon-glow">
             <BarChart2 size={20} />
           </div>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{t('templates.trendAnalysis.name')}</h3>
@@ -80,8 +80,8 @@ export default function ReportsViewPage() {
           <button onClick={() => handleGenerateReport(t('templates.trendAnalysis.name'), 'PDF')} className="text-xs font-semibold text-blue-600 dark:text-[#4F8CFF] hover:text-blue-800 dark:hover:text-white transition-colors">{t('templates.trendAnalysis.quickPdf')}</button>
         </motion.div>
 
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-purple-50 dark:bg-purple-500/10 text-purple-500 dark:text-purple-400 group-hover:bg-purple-500 group-hover:text-white">
+        <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-purple-50 dark:bg-purple-500/10 text-purple-500 dark:text-purple-400 group-hover:bg-purple-500 group-hover:text-white card-icon-glow">
             <BookOpen size={20} />
           </div>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{t('templates.readingList.name')}</h3>
@@ -89,8 +89,8 @@ export default function ReportsViewPage() {
           <button onClick={() => handleGenerateReport(t('templates.readingList.name'), 'CSV')} className="text-xs font-semibold text-purple-600 dark:text-[#8B5CF6] hover:text-purple-800 dark:hover:text-white transition-colors">{t('templates.readingList.quickCsv')}</button>
         </motion.div>
 
-        <motion.div whileHover={{ y: -4 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-teal-50 dark:bg-teal-500/10 text-teal-500 dark:text-teal-400 group-hover:bg-teal-500 group-hover:text-white">
+        <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 transition-colors bg-teal-50 dark:bg-teal-500/10 text-teal-500 dark:text-teal-400 group-hover:bg-teal-500 group-hover:text-white card-icon-glow">
             <FileText size={20} />
           </div>
           <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-1">

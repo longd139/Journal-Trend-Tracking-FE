@@ -37,8 +37,7 @@ export default function NotFoundPage() {
 
           <button
             onClick={() => navigate('/')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-105 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-400"
           >
             <Home size={16} /> {t('actions.back')}
           </button>

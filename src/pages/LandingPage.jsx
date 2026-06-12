@@ -1,31 +1,19 @@
-import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, YAxis } from 'recharts';
-import { ArrowRight, TrendingUp, Brain, Zap, ArrowUpRight, Microscope, Globe } from 'lucide-react';
+import { ArrowRight, TrendingUp, Brain, Zap, ArrowUpRight, Microscope, Globe, Sun, Moon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PARTICLES, PUB_DATA, INSIGHTS, FEATURES, APIS } from '../constants/mockData';
 import { SectionBadge, StatusPill } from '../components/SharedUI';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import { useTheme } from '../hooks/useTheme';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(['landing', 'common']);
-  const [isDark, setIsDark] = useState(true);
-
-  // Quan sát thẻ HTML để biết web đang ở chế độ nào (để render lại đồ thị Recharts)
-  useEffect(() => {
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          setIsDark(document.documentElement.classList.contains('dark'));
-        }
-      });
-    });
-    observer.observe(document.documentElement, { attributes: true });
-    setIsDark(document.documentElement.classList.contains('dark')); // Check lần đầu
-    return () => observer.disconnect();
-  }, []);
+  const { t, i18n } = useTranslation(['landing', 'common']);
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  const isVietnamese = i18n.language === 'vi';
 
   const handleAuthRedirect = (mode) => navigate('/auth', { state: { mode: mode } });
 
@@ -38,7 +26,7 @@ export default function LandingPage() {
       {/* Navbar */}
       <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 lg:px-10 py-4 border-b border-gray-200 dark:border-white/5 bg-white/85 dark:bg-[#0B1020]/85 backdrop-blur-md transition-colors">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 shadow-md">
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400 shadow-md">
             <Microscope size={13} className="text-white" />
           </div>
           <span className="text-sm font-black text-gray-900 dark:text-white tracking-widest font-outfit">SCITRACK</span>
@@ -50,6 +38,13 @@ export default function LandingPage() {
         </div>
         <div className="flex items-center gap-2">
           <LanguageSwitcher variant="topbar" />
+          <button
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            className="flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/20"
+            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
           <button onClick={() => handleAuthRedirect('login')} className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-all">{t('nav.signIn')}</button>
           <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">{t('nav.register')}</motion.button>
         </div>
@@ -79,7 +74,10 @@ export default function LandingPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Zap size={10} /> {t('hero.badge')}
             </div>
-            <h1 className="text-5xl lg:text-6xl font-bold leading-[1.15] mb-6 text-gray-900 dark:text-white overflow-diacritics-safe" style={{ fontFamily: "'Be Vietnam Pro', 'Inter', 'Noto Sans', sans-serif" }}>
+            <h1
+              className={`font-bold leading-[1.1] mb-6 text-gray-900 dark:text-white overflow-diacritics-safe ${isVietnamese ? 'text-5xl lg:text-6xl' : 'text-6xl lg:text-7xl'}`}
+              style={{ fontFamily: isVietnamese ? "'Be Vietnam Pro', 'Inter', 'Noto Sans', sans-serif" : "'Outfit', sans-serif" }}
+            >
               {t('hero.heading1')}<br />
               <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400">{t('hero.heading2')}</span><br />
               {t('hero.heading3')}
@@ -202,10 +200,10 @@ export default function LandingPage() {
               const keys = ['llm', 'mrna', 'carbon', 'neuro'];
               const item = t(`insights.${keys[i]}`, { returnObjects: true });
               return (
-              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.2 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
                 <div className="flex items-start justify-between mb-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${ins.c}1A` }}>
-                    <TrendingUp size={14} style={{ color: ins.c }} />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center card-icon-accent" style={{ '--icon-accent': ins.c, background: `${ins.c}1A`, color: ins.c }}>
+                    <TrendingUp size={14} />
                   </div>
                   <span className="text-sm font-black font-mono" style={{ color: ins.c }}>{ins.growth}</span>
                 </div>
@@ -232,9 +230,9 @@ export default function LandingPage() {
               const keys = ['analytics', 'citations', 'aiRecs', 'viz', 'search', 'forecasting'];
               const item = t(`features.items.${keys[i]}`, { returnObjects: true });
               return (
-              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07 }} whileHover={{ y: -6, scale: 1.02 }} className="rounded-xl border p-6 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4" style={{ background: `${c}1A` }}>
-                  <Icon size={20} style={{ color: c }} />
+              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.2 }} whileHover={{ y: -6, scale: 1.02 }} className="rounded-xl border p-6 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 card-icon-accent" style={{ '--icon-accent': c, background: `${c}1A`, color: c }}>
+                  <Icon size={20} />
                 </div>
                 <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">{item.label}</h3>
                 <p className="text-xs leading-relaxed text-gray-600 dark:text-[#A0AEC0]">{item.desc}</p>
@@ -255,9 +253,9 @@ export default function LandingPage() {
           </motion.div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {APIS.map((api, i) => (
-              <motion.div key={api.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
+              <motion.div key={api.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.2 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-500/10">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-500/10 card-icon-glow">
                     <Globe size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <StatusPill status={api.status} />
@@ -301,7 +299,7 @@ export default function LandingPage() {
       <footer className="border-t py-8 px-6 bg-white dark:bg-[#131A2A] border-gray-200 dark:border-white/10 transition-colors">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600"><Microscope size={10} className="text-white" /></div>
+            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"><Microscope size={10} className="text-white" /></div>
             <span className="text-xs font-black text-gray-900 dark:text-white tracking-widest font-outfit">SCITRACK</span>
           </div>
           <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">{t('footer.copyright')}</p>

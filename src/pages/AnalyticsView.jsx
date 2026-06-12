@@ -1,28 +1,43 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FileText, TrendingUp, Users, Star } from 'lucide-react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Neo4jGraphCard from '../components/Neo4jGraphCard';
 
-const StatCard = ({ label, value, change, Icon, accent }) => (
-  <motion.div
-    whileHover={{ y: -4 }}
-    className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
-  >
-    <div className="flex items-start justify-between mb-2">
-      <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
-        <Icon size={18} />
+const StatCard = ({ label, value, change, Icon, accent }) => {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+      onHoverStart={() => setHovered(true)}
+      onHoverEnd={() => setHovered(false)}
+      className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
+    >
+      <div className="flex items-start justify-between mb-2">
+        <div
+          className="p-2 rounded-lg card-icon-glow"
+          style={{
+            background: hovered ? accent : `${accent}1A`,
+            color: hovered ? 'white' : accent,
+            transform: hovered ? 'scale(1.15)' : 'scale(1)',
+          }}
+        >
+          <Icon size={18} />
+        </div>
+        <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/5" style={{ color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>
+          {change}
+        </span>
       </div>
-      <span className="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 dark:bg-white/5" style={{ color: change.startsWith('+') ? '#00D1B2' : '#EF4444' }}>
-        {change}
-      </span>
-    </div>
-    <div>
-      <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
-      <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
-    </div>
-  </motion.div>
-);
+      <div>
+        <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
+        <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+      </div>
+    </motion.div>
+  );
+};
 
 const FIELD_DATA = [
   { n: 'AI & ML', v: 45, c: '#4F8CFF' },
