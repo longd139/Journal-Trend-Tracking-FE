@@ -48,7 +48,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.18 }}
-      className="rounded-xl p-5 border relative overflow-hidden cursor-default"
+      className="rounded-xl p-5 border relative overflow-hidden cursor-default group"
       style={{ background: '#1B2235', borderColor: 'rgba(255,255,255,0.07)' }}
     >
       <div
@@ -56,8 +56,8 @@ export function StatCard({ label, value, change, Icon, accent }) {
         style={{ background: accent }}
       />
       <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 rounded-lg" style={{ background: `${accent}1A` }}>
-          <Icon size={16} style={{ color: accent }} />
+        <div className="p-2.5 rounded-lg card-icon-accent" style={{ '--icon-accent': accent, background: `${accent}1A`, color: accent }}>
+          <Icon size={16} />
         </div>
         <span
           className="text-xs font-semibold flex items-center gap-0.5 font-mono"

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { User, Mail, Building, Shield, Save, CheckCircle2, AlertTriangle, ArrowRight, Moon, Sun, Monitor, Globe, RefreshCw } from 'lucide-react';
+import { User, Mail, Building, Shield, Save, CheckCircle2, AlertTriangle, ArrowRight, Globe, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -8,7 +8,6 @@ import { authAPI } from '../lib/api/auth.api';
 import { userAPI } from '../lib/api/user.api';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../utils/localization';
-import { useTheme } from '../hooks/useTheme';
 
 const LOCAL_UNIS = [
   'Văn Lang University',
@@ -33,9 +32,6 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [role, setRole] = useState('');
-
-  // Theme — managed by useTheme hook (supports 'dark' | 'light' | 'system')
-  const { theme, setTheme } = useTheme();
 
   // Language preview state
   const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
@@ -137,10 +133,6 @@ export default function SettingsPage() {
     return () => clearTimeout(timer);
   }, [editForm.institution]);
 
-  const handleThemeChange = (newTheme) => {
-    setTheme(newTheme);
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditForm((prev) => ({
@@ -229,8 +221,7 @@ export default function SettingsPage() {
         {/* Avatar Banner */}
         <div className="flex items-center gap-6 mb-8 pb-8 border-b border-gray-200 dark:border-white/5 transition-colors">
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0 uppercase shadow-lg"
-            style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+            className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black text-white shrink-0 uppercase shadow-lg bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
           >
             {formData.fullName ? formData.fullName.substring(0, 2) : 'U'}
           </div>
@@ -381,7 +372,7 @@ export default function SettingsPage() {
               disabled={loading}
               className="px-6 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:scale-105 transition-all shadow-lg hover:shadow-[#4F8CFF]/20"
               style={{
-                background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
+                background: 'linear-gradient(135deg, #3B82F6, #8B5CF6, #14B8A6)',
                 opacity: loading ? 0.7 : 1,
               }}
             >
@@ -457,55 +448,6 @@ export default function SettingsPage() {
           >
             {t('language.resetDefault')}
           </button>
-        </div>
-      </motion.div>
-
-      {/* Theme Card */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-        className="rounded-2xl border p-6 shadow-xl bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300"
-      >
-        <div className="pt-0">
-          <label className="text-xs font-semibold text-gray-700 dark:text-white block mb-3">
-            {t('theme.label')}
-          </label>
-          <div className="flex items-center gap-3">
-            {/* Light */}
-            <button
-              type="button"
-              onClick={() => handleThemeChange('light')}
-              className={`flex-1 py-3 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition-all ${theme === 'light'
-                  ? 'bg-amber-100 border-amber-400 text-amber-700 shadow-sm'
-                  : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
-                }`}
-            >
-              <Sun size={16} /> {t('theme.light')}
-            </button>
-            {/* System (Auto) */}
-            <button
-              type="button"
-              onClick={() => handleThemeChange('system')}
-              className={`flex-1 py-3 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition-all ${theme === 'system'
-                  ? 'bg-purple-100 dark:bg-purple-500/20 border-purple-400 dark:border-purple-500 text-purple-700 dark:text-purple-400 shadow-sm'
-                  : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
-                }`}
-            >
-              <Monitor size={16} /> {t('theme.system')}
-            </button>
-            {/* Dark */}
-            <button
-              type="button"
-              onClick={() => handleThemeChange('dark')}
-              className={`flex-1 py-3 px-4 rounded-xl border text-sm font-bold flex items-center justify-center gap-2 transition-all ${theme === 'dark'
-                  ? 'bg-blue-900/40 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/10'
-                  : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
-                }`}
-            >
-              <Moon size={16} /> {t('theme.dark')}
-            </button>
-          </div>
         </div>
       </motion.div>
 

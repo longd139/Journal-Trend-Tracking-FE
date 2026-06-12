@@ -45,8 +45,7 @@ function Sidebar({ role, activeTab, setTab, navigate }) {
         style={{ borderColor: 'rgba(255,255,255,0.07)' }}
       >
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
         >
           <Microscope size={14} className="text-white" />
         </div>

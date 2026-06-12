@@ -15,9 +15,12 @@ import {
   Bell,
   Bookmark,
   AlertTriangle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../lib/api/user.api';
+import { useTheme } from '../hooks/useTheme';
 
 // 1. SIDEBAR
 function Sidebar({ role, activeTab, navigate, user }) {
@@ -63,13 +66,12 @@ function Sidebar({ role, activeTab, navigate, user }) {
         className="p-5 border-b border-gray-200 dark:border-white/5 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
       >
         <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-md"
-          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
         >
           <Microscope size={14} className="text-white" />
         </div>
         <div>
-          <div className="text-xs font-black text-gray-900 dark:text-white tracking-widest">
+          <div className="text-xs font-black text-gray-900 dark:text-white tracking-widest font-outfit">
             {t('app.name')}
           </div>
           <div className="text-[10px] mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
@@ -104,10 +106,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
 
         <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-[#1B2235] border border-gray-100 dark:border-transparent transition-colors">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 shadow-sm"
-            style={{
-              background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)',
-            }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 shadow-sm bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
           >
             {getInitials(user?.fullName)}
           </div>
@@ -148,15 +147,12 @@ function Sidebar({ role, activeTab, navigate, user }) {
 }
 
 // 2. TOPBAR
-function TopBar({ title, subtitle, user, role }) {
-  const navigate = useNavigate();
+function TopBar({ title, subtitle }) {
   const { t } = useTranslation('common');
+  const { resolvedTheme, setTheme } = useTheme();
 
-  const getInitials = (name) => {
-    if (!name) return 'U';
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  const toggleTheme = () => {
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
   return (
@@ -187,33 +183,21 @@ function TopBar({ title, subtitle, user, role }) {
           />
         </div>
 
-        {/* Notification Bell */}
-        <NotificationBell />
-
-        {/* Divider */}
-        <div className="h-6 w-px bg-gray-200 dark:bg-white/10 mx-1"></div>
-
-        {/* Avatar area */}
+        {/* Theme Toggle */}
         <button
-          onClick={() => navigate(`/${role}/settings`)}
-          className="relative flex items-center justify-center w-8 h-8 rounded-full transition-transform hover:scale-105 shadow-md"
-          style={{ background: 'linear-gradient(135deg, #4F8CFF, #8B5CF6)' }}
-          title={user?.isVerified ? t('topbar.profileSettings') : t('topbar.verifyEmail')}
+          onClick={toggleTheme}
+          className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/20"
+          title={resolvedTheme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
         >
-          <span className="text-[11px] font-black text-white">
-            {getInitials(user?.fullName)}
-          </span>
-
-          {/* Warning indicator */}
-          {user && user.isVerified === false && (
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-              <span className="relative flex items-center justify-center rounded-full h-3.5 w-3.5 bg-amber-500 border-2 border-white dark:border-[#0B1020] text-white dark:text-[#0B1020]">
-                <AlertTriangle size={8} strokeWidth={4} />
-              </span>
-            </span>
+          {resolvedTheme === 'dark' ? (
+            <Sun size={16} />
+          ) : (
+            <Moon size={16} />
           )}
         </button>
+
+        {/* Notification Bell */}
+        <NotificationBell />
       </div>
     </header>
   );
@@ -292,8 +276,6 @@ export default function DashboardLayout({ children }) {
         <TopBar
           title={currentHeader.title}
           subtitle={currentHeader.sub}
-          user={user}
-          role={role}
         />
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {children}

@@ -10,13 +10,17 @@ import {
   ArrowRight,
   ArrowLeft,
   Zap,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { PARTICLES } from '../../constants/mockData';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function AuthPage({ mode = 'register' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation('auth');
+  const { resolvedTheme, setTheme } = useTheme();
 
   const currentMode = location.state?.mode || mode;
   const [selectedRole, setSelectedRole] = useState(null);
@@ -81,6 +85,15 @@ export default function AuthPage({ mode = 'register' }) {
           />
         ))}
       </div>
+
+      {/* ─── Theme Toggle ────────────────────────────────────────────── */}
+      <button
+        onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-white/70 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-white dark:hover:bg-white/20 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 shadow-sm"
+        title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      >
+        {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+      </button>
 
       {/* ═══════════════════════════════════════════════════════════════
          LEFT PANEL — Academic Branding
@@ -240,22 +253,14 @@ export default function AuthPage({ mode = 'register' }) {
               onClick={() => {
                 navigate('/register', { state: { role: selectedRole } });
               }}
-              className="relative w-full py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 mt-8 overflow-hidden transition-all duration-300"
-              style={{ opacity: selectedRole ? 1 : 0.5 }}
+              className={`w-full py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 mt-8 transition-all duration-300 shadow-lg shadow-blue-500/20 ${
+                selectedRole
+                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:opacity-90'
+                  : 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500'
+              }`}
             >
-              {selectedRole ? (
-                <>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-teal-400" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 hover:opacity-100 transition-opacity duration-300" />
-                  <span className="relative z-10 flex items-center gap-2 text-white shadow-lg">
-                    {t('roleSelect.continue')} <ArrowRight size={16} />
-                  </span>
-                </>
-              ) : (
-                <span className="flex items-center gap-2 text-gray-400 dark:text-gray-500">
-                  {t('roleSelect.continue')} <ArrowRight size={16} />
-                </span>
-              )}
+              {t('roleSelect.continue')}
+              {selectedRole ? <ArrowRight size={16} /> : <ArrowRight size={16} />}
             </motion.button>
           </div>
 

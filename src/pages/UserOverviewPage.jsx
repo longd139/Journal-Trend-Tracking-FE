@@ -7,10 +7,11 @@ import { FileText, TrendingUp, Hash, Brain, Filter, Download, Star, Users, Bookm
 const StatCard = ({ label, value, change, Icon, accent }) => (
   <motion.div
     whileHover={{ y: -4 }}
-    className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
+    transition={{ duration: 0.2 }}
+    className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none group"
   >
     <div className="flex items-start justify-between mb-2">
-      <div className="p-2 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
+      <div className="p-2 rounded-lg card-icon-accent" style={{ '--icon-accent': accent, background: `${accent}1A`, color: accent }}>
         <Icon size={18} />
       </div>
       <span

@@ -25,7 +25,9 @@
   "topbar": {
     "searchPlaceholder": "Tìm kiếm bài báo, chủ đề…",
     "profileSettings": "Cài đặt hồ sơ",
-    "verifyEmail": "Vui lòng xác minh email"
+    "verifyEmail": "Vui lòng xác minh email",
+    "switchToLight": "Chuyển sang chế độ sáng",
+    "switchToDark": "Chuyển sang chế độ tối"
   },
   "status": {
     "active": "Hoạt động",
