@@ -54,38 +54,50 @@ export default function SearchPapers() {
       setIsLoading(true);
       setError(null);
       try {
-        const apiParams = {
-          search: query || undefined,
-          startYear: filters.startYear || undefined,
-          endYear: filters.endYear || undefined,
-          field: filters.fields.length > 0 ? filters.fields[0] : undefined,
-          minCitations: filters.minCitations || undefined,
-          openAccess: filters.openAccess ? true : undefined,
-          page: currentPage,
-          size: 5,
-        };
+        // Nếu có query thì gọi API search (POST), ngược lại gọi API lấy dữ liệu có sẵn (GET)
+        if (query && query.trim()) {
+          const requestBody = {
+            query: query.trim(),
+            authorName: '',
+            journalId: '',
+            page: currentPage,
+          };
 
-        const response = await paperAPI.search(apiParams);
+          const response = await paperAPI.searchPapers(requestBody);
 
-        if (response && response.papers && Array.isArray(response.papers)) {
-          const validPapers = response.papers.filter(
-            (p) => p !== null && p !== undefined,
-          );
-          setPapers(validPapers);
-          setTotalPages(response.totalPages || 1);
-          setTotalElements(response.totalElements || validPapers.length);
-        } else if (Array.isArray(response)) {
-          const validPapers = response.filter(
-            (p) => p !== null && p !== undefined,
-          );
-          setPapers(validPapers);
-          setTotalPages(Math.ceil(validPapers.length / 5) || 1);
-          setTotalElements(validPapers.length);
+          // Response structure: { status, message, data: { papers, totalElements, totalPages, currentPage, pageSize, hasNext, hasPrev }, timestamp }
+          if (response && response.data) {
+            const { papers, totalElements, totalPages: respTotalPages } = response.data;
+            const validPapers = Array.isArray(papers) ? papers.filter((p) => p !== null && p !== undefined) : [];
+            setPapers(validPapers);
+            setTotalPages(respTotalPages || 1);
+            setTotalElements(totalElements || validPapers.length);
+          } else {
+            setPapers([]);
+            setTotalPages(1);
+            setTotalElements(0);
+          }
         } else {
-          const validPapers = response?.list || [];
-          setPapers(validPapers);
-          setTotalPages(response?.totalPages || 1);
-          setTotalElements(response?.totalElements || validPapers.length);
+          // Gọi API GET /api/v1/papers chỉ với page + size để hiển thị dữ liệu có sẵn
+          const apiParams = { page: currentPage, size: 5 };
+          const response = await paperAPI.search(apiParams);
+
+          if (response && response.papers && Array.isArray(response.papers)) {
+            const validPapers = response.papers.filter((p) => p !== null && p !== undefined);
+            setPapers(validPapers);
+            setTotalPages(response.totalPages || 1);
+            setTotalElements(response.totalElements || validPapers.length);
+          } else if (Array.isArray(response)) {
+            const validPapers = response.filter((p) => p !== null && p !== undefined);
+            setPapers(validPapers);
+            setTotalPages(Math.ceil(validPapers.length / 5) || 1);
+            setTotalElements(validPapers.length);
+          } else {
+            const validPapers = response?.list || [];
+            setPapers(validPapers);
+            setTotalPages(response?.totalPages || 1);
+            setTotalElements(response?.totalElements || validPapers.length);
+          }
         }
       } catch (err) {
         console.error('API error:', err);
@@ -106,7 +118,7 @@ export default function SearchPapers() {
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [query, filters, currentPage]);
+  }, [query, currentPage]);
 
   useEffect(() => {
     const localData = sessionStorage.getItem(storageKey);

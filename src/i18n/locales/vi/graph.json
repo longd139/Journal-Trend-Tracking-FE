@@ -7,15 +7,14 @@
   "collapse": "Thu gọn",
   "loading": "Đang xây dựng đồ thị tri thức…",
   "noResults": "Không tìm thấy kết quả cho từ khóa này.",
+  "graphNotReady": "Dữ liệu đồ thị chưa sẵn sàng. Neo4j có thể đang tạm dừng — hãy thử lại sau.",
+  "subtitleWithCount": "Tìm thấy {{count}} bài báo — mối quan hệ bài báo ↔ từ khóa",
   "fetchError": "Không thể tải dữ liệu đồ thị.",
   "idleHint": "Nhập từ khóa phía trên để khám phá đồ thị tri thức",
   "retry": "Thử lại",
   "legend": {
     "paper": "Bài báo",
-    "author": "Tác giả",
-    "keyword": "Từ khóa",
-    "journal": "Tạp chí",
-    "field": "Lĩnh vực"
+    "keyword": "Từ khóa"
   },
   "tip": "Nhấn đúp vào nút để lấy nét · Cuộn để phóng to"
 }

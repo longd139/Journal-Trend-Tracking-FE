@@ -12,83 +12,58 @@ function truncate(text, max) {
   return text.length > max ? text.slice(0, max) + '…' : text;
 }
 
-function transformToGraph(papers) {
-  const nodesMap = new Map();
-  const edges = [];
+/**
+ * Chuyển đổi dữ liệu từ API 2 (/api/graphs/keyword) sang định dạng vis-network.
+ * API 2 trả về: { nodes: [{id, label, group: "PAPER"|"KEYWORD", size}], links: [{source, target, label}] }
+ */
+function transformGraphData(graphData) {
+  const { nodes = [], links = [] } = graphData;
 
-  for (const paper of papers) {
-    const paperId = `paper_${paper.paperId}`;
-    if (!nodesMap.has(paperId)) {
-      nodesMap.set(paperId, {
-        id: paperId,
-        label: truncate(paper.title, 45),
-        group: 'paper',
-        value: Math.max(paper.citationCount || 1, 1),
-        title: `<b>${paper.title}</b><br/>Citations: ${paper.citationCount ?? '—'}<br/>Year: ${paper.pubYear ?? '—'}<br/>DOI: ${paper.doi || '—'}`,
-      });
-    }
+  const visNodes = nodes.map((node) => {
+    const size = node.size || 1;
+    return {
+      id: node.id,
+      label: truncate(node.label, 45),
+      group: node.group?.toLowerCase() || 'paper',
+      value: Math.max(size, 1),
+      title: `<b>${node.label}</b><br/>Group: ${node.group}<br/>Weight: ${size}`,
+    };
+  });
 
-    // Field node
-    if (paper.fieldId && paper.fieldName) {
-      const fId = `field_${paper.fieldId}`;
-      if (!nodesMap.has(fId)) {
-        nodesMap.set(fId, { id: fId, label: paper.fieldName, group: 'field', title: `Field: ${paper.fieldName}` });
-      }
-      edges.push({ from: paperId, to: fId, dashes: true, width: 0.8 });
-    }
+  const visEdges = links.map((link) => ({
+    from: link.source,
+    to: link.target,
+    label: link.label,
+    color: { color: '#00D1B260' },
+    width: 0.6,
+  }));
 
-    // Journal node
-    if (paper.journalId && paper.journalName) {
-      const jId = `journal_${paper.journalId}`;
-      if (!nodesMap.has(jId)) {
-        nodesMap.set(jId, { id: jId, label: truncate(paper.journalName, 30), group: 'journal', title: `Journal: ${paper.journalName}` });
-      }
-      edges.push({ from: paperId, to: jId, width: 0.8 });
-    }
-
-    // Author nodes
-    for (const author of paper.authors || []) {
-      if (!author.fullName) continue;
-      const aId = `author_${author.fullName}`;
-      if (!nodesMap.has(aId)) {
-        nodesMap.set(aId, {
-          id: aId,
-          label: author.fullName,
-          group: 'author',
-          value: Math.max(author.hindex || 1, 1),
-          title: `<b>${author.fullName}</b><br/>Affiliation: ${author.affiliation || '—'}<br/>H-index: ${author.hindex ?? '—'}<br/>Citations: ${author.totalCitations ?? '—'}${author.isCorresponding ? '<br/>📧 Corresponding Author' : ''}`,
-        });
-      }
-      edges.push({ from: paperId, to: aId, color: { color: '#8B5CF660' }, width: 1 });
-    }
-
-    // Keyword nodes
-    for (const kw of paper.keywords || []) {
-      if (!kw.keywordText) continue;
-      const kwId = `keyword_${kw.keywordText.toLowerCase()}`;
-      if (!nodesMap.has(kwId)) {
-        nodesMap.set(kwId, {
-          id: kwId,
-          label: kw.keywordText,
-          group: 'keyword',
-          value: Math.max((kw.relevanceScore || 0.5) * 10, 1),
-          title: `Keyword: <b>${kw.keywordText}</b><br/>Relevance: ${kw.relevanceScore?.toFixed(3) ?? '—'}`,
-        });
-      }
-      edges.push({ from: paperId, to: kwId, color: { color: '#00D1B260' }, width: 0.6 });
-    }
-  }
-
-  return { nodes: new DataSet([...nodesMap.values()]), edges: new DataSet(edges) };
+  return {
+    nodes: new DataSet(visNodes),
+    edges: new DataSet(visEdges),
+  };
 }
 
-// ─── Vis-network config động theo Theme ──────────────────────────────────────
+// ─── Vis-network config ──────────────────────────────────────────────────────
 const getGraphOptions = (isDark) => ({
   nodes: {
-    font: { color: isDark ? '#E2E8F0' : '#1F2937', size: 12, face: '"Be Vietnam Pro", Inter, "Noto Sans", system-ui, sans-serif', strokeWidth: 0 },
+    font: {
+      color: isDark ? '#E2E8F0' : '#1F2937',
+      size: 12,
+      face: '"Be Vietnam Pro", Inter, "Noto Sans", system-ui, sans-serif',
+      strokeWidth: 0,
+    },
     borderWidth: 2,
-    shadow: { enabled: true, color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)', size: 6 },
-    scaling: { min: 8, max: 50, label: { enabled: true, min: 10, max: 18 } },
+    shadow: {
+      enabled: true,
+      color: isDark ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0.1)',
+      size: 6,
+    },
+    scaling: {
+      min: 8,
+      max: 50,
+      label: { enabled: true, min: 10, max: 18 },
+    },
   },
   edges: {
     width: 1,
@@ -99,28 +74,21 @@ const getGraphOptions = (isDark) => ({
   groups: {
     paper: {
       shape: 'dot',
-      color: { background: '#4F8CFF', border: '#4F8CFF', highlight: { background: '#6BA0FF', border: '#6BA0FF' } },
+      color: {
+        background: '#4F8CFF',
+        border: '#4F8CFF',
+        highlight: { background: '#6BA0FF', border: '#6BA0FF' },
+      },
       font: { size: 13, color: '#FFFFFF' },
-    },
-    author: {
-      shape: 'triangle',
-      color: { background: '#8B5CF6', border: '#8B5CF6', highlight: { background: '#A87DFF', border: '#A87DFF' } },
-      font: { size: 11, color: '#FFFFFF' },
     },
     keyword: {
       shape: 'diamond',
-      color: { background: '#00D1B2', border: '#00D1B2', highlight: { background: '#33DDC5', border: '#33DDC5' } },
+      color: {
+        background: '#00D1B2',
+        border: '#00D1B2',
+        highlight: { background: '#33DDC5', border: '#33DDC5' },
+      },
       font: { size: 10, color: '#FFFFFF' },
-    },
-    journal: {
-      shape: 'square',
-      color: { background: '#F59E0B', border: '#F59E0B', highlight: { background: '#F7B32B', border: '#F7B32B' } },
-      font: { size: 11, color: '#FFFFFF' },
-    },
-    field: {
-      shape: 'square',
-      color: { background: '#EF4444', border: '#EF4444', highlight: { background: '#F26363', border: '#F26363' } },
-      font: { size: 11, color: '#FFFFFF' },
     },
   },
   physics: {
@@ -134,7 +102,13 @@ const getGraphOptions = (isDark) => ({
     },
     stabilization: { iterations: 200, updateInterval: 25 },
   },
-  interaction: { hover: true, tooltipDelay: 150, zoomView: true, dragView: true, navigationButtons: false },
+  interaction: {
+    hover: true,
+    tooltipDelay: 150,
+    zoomView: true,
+    dragView: true,
+    navigationButtons: false,
+  },
   layout: { improvedLayout: true },
 });
 
@@ -145,10 +119,11 @@ export default function Neo4jGraphCard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState(false);
+  const [paperCount, setPaperCount] = useState(null); // số papers tìm thấy từ API 1
 
   const containerRef = useRef(null);
   const networkRef = useRef(null);
-  const dataRef = useRef(null); // track current graph data for resize
+  const dataRef = useRef(null);
 
   const destroyNetwork = useCallback(() => {
     if (networkRef.current) {
@@ -157,25 +132,24 @@ export default function Neo4jGraphCard() {
     }
   }, []);
 
-  const buildGraph = useCallback((papers) => {
+  const buildGraph = useCallback((graphData) => {
     destroyNetwork();
     if (!containerRef.current) return;
 
-    const { nodes, edges } = transformToGraph(papers);
+    const { nodes, edges } = transformGraphData(graphData);
     dataRef.current = { nodes, edges };
 
-    // Kiểm tra xem web đang ở chế độ Dark hay Light để set màu đồ thị
     const isDark = document.documentElement.classList.contains('dark');
     const options = getGraphOptions(isDark);
 
     networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
 
-    // Fit to container after stabilization
     networkRef.current.once('stabilizationIterationsDone', () => {
-      networkRef.current?.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
+      networkRef.current?.fit({
+        animation: { duration: 600, easingFunction: 'easeInOutQuad' },
+      });
     });
 
-    // Double-click to focus
     networkRef.current.on('doubleClick', (params) => {
       if (params.nodes.length > 0) {
         networkRef.current?.focus(params.nodes[0], {
@@ -191,16 +165,19 @@ export default function Neo4jGraphCard() {
     return () => destroyNetwork();
   }, [destroyNetwork]);
 
-  // Handle expand toggle → redraw after DOM resize
+  // Handle expand toggle → redraw
   useEffect(() => {
     if (networkRef.current && dataRef.current) {
       const timer = setTimeout(() => {
-        networkRef.current?.fit({ animation: { duration: 400, easingFunction: 'easeInOutQuad' } });
+        networkRef.current?.fit({
+          animation: { duration: 400, easingFunction: 'easeInOutQuad' },
+        });
       }, 350);
       return () => clearTimeout(timer);
     }
   }, [expanded]);
 
+  // ── Submit: 2-step flow ──────────────────────────────────────────────────
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmed = keyword.trim();
@@ -208,18 +185,32 @@ export default function Neo4jGraphCard() {
 
     setLoading(true);
     setError('');
+    setPaperCount(null);
 
     try {
-      const data = await graphAPI.searchGraph(trimmed);
-      const papers = data?.papers ?? [];
+      // Bước 1: Gọi search API để trigger pipeline (Neo4j → OpenAlex → lưu SQL + Neo4j)
+      const searchResult = await graphAPI.searchGraph(trimmed);
+      const totalPapers = searchResult?.totalElements ?? 0;
+      setPaperCount(totalPapers);
 
-      if (papers.length === 0) {
+      if (totalPapers === 0) {
         setError(t('noResults'));
         destroyNetwork();
         return;
       }
 
-      buildGraph(papers);
+      // Bước 2: Gọi graph API để lấy dữ liệu visualization từ Neo4j
+      // Lúc này Neo4j đã có data (từ pipeline hoặc từ cache)
+      const graphData = await graphAPI.getKeywordGraph(trimmed);
+
+      if (!graphData?.nodes?.length) {
+        // Neo4j chưa có data (AuraDB paused, v.v.) → fallback: hiển thị thông báo
+        setError(t('graphNotReady'));
+        destroyNetwork();
+        return;
+      }
+
+      buildGraph(graphData);
     } catch (err) {
       console.error('Graph fetch error:', err);
       const msg = err?.response?.data?.message ?? err?.message ?? t('fetchError');
@@ -233,13 +224,19 @@ export default function Neo4jGraphCard() {
   const cardHeight = expanded ? 'h-[620px]' : 'h-[420px]';
 
   return (
-    <div className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none`}>
+    <div
+      className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
         <div>
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('title')}</h3>
+          <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+            {t('title')}
+          </h3>
           <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
-            {t('subtitle')}
+            {paperCount !== null
+              ? t('subtitleWithCount', { count: paperCount })
+              : t('subtitle')}
           </p>
         </div>
         <button
@@ -254,7 +251,10 @@ export default function Neo4jGraphCard() {
       {/* Search bar */}
       <form onSubmit={handleSubmit} className="px-5 pb-3 shrink-0 flex gap-2">
         <div className="relative flex-1">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]" />
+          <Search
+            size={13}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]"
+          />
           <input
             type="text"
             placeholder={t('searchPlaceholder')}
@@ -281,7 +281,10 @@ export default function Neo4jGraphCard() {
         {loading && (
           <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 dark:bg-[#0B1020]/80 backdrop-blur-sm">
             <div className="flex flex-col items-center gap-3">
-              <Loader2 size={28} className="animate-spin text-blue-500 dark:text-[#4F8CFF]" />
+              <Loader2
+                size={28}
+                className="animate-spin text-blue-500 dark:text-[#4F8CFF]"
+              />
               <span className="text-xs font-medium text-gray-600 dark:text-[#A0AEC0]">
                 {t('loading')}
               </span>
@@ -323,10 +326,7 @@ export default function Neo4jGraphCard() {
       {/* Legend */}
       <div className="px-5 pb-4 shrink-0 flex flex-wrap gap-3 text-[10px] font-medium">
         <LegendItem color="#4F8CFF" label={t('legend.paper')} shape="●" />
-        <LegendItem color="#8B5CF6" label={t('legend.author')} shape="▲" />
         <LegendItem color="#00D1B2" label={t('legend.keyword')} shape="◆" />
-        <LegendItem color="#F59E0B" label={t('legend.journal')} shape="■" />
-        <LegendItem color="#EF4444" label={t('legend.field')} shape="■" />
         <span className="ml-auto text-gray-500 dark:text-[#6B7280]">
           {t('tip')}
         </span>
