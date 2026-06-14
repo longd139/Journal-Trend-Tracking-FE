@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
@@ -49,6 +49,11 @@ export default function SearchPapers() {
   const currentRole = sessionStorage.getItem('userRole');
   const storageKey = `scitrack_bookmarks_${currentRole}`;
 
+  // Reset về trang đầu khi từ khóa hoặc bộ lọc thay đổi
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [query, filters]);
+
   useEffect(() => {
     const loadPapersData = async () => {
       setIsLoading(true);
@@ -67,18 +72,18 @@ export default function SearchPapers() {
 
           // Response structure: { status, message, data: { papers, totalElements, totalPages, currentPage, pageSize, hasNext, hasPrev }, timestamp }
           if (response && response.data) {
-            const { papers, totalElements, totalPages: respTotalPages } = response.data;
+            const { papers, totalElements: respTotalElements, totalPages: respTotalPages } = response.data;
             const validPapers = Array.isArray(papers) ? papers.filter((p) => p !== null && p !== undefined) : [];
             setPapers(validPapers);
             setTotalPages(respTotalPages || 1);
-            setTotalElements(totalElements || validPapers.length);
+            setTotalElements(respTotalElements || validPapers.length);
           } else {
             setPapers([]);
             setTotalPages(1);
             setTotalElements(0);
           }
         } else {
-          // Gọi API GET /api/v1/papers chỉ với page + size để hiển thị dữ liệu có sẵn
+          // Gọi API GET /api/v1/papers chỉ với page + size để hiển thị dữ liệu có sẵn (Cố định hiển thị 5 bài báo)
           const apiParams = { page: currentPage, size: 5 };
           const response = await paperAPI.search(apiParams);
 
@@ -118,7 +123,7 @@ export default function SearchPapers() {
     }, 400);
 
     return () => clearTimeout(delayDebounce);
-  }, [query, currentPage]);
+  }, [query, filters, currentPage]);
 
   useEffect(() => {
     const localData = sessionStorage.getItem(storageKey);
@@ -174,7 +179,7 @@ export default function SearchPapers() {
           className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
             currentPage === i
               ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
-              : 'bg-transparent text-slate-400 hover:bg-white/5 hover:text-white border border-white/[0.08]'
+              : 'bg-transparent text-slate-400 hover:bg-white/5 hover:text-white border border-gray-200 dark:border-white/10'
           }`}
         >
           {i + 1}
@@ -239,30 +244,29 @@ export default function SearchPapers() {
       </div>
 
       {/* Two-column layout */}
-      <div className="flex flex-col lg:flex-row items-stretch gap-6 pt-2 w-full">
-        {/* Left Column */}
-        <div className="w-full lg:w-[320px] shrink-0 flex flex-col justify-between gap-4">
-          <div className="flex-1 flex flex-col">
-            <AdvancedFilter
-              userRole={currentRole}
-              filters={filters}
-              setFilters={setFilters}
-              clearFilters={clearAllFilters}
-              fieldData={FIELD_DATA}
-            />
-          </div>
+      <div className="flex flex-col lg:flex-row items-start gap-6 pt-2 w-full">
+        
+        {/* Left Column: Fixed layout cho bộ lọc và từ khóa gợi ý */}
+        <div className="w-full lg:w-[320px] shrink-0 space-y-4">
+          <AdvancedFilter
+            userRole={currentRole}
+            filters={filters}
+            setFilters={setFilters}
+            clearFilters={clearAllFilters}
+            fieldData={FIELD_DATA}
+          />
 
-          <div className="rounded-xl p-4 space-y-3 transition-colors duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
+          <div className="rounded-xl p-5 space-y-4 transition-all duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
             <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">
               {t('suggestedKeywords')}
             </h5>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {SUGGESTED_KEYWORDS.map((kw) => (
                 <button
                   key={kw}
                   type="button"
                   onClick={() => setQuery(kw)}
-                  className={`text-[11px] px-2.5 py-1 rounded-md border transition-all duration-200 text-left truncate max-w-full ${
+                  className={`text-[11px] px-2.5 py-1.5 rounded-lg border transition-all duration-200 text-left truncate max-w-full ${
                     query.toLowerCase() === kw.toLowerCase()
                       ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40 font-medium'
                       : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:bg-[#121824]/60 dark:text-slate-300 dark:border-white/5 dark:hover:bg-white/5 dark:hover:text-white'
@@ -276,9 +280,9 @@ export default function SearchPapers() {
         </div>
 
         {/* Right Column */}
-        <div className="flex-1 min-w-0 space-y-3 w-full flex flex-col">
+        <div className="flex-1 min-w-0 space-y-4 w-full flex flex-col">
           <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
-            {t('results.found', { count: papers.length })}
+            {t('results.found', { count: totalElements })}
           </p>
 
           <div className="space-y-3 flex-1">
@@ -318,14 +322,14 @@ export default function SearchPapers() {
               ))}
           </div>
 
-          {/* THANH PHÂN TRANG */}
-          {/* {!isLoading && !error && totalPages > 1 && (
+          {/* Thanh phân trang bằng Flexbox hiện đại */}
+          {!isLoading && !error && totalPages > 1 && (
             <div className="flex items-center justify-center gap-1.5 pt-6 pb-2">
               <button
                 type="button"
                 disabled={currentPage === 0}
                 onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
               >
                 <ChevronLeft size={14} /> Prev
               </button>
@@ -337,15 +341,13 @@ export default function SearchPapers() {
               <button
                 type="button"
                 disabled={currentPage === totalPages - 1}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
-                }
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-white/[0.08] hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
               >
                 Next <ChevronRight size={14} />
               </button>
             </div>
-          )} */}
+          )}
         </div>
       </div>
     </div>

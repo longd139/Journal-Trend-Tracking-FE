@@ -6,10 +6,10 @@ import {
   ExternalLink,
   BookOpen,
   Link2,
+  Calendar,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -22,19 +22,44 @@ export function PaperItemCard({
   onToggleBookmark,
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
-  const { t } = useTranslation('search');
 
   if (!paper) return null;
 
-  // Chuẩn hóa dữ liệu từ API response
+  // 1. Chuẩn hóa dữ liệu từ API response
   const field = paper.fieldName || paper.field || '';
   const year = paper.pubYear || paper.year || '';
   const citations = paper.citationCount ?? paper.citations ?? 0;
   const journal = paper.journalName || paper.journal || '';
   const abstract = paper.abstractText || paper.abstract || '';
-  const authors = Array.isArray(paper.authors)
-    ? paper.authors.map((a) => a.fullName).join(', ')
-    : paper.authors || '';
+  
+  // 2. Sửa lỗi lấy Tác giả: Hỗ trợ object {fullName}, chuỗi thuần, hoặc object {name}
+  let authors = '';
+  if (Array.isArray(paper.authors) && paper.authors.length > 0) {
+    authors = paper.authors
+      .map((a) => {
+        if (typeof a === 'string') return a;
+        return a.fullName || a.name || '';
+      })
+      .filter(Boolean)
+      .join(', ');
+  } else if (typeof paper.authors === 'string') {
+    authors = paper.authors;
+  }
+  
+  // Nếu vẫn không tìm thấy tác giả, hiển thị 'Unknown Author' làm fallback
+  if (!authors.trim()) {
+    authors = 'Unknown Author';
+  }
+
+  // 3. Xử lý mảng Keywords an toàn
+  let keywordsArray = [];
+  if (Array.isArray(paper.keywords)) {
+    keywordsArray = paper.keywords;
+  } else if (typeof paper.keywords === 'string' && paper.keywords.trim()) {
+    keywordsArray = paper.keywords.split(',').map((k) => k.trim());
+  } else if (field) {
+    keywordsArray = [field];
+  }
 
   const handleRedirect = () => {
     if (!paper?.title) return;
@@ -48,6 +73,7 @@ export function PaperItemCard({
     const url = paper.sourceUrl || paper.downloadUrl;
     if (url) window.open(url, '_blank');
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -57,38 +83,42 @@ export function PaperItemCard({
     >
       <Card className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07] p-5 shadow-sm dark:shadow-none transition-all duration-300">
         <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
-          <div className="flex-1 space-y-3 w-full">
-            {/* Tag Badges */}
-            <div className="flex items-center gap-2 flex-wrap">
+          
+          {/* KHỐI NỘI DUNG BÊN TRÁI */}
+          <div className="flex-1 space-y-2.5 w-full">
+            
+            {/* 1. Tên tác giả + Badge phân loại (Hàng trên cùng) */}
+            <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-slate-400">
+              <span className="font-semibold text-gray-800 dark:text-slate-300">
+                {authors}
+              </span>
               {field && (
-                <Badge
-                  variant="outline"
-                  className="text-[10px] font-bold uppercase tracking-wide"
-                  style={{
-                    backgroundColor: `${badgeColor}15`,
-                    color: badgeColor,
-                    borderColor: `${badgeColor}35`,
-                  }}
-                >
-                  {field}
-                </Badge>
-              )}
-              {year && (
-                <span className="text-xs text-gray-500 dark:text-slate-400 font-mono">
-                  {year}
-                </span>
+                <>
+                  <span className="text-gray-300 dark:text-white/10">•</span>
+                  <Badge
+                    variant="outline"
+                    className="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0"
+                    style={{
+                      backgroundColor: `${badgeColor}15`,
+                      color: badgeColor,
+                      borderColor: `${badgeColor}35`,
+                    }}
+                  >
+                    {field}
+                  </Badge>
+                </>
               )}
               {citations > 50000 && (
                 <Badge
                   variant="secondary"
-                  className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 text-[10px]"
+                  className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 text-[9px] font-bold"
                 >
                   Classic
                 </Badge>
               )}
             </div>
 
-            {/* Title */}
+            {/* 2. Tiêu đề bài báo */}
             <h4
               onClick={handleRedirect}
               className="text-base font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
@@ -96,11 +126,12 @@ export function PaperItemCard({
               {paper.title || 'Untitled Paper'}
             </h4>
 
-            {/* Authors & Journal Metadata */}
+            {/* 3. Đã chuyển: Năm bài báo hiển thị ngay dưới tiêu đề kèm Journal & DOI */}
             <div className="space-y-1">
-              {authors && (
-                <p className="text-xs text-gray-700 dark:text-slate-300 font-medium">
-                  {authors}
+              {year && (
+                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 font-mono">
+                  <Calendar size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                  <span>{year}</span>
                 </p>
               )}
               {journal && (
@@ -130,13 +161,15 @@ export function PaperItemCard({
               )}
             </div>
 
-            {/* Abstract Section */}
+            {/* 4. Khối nội dung tóm tắt (Abstract) */}
             {abstract && (
-              <div className="bg-gray-50 dark:bg-[#121824]/40 border border-gray-200 dark:border-white/[0.05] p-3 rounded-lg space-y-1.5 mt-2 transition-colors">
+              <div className="bg-gray-50 dark:bg-[#121824]/40 border border-gray-200 dark:border-white/[0.05] p-3 rounded-lg space-y-1.5 mt-1 transition-colors">
                 <p
-                  className={`text-xs text-gray-600 dark:text-slate-400 leading-relaxed transition-all duration-300 ${isAbstractExpanded ? '' : 'line-clamp-2'}`}
+                  className={`text-xs text-gray-600 dark:text-slate-400 leading-relaxed transition-all duration-300 ${
+                    isAbstractExpanded ? '' : 'line-clamp-2'
+                  }`}
                 >
-                  <strong className="text-gray-900 dark:text-slate-300 font-medium mr-1">
+                  <strong className="text-gray-900 dark:text-slate-300 font-semibold mr-1">
                     Abstract:
                   </strong>
                   {abstract}
@@ -148,35 +181,46 @@ export function PaperItemCard({
                 >
                   {isAbstractExpanded ? (
                     <>
-                      {t('card.readMore')} <ChevronUp size={12} />
+                      Read Less <ChevronUp size={12} />
                     </>
                   ) : (
                     <>
-                      {t('card.readMore')} <ChevronDown size={12} />
+                      Read More <ChevronDown size={12} />
                     </>
                   )}
                 </button>
               </div>
             )}
+
+            {/* 5. Khối từ khóa phổ biến (Keywords) */}
+            {keywordsArray.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {keywordsArray.map((tag, idx) => (
+                  <span
+                    key={idx}
+                    className="text-[10px] px-2.5 py-1 rounded-md font-bold tracking-wide bg-blue-50/60 text-blue-600 border border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400 transition-colors cursor-default"
+                  >
+                    #{tag.toUpperCase()}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Khối số lượng Citations & Nút thao tác (Bên phải) */}
-          <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 w-full md:w-auto shrink-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
-            {/* Cột hiển thị số lượng citation & hành động */}
-            <div className="flex items-center sm:flex-col gap-5 sm:gap-3 shrink-0 self-center sm:self-start w-full sm:w-auto justify-between sm:justify-start border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-200 dark:border-white/5 sm:pl-4">
-              <div className="text-left sm:text-right">
-                <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
-                  {citations.toLocaleString()}
-                </div>
-                <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">
-                  {t('card.citations')}
-                </div>
-                {paper.trend && (
-                  <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
-                    {paper.trend}
-                  </div>
-                )}
+          {/* KHỐI SỐ LƯỢNG CITATIONS & NÚT THAO TÁC (BÊN PHẢI) */}
+          <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-gray-100 dark:border-white/5 sm:border-t-0 sm:pl-4">
+            <div className="text-left sm:text-right">
+              <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
+                {citations.toLocaleString()}
               </div>
+              <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">
+                Citations
+              </div>
+              {paper.trend && (
+                <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
+                  {paper.trend}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 sm:mt-1">
@@ -205,6 +249,7 @@ export function PaperItemCard({
               </Button>
             </div>
           </div>
+
         </CardContent>
       </Card>
     </motion.div>
