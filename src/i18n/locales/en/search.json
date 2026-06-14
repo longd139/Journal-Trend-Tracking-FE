@@ -31,5 +31,37 @@
     "save": "Save",
     "saved": "Saved",
     "readMore": "Read More"
+  },
+  "bookmark": {
+    "title": "Save to Bookmarks",
+    "paper": "Paper",
+    "keyword": "Keyword",
+    "keywordPlaceholder": "Select or type a keyword...",
+    "notes": "Notes",
+    "notesPlaceholder": "Why are you saving this paper? (optional)",
+    "cancel": "Cancel",
+    "save": "Save Bookmark",
+    "saving": "Saving...",
+    "remove": "Remove Bookmark",
+    "removing": "Removing...",
+    "noKeywords": "No keywords available",
+    "success": "Paper saved to your bookmarks!",
+    "removed": "Bookmark removed successfully!",
+    "error": "Failed to save bookmark. Please try again."
+  },
+  "detail": {
+    "title": "Paper Details",
+    "authors": "Authors",
+    "year": "Year",
+    "journal": "Journal",
+    "field": "Field",
+    "doi": "DOI",
+    "abstract": "Abstract",
+    "citations": "Citations",
+    "viewOriginal": "View Original Paper",
+    "downloadPdf": "Download PDF",
+    "downloadCsv": "Download CSV",
+    "close": "Close",
+    "noAbstract": "No abstract available for this paper."
   }
 }

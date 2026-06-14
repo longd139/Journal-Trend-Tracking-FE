@@ -31,5 +31,37 @@
     "save": "Lưu",
     "saved": "Đã lưu",
     "readMore": "Đọc thêm"
+  },
+  "bookmark": {
+    "title": "Lưu vào Bookmarks",
+    "paper": "Bài báo",
+    "keyword": "Từ khóa",
+    "keywordPlaceholder": "Chọn hoặc nhập từ khóa...",
+    "notes": "Ghi chú",
+    "notesPlaceholder": "Tại sao bạn lưu bài báo này? (tùy chọn)",
+    "cancel": "Hủy",
+    "save": "Lưu Bookmark",
+    "saving": "Đang lưu...",
+    "remove": "Xóa Bookmark",
+    "removing": "Đang xóa...",
+    "noKeywords": "Không có từ khóa nào",
+    "success": "Đã lưu bài báo vào bookmarks!",
+    "removed": "Đã xóa bookmark thành công!",
+    "error": "Không thể lưu bookmark. Vui lòng thử lại."
+  },
+  "detail": {
+    "title": "Chi Tiết Bài Báo",
+    "authors": "Tác giả",
+    "year": "Năm",
+    "journal": "Tạp chí",
+    "field": "Lĩnh vực",
+    "doi": "DOI",
+    "abstract": "Tóm tắt",
+    "citations": "Trích dẫn",
+    "viewOriginal": "Xem Bài Báo Gốc",
+    "downloadPdf": "Tải PDF",
+    "downloadCsv": "Tải CSV",
+    "close": "Đóng",
+    "noAbstract": "Bài báo này không có tóm tắt."
   }
 }

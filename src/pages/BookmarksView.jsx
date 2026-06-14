@@ -2,13 +2,17 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookmarkMinus, BookOpen } from 'lucide-react';
-import { FIELD_DATA } from '../constants/mockData';
+import { BookmarkMinus, BookOpen, Loader2, AlertTriangle } from 'lucide-react';
+import { bookmarkAPI } from '../lib/api/bookmark.api';
 
 const GlowBadge = ({ color, children }) => (
   <span
     className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border shadow-sm dark:shadow-none"
-    style={{ background: `${color}15`, color: color, borderColor: `${color}30` }}
+    style={{
+      background: `${color}15`,
+      color: color,
+      borderColor: `${color}30`,
+    }}
   >
     {children}
   </span>
@@ -17,29 +21,86 @@ const GlowBadge = ({ color, children }) => (
 export default function BookmarksView() {
   const { t } = useTranslation('dashboard');
   const [bookmarks, setBookmarks] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [removingId, setRemovingId] = useState(null);
 
-  const currentRole = sessionStorage.getItem('userRole') || 'academic';
-  const storageKey = `scitrack_bookmarks_${currentRole}`;
-
-  useEffect(() => {
-    const localData = sessionStorage.getItem(storageKey);
-    if (localData) {
-      try {
-        setBookmarks(JSON.parse(localData));
-      } catch (e) {
-        setBookmarks([]);
+  const fetchBookmarks = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await bookmarkAPI.getBookmarks();
+      const list = Array.isArray(data) ? data : data?.bookmarks || data?.list || [];
+      setBookmarks(list);
+    } catch (err) {
+      console.error('Failed to load bookmarks:', err);
+      if (err.response && err.response.status === 401) {
+        setError(
+          'Phiên làm việc đã hết hạn hoặc Token không hợp lệ. Bạn hãy bấm Sign Out rồi đăng nhập lại nhé!',
+        );
+      } else {
+        setError('Unable to load bookmarks. Please try again.');
       }
-    } else {
-      setBookmarks([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, [storageKey]);
-
-  const removeBookmark = (titleToRemove) => {
-    const newData = bookmarks.filter(p => p.title !== titleToRemove);
-    setBookmarks(newData);
-    sessionStorage.setItem(storageKey, JSON.stringify(newData));
   };
 
+  useEffect(() => {
+    fetchBookmarks();
+  }, []);
+
+  const removeBookmark = async (bookmarkId) => {
+    setRemovingId(bookmarkId);
+    try {
+      await bookmarkAPI.deleteBookmark(bookmarkId);
+      setBookmarks((prev) => prev.filter((b) => b.bookmarkId !== bookmarkId));
+    } catch (err) {
+      console.error('Failed to remove bookmark:', err);
+    } finally {
+      setRemovingId(null);
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
+        <Loader2 size={32} className="text-blue-500 animate-spin" />
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Loading bookmarks...
+        </p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+          <AlertTriangle size={28} className="text-red-500" />
+        </div>
+        <div>
+          <h3 className="text-lg font-bold text-red-600 dark:text-red-400 mb-1">
+            Error
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 max-w-md">
+            {error}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={fetchBookmarks}
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Empty state
   if (bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
@@ -47,8 +108,12 @@ export default function BookmarksView() {
           <BookOpen size={28} className="text-gray-400 dark:text-gray-500" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">{t('headings.bookmarks')}</h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{t('subtitles.bookmarks')}</p>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+            {t('headings.bookmarks')}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t('subtitles.bookmarks')}
+          </p>
         </div>
       </div>
     );
@@ -58,7 +123,9 @@ export default function BookmarksView() {
     <div className="p-8 space-y-6 min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('headings.bookmarks')}</h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            {t('headings.bookmarks')}
+          </h2>
           <p className="text-sm text-gray-500 dark:text-[#A0AEC0]">
             {bookmarks.length} {bookmarks.length === 1 ? 'paper' : 'papers'}
           </p>
@@ -67,9 +134,9 @@ export default function BookmarksView() {
 
       <div className="space-y-3">
         <AnimatePresence>
-          {bookmarks.map((p, i) => (
+          {bookmarks.map((b, i) => (
             <motion.div
-              key={p.title || i}
+              key={b.bookmarkId || i}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 20 }}
@@ -79,26 +146,39 @@ export default function BookmarksView() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <GlowBadge color={FIELD_DATA.find((f) => f.n === p.field)?.c ?? '#4F8CFF'}>{p.field}</GlowBadge>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</span>
+                    {b.keywordText && (
+                      <GlowBadge color="#4F8CFF">
+                        {b.keywordText}
+                      </GlowBadge>
+                    )}
+                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">
+                      {b.createdAt
+                        ? new Date(b.createdAt).toLocaleDateString()
+                        : ''}
+                    </span>
                   </div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{p.title}</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{p.authors}</p>
+                  <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">
+                    {b.paperTitle || 'Untitled Paper'}
+                  </h4>
+                  {b.notes && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-1.5 line-clamp-2">
+                      "{b.notes}"
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-6 shrink-0">
-                  <div className="text-right">
-                    <div className="text-xl font-black text-gray-900 dark:text-white">{p.citations?.toLocaleString() || 0}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{t('user.totalCitations')}</div>
-                    <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-[#00D1B2] font-mono">{p.trend}</div>
-                  </div>
-
                   <button
-                    onClick={() => removeBookmark(p.title)}
-                    className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group shadow-sm dark:shadow-none"
+                    onClick={() => removeBookmark(b.bookmarkId)}
+                    disabled={removingId === b.bookmarkId}
+                    className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group shadow-sm dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
                     title="Remove from bookmarks"
                   >
-                    <BookmarkMinus size={18} />
+                    {removingId === b.bookmarkId ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <BookmarkMinus size={18} />
+                    )}
                   </button>
                 </div>
               </div>

@@ -6,9 +6,12 @@ import { Input } from '../components/ui/input';
 import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
 import { PaperItemCard } from './PaperItemCard';
+import { BookmarkPopup } from '../components/BookmarkPopup';
+import { PaperDetailPopup } from '../components/PaperDetailPopup';
 
 // ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
 import { paperAPI } from '../lib/api/paper.api';
+import { bookmarkAPI } from '../lib/api/bookmark.api';
 
 const FIELD_DATA = [
   { n: 'AI & ML', v: 45, c: '#4F8CFF' },
@@ -37,7 +40,6 @@ export default function SearchPapers() {
   const [totalElements, setTotalElements] = useState(0);
 
   const [query, setQuery] = useState('');
-  const [savedBookmarks, setSavedBookmarks] = useState([]);
   const [filters, setFilters] = useState({
     startYear: '',
     endYear: '',
@@ -46,8 +48,27 @@ export default function SearchPapers() {
     openAccess: false,
   });
 
-  const currentRole = sessionStorage.getItem('userRole');
-  const storageKey = `scitrack_bookmarks_${currentRole}`;
+  // Bookmark state
+  const [savedBookmarks, setSavedBookmarks] = useState([]);
+  const [popupPaper, setPopupPaper] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Paper detail popup state
+  const [detailPaper, setDetailPaper] = useState(null);
+
+  // Fetch saved bookmarks from API on mount
+  useEffect(() => {
+    const loadBookmarks = async () => {
+      try {
+        const data = await bookmarkAPI.getBookmarks();
+        const list = Array.isArray(data) ? data : data?.bookmarks || data?.list || [];
+        setSavedBookmarks(list);
+      } catch (err) {
+        console.error('Failed to load bookmarks:', err);
+      }
+    };
+    loadBookmarks();
+  }, []);
 
   useEffect(() => {
     const loadPapersData = async () => {
@@ -120,29 +141,64 @@ export default function SearchPapers() {
     return () => clearTimeout(delayDebounce);
   }, [query, currentPage]);
 
-  useEffect(() => {
-    const localData = sessionStorage.getItem(storageKey);
-    if (localData) {
-      try {
-        setSavedBookmarks(JSON.parse(localData));
-      } catch (e) {
-        setSavedBookmarks([]);
-      }
-    } else {
-      setSavedBookmarks([]);
-    }
-  }, [storageKey]);
+  const handleBookmarkClick = (paper) => {
+    if (!paper) return;
 
-  const toggleBookmark = (paper) => {
-    if (!paper || !paper.title) return;
-    setSavedBookmarks((prev) => {
-      const isAlreadySaved = prev.some((p) => p.title === paper.title);
-      const newData = isAlreadySaved
-        ? prev.filter((p) => p.title !== paper.title)
-        : [...prev, paper];
-      sessionStorage.setItem(storageKey, JSON.stringify(newData));
-      return newData;
-    });
+    // Check if already bookmarked
+    const existingBookmark = savedBookmarks.find(
+      (b) =>
+        b.paperId === paper.id ||
+        b.paperTitle === paper.title,
+    );
+
+    if (existingBookmark) {
+      // Remove bookmark directly
+      removeBookmark(existingBookmark);
+    } else {
+      // Show popup for new bookmark
+      setPopupPaper(paper);
+    }
+  };
+
+  const handleSaveBookmark = async ({ keywordId, keywordText, notes }) => {
+    if (!popupPaper) return;
+
+    setIsSaving(true);
+    try {
+      const response = await bookmarkAPI.createBookmark({
+        paperId: popupPaper.id || popupPaper.paperId,
+        keywordId: keywordId,
+        notes: notes,
+      });
+
+      // Add the new bookmark to the local state
+      if (response && response.data) {
+        setSavedBookmarks((prev) => [...prev, response.data]);
+      } else {
+        // If response doesn't contain data, re-fetch bookmarks
+        const data = await bookmarkAPI.getBookmarks();
+        const list = Array.isArray(data) ? data : data?.bookmarks || data?.list || [];
+        setSavedBookmarks(list);
+      }
+
+      setPopupPaper(null);
+    } catch (err) {
+      console.error('Failed to save bookmark:', err);
+      alert(t('bookmark.error'));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const removeBookmark = async (bookmark) => {
+    try {
+      await bookmarkAPI.deleteBookmark(bookmark.bookmarkId);
+      setSavedBookmarks((prev) =>
+        prev.filter((b) => b.bookmarkId !== bookmark.bookmarkId),
+      );
+    } catch (err) {
+      console.error('Failed to remove bookmark:', err);
+    }
   };
 
   const clearAllFilters = () => {
@@ -184,10 +240,18 @@ export default function SearchPapers() {
     return pages;
   };
 
+  const isPaperSaved = (paper) => {
+    return savedBookmarks.some(
+      (b) =>
+        b.paperId === (paper.id || paper.paperId) ||
+        b.paperTitle === paper.title,
+    );
+  };
+
   return (
     <div className="space-y-5 p-8 max-w-6xl mx-auto min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020]">
       <AcademicLimitAlert
-        userRole={currentRole}
+        userRole={sessionStorage.getItem('userRole')}
         searchCount={3}
         maxLimit={10}
       />
@@ -244,7 +308,7 @@ export default function SearchPapers() {
         <div className="w-full lg:w-[320px] shrink-0 flex flex-col justify-between gap-4">
           <div className="flex-1 flex flex-col">
             <AdvancedFilter
-              userRole={currentRole}
+              userRole={sessionStorage.getItem('userRole')}
               filters={filters}
               setFilters={setFilters}
               clearFilters={clearAllFilters}
@@ -310,10 +374,9 @@ export default function SearchPapers() {
                   badgeColor={
                     FIELD_DATA.find((f) => f.n === paper.field)?.c || '#4F8CFF'
                   }
-                  isSaved={savedBookmarks.some(
-                    (saved) => saved.title === paper.title,
-                  )}
-                  onToggleBookmark={toggleBookmark}
+                  isSaved={isPaperSaved(paper)}
+                  onToggleBookmark={handleBookmarkClick}
+                  onCardClick={setDetailPaper}
                 />
               ))}
           </div>
@@ -348,6 +411,30 @@ export default function SearchPapers() {
           )} */}
         </div>
       </div>
+
+      {/* Bookmark Popup */}
+      <BookmarkPopup
+        paper={popupPaper}
+        isOpen={!!popupPaper}
+        onClose={() => setPopupPaper(null)}
+        onSave={handleSaveBookmark}
+        isSaving={isSaving}
+        searchQuery={query}
+      />
+
+      {/* Paper Detail Popup */}
+      <PaperDetailPopup
+        paper={detailPaper}
+        isOpen={!!detailPaper}
+        onClose={() => setDetailPaper(null)}
+        isSaved={detailPaper ? isPaperSaved(detailPaper) : false}
+        onToggleBookmark={handleBookmarkClick}
+        badgeColor={
+          detailPaper
+            ? FIELD_DATA.find((f) => f.n === detailPaper.field)?.c || '#4F8CFF'
+            : '#4F8CFF'
+        }
+      />
     </div>
   );
 }

@@ -59,33 +59,20 @@ export function PaperItemCard({
         <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
           <div className="flex-1 space-y-3 w-full">
             {/* Tag Badges */}
-            <div className="flex items-center gap-2 flex-wrap">
-              {field && (
-                <Badge
-                  variant="outline"
-                  className="text-[10px] font-bold uppercase tracking-wide"
-                  style={{
-                    backgroundColor: `${badgeColor}15`,
-                    color: badgeColor,
-                    borderColor: `${badgeColor}35`,
-                  }}
-                >
-                  {field}
-                </Badge>
-              )}
-              {year && (
-                <span className="text-xs text-gray-500 dark:text-slate-400 font-mono">
-                  {year}
-                </span>
-              )}
-              {citations > 50000 && (
-                <Badge
-                  variant="secondary"
-                  className="bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 text-[10px]"
-                >
-                  Classic
-                </Badge>
-              )}
+            <div className="flex items-center gap-1.5 min-w-0">
+              <svg
+                className="w-3.5 h-3.5 text-slate-400 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span className="text-xs font-semibold text-slate-300 truncate">
+                {authors}
+              </span>
             </div>
 
             {/* Title */}
@@ -95,7 +82,39 @@ export function PaperItemCard({
             >
               {paper.title || 'Untitled Paper'}
             </h4>
-
+            {/* Row 3: Year + Journal */}
+            <div className="flex items-center gap-3 text-[11px] text-slate-500">
+              <div className="flex items-center gap-1">
+                {/* Calendar icon */}
+                <svg
+                  className="w-3 h-3"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <span>{year}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                {/* Book icon */}
+                <svg
+                  className="w-3 h-3"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                  <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                </svg>
+                <span className="italic">{journal}</span>
+              </div>
+            </div>
             {/* Authors & Journal Metadata */}
             <div className="space-y-1">
               {authors && (
@@ -112,7 +131,7 @@ export function PaperItemCard({
                   <span className="italic">{journal}</span>
                 </p>
               )}
-              {paper.doi && (
+              {/* {paper.doi && (
                 <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Link2
                     size={13}
@@ -127,7 +146,7 @@ export function PaperItemCard({
                     {paper.doi}
                   </a>
                 </p>
-              )}
+              )} */}
             </div>
 
             {/* Abstract Section */}
