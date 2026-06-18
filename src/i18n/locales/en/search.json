@@ -31,5 +31,8 @@
     "save": "Save",
     "saved": "Saved",
     "readMore": "Read More"
+  },
+  "graph": {
+    "toggle": "Show Knowledge Graph"
   }
 }

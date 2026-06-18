@@ -13,8 +13,10 @@
   "idleHint": "Nhập từ khóa phía trên để khám phá đồ thị tri thức",
   "retry": "Thử lại",
   "legend": {
+    "title": "Chú giải:",
     "paper": "Bài báo",
     "keyword": "Từ khóa"
   },
+  "depth": "Độ sâu",
   "tip": "Nhấn đúp vào nút để lấy nét · Cuộn để phóng to"
 }

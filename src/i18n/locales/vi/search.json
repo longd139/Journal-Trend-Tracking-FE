@@ -31,5 +31,8 @@
     "save": "Lưu",
     "saved": "Đã lưu",
     "readMore": "Đọc thêm"
+  },
+  "graph": {
+    "toggle": "Hiển thị đồ thị tri thức"
   }
 }
