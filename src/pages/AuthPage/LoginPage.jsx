@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 import {
   Mail,
   Lock,
@@ -82,6 +83,25 @@ export default function LoginPage() {
     setIsForgotMode(!isForgotMode);
     setErrors({ email: false, emailFormat: false, password: false, apiError: '', successMsg: '' });
     setShowPassword(false);
+  };
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    setLoading(true);
+    setErrors((prev) => ({ ...prev, apiError: '', successMsg: '' }));
+
+    try {
+      const response = await authAPI.googleLogin(credentialResponse.credential);
+      setToken(response.accessToken);
+      const userRole = response.role;
+      sessionStorage.setItem('userRole', userRole);
+      navigate(`/${userRole}/overview`);
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || t('login.errorInvalidCredentials');
+      setErrors((prev) => ({ ...prev, apiError: errorMessage }));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -241,6 +261,35 @@ export default function LoginPage() {
             )}
           </span>
         </motion.button>
+
+        {/* Google Sign-In */}
+        {!isForgotMode && (
+          <motion.div layout className="pt-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/[0.12] to-transparent" />
+              <span className="text-[11px] font-medium text-gray-400 dark:text-[#6B7280] uppercase tracking-wider whitespace-nowrap">
+                {t('login.orContinueWith')}
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-white/[0.12] to-transparent" />
+            </div>
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleLogin}
+                onError={() => {
+                  setErrors((prev) => ({
+                    ...prev,
+                    apiError: t('login.errorInvalidCredentials'),
+                  }));
+                }}
+                theme="filled_black"
+                size="large"
+                text="signin_with"
+                shape="pill"
+                width="100%"
+              />
+            </div>
+          </motion.div>
+        )}
       </form>
 
       {/* Footer */}
