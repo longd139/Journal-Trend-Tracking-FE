@@ -6,34 +6,73 @@ import { Network } from 'vis-network';
 import { DataSet } from 'vis-data';
 import { graphAPI } from '../lib/api/graph.api';
 
+// ─── Tier color palette ────────────────────────────────────────────────────────
+const PAPER_COLORS = ['#4F8CFF', '#3B6FD4', '#2A5299', '#1E3E73'];
+const KEYWORD_COLORS = ['#00D1B2', '#00A890', '#007F6E', '#005A4E'];
+const PAPER_HIGHLIGHT = ['#6BA0FF', '#5789E0', '#4670C0', '#365A9E'];
+const KEYWORD_HIGHLIGHT = ['#33DDC5', '#26BFA6', '#1A9E88', '#0D7D6A'];
+
+function tierColor(group, tier) {
+  const palette = group === 'keyword' ? KEYWORD_COLORS : PAPER_COLORS;
+  return palette[tier] ?? palette[palette.length - 1];
+}
+
+function tierHighlight(group, tier) {
+  const palette = group === 'keyword' ? KEYWORD_HIGHLIGHT : PAPER_HIGHLIGHT;
+  return palette[tier] ?? palette[palette.length - 1];
+}
+
+function tierLabel(group, t) {
+  return group === 'keyword' ? t('legend.keyword') : t('legend.paper');
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function truncate(text, max) {
   if (!text) return '';
   return text.length > max ? text.slice(0, max) + '…' : text;
 }
 
+function normalizeGroup(rawGroup) {
+  // Chuẩn hóa group về 'paper' hoặc 'keyword', bỏ qua các group như 'suggested'
+  const g = (rawGroup || '').toLowerCase();
+  return g === 'keyword' ? 'keyword' : 'paper';
+}
+
 /**
- * Chuyển đổi dữ liệu từ API 2 (/api/graphs/keyword) sang định dạng vis-network.
- * API 2 trả về: { nodes: [{id, label, group: "PAPER"|"KEYWORD", size}], links: [{source, target, label}] }
+ * Chuyển đổi dữ liệu từ API /api/v1/papers/search/graph sang định dạng vis-network.
+ * API trả về: { nodes: [{id, label, group, size, paperCount, searchCount, tier}], links: [{source, target, label}] }
+ * Field `tier` dùng để phân tầng đồ thị (0 = core, 1 = layer 1, 2 = layer 2, …).
  */
-function transformGraphData(graphData) {
+function transformGraphData(graphData, t) {
   const { nodes = [], links = [] } = graphData;
 
   const visNodes = nodes.map((node) => {
     const size = node.size || 1;
+    const paperCount = node.paperCount ?? 0;
+    const searchCount = node.searchCount ?? 0;
+    const tier = node.tier ?? 0;
+    const normalizedGroup = normalizeGroup(node.group);
+    const groupKey = normalizedGroup + '-tier-' + tier;
+    const color = tierColor(normalizedGroup, tier);
     return {
       id: node.id,
       label: truncate(node.label, 45),
-      group: node.group?.toLowerCase() || 'paper',
+      group: groupKey,
       value: Math.max(size, 1),
-      title: `<b>${node.label}</b><br/>Group: ${node.group}<br/>Weight: ${size}`,
+      tier,
+      title: `<b>${node.label}</b><br/>Weight: ${size}<br/>Papers: ${paperCount}<br/>Searches: ${searchCount}`,
+      color: {
+        background: color,
+        border: color,
+        highlight: { background: tierHighlight(normalizedGroup, tier), border: tierHighlight(normalizedGroup, tier) },
+      },
     };
   });
 
   const visEdges = links.map((link) => ({
     from: link.source,
     to: link.target,
-    label: link.label,
+    label: undefined,  // Ẩn nhãn trên cạnh (chứa "suggested", tier) để đồ thị dễ nhìn
     color: { color: '#00D1B260' },
     width: 0.6,
   }));
@@ -41,11 +80,49 @@ function transformGraphData(graphData) {
   return {
     nodes: new DataSet(visNodes),
     edges: new DataSet(visEdges),
+    tiers: [...new Set(nodes.map((n) => n.tier ?? 0))].sort(),
+    tierGroups: [...new Set(visNodes.map((n) => n.group))].sort(),
   };
 }
 
 // ─── Vis-network config ──────────────────────────────────────────────────────
-const getGraphOptions = (isDark) => ({
+const getGraphOptions = (isDark, tierGroups = []) => {
+  // Build dynamic group configs from actual tier groups in data
+  const groups = {};
+  for (const g of tierGroups) {
+    const [baseGroup, , tierStr] = g.split('-');
+    const tier = parseInt(tierStr, 10);
+    groups[g] = {
+      shape: baseGroup === 'keyword' ? 'diamond' : 'dot',
+      color: {
+        background: tierColor(baseGroup, tier),
+        border: tierColor(baseGroup, tier),
+        highlight: {
+          background: tierHighlight(baseGroup, tier),
+          border: tierHighlight(baseGroup, tier),
+        },
+      },
+      font: { size: baseGroup === 'keyword' ? 10 : 13, color: '#FFFFFF' },
+    };
+  }
+
+  // Fallback: ensure classic groups exist for nodes without tier
+  if (!groups['paper']) {
+    groups['paper'] = {
+      shape: 'dot',
+      color: { background: '#4F8CFF', border: '#4F8CFF', highlight: { background: '#6BA0FF', border: '#6BA0FF' } },
+      font: { size: 13, color: '#FFFFFF' },
+    };
+  }
+  if (!groups['keyword']) {
+    groups['keyword'] = {
+      shape: 'diamond',
+      color: { background: '#00D1B2', border: '#00D1B2', highlight: { background: '#33DDC5', border: '#33DDC5' } },
+      font: { size: 10, color: '#FFFFFF' },
+    };
+  }
+
+  return {
   nodes: {
     font: {
       color: isDark ? '#E2E8F0' : '#1F2937',
@@ -70,27 +147,9 @@ const getGraphOptions = (isDark) => ({
     smooth: { type: 'continuous' },
     color: { color: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.15)' },
     arrows: { to: { enabled: false } },
+    font: { size: 0, color: 'transparent', strokeWidth: 0 },  // Ẩn nhãn trên cạnh
   },
-  groups: {
-    paper: {
-      shape: 'dot',
-      color: {
-        background: '#4F8CFF',
-        border: '#4F8CFF',
-        highlight: { background: '#6BA0FF', border: '#6BA0FF' },
-      },
-      font: { size: 13, color: '#FFFFFF' },
-    },
-    keyword: {
-      shape: 'diamond',
-      color: {
-        background: '#00D1B2',
-        border: '#00D1B2',
-        highlight: { background: '#33DDC5', border: '#33DDC5' },
-      },
-      font: { size: 10, color: '#FFFFFF' },
-    },
-  },
+  groups,
   physics: {
     solver: 'forceAtlas2Based',
     forceAtlas2Based: {
@@ -110,20 +169,62 @@ const getGraphOptions = (isDark) => ({
     navigationButtons: false,
   },
   layout: { improvedLayout: true },
-});
+  };
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
-export default function Neo4jGraphCard() {
+export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   const { t } = useTranslation('graph');
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [paperCount, setPaperCount] = useState(null); // số papers tìm thấy từ API 1
+  const [depth, setDepth] = useState(1);
 
   const containerRef = useRef(null);
   const networkRef = useRef(null);
   const dataRef = useRef(null);
+
+  // ── External keyword mode: auto-fetch from enhanced API ──────────────────
+  useEffect(() => {
+    const trimmed = externalKeyword?.trim();
+    if (!trimmed) return;
+
+    let cancelled = false;
+
+    const fetchEnhanced = async () => {
+      setLoading(true);
+      setError('');
+      setPaperCount(null);
+
+      try {
+        const graphData = await graphAPI.getKeywordGraphEnhanced(trimmed, 3);
+
+        if (cancelled) return;
+
+        if (!graphData?.nodes?.length) {
+          setError(t('graphNotReady'));
+          destroyNetwork();
+          return;
+        }
+
+        buildGraph(graphData);
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Enhanced graph fetch error:', err);
+        const msg = err?.response?.data?.message ?? err?.message ?? t('fetchError');
+        setError(msg);
+        destroyNetwork();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchEnhanced();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalKeyword]);
 
   const destroyNetwork = useCallback(() => {
     if (networkRef.current) {
@@ -136,11 +237,11 @@ export default function Neo4jGraphCard() {
     destroyNetwork();
     if (!containerRef.current) return;
 
-    const { nodes, edges } = transformGraphData(graphData);
-    dataRef.current = { nodes, edges };
+    const { nodes, edges, tierGroups } = transformGraphData(graphData, t);
+    dataRef.current = { nodes, edges, tierGroups };
 
     const isDark = document.documentElement.classList.contains('dark');
-    const options = getGraphOptions(isDark);
+    const options = getGraphOptions(isDark, tierGroups);
 
     networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
 
@@ -158,7 +259,7 @@ export default function Neo4jGraphCard() {
         });
       }
     });
-  }, [destroyNetwork]);
+  }, [destroyNetwork, t]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -177,7 +278,7 @@ export default function Neo4jGraphCard() {
     }
   }, [expanded]);
 
-  // ── Submit: 2-step flow ──────────────────────────────────────────────────
+  // ── Submit: single-step via searchGraph (trả về { nodes, links } trực tiếp) ──
   const handleSubmit = async (e) => {
     e.preventDefault();
     const trimmed = keyword.trim();
@@ -188,24 +289,17 @@ export default function Neo4jGraphCard() {
     setPaperCount(null);
 
     try {
-      // Bước 1: Gọi search API để trigger pipeline (Neo4j → OpenAlex → lưu SQL + Neo4j)
-      const searchResult = await graphAPI.searchGraph(trimmed);
-      const totalPapers = searchResult?.totalElements ?? 0;
+      // Gọi searchGraph → backend trả về { nodes: [...], links: [...] }
+      const graphData = await graphAPI.searchGraph(trimmed, depth);
+
+      // Tính tổng paperCount từ các node
+      const totalPapers = graphData?.nodes
+        ? graphData.nodes.reduce((sum, node) => sum + (node.paperCount || 0), 0)
+        : 0;
       setPaperCount(totalPapers);
 
-      if (totalPapers === 0) {
-        setError(t('noResults'));
-        destroyNetwork();
-        return;
-      }
-
-      // Bước 2: Gọi graph API để lấy dữ liệu visualization từ Neo4j
-      // Lúc này Neo4j đã có data (từ pipeline hoặc từ cache)
-      const graphData = await graphAPI.getKeywordGraph(trimmed);
-
       if (!graphData?.nodes?.length) {
-        // Neo4j chưa có data (AuraDB paused, v.v.) → fallback: hiển thị thông báo
-        setError(t('graphNotReady'));
+        setError(t('noResults'));
         destroyNetwork();
         return;
       }
@@ -248,7 +342,8 @@ export default function Neo4jGraphCard() {
         </button>
       </div>
 
-      {/* Search bar */}
+      {/* Search bar — hidden when driven by parent */}
+      {!externalKeyword && (
       <form onSubmit={handleSubmit} className="px-5 pb-3 shrink-0 flex gap-2">
         <div className="relative flex-1">
           <Search
@@ -264,6 +359,22 @@ export default function Neo4jGraphCard() {
             className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#4F8CFF]"
           />
         </div>
+        {/* Depth selector */}
+        <div className="flex items-center gap-1">
+          <label className="text-[10px] text-gray-500 dark:text-[#A0AEC0] whitespace-nowrap">
+            {t('depth')}
+          </label>
+          <select
+            value={depth}
+            onChange={(e) => setDepth(Number(e.target.value))}
+            disabled={loading}
+            className="w-12 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#4F8CFF] cursor-pointer"
+          >
+            {[1, 2, 3].map((d) => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+        </div>
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
@@ -274,6 +385,7 @@ export default function Neo4jGraphCard() {
           {loading ? <Loader2 size={14} className="animate-spin" /> : t('explore')}
         </motion.button>
       </form>
+      )}
 
       {/* Graph area */}
       <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-gray-50 dark:bg-[#0B1020] border border-gray-200 dark:border-transparent">
@@ -324,9 +436,35 @@ export default function Neo4jGraphCard() {
       </div>
 
       {/* Legend */}
-      <div className="px-5 pb-4 shrink-0 flex flex-wrap gap-3 text-[10px] font-medium">
-        <LegendItem color="#4F8CFF" label={t('legend.paper')} shape="●" />
-        <LegendItem color="#00D1B2" label={t('legend.keyword')} shape="◆" />
+      <div className="px-5 pb-4 shrink-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium">
+        <span className="text-gray-500 dark:text-[#6B7280]">{t('legend.title')}</span>
+        {(() => {
+          // Deduplicate: one legend entry per base group (paper / keyword)
+          const seen = new Set();
+          const uniqueGroups = [];
+          for (const g of (dataRef.current?.tierGroups || [])) {
+            const baseGroup = g.split('-')[0];
+            if (!seen.has(baseGroup)) {
+              seen.add(baseGroup);
+              uniqueGroups.push(g);
+            }
+          }
+          return uniqueGroups.map((g) => {
+            const [baseGroup, , tierStr] = g.split('-');
+            const tier = parseInt(tierStr, 10);
+            const color = tierColor(baseGroup, tier);
+            const shape = baseGroup === 'keyword' ? '◆' : '●';
+            return (
+              <LegendItem key={baseGroup} color={color} label={tierLabel(baseGroup, t)} shape={shape} />
+            );
+          });
+        })()}
+        {!dataRef.current?.tierGroups?.length && (
+          <>
+            <LegendItem color="#4F8CFF" label={t('legend.paper')} shape="●" />
+            <LegendItem color="#00D1B2" label={t('legend.keyword')} shape="◆" />
+          </>
+        )}
         <span className="ml-auto text-gray-500 dark:text-[#6B7280]">
           {t('tip')}
         </span>

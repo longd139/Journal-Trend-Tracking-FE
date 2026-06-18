@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
 import { PaperItemCard } from './PaperItemCard';
+import Neo4jGraphCard from '../components/Neo4jGraphCard';
 
 // ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
 import { paperAPI } from '../lib/api/paper.api';
@@ -45,6 +46,7 @@ export default function SearchPapers() {
     minCitations: '',
     openAccess: false,
   });
+  const [showGraph, setShowGraph] = useState(false);
 
   const currentRole = sessionStorage.getItem('userRole');
   const storageKey = `scitrack_bookmarks_${currentRole}`;
@@ -284,6 +286,21 @@ export default function SearchPapers() {
           <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
             {t('results.found', { count: totalElements })}
           </p>
+
+          {/* Knowledge Graph Toggle */}
+          {query && query.trim() && papers.length > 0 && (
+            <div className="mb-3">
+              <button
+                type="button"
+                onClick={() => setShowGraph((prev) => !prev)}
+                className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors mb-2"
+              >
+                {showGraph ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                {t('graph.toggle')}
+              </button>
+              {showGraph && <Neo4jGraphCard keyword={query.trim()} />}
+            </div>
+          )}
 
           <div className="space-y-3 flex-1">
             {isLoading && (

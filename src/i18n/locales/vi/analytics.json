@@ -1,4 +1,6 @@
 {
+  "searchPlaceholder": "Nhập từ khóa để khám phá đồ thị nghiên cứu...",
+  "searchButton": "Khám phá",
   "heading": {
     "title": "Phân tích",
     "subtitle": "Phân tích chuyên sâu dữ liệu nghiên cứu"
@@ -7,12 +9,20 @@
     "trendAnalysis": "Phân tích xu hướng",
     "fieldDistribution": "Phân bố lĩnh vực",
     "citationImpact": "Tác động trích dẫn",
-    "geographicDistribution": "Phân bố địa lý"
+    "geographicDistribution": "Phân bố địa lý",
+    "hotKeywords": "Từ khóa nổi bật"
   },
   "charts": {
     "publicationsOverTime": "Công bố theo thời gian",
     "citationsPerField": "Trích dẫn theo lĩnh vực",
     "impactByYear": "Tác động theo năm",
-    "researchGrowth": "Tăng trưởng nghiên cứu"
+    "researchGrowth": "Tăng trưởng nghiên cứu",
+    "trendingKeywords": "Những từ khóa được tìm kiếm nhiều nhất"
+  },
+  "hotKeywords": {
+    "searches": "lượt tìm",
+    "loading": "Đang tải từ khóa nổi bật…",
+    "error": "Không thể tải từ khóa nổi bật",
+    "empty": "Chưa có dữ liệu từ khóa"
   }
 }

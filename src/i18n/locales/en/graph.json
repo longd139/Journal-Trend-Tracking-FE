@@ -13,8 +13,10 @@
   "idleHint": "Enter a keyword above to explore the knowledge graph",
   "retry": "Retry",
   "legend": {
+    "title": "Legend:",
     "paper": "Paper",
     "keyword": "Keyword"
   },
+  "depth": "Depth",
   "tip": "Double-click node to focus · Scroll to zoom"
 }

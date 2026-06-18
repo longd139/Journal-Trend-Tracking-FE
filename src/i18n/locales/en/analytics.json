@@ -1,4 +1,6 @@
 {
+  "searchPlaceholder": "Enter keyword to explore research graph...",
+  "searchButton": "Explore",
   "heading": {
     "title": "Analytics",
     "subtitle": "Deep dive into your research data"
@@ -7,12 +9,20 @@
     "trendAnalysis": "Trend Analysis",
     "fieldDistribution": "Field Distribution",
     "citationImpact": "Citation Impact",
-    "geographicDistribution": "Geographic Distribution"
+    "geographicDistribution": "Geographic Distribution",
+    "hotKeywords": "Hot Keywords"
   },
   "charts": {
     "publicationsOverTime": "Publications Over Time",
     "citationsPerField": "Citations per Field",
     "impactByYear": "Impact by Year",
-    "researchGrowth": "Research Growth"
+    "researchGrowth": "Research Growth",
+    "trendingKeywords": "Most searched keywords right now"
+  },
+  "hotKeywords": {
+    "searches": "searches",
+    "loading": "Loading hot keywords…",
+    "error": "Failed to load hot keywords",
+    "empty": "No keyword data yet"
   }
 }
