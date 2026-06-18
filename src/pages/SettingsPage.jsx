@@ -8,6 +8,7 @@ import { authAPI } from '../lib/api/auth.api';
 import { userAPI } from '../lib/api/user.api';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../utils/localization';
+import { useAuthStore } from '../store/useAuthStore';
 
 const LOCAL_UNIS = [
   'Văn Lang University',
@@ -32,6 +33,7 @@ export default function SettingsPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [role, setRole] = useState('');
+  const updateStoreUser = useAuthStore((s) => s.updateUser);
 
   // Language preview state
   const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
@@ -161,6 +163,11 @@ export default function SettingsPage() {
         institution: editForm.institution,
         bio: editForm.bio,
       }));
+      // Also update the global Zustand store so the sidebar updates immediately
+      updateStoreUser({
+        fullName: editForm.fullName,
+        institution: editForm.institution,
+      });
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {

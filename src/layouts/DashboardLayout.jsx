@@ -18,9 +18,10 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { userAPI } from '../lib/api/user.api';
 import { useTheme } from '../hooks/useTheme';
+import { useAuthStore } from '../store/useAuthStore';
 
 // 1. SIDEBAR
 function Sidebar({ role, activeTab, navigate, user }) {
@@ -209,7 +210,8 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
   const { t } = useTranslation('dashboard');
 
-  const [user, setUser] = useState(null);
+  const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
 
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[pathParts.length - 1] || 'overview';
