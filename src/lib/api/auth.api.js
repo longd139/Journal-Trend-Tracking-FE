@@ -44,4 +44,17 @@ export const authAPI = {
     });
     return data;
   },
+
+  // ==========================================
+  // GOOGLE LOGIN
+  // ==========================================
+  async googleLogin(credential) {
+    const { data } = await axiosClient.post('/api/auth/google-login', {
+      credential,
+    });
+    return {
+      accessToken: data.data.accessToken,
+      role: data.data.user.roleName,
+    };
+  },
 };
