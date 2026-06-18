@@ -1,15 +1,16 @@
 import { Suspense, lazy } from 'react';
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout.jsx';
-import RegisterPage from '../pages/AuthPage/RegisterPage.jsx';
+import AuthLayout from '../layouts/AuthLayout.jsx';
+import AuthPage from '../pages/AuthPage/AuthPage.jsx';
 import LoginPage from '../pages/AuthPage/LoginPage.jsx';
+import RegisterPage from '../pages/AuthPage/RegisterPage.jsx';
 import ResetPasswordPage from '../pages/ResetPasswordPage.jsx';
 
 // ==========================================
 // 1. IMPORT CÁC TRANG (Lazy Loading)
 // ==========================================
 const LandingPage = lazy(() => import('../pages/LandingPage'));
-const AuthPage = lazy(() => import('../pages/AuthPage/AuthPage'));
 const OverviewController = lazy(
   () => import('../pages/OverviewController.jsx'),
 );
@@ -72,29 +73,23 @@ export const router = createBrowserRouter([
       </Suspense>
     ),
   },
+  // --- Nhóm Routes Auth (Layout chung với left panel tĩnh) ---
   {
-    path: '/auth',
-    element: (
-      <Suspense fallback={<FallbackLoading />}>
-        <AuthPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/login',
-    element: (
-      <Suspense fallback={<FallbackLoading />}>
-        <LoginPage />
-      </Suspense>
-    ),
-  },
-  {
-    path: '/register',
-    element: (
-      <Suspense fallback={<FallbackLoading />}>
-        <RegisterPage />
-      </Suspense>
-    ),
+    element: <AuthLayout />,
+    children: [
+      {
+        path: '/auth',
+        element: <AuthPage />,
+      },
+      {
+        path: '/login',
+        element: <LoginPage />,
+      },
+      {
+        path: '/register',
+        element: <RegisterPage />,
+      },
+    ],
   },
   {
     path: '/reset-password',

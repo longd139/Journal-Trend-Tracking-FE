@@ -15,7 +15,13 @@ export default function LandingPage() {
   const isDark = resolvedTheme === 'dark';
   const isVietnamese = i18n.language === 'vi';
 
-  const handleAuthRedirect = (mode) => navigate('/auth', { state: { mode: mode } });
+  const handleAuthRedirect = (mode) => {
+    if (mode === 'login') {
+      navigate('/login');
+    } else {
+      navigate('/auth', { state: { mode } });
+    }
+  };
 
   const chartTextColor = isDark ? '#A0AEC0' : '#6B7280';
   const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
