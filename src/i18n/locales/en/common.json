@@ -15,6 +15,7 @@
     "userManagement": "User Management",
     "apiMonitoring": "API Monitoring",
     "database": "Database",
+    "syncData": "Sync Data",
     "signOut": "Sign Out",
     "signIn": "Sign In",
     "settings": "Settings",

@@ -9,6 +9,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  FileText,
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -20,6 +21,7 @@ export function PaperItemCard({
   badgeColor = '#4F8CFF',
   isSaved = false,
   onToggleBookmark,
+  onClick,
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
 
@@ -31,7 +33,7 @@ export function PaperItemCard({
   const citations = paper.citationCount ?? paper.citations ?? 0;
   const journal = paper.journalName || paper.journal || '';
   const abstract = paper.abstractText || paper.abstract || '';
-  
+
   // 2. Sửa lỗi lấy Tác giả: Hỗ trợ object {fullName}, chuỗi thuần, hoặc object {name}
   let authors = '';
   if (Array.isArray(paper.authors) && paper.authors.length > 0) {
@@ -45,7 +47,7 @@ export function PaperItemCard({
   } else if (typeof paper.authors === 'string') {
     authors = paper.authors;
   }
-  
+
   // Nếu vẫn không tìm thấy tác giả, hiển thị 'Unknown Author' làm fallback
   if (!authors.trim()) {
     authors = 'Unknown Author';
@@ -61,7 +63,12 @@ export function PaperItemCard({
     keywordsArray = [field];
   }
 
-  const handleRedirect = () => {
+  const handleCardClick = () => {
+    if (onClick) onClick(paper);
+  };
+
+  const handleRedirect = (e) => {
+    e.stopPropagation();
     if (!paper?.title) return;
     window.open(
       `https://scholar.google.com/scholar?q=${encodeURIComponent(paper.title)}`,
@@ -69,9 +76,15 @@ export function PaperItemCard({
     );
   };
 
-  const handleExternalLink = () => {
-    const url = paper.sourceUrl || paper.downloadUrl;
+  const handleExternalLink = (e) => {
+    e.stopPropagation();
+    const url = paper.sourceUrl || paper.downloadUrl || paper.pdfUrl;
     if (url) window.open(url, '_blank');
+  };
+
+  const handleToggleBookmark = (e) => {
+    e.stopPropagation();
+    if (onToggleBookmark) onToggleBookmark(paper);
   };
 
   return (
@@ -81,12 +94,13 @@ export function PaperItemCard({
       transition={{ delay: index * 0.04 }}
       whileHover={{ x: 3 }}
     >
-      <Card className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07] p-5 shadow-sm dark:shadow-none transition-all duration-300">
+      <Card
+        onClick={handleCardClick}
+        className="bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07] p-5 shadow-sm dark:shadow-none transition-all duration-300 hover:border-blue-400/50 dark:hover:border-blue-400/30 cursor-pointer"
+      >
         <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
-          
           {/* KHỐI NỘI DUNG BÊN TRÁI */}
           <div className="flex-1 space-y-2.5 w-full">
-            
             {/* 1. Tên tác giả + Badge phân loại (Hàng trên cùng) */}
             <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500 dark:text-slate-400">
               <span className="font-semibold text-gray-800 dark:text-slate-300">
@@ -119,10 +133,7 @@ export function PaperItemCard({
             </div>
 
             {/* 2. Tiêu đề bài báo */}
-            <h4
-              onClick={handleRedirect}
-              className="text-base font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer leading-snug"
-            >
+            <h4 className="text-base font-bold text-gray-900 dark:text-white leading-snug">
               {paper.title || 'Untitled Paper'}
             </h4>
 
@@ -130,7 +141,10 @@ export function PaperItemCard({
             <div className="space-y-1">
               {year && (
                 <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 font-mono">
-                  <Calendar size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
+                  <Calendar
+                    size={13}
+                    className="text-gray-400 dark:text-slate-500 flex-shrink-0"
+                  />
                   <span>{year}</span>
                 </p>
               )}
@@ -141,22 +155,6 @@ export function PaperItemCard({
                     className="text-gray-400 dark:text-slate-500 flex-shrink-0"
                   />
                   <span className="italic">{journal}</span>
-                </p>
-              )}
-              {paper.doi && (
-                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Link2
-                    size={13}
-                    className="text-gray-400 dark:text-slate-500 flex-shrink-0"
-                  />
-                  <a
-                    href={`https://doi.org/${paper.doi}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline text-[11px] font-mono truncate max-w-[250px] sm:max-w-md"
-                  >
-                    {paper.doi}
-                  </a>
                 </p>
               )}
             </div>
@@ -228,7 +226,7 @@ export function PaperItemCard({
                 type="button"
                 variant="outline"
                 size="icon"
-                onClick={() => onToggleBookmark(paper)}
+                onClick={handleToggleBookmark}
                 className={`w-9 h-9 border transition-transform active:scale-95 ${
                   isSaved
                     ? 'bg-blue-50 dark:bg-blue-600/10 border-blue-200 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-600/20'
@@ -247,9 +245,17 @@ export function PaperItemCard({
               >
                 <ExternalLink size={15} />
               </Button>
+
+              {paper.pdfAvailable && paper.pdfUrl && (
+                <span
+                  className="w-9 h-9 flex items-center justify-center rounded-md border border-emerald-200 dark:border-emerald-500/20 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400"
+                  title="PDF Available"
+                >
+                  <FileText size={15} />
+                </span>
+              )}
             </div>
           </div>
-
         </CardContent>
       </Card>
     </motion.div>

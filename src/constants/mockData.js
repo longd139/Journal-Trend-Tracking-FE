@@ -66,6 +66,8 @@ export const PAPERS = [
     citations: 2847,
     field: 'AI & ML',
     trend: '+18%',
+    pdfAvailable: true,
+    pdfUrl: 'https://arxiv.org/pdf/2001.08361.pdf',
   },
   {
     title: 'CRISPR-Cas9 Precision Editing in Rare Genetic Diseases',
@@ -74,6 +76,8 @@ export const PAPERS = [
     citations: 2341,
     field: 'Biotech',
     trend: '+12%',
+    pdfAvailable: true,
+    pdfUrl: 'https://example.com/crispr-paper.pdf',
   },
   {
     title: 'Climate Tipping Points and Cascade Effects in Global Ecosystems',
@@ -82,6 +86,8 @@ export const PAPERS = [
     citations: 1983,
     field: 'Climate',
     trend: '+24%',
+    pdfAvailable: false,
+    pdfUrl: null,
   },
   {
     title: 'Fault-Tolerant Quantum Computing with Logical Qubits',
@@ -90,6 +96,8 @@ export const PAPERS = [
     citations: 1654,
     field: 'Quantum',
     trend: '+31%',
+    pdfAvailable: true,
+    pdfUrl: 'https://arxiv.org/pdf/2308.01234.pdf',
   },
   {
     title: 'Neural Correlates of Conscious Awareness in Cortex',
@@ -98,6 +106,8 @@ export const PAPERS = [
     citations: 1428,
     field: 'Neuro',
     trend: '+9%',
+    pdfAvailable: false,
+    pdfUrl: null,
   },
   {
     title: 'AlphaFold3 Applications in Drug Target Discovery',
@@ -106,6 +116,8 @@ export const PAPERS = [
     citations: 1287,
     field: 'AI & ML',
     trend: '+45%',
+    pdfAvailable: true,
+    pdfUrl: 'https://example.com/alphafold3-paper.pdf',
   },
 ];
 

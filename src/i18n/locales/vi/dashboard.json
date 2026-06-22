@@ -9,6 +9,7 @@
     "userManagement": "Quản lý người dùng",
     "apiMonitoring": "Giám sát API",
     "database": "Quản lý cơ sở dữ liệu",
+    "syncData": "Đồng bộ dữ liệu",
     "settings": "Cài đặt",
     "dashboard": "Bảng điều khiển"
   },
@@ -22,6 +23,7 @@
     "userManagement": "Quản lý tài khoản và phân quyền",
     "apiMonitoring": "Giám sát điểm cuối và lưu lượng",
     "database": "Quản lý lược đồ và toàn vẹn dữ liệu",
+    "syncData": "Tải và nhập bài báo từ OpenAlex",
     "settings": "Quản lý hồ sơ tài khoản",
     "welcomeBack": "Chào mừng trở lại"
   },

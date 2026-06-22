@@ -27,6 +27,7 @@ const SettingsPage = lazy(() => import('../pages/SettingsPage.jsx'));
 const UserManagement = lazy(() => import('../pages/UserManagementPage.jsx'));
 const APIMonitoring = lazy(() => import('../pages/APIMonitoringPage.jsx'));
 const DatabaseView = lazy(() => import('../pages/DatabaseViewPage.jsx'));
+const SyncData = lazy(() => import('../pages/SyncDataPage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -200,6 +201,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <DatabaseView />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'sync-data',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <SyncData />
             </Suspense>
           </ProtectedRoute>
         ),

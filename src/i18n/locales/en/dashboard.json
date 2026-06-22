@@ -9,6 +9,7 @@
     "userManagement": "User Management",
     "apiMonitoring": "API Monitoring",
     "database": "Database Control",
+    "syncData": "Sync Data",
     "settings": "Settings",
     "dashboard": "Dashboard"
   },
@@ -22,6 +23,7 @@
     "userManagement": "Manage accounts and permissions",
     "apiMonitoring": "Monitor platform endpoints and traffic",
     "database": "Manage schemas and data integrity",
+    "syncData": "Fetch and import papers from OpenAlex",
     "settings": "Manage your account profile",
     "welcomeBack": "Welcome back"
   },

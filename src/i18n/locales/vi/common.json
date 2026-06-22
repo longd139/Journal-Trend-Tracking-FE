@@ -15,6 +15,7 @@
     "userManagement": "Quản lý người dùng",
     "apiMonitoring": "Giám sát API",
     "database": "Cơ sở dữ liệu",
+    "syncData": "Đồng bộ dữ liệu",
     "signOut": "Đăng xuất",
     "signIn": "Đăng nhập",
     "settings": "Cài đặt",

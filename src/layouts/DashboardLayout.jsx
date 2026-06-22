@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import NotificationBell from '../pages/NotificationBell';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import SyncFloatingPanel from '../components/SyncFloatingPanel';
 import {
   Home,
   Search,
@@ -17,6 +18,7 @@ import {
   AlertTriangle,
   Sun,
   Moon,
+  RefreshCw,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { userAPI } from '../lib/api/user.api';
@@ -47,6 +49,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'users', Icon: Users, label: t('sidebar.userManagement') },
     { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
+    { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
   ];
 
   let nav = academicNav;
@@ -258,6 +261,10 @@ export default function DashboardLayout({ children }) {
       title: t('headings.database'),
       sub: t('subtitles.database'),
     },
+    'sync-data': {
+      title: t('headings.syncData'),
+      sub: t('subtitles.syncData'),
+    },
     settings: { title: t('headings.settings'), sub: t('subtitles.settings') },
   };
 
@@ -282,6 +289,7 @@ export default function DashboardLayout({ children }) {
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {children}
         </main>
+        <SyncFloatingPanel />
       </div>
     </div>
   );

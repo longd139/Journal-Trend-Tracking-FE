@@ -6,6 +6,7 @@ import { Input } from '../components/ui/input';
 import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
 import { PaperItemCard } from './PaperItemCard';
+import { PaperDetailDialog } from './PaperDetailDialog';
 import Neo4jGraphCard from '../components/Neo4jGraphCard';
 
 // ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
@@ -47,6 +48,7 @@ export default function SearchPapers() {
     openAccess: false,
   });
   const [showGraph, setShowGraph] = useState(false);
+  const [selectedPaper, setSelectedPaper] = useState(null);
 
   const currentRole = sessionStorage.getItem('userRole');
   const storageKey = `scitrack_bookmarks_${currentRole}`;
@@ -335,6 +337,7 @@ export default function SearchPapers() {
                     (saved) => saved.title === paper.title,
                   )}
                   onToggleBookmark={toggleBookmark}
+                  onClick={(p) => setSelectedPaper(p)}
                 />
               ))}
           </div>
@@ -367,6 +370,14 @@ export default function SearchPapers() {
           )}
         </div>
       </div>
+
+      <PaperDetailDialog
+        paper={selectedPaper}
+        open={!!selectedPaper}
+        onOpenChange={(open) => {
+          if (!open) setSelectedPaper(null);
+        }}
+      />
     </div>
   );
 }
