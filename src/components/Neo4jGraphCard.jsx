@@ -292,9 +292,9 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
       // Gọi searchGraph → backend trả về { nodes: [...], links: [...] }
       const graphData = await graphAPI.searchGraph(trimmed, depth);
 
-      // Tính tổng paperCount từ các node
+      // Đếm số paper nodes từ graph data (backend GraphNode không có field paperCount)
       const totalPapers = graphData?.nodes
-        ? graphData.nodes.reduce((sum, node) => sum + (node.paperCount || 0), 0)
+        ? graphData.nodes.filter((node) => normalizeGroup(node.group) === 'paper').length
         : 0;
       setPaperCount(totalPapers);
 
