@@ -40,7 +40,9 @@ function normalizePaper(paper) {
 
   let keywordsArray = [];
   if (Array.isArray(paper.keywords)) {
-    keywordsArray = paper.keywords;
+    keywordsArray = paper.keywords.map((k) =>
+      typeof k === 'string' ? k : (k?.keywordText || '')
+    ).filter(Boolean);
   } else if (typeof paper.keywords === 'string' && paper.keywords.trim()) {
     keywordsArray = paper.keywords.split(',').map((k) => k.trim());
   } else if (field) {
