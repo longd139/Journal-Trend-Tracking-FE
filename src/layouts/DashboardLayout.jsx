@@ -174,19 +174,6 @@ function TopBar({ title, subtitle }) {
         )}
       </div>
       <div className="flex items-center gap-4">
-        {/* Search bar */}
-        <div className="relative hidden md:block">
-          <Search
-            size={13}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#A0AEC0]"
-          />
-          <input
-            type="text"
-            placeholder={t('topbar.searchPlaceholder')}
-            className="pl-8 pr-4 py-2 rounded-lg text-xs outline-none w-52 border transition-all focus:border-[#4F8CFF] bg-gray-100 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#E2E8F0]"
-          />
-        </div>
-
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}

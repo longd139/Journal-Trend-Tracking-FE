@@ -80,7 +80,7 @@ export default function BookmarksView() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <GlowBadge color={FIELD_DATA.find((f) => f.n === p.field)?.c ?? '#4F8CFF'}>{p.field}</GlowBadge>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{p.year}</span>
                   </div>
                   <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-1">{p.title}</h4>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{p.authors}</p>
@@ -88,9 +88,9 @@ export default function BookmarksView() {
 
                 <div className="flex items-center gap-6 shrink-0">
                   <div className="text-right">
-                    <div className="text-xl font-black text-gray-900 dark:text-white">{p.citations?.toLocaleString() || 0}</div>
+                    <div className="text-xl font-bold text-gray-900 dark:text-white">{p.citations?.toLocaleString() || 0}</div>
                     <div className="text-xs text-gray-500 dark:text-gray-400">{t('user.totalCitations')}</div>
-                    <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-[#00D1B2] font-mono">{p.trend}</div>
+                    <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-[#00D1B2]">{p.trend}</div>
                   </div>
 
                   <button

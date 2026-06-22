@@ -60,7 +60,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
           <Icon size={16} />
         </div>
         <span
-          className="text-xs font-semibold flex items-center gap-0.5 font-mono"
+          className="text-xs font-semibold flex items-center gap-0.5"
           style={{
             color: up ? '#00D1B2' : '#EF4444',
           }}
@@ -73,7 +73,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
         </span>
       </div>
       <div
-        className="text-2xl font-black text-white mb-0.5 font-display"
+        className="text-2xl font-bold text-white mb-0.5 font-display"
       >
         {value}
       </div>

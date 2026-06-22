@@ -428,13 +428,13 @@ export default function SettingsPage() {
             <div className="flex-1 flex flex-col justify-center space-y-3">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-gray-500 dark:text-[#A0AEC0]">{t('language.dateSample')}</span>
-                <span className="font-mono font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-gray-900 dark:text-white">
                   {langPreview.date}
                 </span>
               </div>
               <div className="flex justify-between items-center text-xs">
                 <span className="text-gray-500 dark:text-[#A0AEC0]">{t('language.numberSample')}</span>
-                <span className="font-mono font-semibold text-gray-900 dark:text-white">
+                <span className="font-semibold text-gray-900 dark:text-white">
                   {langPreview.number}
                 </span>
               </div>

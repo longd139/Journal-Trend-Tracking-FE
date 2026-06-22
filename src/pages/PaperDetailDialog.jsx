@@ -90,7 +90,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
           </DialogTitle>
           <DialogDescription className="text-xs text-gray-500 dark:text-slate-400 mt-1.5">
             {p.authors}
-            {p.year && <span className="ml-2 font-mono">({p.year})</span>}
+            {p.year && <span className="ml-2">({p.year})</span>}
           </DialogDescription>
         </DialogHeader>
 
@@ -104,7 +104,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
               {p.field}
             </Badge>
           )}
-          <span className="text-xs text-gray-500 dark:text-slate-400 font-mono">
+          <span className="text-xs text-gray-500 dark:text-slate-400">
             {p.citations.toLocaleString()} citations
           </span>
           {p.pdfAvailable && p.pdfUrl && (

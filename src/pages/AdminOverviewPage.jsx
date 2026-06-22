@@ -25,7 +25,7 @@ function StatCard({ label, value, change, Icon, accent }) {
       </div>
       <div>
         <h4 className="text-[10px] font-semibold uppercase tracking-wider mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
-        <div className="text-xl font-black text-gray-900 dark:text-white font-mono">{value}</div>
+        <div className="text-xl font-bold text-gray-900 dark:text-white">{value}</div>
       </div>
     </motion.div>
   );
@@ -123,7 +123,7 @@ export default function AdminOverview() {
               <div key={r.name}>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-[10px] text-gray-500 dark:text-[#A0AEC0]">{r.name}</span>
-                  <span className="text-[10px] font-mono font-semibold text-gray-900 dark:text-white">{r.value}%</span>
+                  <span className="text-[10px] font-semibold text-gray-900 dark:text-white">{r.value}%</span>
                 </div>
                 <div className="h-2 rounded-full bg-gray-200 dark:bg-white/[0.04] overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${r.value}%` }} transition={{ duration: 1, delay: 0.3 }} className="h-full rounded-full" style={{ background: r.color }} />

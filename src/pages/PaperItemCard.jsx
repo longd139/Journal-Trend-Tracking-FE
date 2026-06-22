@@ -142,7 +142,7 @@ export function PaperItemCard({
             {/* 3. Đã chuyển: Năm bài báo hiển thị ngay dưới tiêu đề kèm Journal & DOI */}
             <div className="space-y-1">
               {year && (
-                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5 font-mono">
+                <p className="text-xs text-gray-500 dark:text-slate-400 flex items-center gap-1.5">
                   <Calendar
                     size={13}
                     className="text-gray-400 dark:text-slate-500 flex-shrink-0"
@@ -210,14 +210,14 @@ export function PaperItemCard({
           {/* KHỐI SỐ LƯỢNG CITATIONS & NÚT THAO TÁC (BÊN PHẢI) */}
           <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-gray-100 dark:border-white/5 sm:border-t-0 sm:pl-4">
             <div className="text-left sm:text-right">
-              <div className="text-2xl font-black text-gray-900 dark:text-white font-sans tracking-tight">
+              <div className="text-2xl font-bold text-gray-900 dark:text-white font-sans tracking-tight">
                 {citations.toLocaleString()}
               </div>
               <div className="text-[11px] text-gray-500 dark:text-slate-500 uppercase tracking-wider font-semibold">
                 Citations
               </div>
               {paper.trend && (
-                <div className="text-[10px] font-semibold font-mono mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
+                <div className="text-[10px] font-semibold mt-0.5 text-emerald-600 dark:text-[#00D1B2] bg-emerald-50 dark:bg-[#00D1B2]/5 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-[#00D1B2]/10 inline-block">
                   {paper.trend}
                 </div>
               )}

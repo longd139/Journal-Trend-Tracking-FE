@@ -23,7 +23,7 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
     </div>
     <div>
       <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
-      <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+      <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
     </div>
   </motion.div>
 );
@@ -169,7 +169,7 @@ export default function UserOverviewPage() {
                   <span className="w-2 h-2 rounded-full" style={{ background: f.c }} />
                   <span className="text-gray-600 dark:text-[#A0AEC0]">{f.n}</span>
                 </div>
-                <span className="font-semibold" style={{ color: f.c, fontFamily: "'JetBrains Mono', monospace" }}>{f.v}%</span>
+                <span className="font-semibold" style={{ color: f.c }}>{f.v}%</span>
               </div>
             ))}
           </div>
@@ -201,9 +201,9 @@ export default function UserOverviewPage() {
                     <tr key={i} className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                       <td className="px-5 py-3.5"><span className="text-xs font-semibold text-gray-900 dark:text-white block max-w-xs truncate">{p.title}</span></td>
                       <td className="px-5 py-3.5 text-xs text-[#4F8CFF] font-medium">{p.journal}</td>
-                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400">{p.year}</td>
                       <td className="px-5 py-3.5"><GlowBadge color={p.role === 'First Author' ? '#F59E0B' : '#00D1B2'}>{p.role}</GlowBadge></td>
-                      <td className="px-5 py-3.5 text-xs font-bold text-gray-900 dark:text-white font-mono">{p.citations}</td>
+                      <td className="px-5 py-3.5 text-xs font-bold text-gray-900 dark:text-white">{p.citations}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -220,7 +220,7 @@ export default function UserOverviewPage() {
                     <tr key={i} className="border-b border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
                       <td className="px-5 py-3.5"><span className="text-xs font-semibold text-gray-900 dark:text-white block max-w-[250px] truncate">{p.title}</span></td>
                       <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400">{p.authors}</td>
-                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400 font-mono">{p.year}</td>
+                      <td className="px-5 py-3.5 text-xs text-gray-500 dark:text-gray-400">{p.year}</td>
                       <td className="px-5 py-3.5"><GlowBadge color={ACADEMIC_FIELDS.find(f => f.n === p.field)?.c ?? '#4F8CFF'}>{p.field}</GlowBadge></td>
                       <td className="px-5 py-3.5">
                         <button className="text-xs font-semibold text-[#4F8CFF] hover:text-blue-700 dark:hover:text-white transition-colors bg-blue-50 dark:bg-[#4F8CFF]/10 px-3 py-1 rounded-md">Save</button>

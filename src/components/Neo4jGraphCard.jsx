@@ -127,7 +127,7 @@ const getGraphOptions = (isDark, tierGroups = []) => {
     font: {
       color: isDark ? '#E2E8F0' : '#1F2937',
       size: 12,
-      face: '"Be Vietnam Pro", Inter, "Noto Sans", system-ui, sans-serif',
+      face: '"Be Vietnam Pro", system-ui, -apple-system, "Inter", "Noto Sans", sans-serif',
       strokeWidth: 0,
     },
     borderWidth: 2,
