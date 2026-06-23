@@ -23,14 +23,14 @@ const StatCard = ({ label, value, icon: Icon, accent, sub }) => (
     className={`${card} p-4 flex items-center gap-3 group`}
   >
     <div
-      className="p-2 rounded-lg shrink-0"
-      style={{ background: `${accent}18`, color: accent }}
+      className="p-2 rounded-lg shrink-0 card-icon-accent"
+      style={{ '--icon-accent': accent, background: `${accent}18`, color: accent }}
     >
       <Icon size={18} />
     </div>
     <div>
       <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0]">{label}</div>
-      <div className="text-lg font-black text-gray-900 dark:text-white font-mono">
+      <div className="text-lg font-bold text-gray-900 dark:text-white">
         {value?.toLocaleString() ?? '—'}
       </div>
       {sub && <div className="text-[10px] text-gray-500 dark:text-[#A0AEC0] mt-0.5">{sub}</div>}
@@ -122,11 +122,11 @@ export default function DatabaseViewPage() {
         <Section title="Papers" icon={FileText} accent="#4F8CFF">
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-              <div className="text-xl font-black text-emerald-500 font-mono">{papers?.openAccess?.toLocaleString() ?? '—'}</div>
+              <div className="text-xl font-bold text-emerald-500">{papers?.openAccess?.toLocaleString() ?? '—'}</div>
               <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Open Access</div>
             </div>
             <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-              <div className="text-xl font-black text-blue-500 font-mono">{papers?.hasPdfUrl?.toLocaleString() ?? '—'}</div>
+              <div className="text-xl font-bold text-blue-500">{papers?.hasPdfUrl?.toLocaleString() ?? '—'}</div>
               <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Has PDF URL</div>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function DatabaseViewPage() {
                     <div key={source} className="flex items-center gap-2.5">
                       <Icon size={14} className="text-gray-500 dark:text-slate-400" />
                       <span className="text-xs text-gray-700 dark:text-slate-300 capitalize flex-1">{source}</span>
-                      <span className="text-xs font-bold text-gray-900 dark:text-white font-mono">{count.toLocaleString()}</span>
+                      <span className="text-xs font-bold text-gray-900 dark:text-white">{count.toLocaleString()}</span>
                     </div>
                   );
                 })}
@@ -167,8 +167,8 @@ export default function DatabaseViewPage() {
                       key={year}
                       className="p-2 rounded-lg text-center bg-gray-50 dark:bg-white/[0.02]"
                     >
-                      <div className="text-sm font-bold text-gray-900 dark:text-white font-mono">{year}</div>
-                      <div className="text-[10px] text-emerald-500 font-mono">{count.toLocaleString()}</div>
+                      <div className="text-sm font-bold text-gray-900 dark:text-white">{year}</div>
+                      <div className="text-[10px] text-emerald-500">{count.toLocaleString()}</div>
                     </div>
                   ))}
               </div>
@@ -182,15 +182,15 @@ export default function DatabaseViewPage() {
           <Section title="Knowledge Graph (Neo4j)" icon={Network} accent="#8B5CF6">
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-                <div className="text-xl font-black text-violet-500 font-mono">{neo4j?.paperNodes?.toLocaleString() ?? '—'}</div>
+                <div className="text-xl font-bold text-violet-500">{neo4j?.paperNodes?.toLocaleString() ?? '—'}</div>
                 <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Paper Nodes</div>
               </div>
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-                <div className="text-xl font-black text-teal-500 font-mono">{neo4j?.keywordNodes?.toLocaleString() ?? '—'}</div>
+                <div className="text-xl font-bold text-teal-500">{neo4j?.keywordNodes?.toLocaleString() ?? '—'}</div>
                 <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Keyword Nodes</div>
               </div>
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-                <div className="text-xl font-black text-amber-500 font-mono">{neo4j?.relationships?.toLocaleString() ?? '—'}</div>
+                <div className="text-xl font-bold text-amber-500">{neo4j?.relationships?.toLocaleString() ?? '—'}</div>
                 <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Relationships</div>
               </div>
             </div>
@@ -200,11 +200,11 @@ export default function DatabaseViewPage() {
           <Section title="Research & Topics" icon={TrendingUp} accent="#00D1B2">
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-                <div className="text-xl font-black text-emerald-500 font-mono">{researchFields?.total?.toLocaleString() ?? '—'}</div>
+                <div className="text-xl font-bold text-emerald-500">{researchFields?.total?.toLocaleString() ?? '—'}</div>
                 <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Fields</div>
               </div>
               <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-                <div className="text-xl font-black text-amber-500 font-mono">{researchTopics?.total?.toLocaleString() ?? '—'}</div>
+                <div className="text-xl font-bold text-amber-500">{researchTopics?.total?.toLocaleString() ?? '—'}</div>
                 <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Topics</div>
               </div>
             </div>
@@ -225,13 +225,13 @@ export default function DatabaseViewPage() {
                 {authors?.orphaned > 0 && (
                   <div className="flex items-center justify-between p-2 rounded-lg bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10">
                     <span className="text-xs text-red-700 dark:text-red-400">Orphaned Authors</span>
-                    <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono">{authors.orphaned.toLocaleString()}</span>
+                    <span className="text-xs font-bold text-red-600 dark:text-red-400">{authors.orphaned.toLocaleString()}</span>
                   </div>
                 )}
                 {keywords?.orphaned > 0 && (
                   <div className="flex items-center justify-between p-2 rounded-lg bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10">
                     <span className="text-xs text-red-700 dark:text-red-400">Orphaned Keywords</span>
-                    <span className="text-xs font-bold text-red-600 dark:text-red-400 font-mono">{keywords.orphaned.toLocaleString()}</span>
+                    <span className="text-xs font-bold text-red-600 dark:text-red-400">{keywords.orphaned.toLocaleString()}</span>
                   </div>
                 )}
               </div>
@@ -244,11 +244,11 @@ export default function DatabaseViewPage() {
       <Section title="Sync Logs" icon={Clock} accent="#F59E0B">
         <div className="flex items-center gap-4">
           <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center flex-1">
-            <div className="text-xl font-black text-amber-500 font-mono">{syncLogs?.total?.toLocaleString() ?? '—'}</div>
+            <div className="text-xl font-bold text-amber-500">{syncLogs?.total?.toLocaleString() ?? '—'}</div>
             <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0] mt-0.5">Total Syncs</div>
           </div>
           <div className="p-3 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center flex-1">
-            <div className="text-sm font-bold text-gray-900 dark:text-white font-mono">
+            <div className="text-sm font-bold text-gray-900 dark:text-white">
               {syncLogs?.lastSync
                 ? new Date(syncLogs.lastSync).toLocaleString()
                 : 'Never'}

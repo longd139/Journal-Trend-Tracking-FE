@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Clock, Trash2 } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { AcademicLimitAlert } from './AcademicLimitAlert';
 import { AdvancedFilter } from './AdvancedFilter';
@@ -49,6 +49,14 @@ export default function SearchPapers() {
   });
   const [showGraph, setShowGraph] = useState(false);
   const [selectedPaper, setSelectedPaper] = useState(null);
+
+  // ─── Search history ─────────────────────────────────────────────────────
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef(null);
+
+  // ─── Viewed papers history ──────────────────────────────────────────────
+  const [viewedPapers, setViewedPapers] = useState([]);
 
   const currentRole = sessionStorage.getItem('userRole');
   const storageKey = `scitrack_bookmarks_${currentRole}`;
@@ -142,6 +150,24 @@ export default function SearchPapers() {
     }
   }, [storageKey]);
 
+  // Load search history from localStorage
+  useEffect(() => {
+    const key = `scitrack_search_history_${currentRole}`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) setSearchHistory(JSON.parse(data));
+    } catch { setSearchHistory([]); }
+  }, [currentRole]);
+
+  // Load viewed papers from localStorage
+  useEffect(() => {
+    const key = `scitrack_viewed_papers_${currentRole}`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) setViewedPapers(JSON.parse(data));
+    } catch { setViewedPapers([]); }
+  }, [currentRole]);
+
   const toggleBookmark = (paper) => {
     if (!paper || !paper.title) return;
     setSavedBookmarks((prev) => {
@@ -163,6 +189,58 @@ export default function SearchPapers() {
       openAccess: false,
     });
   };
+
+  // ─── Save keyword to search history ─────────────────────────────────────
+  const saveToSearchHistory = (keyword) => {
+    const trimmed = keyword.trim();
+    if (!trimmed) return;
+    const key = `scitrack_search_history_${currentRole}`;
+    const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  const clearSearchHistory = () => {
+    const key = `scitrack_search_history_${currentRole}`;
+    setSearchHistory([]);
+    localStorage.removeItem(key);
+    setShowSuggestions(false);
+  };
+
+  const removeSearchHistoryItem = (keyword) => {
+    const key = `scitrack_search_history_${currentRole}`;
+    const updated = searchHistory.filter((k) => k !== keyword);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  // ─── View paper (save to history + open dialog) ─────────────────────────
+  const handleViewPaper = (paper) => {
+    setSelectedPaper(paper);
+    if (!paper || !paper.title) return;
+    const key = `scitrack_viewed_papers_${currentRole}`;
+    const entry = {
+      title: paper.title,
+      authors: paper.authors,
+      year: paper.pubYear || paper.year,
+      field: paper.fieldName || paper.field,
+      viewedAt: new Date().toISOString(),
+    };
+    const updated = [entry, ...viewedPapers.filter((p) => p.title !== entry.title)].slice(0, 20);
+    setViewedPapers(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  const clearViewedPapers = () => {
+    const key = `scitrack_viewed_papers_${currentRole}`;
+    setViewedPapers([]);
+    localStorage.removeItem(key);
+  };
+
+  // Filter history based on current query input
+  const filteredSuggestions = query.trim()
+    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
+    : searchHistory;
 
   const renderPageNumbers = () => {
     const pages = [];
@@ -208,12 +286,71 @@ export default function SearchPapers() {
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 dark:text-slate-400"
         />
         <Input
+          ref={searchInputRef}
           type="text"
           placeholder={t('placeholder')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-blue-500/50 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-slate-200 shadow-sm dark:shadow-none"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && query.trim()) {
+              saveToSearchHistory(query);
+              setShowSuggestions(false);
+            }
+          }}
+          onFocus={() => {
+            if (searchHistory.length > 0) setShowSuggestions(true);
+          }}
+          onBlur={() => {
+            // Delay so click on suggestion registers before hiding
+            setTimeout(() => setShowSuggestions(false), 150);
+          }}
+          className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-gray-300 dark:focus-visible:border-white/20 focus-visible:ring-0 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 text-gray-900 dark:text-slate-200 shadow-sm dark:shadow-none"
         />
+
+        {/* Search suggestions dropdown */}
+        {showSuggestions && filteredSuggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 z-20 rounded-xl border bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-lg overflow-hidden">
+            {filteredSuggestions.slice(0, 8).map((kw) => (
+              <button
+                key={kw}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setQuery(kw);
+                  saveToSearchHistory(kw);
+                  setShowSuggestions(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-slate-300"
+              >
+                <Clock size={12} className="text-gray-400 dark:text-slate-500 shrink-0" />
+                <span className="flex-1 truncate">{kw}</span>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeSearchHistoryItem(kw);
+                  }}
+                  className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-white/10 text-gray-400 dark:text-slate-500 hover:text-red-500 shrink-0"
+                >
+                  <X size={11} />
+                </button>
+              </button>
+            ))}
+            <div className="border-t border-gray-100 dark:border-white/5">
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  clearSearchHistory();
+                }}
+                className="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] font-medium text-gray-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+              >
+                <Trash2 size={11} /> Clear search history
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Quick Search Tags */}
@@ -225,7 +362,7 @@ export default function SearchPapers() {
           <button
             key={f.n}
             type="button"
-            onClick={() => setQuery(f.n)}
+            onClick={() => { setQuery(f.n); saveToSearchHistory(f.n); }}
             className="px-3 py-1.5 rounded-full font-medium transition-transform hover:scale-105"
             style={{
               background: `${f.c}1A`,
@@ -269,7 +406,7 @@ export default function SearchPapers() {
                 <button
                   key={kw}
                   type="button"
-                  onClick={() => setQuery(kw)}
+                  onClick={() => { setQuery(kw); saveToSearchHistory(kw); }}
                   className={`text-[11px] px-2.5 py-1.5 rounded-lg border transition-all duration-200 text-left truncate max-w-full ${
                     query.toLowerCase() === kw.toLowerCase()
                       ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40 font-medium'
@@ -280,6 +417,73 @@ export default function SearchPapers() {
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Recently Viewed Papers */}
+          <div className="rounded-xl p-5 space-y-3 transition-all duration-300 bg-white dark:bg-[#1B2235] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none">
+            <div className="flex items-center justify-between">
+              <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">
+                Recently Viewed
+              </h5>
+              {viewedPapers.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearViewedPapers}
+                  className="text-[10px] text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1"
+                >
+                  <Trash2 size={10} /> Clear
+                </button>
+              )}
+            </div>
+            {viewedPapers.length === 0 ? (
+              <p className="text-[11px] text-gray-400 dark:text-slate-600 italic">
+                No papers viewed yet
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {viewedPapers.slice(0, 5).map((paper, i) => (
+                  <button
+                    key={paper.title || i}
+                    type="button"
+                    onClick={() => handleViewPaper(paper)}
+                    className="w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                  >
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      {paper.field && (
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                          style={{
+                            background: `${FIELD_DATA.find((f) => f.n === paper.field)?.c || '#4F8CFF'}1A`,
+                            color: FIELD_DATA.find((f) => f.n === paper.field)?.c || '#4F8CFF',
+                          }}
+                        >
+                          {paper.field}
+                        </span>
+                      )}
+                      {paper.year && (
+                        <span className="text-[10px] text-gray-400 dark:text-slate-500">{paper.year}</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-gray-700 dark:text-slate-300 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {paper.title}
+                    </p>
+                    <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-0.5">
+                      Viewed {(() => {
+                        const diff = Date.now() - new Date(paper.viewedAt).getTime();
+                        const mins = Math.floor(diff / 60000);
+                        const hours = Math.floor(diff / 3600000);
+                        const days = Math.floor(diff / 86400000);
+                        if (mins < 1) return 'just now';
+                        if (mins < 60) return `${mins}m ago`;
+                        if (hours < 24) return `${hours}h ago`;
+                        if (days < 7) return `${days}d ago`;
+                        return new Date(paper.viewedAt).toLocaleDateString();
+                      })()}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
@@ -337,7 +541,7 @@ export default function SearchPapers() {
                     (saved) => saved.title === paper.title,
                   )}
                   onToggleBookmark={toggleBookmark}
-                  onClick={(p) => setSelectedPaper(p)}
+                  onClick={(p) => handleViewPaper(p)}
                 />
               ))}
           </div>

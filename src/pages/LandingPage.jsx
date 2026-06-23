@@ -111,7 +111,7 @@ export default function LandingPage() {
             <div className="rounded-2xl border border-gray-200 dark:border-white/10 p-5 relative overflow-hidden bg-white/60 dark:bg-[#1B2235]/90 backdrop-blur-xl shadow-xl dark:shadow-none">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-bold text-gray-900 dark:text-white">{t('preview.title')}</span>
-                <span className="text-xs font-semibold flex items-center gap-1.5 text-teal-600 dark:text-teal-400 font-mono">
+                <span className="text-xs font-semibold flex items-center gap-1.5 text-teal-600 dark:text-teal-400">
                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> {t('preview.live')}
                 </span>
               </div>
@@ -134,7 +134,7 @@ export default function LandingPage() {
                   <div key={s.l} className="rounded-lg p-2.5 text-center bg-gray-50 dark:bg-[#131A2A]">
                     <div className="text-[10px] mb-1 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
                     <div className="text-base font-black text-gray-900 dark:text-white font-outfit">{s.v}</div>
-                    <div className={`text-[10px] font-semibold font-mono ${s.c}`}>{s.d}</div>
+                    <div className={`text-[10px] font-semibold ${s.c}`}>{s.d}</div>
                   </div>
                 ))}
               </div>
@@ -148,7 +148,7 @@ export default function LandingPage() {
               </div>
               <p className="text-[10px] leading-relaxed text-gray-600 dark:text-[#A0AEC0]">
                 <span className="text-blue-600 dark:text-blue-400">{t('preview.insightHighlight')}</span> surged{' '}
-                <span className="text-teal-600 dark:text-teal-400 font-mono font-semibold">{t('preview.insightStat')}</span> — {t('preview.insightSuffix')}
+                <span className="text-teal-600 dark:text-teal-400 font-semibold">{t('preview.insightStat')}</span> — {t('preview.insightSuffix')}
               </p>
             </motion.div>
 
@@ -158,7 +158,7 @@ export default function LandingPage() {
               <div className="text-3xl font-black text-gray-900 dark:text-white font-outfit">52.1M</div>
               <div className="flex items-center gap-1 mt-1">
                 <ArrowUpRight size={11} className="text-teal-500" />
-                <span className="text-[10px] font-semibold text-teal-600 dark:text-teal-400 font-mono">+35.7% {t('preview.yoy')}</span>
+                <span className="text-[10px] font-semibold text-teal-600 dark:text-teal-400">+35.7% {t('preview.yoy')}</span>
               </div>
             </motion.div>
           </motion.div>
@@ -177,7 +177,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border p-6 mb-8 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
             <div className="flex flex-wrap gap-5 mb-4">
               {[{ k: 'ai', c: '#3b82f6', l: t('trends.fields.aiMl') }, { k: 'bio', c: '#8b5cf6', l: t('trends.fields.biotechnology') }, { k: 'cli', c: '#14b8a6', l: t('trends.fields.climateScience') }, { k: 'qc', c: '#f59e0b', l: t('trends.fields.quantumComputing') }].map((f) => (
-                <div key={f.k} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-[#A0AEC0] font-mono">
+                <div key={f.k} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-[#A0AEC0]">
                   <span className="w-2.5 h-2.5 rounded-sm" style={{ background: f.c }} />{f.l}
                 </div>
               ))}
@@ -211,11 +211,11 @@ export default function LandingPage() {
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center card-icon-accent" style={{ '--icon-accent': ins.c, background: `${ins.c}1A`, color: ins.c }}>
                     <TrendingUp size={14} />
                   </div>
-                  <span className="text-sm font-black font-mono" style={{ color: ins.c }}>{ins.growth}</span>
+                  <span className="text-sm font-bold" style={{ color: ins.c }}>{ins.growth}</span>
                 </div>
                 <div className="text-sm font-bold text-gray-900 dark:text-white mb-1.5">{item.topic}</div>
                 <div className="text-xs leading-relaxed mb-3 text-gray-600 dark:text-[#A0AEC0]">{item.desc}</div>
-                <div className="text-xs font-mono text-gray-500 dark:text-gray-400">{ins.papers.toLocaleString()} {t('trends.papersLabel')}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{ins.papers.toLocaleString()} {t('trends.papersLabel')}</div>
               </motion.div>
               );
             })}
@@ -271,7 +271,7 @@ export default function LandingPage() {
                   {[{ l: t('integrations.uptime'), v: `${api.up}%`, c: 'text-teal-600 dark:text-[#00D1B2]' }, { l: t('integrations.latency'), v: api.lat, c: 'text-gray-900 dark:text-white' }, { l: t('integrations.reqPerDay'), v: api.req, c: 'text-gray-900 dark:text-white' }].map((s) => (
                     <div key={s.l} className="flex justify-between text-xs">
                       <span className="text-gray-500 dark:text-[#A0AEC0]">{s.l}</span>
-                      <span className={`font-semibold font-mono ${s.c}`}>{s.v}</span>
+                      <span className={`font-semibold ${s.c}`}>{s.v}</span>
                     </div>
                   ))}
                 </div>

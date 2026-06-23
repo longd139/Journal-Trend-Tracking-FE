@@ -227,12 +227,14 @@ export default function UserManagement() {
           { label: 'Active', value: stats.active, icon: UserCheck, color: '#00D1B2' },
           { label: 'Inactive', value: stats.inactive, icon: UserX, color: '#EF4444' },
         ].map((s) => (
-          <motion.div key={s.label} whileHover={{ y: -2 }} className={`p-4 rounded-xl border ${cardCls}`}>
+          <motion.div key={s.label} whileHover={{ y: -2 }} className={`p-4 rounded-xl border ${cardCls} group`}>
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0]">{s.label}</span>
-              <s.icon size={15} style={{ color: s.color }} />
+              <div className="p-1.5 rounded-lg card-icon-accent" style={{ '--icon-accent': s.color, color: s.color }}>
+                <s.icon size={15} />
+              </div>
             </div>
-            <div className="text-2xl font-black text-gray-900 dark:text-white font-mono">{s.value}</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">{s.value}</div>
           </motion.div>
         ))}
       </div>

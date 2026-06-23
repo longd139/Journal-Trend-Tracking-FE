@@ -5,24 +5,19 @@ import { FileText, TrendingUp, Users, Star, Search } from 'lucide-react';
 import Neo4jGraphCard from '../components/Neo4jGraphCard';
 import { graphAPI } from '../lib/api/graph.api';
 
-const StatCard = ({ label, value, change, Icon, accent }) => {
-  const [hovered, setHovered] = useState(false);
-
-  return (
+const StatCard = ({ label, value, change, Icon, accent }) => (
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none"
+      className="p-5 rounded-xl border flex flex-col justify-between bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/5 transition-colors duration-300 shadow-sm dark:shadow-none group"
     >
       <div className="flex items-start justify-between mb-2">
         <div
-          className="p-2 rounded-lg card-icon-glow"
+          className="p-2 rounded-lg card-icon-accent"
           style={{
-            background: hovered ? accent : `${accent}1A`,
-            color: hovered ? 'white' : accent,
-            transform: hovered ? 'scale(1.15)' : 'scale(1)',
+            '--icon-accent': accent,
+            background: `${accent}1A`,
+            color: accent,
           }}
         >
           <Icon size={18} />
@@ -33,11 +28,10 @@ const StatCard = ({ label, value, change, Icon, accent }) => {
       </div>
       <div>
         <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-500 dark:text-[#A0AEC0]">{label}</h4>
-        <div className="text-2xl font-black text-gray-900 dark:text-white" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{value}</div>
+        <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
       </div>
     </motion.div>
   );
-};
 
 export default function AnalyticsView() {
   const { t } = useTranslation('analytics');
@@ -164,7 +158,7 @@ export default function AnalyticsView() {
                       style={{
                         background: rankColor ? `${rankColor}20` : 'transparent',
                         color: rankColor || '#6B7280',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        // font inherited from body
                       }}
                     >
                       {rank}
@@ -174,7 +168,6 @@ export default function AnalyticsView() {
                     </span>
                     <span
                       className="text-[10px] font-semibold flex-shrink-0 text-gray-400 dark:text-[#A0AEC0]"
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}
                     >
                       {kw.searchCount.toLocaleString()} {t('hotKeywords.searches')}
                     </span>
