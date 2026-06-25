@@ -1,316 +1,576 @@
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, YAxis } from 'recharts';
-import { ArrowRight, TrendingUp, Brain, Zap, ArrowUpRight, Microscope, Globe, Sun, Moon } from 'lucide-react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PARTICLES, PUB_DATA, INSIGHTS, FEATURES, APIS } from '../constants/mockData';
-import { SectionBadge, StatusPill } from '../components/SharedUI';
-import LanguageSwitcher from '../components/common/LanguageSwitcher';
-import { useTheme } from '../hooks/useTheme';
+import { motion, useInView, useScroll, useTransform } from 'motion/react';
+import { ArrowRight, Check, ChevronDown } from 'lucide-react';
+import WordsPullUp from '../components/prisma/WordsPullUp';
+import WordsPullUpMultiStyle from '../components/prisma/WordsPullUpMultiStyle';
+import ScitrackSLogo from '../components/prisma/ScitrackSLogo';
 
-export default function LandingPage() {
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 1 — Hero
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function HeroSection() {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation(['landing', 'common']);
-  const { resolvedTheme, setTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  const isVietnamese = i18n.language === 'vi';
 
-  const handleAuthRedirect = (mode) => {
-    if (mode === 'login') {
-      navigate('/login');
-    } else {
-      navigate('/auth', { state: { mode } });
-    }
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const chartTextColor = isDark ? '#A0AEC0' : '#6B7280';
-  const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)';
-  const tooltipBg = isDark ? '#131A2A' : '#ffffff';
-
   return (
-    <div className="min-h-screen transition-colors duration-300 bg-gray-50 dark:bg-[#0B1020] font-sans">
-      {/* Navbar */}
-      <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 lg:px-10 py-4 border-b border-gray-200 dark:border-white/5 bg-white/85 dark:bg-[#0B1020]/85 backdrop-blur-md transition-colors">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400 shadow-md">
-            <Microscope size={13} className="text-white" />
-          </div>
-          <span className="text-sm font-black text-gray-900 dark:text-white tracking-widest font-outfit">SCITRACK</span>
-        </div>
-        <div className="hidden md:flex items-center gap-7 text-sm font-medium text-gray-500 dark:text-[#A0AEC0]">
-          {[{ key: 'trends', label: t('nav.trends') }, { key: 'features', label: t('nav.features') }, { key: 'integrations', label: t('nav.integrations') }].map(({ key, label }) => (
-            <a key={key} href={`#${key}`} className="hover:text-blue-600 dark:hover:text-white transition-colors">{label}</a>
-          ))}
-        </div>
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher variant="topbar" />
+    <section className="relative h-screen p-4 md:p-6 prisma-page">
+      <div className="relative h-full w-full rounded-2xl md:rounded-[2rem] overflow-hidden">
+        {/* Background video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260405_170732_8a9ccda6-5cff-4628-b164-059c500a2b41.mp4"
+        />
+
+        {/* Noise overlay */}
+        <div className="noise-overlay opacity-[0.7]" style={{ mixBlendMode: 'overlay' }} />
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
+
+        {/* Auth buttons — top right */}
+        <div className="absolute top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
           <button
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            className="flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/20"
-            title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            onClick={() => navigate('/login')}
+            className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 hover:text-[#E1E0CC]"
+            style={{ color: 'rgba(225, 224, 204, 0.8)' }}
+            onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
+            onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
           >
-            {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            Sign In
           </button>
-          <button onClick={() => handleAuthRedirect('login')} className="px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-all">{t('nav.signIn')}</button>
-          <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-4 py-2 text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">{t('nav.register')}</motion.button>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Ambient glows */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-[480px] h-[480px] rounded-full blur-3xl opacity-5 dark:opacity-[0.14] bg-blue-500" />
-          <div className="absolute bottom-1/3 right-1/5 w-96 h-96 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-purple-600" />
-          <div className="absolute bottom-0 left-1/2 w-72 h-72 rounded-full blur-3xl opacity-5 dark:opacity-10 bg-teal-500" />
-          {PARTICLES.map((p) => (
-            <motion.div
-              key={p.id}
-              className="absolute rounded-full"
-              style={{ width: p.size, height: p.size, left: `${p.left}%`, top: `${p.top}%`, background: p.color, opacity: 0.2 }}
-              animate={{ y: [0, -28, 0], opacity: [0.15, 0.38, 0.15] }}
-              transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
-            />
-          ))}
+          <button
+            onClick={() => navigate('/register')}
+            className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#DEDBC8] text-black transition-all duration-200 hover:scale-105"
+          >
+            Register
+          </button>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center w-full">
-          {/* Left col */}
-          <motion.div initial={{ opacity: 0, x: -40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-6 border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
-              <Zap size={10} /> {t('hero.badge')}
+        {/* Navbar — black pill hanging from top */}
+        <nav className="absolute top-0 left-1/2 -translate-x-1/2 z-20">
+          <div className="bg-black rounded-b-2xl md:rounded-b-3xl px-4 py-2 md:px-8">
+            <div className="flex items-center gap-3 sm:gap-6 md:gap-12 lg:gap-14">
+              {[
+                { label: 'Our story', id: 'about' },
+                { label: 'Features', id: 'features' },
+                { label: 'Search', href: '/login' },
+                { label: 'Analytics', href: '/login' },
+                { label: 'Pricing', href: '/register' },
+              ].map((item) => (
+                <a
+                  key={item.label}
+                  href={item.id ? `#${item.id}` : item.href}
+                  onClick={(e) => {
+                    if (item.id) {
+                      e.preventDefault();
+                      scrollTo(item.id);
+                    }
+                  }}
+                  className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap transition-colors duration-200 hover:text-[#E1E0CC]"
+                  style={{ color: 'rgba(225, 224, 204, 0.8)' }}
+                  onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
+                  onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
+                >
+                  {item.label}
+                </a>
+              ))}
             </div>
-            <h1
-              className={`font-bold leading-[1.1] mb-6 text-gray-900 dark:text-white overflow-diacritics-safe ${isVietnamese ? 'text-5xl lg:text-6xl' : 'text-6xl lg:text-7xl'}`}
-              style={{ fontFamily: isVietnamese ? "'Be Vietnam Pro', 'Inter', 'Noto Sans', sans-serif" : "'Outfit', sans-serif" }}
-            >
-              {t('hero.heading1')}<br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400">{t('hero.heading2')}</span><br />
-              {t('hero.heading3')}
-            </h1>
-            <p className="text-base lg:text-lg mb-8 leading-relaxed text-gray-600 dark:text-[#A0AEC0] max-w-[480px]">
-              {t('hero.description')}
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-6 py-3 rounded-xl text-sm font-bold text-white flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">
-                {t('hero.cta')} <ArrowRight size={15} />
+          </div>
+        </nav>
+
+        {/* Hero Content — bottom aligned */}
+        <div className="absolute bottom-0 left-0 right-0 z-10 p-6 md:p-10 lg:p-14">
+          <div className="grid grid-cols-12 gap-6 md:gap-10 items-end">
+            {/* Left — Giant heading (7 cols, slightly smaller for balance) */}
+            <div className="col-span-12 lg:col-span-7">
+              <WordsPullUp
+                text="SCITRACK"
+                showAsterisk
+                className="font-medium leading-[0.85] tracking-[-0.07em] text-[#E1E0CC] text-[18vw] sm:text-[16vw] md:text-[14vw] lg:text-[12vw] xl:text-[11vw] 2xl:text-[12vw]"
+              />
+            </div>
+
+            {/* Right — Description + CTA (5 cols) */}
+            <div className="col-span-12 lg:col-span-5 flex flex-col gap-5 md:gap-6 pb-2 md:pb-4">
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                className="text-xs sm:text-sm md:text-base leading-[1.25]"
+                style={{ color: 'rgba(225, 224, 204, 0.7)' }}
+              >
+                An academic research platform that helps you discover,
+                search by keyword, and track trending papers across 50M+
+                publications — built for researchers, by researchers.
+              </motion.p>
+
+              <motion.button
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                onClick={() => navigate('/register')}
+                className="group flex items-center gap-2 hover:gap-3 transition-all duration-300 bg-[#DEDBC8] rounded-full pl-5 pr-2 py-2 text-black font-medium text-sm sm:text-base w-fit"
+              >
+                Explore more
+                <span className="bg-black rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <ArrowRight size={16} className="text-[#DEDBC8]" />
+                </span>
               </motion.button>
             </div>
-            <div className="flex gap-10 mt-10 pt-8 border-t border-gray-200 dark:border-white/10">
-              {[{ v: '50M+', l: t('stats.papers') }, { v: '4 APIs', l: t('stats.apis') }, { v: '98.7%', l: t('stats.uptime') }].map((s) => (
-                <div key={s.l}>
-                  <div className="text-2xl font-black text-gray-900 dark:text-white font-outfit">{s.v}</div>
-                  <div className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+          </div>
+        </div>
 
-          {/* Right col — Dashboard preview */}
-          <motion.div initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.2 }} className="relative hidden lg:block">
-            <div className="rounded-2xl border border-gray-200 dark:border-white/10 p-5 relative overflow-hidden bg-white/60 dark:bg-[#1B2235]/90 backdrop-blur-xl shadow-xl dark:shadow-none">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-bold text-gray-900 dark:text-white">{t('preview.title')}</span>
-                <span className="text-xs font-semibold flex items-center gap-1.5 text-teal-600 dark:text-teal-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" /> {t('preview.live')}
+        {/* Scroll-down indicator */}
+        <motion.button
+          onClick={() => scrollTo('about')}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 cursor-pointer group"
+          aria-label="Scroll to our story"
+        >
+          <span className="text-[9px] uppercase tracking-[0.2em] text-[#DEDBC8]/50 group-hover:text-[#DEDBC8]/80 transition-colors">
+            Scroll
+          </span>
+          <motion.span
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            className="w-6 h-6 rounded-full border border-[#DEDBC8]/30 flex items-center justify-center group-hover:border-[#DEDBC8]/60 transition-colors"
+          >
+            <ChevronDown size={12} className="text-[#DEDBC8]/50 group-hover:text-[#DEDBC8] transition-colors" />
+          </motion.span>
+        </motion.button>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 2 — Our Story
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const TRENDING_PAPERS = [
+  {
+    title: 'Scaling Laws for Neural Language Models',
+    field: 'AI & ML',
+    trend: '+234%',
+    image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'mRNA Vaccine Platforms Against Infectious Diseases',
+    field: 'Medicine',
+    trend: '+201%',
+    image: 'https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Climate Tipping Points in Global Ecosystems',
+    field: 'Climate',
+    trend: '+156%',
+    image: 'https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Fault-Tolerant Quantum Computing with Logical Qubits',
+    field: 'Quantum',
+    trend: '+312%',
+    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&h=400&fit=crop',
+  },
+  {
+    title: 'Deep Learning for Protein Structure Prediction',
+    field: 'Bioinformatics',
+    trend: '+267%',
+    image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?w=600&h=400&fit=crop',
+  },
+];
+
+const STORY_ADVANTAGES = [
+  {
+    num: '01',
+    title: 'One search, every database.',
+    desc: 'No more jumping between Google Scholar, IEEE, Scopus, and Springer. SCITRACK indexes them all — 50M+ papers in a single search box.',
+  },
+  {
+    num: '02',
+    title: 'Trends before they trend.',
+    desc: 'Our citation analysis engine detects emerging research directions months before they hit the mainstream — giving you a head start on your next breakthrough.',
+  },
+  {
+    num: '03',
+    title: 'Your research, organized.',
+    desc: 'Bookmark, tag, and build custom reading lists. Export citations in any format. Turn weeks of literature review into hours of focused insight.',
+  },
+];
+
+function AboutSection() {
+  const navigate = useNavigate();
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start end', 'end start'],
+  });
+
+  // Scroll-driven values: image zooms out, overlay fades
+  const imageScale = useTransform(scrollYProgress, [0, 0.5], [1.25, 1]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.4], [0.85, 0.5]);
+
+  return (
+    <section ref={sectionRef} id="about" className="relative bg-black prisma-page">
+      {/* ── Hero-style image banner with scroll-driven reveal ──────── */}
+      <div className="relative h-[70vh] md:h-[80vh] overflow-hidden">
+        <motion.img
+          src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1400&h=900&fit=crop"
+          alt="Library"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ scale: imageScale }}
+        />
+        <motion.div
+          className="absolute inset-0 bg-black"
+          style={{ opacity: overlayOpacity }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
+        <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
+
+        {/* Story text overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-14 lg:p-20">
+          <div className="max-w-4xl">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-[10px] sm:text-xs font-medium mb-4 text-[#DEDBC8] tracking-widest uppercase"
+            >
+              Our Story
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-[#E1E0CC] max-w-3xl leading-[1.08]"
+            >
+              Every researcher knows the feeling.
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              className="text-sm sm:text-base md:text-lg text-gray-400 mt-4 max-w-2xl leading-relaxed"
+            >
+              You spend hours jumping between databases, drowning in thousands of papers,
+              wondering if <span className="text-[#DEDBC8]">the one paper that changes everything</span> slipped
+              through the cracks. We built SCITRACK so it never does.
+            </motion.p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Advantages ──────────────────────────────────────────────── */}
+      <div className="px-4 md:px-6 pb-20 md:pb-28 -mt-2">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {STORY_ADVANTAGES.map((item, i) => (
+              <motion.div
+                key={item.num}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
+                className="bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300"
+              >
+                <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 leading-none">
+                  {item.num}
                 </span>
-              </div>
-              <ResponsiveContainer width="100%" height={160}>
-                <AreaChart data={PUB_DATA.slice(-6)}>
-                  <defs>
-                    <linearGradient id="hgAI" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} /><stop offset="95%" stopColor="#3b82f6" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="hgBio" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} /><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="hgCli" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#14b8a6" stopOpacity={0.25} /><stop offset="95%" stopColor="#14b8a6" stopOpacity={0} /></linearGradient>
-                  </defs>
-                  <XAxis dataKey="m" tick={{ fill: chartTextColor, fontSize: 10 }} axisLine={false} tickLine={false} />
-                  <Tooltip contentStyle={{ background: tooltipBg, border: `1px solid ${gridColor}`, borderRadius: 8, fontSize: 11, color: isDark ? '#fff' : '#000' }} />
-                  <Area type="monotone" dataKey="ai" stroke="#3b82f6" fill="url(#hgAI)" strokeWidth={2} name="AI & ML" />
-                  <Area type="monotone" dataKey="bio" stroke="#8b5cf6" fill="url(#hgBio)" strokeWidth={2} name="Biotech" />
-                  <Area type="monotone" dataKey="cli" stroke="#14b8a6" fill="url(#hgCli)" strokeWidth={2} name="Climate" />
-                </AreaChart>
-              </ResponsiveContainer>
-              <div className="grid grid-cols-3 gap-2 mt-3">
-                {[{ l: t('preview.aiMl'), v: '7,200', c: 'text-blue-500', d: '+18%' }, { l: t('preview.biotech'), v: '3,680', c: 'text-purple-500', d: '+12%' }, { l: t('preview.climate'), v: '2,720', c: 'text-teal-500', d: '+24%' }].map((s) => (
-                  <div key={s.l} className="rounded-lg p-2.5 text-center bg-gray-50 dark:bg-[#131A2A]">
-                    <div className="text-[10px] mb-1 text-gray-500 dark:text-[#A0AEC0]">{s.l}</div>
-                    <div className="text-base font-black text-gray-900 dark:text-white font-outfit">{s.v}</div>
-                    <div className={`text-[10px] font-semibold ${s.c}`}>{s.d}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Floating AI insight card */}
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} className="absolute -top-8 -right-6 rounded-xl p-4 border w-52 bg-white/95 dark:bg-[#1B2235]/95 border-blue-200 dark:border-blue-500/30 backdrop-blur-md shadow-xl">
-              <div className="flex items-center gap-2 mb-2">
-                <Brain size={13} className="text-teal-500" />
-                <span className="text-[10px] font-bold text-gray-900 dark:text-white">{t('preview.aiInsight')}</span>
-              </div>
-              <p className="text-[10px] leading-relaxed text-gray-600 dark:text-[#A0AEC0]">
-                <span className="text-blue-600 dark:text-blue-400">{t('preview.insightHighlight')}</span> surged{' '}
-                <span className="text-teal-600 dark:text-teal-400 font-semibold">{t('preview.insightStat')}</span> — {t('preview.insightSuffix')}
-              </p>
-            </motion.div>
-
-            {/* Floating citation card */}
-            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }} className="absolute -bottom-8 -left-6 rounded-xl p-4 border bg-white/95 dark:bg-[#1B2235]/95 border-teal-200 dark:border-teal-500/30 backdrop-blur-md shadow-xl">
-              <div className="text-[10px] mb-1 text-gray-500 dark:text-[#A0AEC0]">{t('preview.totalCitations')}</div>
-              <div className="text-3xl font-black text-gray-900 dark:text-white font-outfit">52.1M</div>
-              <div className="flex items-center gap-1 mt-1">
-                <ArrowUpRight size={11} className="text-teal-500" />
-                <span className="text-[10px] font-semibold text-teal-600 dark:text-teal-400">+35.7% {t('preview.yoy')}</span>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Trending Showcase */}
-      <section id="trends" className="py-24 px-6 lg:px-10 bg-white dark:bg-[#131A2A] transition-colors">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <SectionBadge color="#8B5CF6"><TrendingUp size={11} /> {t('trends.badge')}</SectionBadge>
-            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3 font-outfit">{t('trends.heading')}</h2>
-            <p className="text-gray-600 dark:text-[#A0AEC0]">{t('trends.description')}</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="rounded-2xl border p-6 mb-8 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors">
-            <div className="flex flex-wrap gap-5 mb-4">
-              {[{ k: 'ai', c: '#3b82f6', l: t('trends.fields.aiMl') }, { k: 'bio', c: '#8b5cf6', l: t('trends.fields.biotechnology') }, { k: 'cli', c: '#14b8a6', l: t('trends.fields.climateScience') }, { k: 'qc', c: '#f59e0b', l: t('trends.fields.quantumComputing') }].map((f) => (
-                <div key={f.k} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-[#A0AEC0]">
-                  <span className="w-2.5 h-2.5 rounded-sm" style={{ background: f.c }} />{f.l}
-                </div>
-              ))}
-            </div>
-            <ResponsiveContainer width="100%" height={280}>
-              <AreaChart data={PUB_DATA}>
-                <defs>
-                  {[{ id: 'lai', c: '#3b82f6' }, { id: 'lbio', c: '#8b5cf6' }, { id: 'lcli', c: '#14b8a6' }, { id: 'lqc', c: '#f59e0b' }].map((g) => (
-                    <linearGradient key={g.id} id={g.id} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={g.c} stopOpacity={0.22} /><stop offset="95%" stopColor={g.c} stopOpacity={0} /></linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                <XAxis dataKey="m" tick={{ fill: chartTextColor, fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: chartTextColor, fontSize: 11 }} axisLine={false} tickLine={false} width={44} />
-                <Tooltip contentStyle={{ background: tooltipBg, border: `1px solid ${gridColor}`, borderRadius: 8, fontSize: 12, color: isDark ? '#fff' : '#000' }} />
-                <Area type="monotone" dataKey="ai" stroke="#3b82f6" fill="url(#lai)" strokeWidth={2} name={t('trends.fields.aiMl')} />
-                <Area type="monotone" dataKey="bio" stroke="#8b5cf6" fill="url(#lbio)" strokeWidth={2} name={t('trends.fields.biotechnology')} />
-                <Area type="monotone" dataKey="cli" stroke="#14b8a6" fill="url(#lcli)" strokeWidth={2} name={t('trends.fields.climateScience')} />
-                <Area type="monotone" dataKey="qc" stroke="#f59e0b" fill="url(#lqc)" strokeWidth={2} name={t('trends.fields.quantumComputing')} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {INSIGHTS.map((ins, i) => {
-              const keys = ['llm', 'mrna', 'carbon', 'neuro'];
-              const item = t(`insights.${keys[i]}`, { returnObjects: true });
-              return (
-              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.09, duration: 0.2 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center card-icon-accent" style={{ '--icon-accent': ins.c, background: `${ins.c}1A`, color: ins.c }}>
-                    <TrendingUp size={14} />
-                  </div>
-                  <span className="text-sm font-bold" style={{ color: ins.c }}>{ins.growth}</span>
-                </div>
-                <div className="text-sm font-bold text-gray-900 dark:text-white mb-1.5">{item.topic}</div>
-                <div className="text-xs leading-relaxed mb-3 text-gray-600 dark:text-[#A0AEC0]">{item.desc}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">{ins.papers.toLocaleString()} {t('trends.papersLabel')}</div>
+                <h3 className="text-lg sm:text-xl font-medium text-[#E1E0CC] mt-3 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-400 leading-relaxed">
+                  {item.desc}
+                </p>
               </motion.div>
-              );
-            })}
+            ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-6 lg:px-10 bg-gray-50 dark:bg-[#0B1020] transition-colors">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <SectionBadge color="#00D1B2"><Zap size={11} /> {t('features.badge')}</SectionBadge>
-            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3 font-outfit">{t('features.heading')}</h2>
-            <p className="text-gray-600 dark:text-[#A0AEC0]">{t('features.description')}</p>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {FEATURES.map(({ Icon, c }, i) => {
-              const keys = ['analytics', 'citations', 'aiRecs', 'viz', 'search', 'forecasting'];
-              const item = t(`features.items.${keys[i]}`, { returnObjects: true });
-              return (
-              <motion.div key={keys[i]} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.07, duration: 0.2 }} whileHover={{ y: -6, scale: 1.02 }} className="rounded-xl border p-6 bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
-                <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 card-icon-accent" style={{ '--icon-accent': c, background: `${c}1A`, color: c }}>
-                  <Icon size={20} />
-                </div>
-                <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2">{item.label}</h3>
-                <p className="text-xs leading-relaxed text-gray-600 dark:text-[#A0AEC0]">{item.desc}</p>
-              </motion.div>
-              );
-            })}
-          </div>
+      {/* ── Trending Papers — Proof in action ──────────────────────── */}
+      <div className="relative px-4 md:px-6 pb-20 md:pb-28">
+        {/* Background */}
+        <div className="absolute inset-0 pointer-events-none">
+          <img
+            src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=1400&h=900&fit=crop"
+            alt=""
+            className="w-full h-full object-cover opacity-[0.12]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
         </div>
-      </section>
 
-      {/* API Integrations */}
-      <section id="integrations" className="py-24 px-6 lg:px-10 bg-white dark:bg-[#131A2A] transition-colors">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-            <SectionBadge color="#4F8CFF"><Globe size={11} /> {t('integrations.badge')}</SectionBadge>
-            <h2 className="text-4xl font-black text-gray-900 dark:text-white mb-3 font-outfit">{t('integrations.heading')}</h2>
-            <p className="text-gray-600 dark:text-[#A0AEC0]">{t('integrations.description')}</p>
-          </motion.div>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {APIS.map((api, i) => (
-              <motion.div key={api.name} initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1, duration: 0.2 }} whileHover={{ y: -5 }} className="rounded-xl border p-5 bg-gray-50 dark:bg-[#1B2235] border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none transition-colors group">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-blue-100 dark:bg-blue-500/10 card-icon-glow">
-                    <Globe size={16} className="text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <StatusPill status={api.status} />
+        <div className="relative z-10 max-w-6xl mx-auto">
+          <div className="text-center mb-10 md:mb-14">
+            <p className="text-[10px] sm:text-xs font-medium mb-3 text-[#DEDBC8] tracking-widest uppercase">
+              Trending now
+            </p>
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-[#E1E0CC]">
+              See what the world is
+              <span className="italic font-serif-italic text-[#DEDBC8]"> researching.</span>
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+            {TRENDING_PAPERS.map((paper, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-all duration-300"
+              >
+                <div className="relative h-40 sm:h-44 overflow-hidden">
+                  <img
+                    src={paper.image}
+                    alt={paper.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-transparent to-transparent" />
+                  <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#DEDBC8] text-black">
+                    {paper.trend}
+                  </span>
                 </div>
-                <div className="text-sm font-bold text-gray-900 dark:text-white mb-3">{api.name}</div>
-                <div className="space-y-1.5">
-                  {[{ l: t('integrations.uptime'), v: `${api.up}%`, c: 'text-teal-600 dark:text-[#00D1B2]' }, { l: t('integrations.latency'), v: api.lat, c: 'text-gray-900 dark:text-white' }, { l: t('integrations.reqPerDay'), v: api.req, c: 'text-gray-900 dark:text-white' }].map((s) => (
-                    <div key={s.l} className="flex justify-between text-xs">
-                      <span className="text-gray-500 dark:text-[#A0AEC0]">{s.l}</span>
-                      <span className={`font-semibold ${s.c}`}>{s.v}</span>
-                    </div>
-                  ))}
+                <div className="p-4 sm:p-5">
+                  <span className="text-[10px] font-medium text-[#DEDBC8] uppercase tracking-wider">
+                    {paper.field}
+                  </span>
+                  <h3 className="text-sm font-medium text-[#E1E0CC] mt-1.5 leading-snug line-clamp-2">
+                    {paper.title}
+                  </h3>
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="flex items-center gap-1.5 mt-3 text-xs text-[#DEDBC8] group-hover:underline underline-offset-4"
+                  >
+                    View paper <ArrowRight size={12} style={{ transform: 'rotate(-45deg)' }} />
+                  </button>
                 </div>
               </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* CTA */}
-      <section className="py-28 px-6 relative overflow-hidden bg-gray-50 dark:bg-[#0B1020] transition-colors">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[320px] rounded-full blur-3xl opacity-10 dark:opacity-12 bg-gradient-to-r from-blue-500 to-purple-600" />
+/* ═══════════════════════════════════════════════════════════════════════════
+   Section 3 — Features
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const FEATURE_HEADER_SEGMENTS = [
+  { text: 'Powerful tools for serious research.', className: 'text-[#DEDBC8]' },
+  { text: 'Built for discovery. Driven by data.', className: 'text-gray-500' },
+];
+
+const RICH_FEATURES = [
+  {
+    id: '01',
+    title: 'Smart Search',
+    subtitle: 'Find exactly what you need',
+    desc: 'Semantic search across 50M+ papers with keyword, author, DOI, and advanced field filters.',
+    image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600&h=360&fit=crop',
+    stats: '50M+',
+    statsLabel: 'Papers indexed',
+    points: ['Keyword & semantic search', 'Filter by field, year, journal', 'Real-time search suggestions'],
+  },
+  {
+    id: '02',
+    title: 'Trend Tracking',
+    subtitle: 'Stay ahead of the curve',
+    desc: 'Monitor citation velocity and detect emerging research directions before they become mainstream.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=360&fit=crop',
+    stats: '12K+',
+    statsLabel: 'Active researchers',
+    points: ['Citation trend analysis', 'Hot topic detection', 'Personalized recommendations'],
+  },
+  {
+    id: '03',
+    title: 'Deep Analytics',
+    subtitle: 'Visualize your research landscape',
+    desc: 'Interactive knowledge graphs, citation networks, and cross-domain impact scoring at your fingertips.',
+    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=360&fit=crop',
+    stats: '98.7%',
+    statsLabel: 'Data uptime',
+    points: ['Citation network graphs', 'Impact scoring', 'Cross-domain mapping'],
+  },
+  {
+    id: '04',
+    title: 'Reports & Export',
+    subtitle: 'Share your findings',
+    desc: 'Generate professional reports and export data in multiple formats for presentations and publications.',
+    image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&h=360&fit=crop',
+    stats: '4',
+    statsLabel: 'Export formats',
+    points: ['PDF, CSV, JSON, BibTeX', 'Custom report builder', 'Bookmark & organize papers'],
+  },
+];
+
+function FeatureCard({ feature, index }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
+      transition={{ duration: 0.55, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+      className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/20 transition-all duration-500 flex flex-col"
+    >
+      {/* Image with motion */}
+      <div className="relative h-48 sm:h-52 overflow-hidden">
+        <motion.img
+          src={feature.image}
+          alt={feature.title}
+          className="w-full h-full object-cover"
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-[#101010]/20 to-transparent" />
+        {/* ID badge */}
+        <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#DEDBC8] text-black">
+          {feature.id}
+        </span>
+        {/* Stat badge */}
+        <div className="absolute bottom-3 right-3 text-right">
+          <div className="text-xl sm:text-2xl font-bold text-[#E1E0CC] leading-none">{feature.stats}</div>
+          <div className="text-[10px] text-gray-400 mt-0.5">{feature.statsLabel}</div>
         </div>
-        <div className="max-w-3xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <h2 className="text-5xl font-black text-gray-900 dark:text-white mb-5 font-outfit">{t('cta.heading')}</h2>
-            <p className="text-lg mb-10 text-gray-600 dark:text-[#A0AEC0]">{t('cta.description')}</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('login')} className="px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20">{t('cta.login')}</motion.button>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-8 py-3.5 rounded-xl text-sm font-bold border border-gray-300 dark:border-white/15 text-gray-700 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors">{t('cta.register')}</motion.button>
-              <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => handleAuthRedirect('register')} className="px-8 py-3.5 rounded-xl text-sm font-bold flex items-center gap-2 text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-500/10 border border-teal-200 dark:border-teal-500/30">
-                {t('cta.exploreDashboard')} <ArrowRight size={14} />
-              </motion.button>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 md:p-6 flex flex-col flex-1">
+        <p className="text-[10px] font-medium text-[#DEDBC8] uppercase tracking-wider mb-1.5">
+          {feature.subtitle}
+        </p>
+        <h3 className="text-lg sm:text-xl font-medium text-[#E1E0CC] mb-2">
+          {feature.title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+          {feature.desc}
+        </p>
+
+        {/* Bullet points */}
+        <ul className="space-y-2 mt-auto">
+          {feature.points.map((point, i) => (
+            <li key={i} className="flex items-start gap-2">
+              <Check size={13} className="text-[#DEDBC8] mt-0.5 shrink-0" />
+              <span className="text-xs text-gray-400 leading-snug">{point}</span>
+            </li>
+          ))}
+        </ul>
+
+        {/* Learn more */}
+        <a
+          href="/register"
+          className="inline-flex items-center gap-1.5 text-xs text-[#DEDBC8] mt-5 hover:underline underline-offset-4 group/link"
+        >
+          Learn more
+          <ArrowRight size={13} className="transition-transform duration-300 group-hover/link:translate-x-0.5" style={{ transform: 'rotate(-45deg)' }} />
+        </a>
+      </div>
+    </motion.div>
+  );
+}
+
+function FeaturesSection() {
+  return (
+    <section id="features" className="relative min-h-screen py-20 md:py-28 px-4 md:px-6 prisma-page overflow-hidden" style={{ background: '#0A0A0A' }}>
+      {/* Background image — visible academic atmosphere */}
+      <div className="absolute inset-0 pointer-events-none">
+        <img
+          src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1400&h=900&fit=crop"
+          alt=""
+          className="w-full h-full object-cover opacity-[0.25]"
+        />
+      </div>
+      {/* Gradient — dark only at very edges */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90 pointer-events-none" />
+      {/* Noise overlay */}
+      <div className="bg-noise opacity-[0.04] pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-14 md:mb-20">
+          <WordsPullUpMultiStyle
+            segments={FEATURE_HEADER_SEGMENTS}
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal max-w-3xl mx-auto leading-[1.2]"
+          />
+        </div>
+
+        {/* Card grid — 4 cols desktop, 2 tablet, 1 mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+          {RICH_FEATURES.map((feature, i) => (
+            <FeatureCard key={feature.id} feature={feature} index={i} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Footer
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function Footer() {
+  return (
+    <footer className="relative bg-black border-t border-[#DEDBC8]/10 prisma-page">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Brand */}
+          <div className="flex flex-col items-center md:items-start gap-1">
+            <div className="flex items-center">
+              <ScitrackSLogo className="text-[#DEDBC8] -mr-1" />
+              <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em]">CITRACK</span>
             </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t py-8 px-6 bg-white dark:bg-[#131A2A] border-gray-200 dark:border-white/10 transition-colors">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"><Microscope size={10} className="text-white" /></div>
-            <span className="text-xs font-black text-gray-900 dark:text-white tracking-widest font-outfit">SCITRACK</span>
+            <p className="text-[10px] text-gray-500">Academic Research Platform</p>
           </div>
-          <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">{t('footer.copyright')}</p>
+
+          {/* Nav */}
+          <div className="flex items-center gap-6 md:gap-10 text-xs text-gray-500">
+            <a href="/login" className="hover:text-[#E1E0CC] transition-colors">Sign In</a>
+            <a href="/register" className="hover:text-[#E1E0CC] transition-colors">Register</a>
+          </div>
+
+          {/* Copyright */}
+          <p className="text-[10px] text-gray-600">
+            &copy; 2026 SCITRACK. All rights reserved.
+          </p>
         </div>
-      </footer>
+      </div>
+    </footer>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Landing Page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export default function LandingPage() {
+  return (
+    <div className="bg-black">
+      <HeroSection />
+      <AboutSection />
+      <FeaturesSection />
+      <Footer />
     </div>
   );
 }
