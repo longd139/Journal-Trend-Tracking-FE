@@ -6,85 +6,127 @@ export const useUserStore = create((set, get) => ({
   users: [],
   isLoading: false,
   error: null,
+  totalPages: 0,
+  currentPage: 0,
 
   // ── Fetch from API ──
-  fetchUsers: async () => {
+  fetchUsers: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
-      const response = await adminAPI.getAllUsers();
-      // API returns { status, message, data: [...], timestamp }
-      const users = (response.data || []).map((u) => ({
+      const response = await adminAPI.getUsers(params);
+      const pageData = response?.data;
+      const users = (pageData?.content || []).map((u) => ({
         userId: u.userId,
         fullName: u.fullName || 'Unknown',
         email: u.email || '',
         institution: u.institution || '',
-        avatarUrl: u.avatarUrl || '',
-        roleName: u.roleName || 'ACADEMIC',
+        roleName: u.roleName || 'academic_user',
         isActive: u.isActive ?? true,
-        remainingSearches: u.remainingSearches ?? 0,
-        remainingViews: u.remainingViews ?? 0,
         createdAt: u.createdAt || '',
+        lastLoginAt: u.lastLoginAt || '',
+        usage: u.usage || {},
       }));
-      set({ users, isLoading: false });
+      set({
+        users,
+        isLoading: false,
+        totalPages: pageData?.totalPages || 0,
+        currentPage: pageData?.number || 0,
+      });
     } catch (err) {
       console.error('Failed to fetch users:', err);
       set({ error: err.response?.data?.message || 'Failed to load users', isLoading: false });
     }
   },
 
-  // ── CRUD (calls API then updates local state) ──
+  // ── Update user status (active/inactive) ──
+  updateUserStatus: async (userId, active) => {
+    try {
+      await adminAPI.updateUserStatus(userId, active);
+      set((state) => ({
+        users: state.users.map((u) => (u.userId === userId ? { ...u, isActive: active } : u)),
+      }));
+    } catch (err) {
+      console.error('Failed to update user status:', err);
+    }
+  },
+
+  // ── Update user role ──
+  updateUserRole: async (userId, roleName) => {
+    try {
+      await adminAPI.updateUserRole(userId, roleName);
+      set((state) => ({
+        users: state.users.map((u) => (u.userId === userId ? { ...u, roleName } : u)),
+      }));
+    } catch (err) {
+      console.error('Failed to update user role:', err);
+    }
+  },
+
+  // ── Combined update (status + role) — calls separate BE APIs ──
+  updateUser: async (userId, updates) => {
+    const errors = [];
+    if (updates.isActive !== undefined) {
+      try {
+        await adminAPI.updateUserStatus(userId, updates.isActive);
+        set((state) => ({
+          users: state.users.map((u) => (u.userId === userId ? { ...u, isActive: updates.isActive } : u)),
+        }));
+      } catch (err) { errors.push('status'); }
+    }
+    if (updates.roleName !== undefined) {
+      try {
+        await adminAPI.updateUserRole(userId, updates.roleName);
+        set((state) => ({
+          users: state.users.map((u) => (u.userId === userId ? { ...u, roleName: updates.roleName } : u)),
+        }));
+      } catch (err) { errors.push('role'); }
+    }
+    if (errors.length) {
+      throw new Error(`Failed to update: ${errors.join(', ')}`);
+    }
+  },
+
+  // ── Delete (deactivate) user ──
+  deleteUser: async (userId) => {
+    try {
+      await adminAPI.updateUserStatus(userId, false);
+      set((state) => ({
+        users: state.users.map((u) => (u.userId === userId ? { ...u, isActive: false } : u)),
+      }));
+    } catch (err) {
+      console.error('Failed to deactivate user:', err);
+    }
+  },
+
+  deleteUsers: async (userIds) => {
+    for (const id of userIds) {
+      try { await adminAPI.updateUserStatus(id, false); } catch {}
+    }
+    set((state) => ({
+      users: state.users.map((u) => (userIds.has(u.userId) ? { ...u, isActive: false } : u)),
+    }));
+  },
+
+  // ── Local-only helpers (for optimistic updates) ──
   addUser: async (formData) => {
-    // Note: API endpoint for creating users may differ (/api/users POST)
-    // For now, optimistically add to local state; backend integration TBD
     const tempUser = {
       userId: `temp-${Date.now()}`,
       fullName: formData.fullName,
       email: formData.email,
       institution: formData.institution || '',
-      avatarUrl: '',
       roleName: formData.role,
       isActive: formData.isActive ?? true,
-      remainingSearches: 0,
-      remainingViews: 0,
       createdAt: new Date().toISOString(),
     };
     set((state) => ({ users: [tempUser, ...state.users] }));
   },
 
-  updateUser: async (userId, updates) => {
-    try {
-      await adminAPI.updateUser(userId, updates);
-      set((state) => ({
-        users: state.users.map((u) => (u.userId === userId ? { ...u, ...updates } : u)),
-      }));
-    } catch (err) {
-      console.error('Failed to update user:', err);
-      // Still update locally for demo
-      set((state) => ({
-        users: state.users.map((u) => (u.userId === userId ? { ...u, ...updates } : u)),
-      }));
-    }
-  },
-
-  deleteUser: async (userId) => {
-    try {
-      await adminAPI.deleteUser(userId);
-    } catch (err) {
-      console.error('Failed to delete user:', err);
-    }
-    set((state) => ({ users: state.users.filter((u) => u.userId !== userId) }));
-  },
-
-  deleteUsers: async (userIds) => {
-    for (const id of userIds) {
-      try { await adminAPI.deleteUser(id); } catch {}
-    }
-    set((state) => ({ users: state.users.filter((u) => !userIds.has(u.userId)) }));
-  },
-
   bulkUpdate: async (userIds, updates) => {
     for (const id of userIds) {
-      try { await adminAPI.updateUser(id, updates); } catch {}
+      try {
+        if (updates.roleName) await adminAPI.updateUserRole(id, updates.roleName);
+        if (updates.isActive !== undefined) await adminAPI.updateUserStatus(id, updates.isActive);
+      } catch {}
     }
     set((state) => ({
       users: state.users.map((u) => (userIds.has(u.userId) ? { ...u, ...updates } : u)),

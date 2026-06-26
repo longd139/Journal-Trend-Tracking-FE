@@ -1,65 +1,225 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Search, Edit2, Trash2, X, RefreshCw, Building2,
-  Users, UserCheck, UserX, Eye, Mail, Shield,
-  ChevronLeft, ChevronRight, ArrowUpDown, CheckCircle2, AlertTriangle,
+  Search, X, RefreshCw, Building2, Users, UserCheck, UserX,
+  Shield, Eye, AlertTriangle, ChevronLeft, ChevronRight,
+  ArrowUpDown, CheckCircle2, SlidersHorizontal, Mail,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from '../store/useUserStore';
 
-// ══════════════════════════════════════════════════════════════════════════════
-// BADGES (light + dark)
-// ══════════════════════════════════════════════════════════════════════════════
-const statusBadgeCls = (isActive) =>
-  isActive
-    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-    : 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20';
+/* ═══════════════════════════════════════════════════════════════════════════
+   Constants
+   ═══════════════════════════════════════════════════════════════════════════ */
+const ROLE_LABEL = {
+  'academic_user': 'Academic',
+  'researcher': 'Researcher',
+  'admin': 'Admin',
+};
+const DISPLAY_ROLE = (role) => ROLE_LABEL[role] || role;
+const CHANGEABLE_ROLES = ['academic_user', 'researcher', 'admin'];
+const PAGE_SIZE = 8;
 
-function StatusBadge({ isActive }) {
+const avatarGradient = (i) => {
+  const g = [
+    ['#6366f1', '#8b5cf6'],
+    ['#06b6d4', '#3b82f6'],
+    ['#f59e0b', '#ef4444'],
+    ['#10b981', '#06b6d4'],
+  ];
+  return g[i % 4];
+};
+
+const roleBadgeStyle = (role) => {
+  const m = {
+    'admin': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+    'researcher': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    'academic_user': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  };
+  return m[role] || m['academic_user'];
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Shared micro-components
+   ═══════════════════════════════════════════════════════════════════════════ */
+function StatusBadge({ isActive, size = 'sm' }) {
+  const s = size === 'lg' ? 'px-2.5 py-1 text-[11px]' : 'px-2 py-0.5 text-[9px]';
+  const cls = isActive
+    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+    : 'bg-slate-500/10 text-slate-400 border-slate-500/20';
   return (
-    <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${statusBadgeCls(isActive)}`}>
+    <span className={`${s} rounded-md font-bold uppercase tracking-wider border ${cls} transition-colors`}>
       {isActive ? 'Active' : 'Inactive'}
     </span>
   );
 }
 
-const roleBadgeCls = (role) => {
-  const m = {
-    ADMIN: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20',
-    RESEARCHER: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
-    ACADEMIC: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
-  };
-  return m[role] || m.ACADEMIC;
-};
-
 function RoleBadge({ roleName }) {
   return (
-    <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${roleBadgeCls(roleName)}`}>
-      {roleName}
+    <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${roleBadgeStyle(roleName)}`}>
+      {DISPLAY_ROLE(roleName)}
     </span>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// CONFIRM MODAL
-// ══════════════════════════════════════════════════════════════════════════════
-function ConfirmModal({ title, message, confirmLabel, confirmColor, onConfirm, onCancel, loading }) {
+function StatCard({ label, value, icon: Icon, color, change }) {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onCancel}>
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-        className="rounded-2xl border p-6 w-full max-w-sm mx-4 shadow-2xl bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.08]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${confirmColor}18` }}>
-            <AlertTriangle size={18} style={{ color: confirmColor }} />
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      className="relative overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5 group"
+    >
+      {/* hover gradient reveal */}
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500"
+        style={{ background: `radial-gradient(circle at top right, ${color}, transparent 70%)` }}
+      />
+      <div className="relative z-10 flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div
+              className="p-2 rounded-xl transition-colors group-hover:bg-white/[0.04]"
+              style={{ color, opacity: 0.5 }}
+            >
+              <Icon size={18} />
+            </div>
+            <p className="text-[12px] font-medium text-slate-400 truncate">{label}</p>
           </div>
-          <div><h3 className="text-sm font-bold text-gray-900 dark:text-white">{title}</h3><p className="text-xs text-gray-500 dark:text-[#A0AEC0] mt-0.5">{message}</p></div>
+          <div className="flex items-baseline gap-3">
+            <motion.p
+              key={value}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[28px] font-bold leading-none text-white tracking-tight"
+            >
+              {value}
+            </motion.p>
+            {change !== undefined && (
+              <span className={`text-[12px] font-semibold ${change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                {change >= 0 ? '+' : ''}{change}%
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex gap-2 justify-end">
-          <button onClick={onCancel} className="px-4 py-2 rounded-lg text-xs font-semibold text-gray-500 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5">Cancel</button>
-          <button onClick={onConfirm} disabled={loading} className="px-4 py-2 rounded-lg text-xs font-bold text-white flex items-center gap-1.5" style={{ background: confirmColor, opacity: loading ? 0.7 : 1 }}>
-            {loading && <RefreshCw size={12} className="animate-spin" />}{confirmLabel}
+      </div>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   View User Modal
+   ═══════════════════════════════════════════════════════════════════════════ */
+function ViewUserModal({ user, onClose }) {
+  const rows = [
+    { label: 'Email', value: user.email || 'N/A', icon: Mail, color: '#94a3b8' },
+    { label: 'Institution', value: user.institution || 'N/A', icon: Building2, color: '#a78bfa' },
+    { label: 'Remaining Searches', value: user.remainingSearches ?? 'N/A', icon: Search, color: '#60a5fa' },
+    { label: 'Remaining Views', value: user.remainingViews ?? 'N/A', icon: Eye, color: '#34d399' },
+    { label: 'Joined', value: user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A', icon: CheckCircle2, color: '#fbbf24' },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 20 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#0d0d0d] shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* header */}
+        <div className="relative px-6 pt-6 pb-5 border-b border-white/[0.04]">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2.5">
+              <span className="w-1.5 h-5 rounded-full bg-indigo-400" />
+              User Details
+            </h3>
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/[0.04] text-slate-500 hover:text-white transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+          <div className="flex items-center gap-4 mt-4">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black text-white shrink-0"
+              style={{ background: `linear-gradient(135deg, ${avatarGradient(0)[0]}, ${avatarGradient(0)[1]})` }}
+            >
+              {user.fullName?.split(' ').pop()?.[0] || '?'}
+            </div>
+            <div>
+              <h4 className="text-[15px] font-bold text-white">{user.fullName}</h4>
+              <div className="flex items-center gap-2 mt-1">
+                <RoleBadge roleName={user.roleName} />
+                <StatusBadge isActive={user.isActive} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* body */}
+        <div className="px-6 py-4 space-y-1">
+          {rows.map((r) => (
+            <div key={r.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.02] transition-colors group">
+              <div className="p-1.5 rounded-lg bg-white/[0.02] group-hover:bg-white/[0.04] transition-colors" style={{ color: r.color }}>
+                <r.icon size={14} />
+              </div>
+              <span className="text-[11px] text-slate-500 uppercase tracking-wider w-36 shrink-0">{r.label}</span>
+              <span className="text-[13px] text-slate-200 font-medium truncate ml-auto text-right">{r.value}</span>
+            </div>
+          ))}
+        </div>
+        <div className="px-6 pb-5 pt-1" />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Confirm Admin Modal
+   ═══════════════════════════════════════════════════════════════════════════ */
+function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onCancel}
+    >
+      <motion.div
+        initial={{ scale: 0.92, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.92, opacity: 0, y: 20 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0d0d0d] shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="px-6 pt-6 pb-5">
+          <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-2xl bg-rose-500/10 flex items-center justify-center shrink-0">
+              <AlertTriangle size={20} className="text-rose-400" />
+            </div>
+            <div>
+              <h3 className="text-[15px] font-bold text-white">Promote to Admin</h3>
+              <p className="text-[13px] text-slate-400 mt-2 leading-relaxed">
+                Grant <span className="text-white font-semibold">{user?.fullName}</span> full administrator access, including user management, system configuration, and data source control.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="px-6 pb-5 flex gap-2.5 justify-end">
+          <button onClick={onCancel}
+            className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-slate-400 hover:bg-white/[0.04] hover:text-white transition-colors">
+            Cancel
+          </button>
+          <button onClick={onConfirm} disabled={loading}
+            className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white bg-rose-500 hover:bg-rose-600 flex items-center gap-2 transition-colors disabled:opacity-60"
+          >
+            {loading && <RefreshCw size={13} className="animate-spin" />}
+            Yes, Make Admin
           </button>
         </div>
       </motion.div>
@@ -67,61 +227,70 @@ function ConfirmModal({ title, message, confirmLabel, confirmColor, onConfirm, o
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// VIEW USER MODAL
-// ══════════════════════════════════════════════════════════════════════════════
-const FIELD_COLORS = ['#4F8CFF', '#8B5CF6', '#00D1B2', '#F59E0B'];
+/* ═══════════════════════════════════════════════════════════════════════════
+   Role Popover
+   ═══════════════════════════════════════════════════════════════════════════ */
+function RolePopover({ user, onClose, onPromoteAdmin }) {
+  const { updateUserRole } = useUserStore();
+  const [loading, setLoading] = useState(false);
+  const [changingRole, setChangingRole] = useState(null);
+  const ref = useRef(null);
 
-function ViewUserModal({ user, onClose }) {
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  const handleChange = async (roleName) => {
+    if (roleName === 'admin') { onClose(); onPromoteAdmin(user); return; }
+    setChangingRole(roleName);
+    setLoading(true);
+    await updateUserRole(user.userId, roleName);
+    setLoading(false);
+    setChangingRole(null);
+    onClose();
+  };
+
+  const options = CHANGEABLE_ROLES.filter((r) => r !== user.roleName);
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-        className="rounded-2xl border p-6 w-full max-w-md mx-4 shadow-2xl bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.08]" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2"><Eye size={15} className="text-blue-500" /> User Details</h3>
-          <button onClick={onClose} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 dark:text-[#A0AEC0]"><X size={16} /></button>
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.9, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, y: -4 }}
+      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+      className="absolute right-0 top-full mt-2 z-40 w-40 rounded-2xl border border-white/[0.06] bg-[#151515] shadow-2xl p-1.5 backdrop-blur-xl"
+    >
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2.5 pt-1 pb-2">Change Role</p>
+      {loading ? (
+        <div className="flex items-center justify-center py-4">
+          <RefreshCw size={16} className="animate-spin text-indigo-400" />
         </div>
-        <div className="flex items-center gap-4 mb-5">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center text-xl font-black text-white shrink-0 bg-gradient-to-br from-blue-500 to-purple-600">
-            {user.fullName?.split(' ').pop()?.[0] || '?'}
-          </div>
-          <div>
-            <h4 className="text-base font-bold text-gray-900 dark:text-white">{user.fullName}</h4>
-            <p className="text-xs text-gray-500 dark:text-[#A0AEC0]">{user.email}</p>
-            <div className="mt-1 flex items-center gap-2">
-              <RoleBadge roleName={user.roleName} />
-              <StatusBadge isActive={user.isActive} />
-            </div>
-          </div>
-        </div>
-        <div className="space-y-2.5">
-          {[
-            { label: 'Institution', value: user.institution || 'N/A', icon: Building2, color: '#00D1B2' },
-            { label: 'Remaining Searches', value: user.remainingSearches ?? 'N/A', icon: Search, color: '#4F8CFF' },
-            { label: 'Remaining Views', value: user.remainingViews ?? 'N/A', icon: Eye, color: '#8B5CF6' },
-            { label: 'Created', value: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A', icon: CheckCircle2, color: '#F59E0B' },
-          ].map((item) => (
-            <div key={item.label} className="flex items-center gap-3 p-2.5 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
-              <item.icon size={14} style={{ color: item.color }} />
-              <span className="text-[10px] text-gray-400 dark:text-[#6B7280] uppercase w-32">{item.label}</span>
-              <span className="text-xs text-gray-900 dark:text-white font-medium">{item.value}</span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
+      ) : (
+        options.map((role) => (
+          <button key={role} onClick={() => handleChange(role)}
+            className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all flex items-center justify-between
+              ${role === 'admin'
+                ? 'text-rose-400 hover:bg-rose-500/10'
+                : 'text-slate-400 hover:bg-white/[0.04] hover:text-white'}`}
+          >
+            {DISPLAY_ROLE(role)}
+            {changingRole === role && <RefreshCw size={12} className="animate-spin text-indigo-400" />}
+          </button>
+        ))
+      )}
     </motion.div>
   );
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
-// MAIN PAGE
-// ══════════════════════════════════════════════════════════════════════════════
-const PAGE_SIZE = 8;
-
+/* ═══════════════════════════════════════════════════════════════════════════
+   Main Page
+   ═══════════════════════════════════════════════════════════════════════════ */
 export default function UserManagement() {
   const { t } = useTranslation('dashboard');
-  const { users, isLoading, fetchUsers, updateUser, deleteUser } = useUserStore();
+  const { users, isLoading, fetchUsers, updateUserStatus, updateUserRole } = useUserStore();
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
@@ -130,21 +299,21 @@ export default function UserManagement() {
   const [sortDir, setSortDir] = useState('asc');
   const [page, setPage] = useState(1);
   const [actionLoading, setActionLoading] = useState(false);
-  const [modalMode, setModalMode] = useState(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [confirmModal, setConfirmModal] = useState(null);
-  const [formData, setFormData] = useState({ fullName: '', email: '', institution: '', roleName: 'ACADEMIC', isActive: true });
+  const [togglingId, setTogglingId] = useState(null);
+  const [viewUser, setViewUser] = useState(null);
+  const [rolePopoverUserId, setRolePopoverUserId] = useState(null);
+  const [promoteAdminUser, setPromoteAdminUser] = useState(null);
+  const [promoteLoading, setPromoteLoading] = useState(false);
 
   useEffect(() => { fetchUsers(); }, []);
 
-  // ── Stats ──
+  /* ── Derived ── */
   const stats = useMemo(() => ({
     total: users.length,
     active: users.filter((u) => u.isActive).length,
     inactive: users.filter((u) => !u.isActive).length,
   }), [users]);
 
-  // ── Filtered & Sorted ──
   const filtered = useMemo(() => {
     let result = [...users];
     if (search) {
@@ -165,248 +334,283 @@ export default function UserManagement() {
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
   useEffect(() => { setPage(1); }, [search, roleFilter, statusFilter]);
 
+  /* ── Handlers ── */
   const toggleSort = (col) => {
     if (sortBy === col) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortBy(col); setSortDir('asc'); }
   };
 
-  // ── Actions ──
-  const openEdit = (user) => {
-    setSelectedUser(user);
-    setFormData({ fullName: user.fullName, email: user.email, institution: user.institution || '', roleName: user.roleName, isActive: user.isActive });
-    setModalMode('edit');
-  };
-
-  const openView = (user) => { setSelectedUser(user); setModalMode('view'); };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedUser) return;
-    setActionLoading(true);
-    await updateUser(selectedUser.userId, formData);
-    setActionLoading(false);
-    setModalMode(null);
-  };
-
-  const handleDelete = (user) => {
-    setConfirmModal({
-      title: 'Delete User',
-      message: `Permanently delete "${user.fullName}"?`,
-      confirmLabel: 'Delete',
-      confirmColor: '#EF4444',
-      onConfirm: async () => { setActionLoading(true); await deleteUser(user.userId); setActionLoading(false); setConfirmModal(null); },
-    });
-  };
-
   const handleToggleActive = async (user) => {
-    setActionLoading(true);
-    await updateUser(user.userId, { isActive: !user.isActive });
-    setActionLoading(false);
+    setTogglingId(user.userId);
+    await updateUserStatus(user.userId, !user.isActive);
+    setTogglingId(null);
   };
 
-  const SortIcon = ({ col }) => (
-    <ArrowUpDown size={10} className={`transition-colors ${sortBy === col ? 'text-blue-500' : 'text-gray-400 dark:text-[#6B7280]'}`} />
-  );
+  const handlePromoteAdmin = (user) => {
+    setRolePopoverUserId(null);
+    setPromoteAdminUser(user);
+  };
 
-  // ── Shared style classes ──
-  const cardCls = 'bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.07]';
-  const inputCls = 'bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-[#6B7280] focus:border-blue-500 dark:focus:border-[#4F8CFF]/50';
-  const selectCls = 'bg-gray-50 dark:bg-[#131A2A] border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#A0AEC0] focus:border-blue-500 dark:focus:border-[#4F8CFF]/50';
-  const mutedCls = 'text-gray-500 dark:text-[#A0AEC0]';
-  const subtleCls = 'text-gray-400 dark:text-[#6B7280]';
+  const confirmPromoteAdmin = async () => {
+    if (!promoteAdminUser) return;
+    setPromoteLoading(true);
+    await updateUserRole(promoteAdminUser.userId, 'admin');
+    setPromoteLoading(false);
+    setPromoteAdminUser(null);
+  };
+
+  /* ── Shared styles ── */
+  const thCls = 'text-left px-5 py-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest select-none';
+  const tdCls = 'px-5 py-3.5';
 
   return (
-    <div className="p-6 space-y-5">
-      {/* ─── Stats Cards ─── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {[
-          { label: 'Total Users', value: stats.total, icon: Users, color: '#4F8CFF' },
-          { label: 'Active', value: stats.active, icon: UserCheck, color: '#00D1B2' },
-          { label: 'Inactive', value: stats.inactive, icon: UserX, color: '#EF4444' },
-        ].map((s) => (
-          <motion.div key={s.label} whileHover={{ y: -2 }} className={`p-4 rounded-xl border ${cardCls} group`}>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-[#A0AEC0]">{s.label}</span>
-              <div className="p-1.5 rounded-lg card-icon-accent" style={{ '--icon-accent': s.color, color: s.color }}>
-                <s.icon size={15} />
-              </div>
-            </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{s.value}</div>
-          </motion.div>
-        ))}
-      </div>
+    <div className="space-y-6 p-6 max-w-[1400px] mx-auto">
+      {/* ─── Stats ─── */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="grid grid-cols-1 sm:grid-cols-3 gap-4"
+      >
+        <StatCard label="Total Users" value={stats.total} icon={Users} color="#818cf8" />
+        <StatCard label="Active" value={stats.active} icon={UserCheck} color="#34d399" />
+        <StatCard label="Inactive" value={stats.inactive} icon={UserX} color="#f87171" />
+      </motion.div>
 
-      {/* ─── Search & Actions ─── */}
+      {/* ─── Toolbar ─── */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6B7280]" />
-          <input type="text" placeholder={t('userManagement.searchPlaceholder')} value={search}
+        {/* Search */}
+        <div className="relative flex-1 min-w-[220px] max-w-xs">
+          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder={t('userManagement.searchPlaceholder') || 'Search users...'}
+            value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-xs outline-none transition-colors ${inputCls}`} />
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:bg-white/[0.03] transition-all"
+          />
         </div>
-        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className={`px-3 py-2.5 rounded-xl border text-xs outline-none ${selectCls}`}>
-          <option value="all">All Roles</option><option value="ADMIN">Admin</option><option value="RESEARCHER">Researcher</option><option value="ACADEMIC">Academic</option>
-        </select>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className={`px-3 py-2.5 rounded-xl border text-xs outline-none ${selectCls}`}>
-          <option value="all">All Status</option><option value="active">Active</option><option value="inactive">Inactive</option>
-        </select>
-        <button onClick={fetchUsers}
-          className="px-4 py-2.5 rounded-xl text-xs font-bold text-white flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 shadow-lg shadow-blue-500/20">
-          <RefreshCw size={13} /> Refresh
-        </button>
-        {actionLoading && <RefreshCw size={14} className="animate-spin text-blue-500" />}
+        {/* Filters */}
+        <div className="flex items-center gap-2">
+          <SlidersHorizontal size={13} className="text-slate-400" />
+          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
+            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#1a1a1a] border border-white/[0.06] text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
+            style={{ colorScheme: 'dark' }}
+          >
+            <option value="all">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="researcher">Researcher</option>
+            <option value="academic_user">Academic</option>
+          </select>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#1a1a1a] border border-white/[0.06] text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
+            style={{ colorScheme: 'dark' }}
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 ml-auto">
+          {actionLoading && <RefreshCw size={15} className="animate-spin text-indigo-400" />}
+          <button onClick={fetchUsers}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold text-white bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/20 transition-all active:scale-[0.97]"
+          >
+            <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* ─── Table ─── */}
-      <div className={`rounded-xl border overflow-hidden ${cardCls}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.05 }}
+        className="rounded-2xl border border-white/[0.04] bg-white/[0.01] overflow-hidden"
+      >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-gray-200 dark:border-white/5 bg-gray-50 dark:bg-white/[0.01]">
+              <tr className="border-b border-white/[0.04] bg-white/[0.01]">
                 {[
-                  { col: 'fullName', label: 'User' }, { col: 'email', label: 'Email' },
-                  { col: 'roleName', label: 'Role' }, { col: 'institution', label: 'Institution' },
+                  { col: 'fullName', label: 'User' },
+                  { col: 'email', label: 'Email' },
+                  { col: 'roleName', label: 'Role' },
+                  { col: 'institution', label: 'Institution' },
                   { col: 'isActive', label: 'Status' },
                 ].map((h) => (
-                  <th key={h.col} onClick={() => toggleSort(h.col)}
-                    className="text-left px-5 py-3.5 text-[10px] font-semibold text-gray-400 dark:text-[#6B7280] uppercase tracking-wider cursor-pointer hover:text-gray-700 dark:hover:text-white transition-colors select-none">
-                    <span className="flex items-center gap-1.5">{h.label}<SortIcon col={h.col} /></span>
+                  <th key={h.col} onClick={() => toggleSort(h.col)} className={`${thCls} cursor-pointer hover:text-slate-300 transition-colors`}>
+                    <span className="inline-flex items-center gap-1.5">
+                      {h.label}
+                      <ArrowUpDown size={10} className={sortBy === h.col ? 'text-indigo-400' : 'text-slate-500'} />
+                    </span>
                   </th>
                 ))}
-                <th className="text-left px-5 py-3.5 text-[10px] font-semibold text-gray-400 dark:text-[#6B7280] uppercase tracking-wider">Actions</th>
+                <th className={thCls}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
-                <tr><td colSpan={6} className="text-center py-16">
-                  <RefreshCw size={24} className="animate-spin mx-auto text-blue-500 mb-2" />
-                  <p className={`text-xs ${mutedCls}`}>Loading users...</p>
-                </td></tr>
+                <tr>
+                  <td colSpan={6} className="text-center py-20">
+                    <RefreshCw size={28} className="animate-spin mx-auto text-indigo-400 mb-3" />
+                    <p className="text-[13px] text-slate-500">Loading users...</p>
+                  </td>
+                </tr>
               ) : paged.length === 0 ? (
-                <tr><td colSpan={6} className="text-center py-12 text-xs text-gray-500">No users found.</td></tr>
+                <tr>
+                  <td colSpan={6} className="text-center py-20">
+                    <Users size={28} className="mx-auto text-slate-700 mb-3" />
+                    <p className="text-[13px] text-slate-500">No users found</p>
+                  </td>
+                </tr>
               ) : (
-                paged.map((u, i) => (
-                  <motion.tr key={u.userId} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                    className="border-b border-gray-100 dark:border-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors group">
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-3 cursor-pointer" onClick={() => openView(u)}>
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shrink-0" style={{ background: `linear-gradient(135deg, ${FIELD_COLORS[i % 4]}, #8B5CF6)` }}>
-                          {u.fullName?.split(' ').pop()?.[0] || '?'}
-                        </div>
-                        <span className="text-xs font-semibold text-gray-900 dark:text-white group-hover:text-blue-500 transition-colors truncate max-w-[130px]">{u.fullName}</span>
-                      </div>
-                    </td>
-                    <td className={`px-5 py-3.5 text-xs ${mutedCls}`}>{u.email}</td>
-                    <td className="px-5 py-3.5"><RoleBadge roleName={u.roleName} /></td>
-                    <td className={`px-5 py-3.5 text-xs ${mutedCls}`}>{u.institution}</td>
-                    <td className="px-5 py-3.5"><StatusBadge isActive={u.isActive} /></td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {[
-                          { icon: Eye, color: '#4F8CFF', onClick: () => openView(u), title: 'View' },
-                          { icon: Edit2, color: '#F59E0B', onClick: () => openEdit(u), title: 'Edit' },
-                          { icon: u.isActive ? UserX : UserCheck, color: u.isActive ? '#EF4444' : '#00D1B2', onClick: () => handleToggleActive(u), title: u.isActive ? 'Deactivate' : 'Activate' },
-                          { icon: Trash2, color: '#EF4444', onClick: () => handleDelete(u), title: 'Delete' },
-                        ].map((btn, j) => (
-                          <button key={j} onClick={btn.onClick} title={btn.title}
-                            className="p-1.5 rounded-lg text-gray-400 dark:text-[#A0AEC0] btn-icon-glow transition-all duration-200"
-                            style={{ '--icon-accent': btn.color, color: btn.color === '#4F8CFF' ? undefined : undefined }}
-                            onMouseEnter={(e) => { e.currentTarget.style.background = btn.color + '20'; e.currentTarget.style.color = btn.color; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.background = ''; e.currentTarget.style.color = ''; }}
+                <AnimatePresence mode="popLayout">
+                  {paged.map((u, i) => (
+                    <motion.tr
+                      key={u.userId}
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group"
+                    >
+                      {/* User */}
+                      <td className={tdCls}>
+                        <div
+                          className="flex items-center gap-3 cursor-pointer"
+                          onClick={() => setViewUser(u)}
+                        >
+                          <div
+                            className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shrink-0 group-hover:scale-105 transition-transform"
+                            style={{ background: `linear-gradient(135deg, ${avatarGradient(i)[0]}, ${avatarGradient(i)[1]})` }}
                           >
-                            <btn.icon size={13} />
+                            {u.fullName?.split(' ').pop()?.[0]?.toUpperCase() || '?'}
+                          </div>
+                          <div>
+                            <p className="text-[13px] font-semibold text-white group-hover:text-indigo-300 transition-colors truncate max-w-[140px]">
+                              {u.fullName}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      {/* Email */}
+                      <td className={`${tdCls} text-[13px] text-slate-500 truncate max-w-[180px]`}>
+                        {u.email}
+                      </td>
+                      {/* Role */}
+                      <td className={tdCls}><RoleBadge roleName={u.roleName} /></td>
+                      {/* Institution */}
+                      <td className={`${tdCls} text-[13px] text-slate-500 truncate max-w-[140px]`}>
+                        {u.institution || '—'}
+                      </td>
+                      {/* Status */}
+                      <td className={tdCls}>
+                        <StatusBadge isActive={u.isActive} />
+                        {togglingId === u.userId && (
+                          <RefreshCw size={11} className="animate-spin inline-block ml-2 text-slate-400" />
+                        )}
+                      </td>
+                      {/* Actions */}
+                      <td className={tdCls}>
+                        <div className="flex items-center gap-1 transition-all duration-200">
+                          {/* Role */}
+                          <div className="relative">
+                            <button
+                              onClick={() => setRolePopoverUserId(rolePopoverUserId === u.userId ? null : u.userId)}
+                              className="p-2 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all active:scale-90"
+                              title="Change Role"
+                            >
+                              <Shield size={14} />
+                            </button>
+                            <AnimatePresence>
+                              {rolePopoverUserId === u.userId && (
+                                <RolePopover user={u} onClose={() => setRolePopoverUserId(null)} onPromoteAdmin={handlePromoteAdmin} />
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          {/* Toggle status */}
+                          <button
+                            onClick={() => handleToggleActive(u)}
+                            className={`p-2 rounded-xl transition-all active:scale-90 ${u.isActive
+                              ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'
+                              : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
+                              }`}
+                            title={u.isActive ? 'Deactivate' : 'Activate'}
+                          >
+                            {u.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
                           </button>
-                        ))}
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))
+                        </div>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               )}
             </tbody>
           </table>
         </div>
 
-        {/* Pagination */}
+        {/* ─── Pagination ─── */}
         {totalPages > 1 && (
-          <div className="p-3 border-t border-gray-200 dark:border-white/5 flex items-center justify-between text-xs">
-            <span className={subtleCls}>Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}</span>
+          <div className="px-5 py-3 border-t border-white/[0.04] flex items-center justify-between text-[13px]">
+            <span className="text-slate-500">
+              {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </span>
             <div className="flex items-center gap-1">
-              <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 disabled:opacity-30"><ChevronLeft size={14} /></button>
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="p-2 rounded-xl text-slate-500 hover:bg-white/[0.04] hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft size={15} />
+              </button>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 const start = Math.max(1, Math.min(page - 2, totalPages - 4));
                 const pn = start + i;
                 if (pn > totalPages) return null;
-                return <button key={pn} onClick={() => setPage(pn)} className={`w-7 h-7 rounded-lg text-[11px] font-semibold ${pn === page ? 'bg-blue-500 text-white' : 'text-gray-500 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/5'}`}>{pn}</button>;
+                const isActive = pn === page;
+                return (
+                  <button
+                    key={pn}
+                    onClick={() => setPage(pn)}
+                    className={`w-8 h-8 rounded-xl text-[13px] font-semibold transition-all active:scale-90
+                      ${isActive
+                        ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/20'
+                        : 'text-slate-500 hover:bg-white/[0.04] hover:text-white'}`}
+                  >
+                    {pn}
+                  </button>
+                );
               })}
-              <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 disabled:opacity-30"><ChevronRight size={14} /></button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="p-2 rounded-xl text-slate-500 hover:bg-white/[0.04] hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+              >
+                <ChevronRight size={15} />
+              </button>
             </div>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {/* ─── Edit Modal ─── */}
+      {/* ─── Modals ─── */}
       <AnimatePresence>
-        {modalMode === 'edit' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setModalMode(null)}>
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
-              className="rounded-2xl border p-6 w-full max-w-md shadow-2xl bg-white dark:bg-[#1B2235] border-gray-200 dark:border-white/[0.08]" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2 text-gray-900 dark:text-white"><Shield size={18} className="text-blue-500" /><h3 className="text-base font-bold font-display">Edit User</h3></div>
-                <button onClick={() => setModalMode(null)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-white/5 text-gray-400 dark:text-[#A0AEC0]"><X size={16} /></button>
-              </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {[
-                  { key: 'fullName', label: 'Full Name', type: 'text', icon: Users },
-                  { key: 'email', label: 'Email', type: 'email', icon: Mail },
-                  { key: 'institution', label: 'Institution', type: 'text', icon: Building2 },
-                ].map((f) => (
-                  <div key={f.key}>
-                    <label className="text-[10px] font-semibold text-gray-500 dark:text-[#A0AEC0] uppercase tracking-wider block mb-1.5">{f.label}</label>
-                    <div className="relative">
-                      <f.icon size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6B7280]" />
-                      <input required type={f.type} value={formData[f.key]} onChange={(e) => setFormData({ ...formData, [f.key]: e.target.value })}
-                        className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-xs outline-none transition-colors ${inputCls}`} />
-                    </div>
-                  </div>
-                ))}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-[10px] font-semibold text-gray-500 dark:text-[#A0AEC0] uppercase tracking-wider block mb-1.5">Role</label>
-                    <select value={formData.roleName} onChange={(e) => setFormData({ ...formData, roleName: e.target.value })} className={`w-full px-3 py-2.5 rounded-xl border text-xs outline-none ${selectCls}`}>
-                      <option value="ACADEMIC">Academic</option><option value="RESEARCHER">Researcher</option><option value="ADMIN">Admin</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold text-gray-500 dark:text-[#A0AEC0] uppercase tracking-wider block mb-1.5">Status</label>
-                    <select value={formData.isActive ? 'active' : 'inactive'} onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'active' })} className={`w-full px-3 py-2.5 rounded-xl border text-xs outline-none ${selectCls}`}>
-                      <option value="active">Active</option><option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="pt-3 flex gap-3">
-                  <button type="button" onClick={() => setModalMode(null)} className="flex-1 py-2.5 rounded-xl text-xs font-semibold border border-gray-200 dark:border-white/10 text-gray-500 dark:text-[#A0AEC0] hover:bg-gray-50 dark:hover:bg-white/5">Cancel</button>
-                  <button type="submit" disabled={actionLoading} className="flex-1 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 flex items-center justify-center gap-2" style={{ opacity: actionLoading ? 0.7 : 1 }}>
-                    {actionLoading && <RefreshCw size={13} className="animate-spin" />}Save Changes
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
+        {viewUser && <ViewUserModal user={viewUser} onClose={() => setViewUser(null)} />}
+      </AnimatePresence>
+      <AnimatePresence>
+        {promoteAdminUser && (
+          <ConfirmAdminModal
+            user={promoteAdminUser}
+            loading={promoteLoading}
+            onConfirm={confirmPromoteAdmin}
+            onCancel={() => setPromoteAdminUser(null)}
+          />
         )}
-      </AnimatePresence>
-
-      {/* ─── View Modal ─── */}
-      <AnimatePresence>
-        {modalMode === 'view' && selectedUser && <ViewUserModal user={selectedUser} onClose={() => setModalMode(null)} />}
-      </AnimatePresence>
-
-      {/* ─── Confirm Modal ─── */}
-      <AnimatePresence>
-        {confirmModal && <ConfirmModal {...confirmModal} onCancel={() => setConfirmModal(null)} loading={actionLoading} />}
       </AnimatePresence>
     </div>
   );

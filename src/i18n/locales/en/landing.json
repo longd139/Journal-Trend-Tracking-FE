@@ -7,11 +7,11 @@
     "register": "Register"
   },
   "hero": {
-    "badge": "AI-Powered Academic Intelligence Platform",
+    "badge": "Academic Research Analytics Platform",
     "heading1": "Track the Future",
     "heading2": "of Scientific",
     "heading3": "Research",
-    "description": "Analyze publication trends, discover emerging research topics, and visualize academic intelligence with AI-powered analytics across 50M+ papers.",
+    "description": "Analyze publication trends, discover emerging research topics, and visualize academic intelligence with advanced analytics across 50M+ papers.",
     "cta": "Explore Trends"
   },
   "stats": {
@@ -27,7 +27,7 @@
     "climate": "Climate",
     "totalCitations": "Total Citations 2024",
     "yoy": "YoY",
-    "aiInsight": "AI Insight",
+    "aiInsight": "Research Insight",
     "insightSuffix": "now the fastest-growing field in 2024."
   },
   "trends": {
@@ -49,7 +49,7 @@
     "items": {
       "analytics": { "label": "Publication Analytics", "desc": "Track trends across 50M+ papers from all major journals worldwide" },
       "citations": { "label": "Citation Tracking", "desc": "Monitor citation velocity and impact factor evolution in real time" },
-      "aiRecs": { "label": "AI Recommendations", "desc": "GPT-powered research discovery tailored to your specific domain" },
+      "aiRecs": { "label": "Smart Recommendations", "desc": "ML-powered research discovery tailored to your specific domain" },
       "viz": { "label": "Research Visualization", "desc": "Interactive knowledge graphs and citation network topology maps" },
       "search": { "label": "Academic Search Engine", "desc": "Semantic full-text search with context-aware relevance ranking" },
       "forecasting": { "label": "Trend Forecasting", "desc": "Predictive models for emerging research directions and hot topics" }
@@ -74,6 +74,6 @@
     "llm": { "topic": "Large Multimodal Models", "desc": "Vision-language convergence enabling unprecedented cross-modal reasoning" },
     "mrna": { "topic": "mRNA Vaccine Platforms", "desc": "Expanding beyond infectious disease into targeted cancer immunotherapy" },
     "carbon": { "topic": "Carbon Capture Tech", "desc": "Direct air capture costs now below $200/tonne CO₂ at scale" },
-    "neuro": { "topic": "Neuromorphic Computing", "desc": "Brain-inspired chips achieving ultra-low-power edge AI deployment" }
+    "neuro": { "topic": "Neuromorphic Computing", "desc": "Brain-inspired chips achieving ultra-low-power edge computing deployment" }
   }
 }

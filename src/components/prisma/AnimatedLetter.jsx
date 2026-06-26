@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'motion/react';
+﻿import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef } from 'react';
 
 /**
@@ -12,16 +12,16 @@ import { useRef } from 'react';
  * @param {object} scrollYProgress - The motion value from useScroll
  */
 export default function AnimatedLetter({ char, index, totalChars, scrollYProgress }) {
-  const charProgress = index / totalChars;
-  const opacity = useTransform(
-    scrollYProgress,
-    [Math.max(0, charProgress - 0.1), charProgress + 0.05],
-    [0.2, 1]
-  );
+ const charProgress = index / totalChars;
+ const opacity = useTransform(
+ scrollYProgress,
+ [Math.max(0, charProgress - 0.1), charProgress + 0.05],
+ [0.2, 1]
+ );
 
-  return (
-    <motion.span style={{ opacity }}>
-      {char === ' ' ? ' ' : char}
-    </motion.span>
-  );
+ return (
+ <motion.span style={{ opacity }}>
+  {char === ' ' ? ' ' : char}
+ </motion.span>
+ );
 }

@@ -28,6 +28,9 @@ const UserManagement = lazy(() => import('../pages/UserManagementPage.jsx'));
 const APIMonitoring = lazy(() => import('../pages/APIMonitoringPage.jsx'));
 const DatabaseView = lazy(() => import('../pages/DatabaseViewPage.jsx'));
 const SyncData = lazy(() => import('../pages/SyncDataPage.jsx'));
+const AdminAuditLog = lazy(() => import('../pages/AdminAuditLogPage.jsx'));
+const AdminConfig = lazy(() => import('../pages/AdminConfigPage.jsx'));
+const AdminDataSources = lazy(() => import('../pages/AdminDataSourcePage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -83,14 +86,15 @@ export const router = createBrowserRouter([
         element: <AuthPage />,
       },
       {
-        path: '/login',
-        element: <LoginPage />,
-      },
-      {
         path: '/register',
         element: <RegisterPage />,
       },
     ],
+  },
+  // --- Login standalone (full-screen split layout) ---
+  {
+    path: '/login',
+    element: <LoginPage />,
   },
   {
     path: '/reset-password',
@@ -211,6 +215,36 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <SyncData />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'audit-logs',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminAuditLog />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'configs',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminConfig />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'data-sources',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminDataSources />
             </Suspense>
           </ProtectedRoute>
         ),

@@ -11,21 +11,26 @@ import {
   Users,
   Globe,
   Database,
-  Microscope,
   Settings,
-  Bell,
   Bookmark,
   AlertTriangle,
   Sun,
   Moon,
   RefreshCw,
+  ShieldCheck,
+  Sliders,
+  Cloud,
 } from 'lucide-react';
 import { useEffect } from 'react';
 import { userAPI } from '../lib/api/user.api';
 import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/useAuthStore';
+import ScitrackSLogo from '../components/prisma/ScitrackSLogo';
 
-// 1. SIDEBAR
+/* ═══════════════════════════════════════════════════════════════════════════
+   Sidebar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 function Sidebar({ role, activeTab, navigate, user }) {
   const { t } = useTranslation('common');
 
@@ -50,6 +55,9 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
+    { id: 'audit-logs', Icon: ShieldCheck, label: 'Audit Logs' },
+    { id: 'configs', Icon: Sliders, label: 'Configs' },
+    { id: 'data-sources', Icon: Cloud, label: 'Data Sources' },
   ];
 
   let nav = academicNav;
@@ -64,26 +72,24 @@ function Sidebar({ role, activeTab, navigate, user }) {
   };
 
   return (
-    <aside className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0 bg-white dark:bg-[#131A2A] border-gray-200 dark:border-white/5 transition-colors duration-300">
+    <aside className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0 bg-black/60 backdrop-blur-sm border-[#DEDBC8]/10">
+      {/* Logo */}
       <div
         onClick={() => navigate(`/${role}/overview`)}
-        className="p-5 border-b border-gray-200 dark:border-white/5 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
+        className="p-5 border-b border-[#DEDBC8]/10 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
       >
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-md bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
-        >
-          <Microscope size={14} className="text-white" />
+        <div className="flex items-center gap-0.5">
+          <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-6 h-8" />
+          <span className="text-xs font-black text-[#E1E0CC] tracking-[0.05em] font-outfit">
+            CITRACK
+          </span>
         </div>
-        <div>
-          <div className="text-xs font-black text-gray-900 dark:text-white tracking-widest font-outfit">
-            {t('app.name')}
-          </div>
-          <div className="text-[10px] mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
-            {role === 'admin' ? t('app.adminConsole') : t('app.researchPlatform')}
-          </div>
+        <div className="text-[10px] text-gray-400">
+          {role === 'admin' ? t('app.adminConsole') : t('app.researchPlatform')}
         </div>
       </div>
 
+      {/* Nav items */}
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         {nav.map(({ id, Icon, label }) => {
           const active = activeTab === id;
@@ -93,8 +99,8 @@ function Sidebar({ role, activeTab, navigate, user }) {
               onClick={() => navigate(`/${role}/${id}`)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
-                  ? 'bg-blue-50 dark:bg-[#4F8CFF]/10 text-blue-600 dark:text-[#4F8CFF] border-blue-600 dark:border-[#4F8CFF]'
-                  : 'border-transparent text-gray-600 dark:text-[#A0AEC0] hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
+                  ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]'
+                  : 'border-transparent text-gray-400 hover:bg-white/5 hover:text-[#E1E0CC]'
               }`}
             >
               <Icon size={15} />
@@ -104,26 +110,26 @@ function Sidebar({ role, activeTab, navigate, user }) {
         })}
       </nav>
 
-      <div className="p-4 border-t border-gray-200 dark:border-white/5 space-y-3">
+      {/* Bottom section */}
+      <div className="p-4 border-t border-[#DEDBC8]/10 space-y-3">
         {/* Language Switcher */}
         <LanguageSwitcher variant="sidebar" />
 
-        <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-[#1B2235] border border-gray-100 dark:border-transparent transition-colors">
-          <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-white shrink-0 shadow-sm bg-gradient-to-br from-blue-500 via-purple-500 to-teal-400"
-          >
+        {/* User card */}
+        <div className="flex items-center gap-3 p-2 rounded-lg bg-[#101010] border border-[#DEDBC8]/5">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black shrink-0 bg-[#DEDBC8]">
             {getInitials(user?.fullName)}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+            <div className="text-xs font-semibold text-[#E1E0CC] truncate">
               {user ? user.fullName : t('sidebar.loading')}
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="text-[10px] truncate text-gray-500 dark:text-[#A0AEC0]">
+              <div className="text-[10px] truncate text-gray-400">
                 {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
               </div>
               {user && user.isVerified === false && (
-                <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-600 dark:text-amber-500 bg-amber-100 dark:bg-amber-500/10 px-1 py-0.5 rounded">
+                <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded">
                   <AlertTriangle size={8} /> {t('status.unverified')}
                 </div>
               )}
@@ -131,17 +137,18 @@ function Sidebar({ role, activeTab, navigate, user }) {
           </div>
           <Settings
             size={14}
-            className="cursor-pointer text-gray-400 hover:text-gray-900 dark:text-[#A0AEC0] dark:hover:text-white transition-colors hover:rotate-90 duration-300"
+            className="cursor-pointer text-gray-400 hover:text-[#E1E0CC] transition-colors hover:rotate-90 duration-300"
             onClick={() => navigate(`/${role}/settings`)}
           />
         </div>
 
+        {/* Sign out */}
         <button
           onClick={() => {
             sessionStorage.removeItem('userRole');
             navigate('/login');
           }}
-          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-[#A0AEC0] hover:bg-red-500 dark:hover:bg-red-500 hover:text-white hover:shadow-lg hover:shadow-red-500/20"
+          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white"
         >
           {t('sidebar.signOut')}
         </button>
@@ -150,7 +157,10 @@ function Sidebar({ role, activeTab, navigate, user }) {
   );
 }
 
-// 2. TOPBAR
+/* ═══════════════════════════════════════════════════════════════════════════
+   TopBar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 function TopBar({ title, subtitle }) {
   const { t } = useTranslation('common');
   const { resolvedTheme, setTheme } = useTheme();
@@ -160,15 +170,13 @@ function TopBar({ title, subtitle }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-white dark:bg-[#0B1020] border-gray-200 dark:border-white/5 transition-colors duration-300">
+    <header className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10">
       <div>
-        <h1
-          className="text-base font-black text-gray-900 dark:text-white font-display"
-        >
+        <h1 className="text-base font-black text-[#E1E0CC] font-display">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs mt-0.5 text-gray-500 dark:text-[#A0AEC0]">
+          <p className="text-xs mt-0.5 text-gray-400">
             {subtitle}
           </p>
         )}
@@ -177,7 +185,7 @@ function TopBar({ title, subtitle }) {
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-[#A0AEC0] hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-white/20"
+          className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-[#DEDBC8]/10 text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/20"
           title={resolvedTheme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
         >
           {resolvedTheme === 'dark' ? (
@@ -194,7 +202,10 @@ function TopBar({ title, subtitle }) {
   );
 }
 
-// 3. DASHBOARD LAYOUT
+/* ═══════════════════════════════════════════════════════════════════════════
+   DashboardLayout
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 export default function DashboardLayout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -212,7 +223,6 @@ export default function DashboardLayout({ children }) {
       try {
         const response = await userAPI.profile();
         setUser(response);
-        console.log(response);
       } catch (error) {
         console.error('Cannot fetch user profile:', error);
         if (error.response?.status === 401) {
@@ -261,7 +271,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-[#0B1020] transition-colors duration-300">
+    <div className="flex h-screen overflow-hidden bg-black">
       <Sidebar
         role={role}
         activeTab={activeTab}
@@ -274,7 +284,24 @@ export default function DashboardLayout({ children }) {
           subtitle={currentHeader.sub}
         />
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
-          {children}
+          {/* Video background */}
+          <div className="absolute inset-0 pointer-events-none">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+              src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
+          </div>
+          {/* Noise overlay */}
+          <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
+          {/* Content */}
+          <div className="relative z-10">
+            {children}
+          </div>
         </main>
         <SyncFloatingPanel />
       </div>
