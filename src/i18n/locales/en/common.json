@@ -7,7 +7,7 @@
   },
   "sidebar": {
     "overview": "Overview",
-    "searchPapers": "Search Papers",
+    "searchPapers": "Search Keyword",
     "bookmarks": "Bookmarks",
     "reports": "Reports",
     "analytics": "Analytics",
@@ -97,6 +97,8 @@
     "2mAgo": "2m ago",
     "1hAgo": "1h ago",
     "3hAgo": "3h ago",
-    "1dAgo": "1d ago"
+    "1dAgo": "1d ago",
+    "emptyTitle": "All clear!",
+    "emptyDesc": "No notifications to show right now. We'll let you know when something arrives."
   }
 }

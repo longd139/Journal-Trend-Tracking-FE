@@ -7,7 +7,7 @@
   },
   "sidebar": {
     "overview": "Tổng quan",
-    "searchPapers": "Tìm kiếm bài báo",
+    "searchPapers": "Tìm kiếm từ khóa",
     "bookmarks": "Đã lưu",
     "reports": "Báo cáo",
     "analytics": "Phân tích",
@@ -97,6 +97,8 @@
     "2mAgo": "2 phút trước",
     "1hAgo": "1 giờ trước",
     "3hAgo": "3 giờ trước",
-    "1dAgo": "1 ngày trước"
+    "1dAgo": "1 ngày trước",
+    "emptyTitle": "Tất cả đã xong!",
+    "emptyDesc": "Hiện không có thông báo nào. Chúng tôi sẽ báo cho bạn khi có điều gì mới."
   }
 }

@@ -1,587 +1,467 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Clock, Trash2 } from 'lucide-react';
-import { Input } from '../components/ui/input';
-import { AcademicLimitAlert } from './AcademicLimitAlert';
-import { AdvancedFilter } from './AdvancedFilter';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, X, Clock, Trash2, Sparkles, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
 import { PaperItemCard } from './PaperItemCard';
 import { PaperDetailDialog } from './PaperDetailDialog';
 import Neo4jGraphCard from '../components/Neo4jGraphCard';
-
-// ĐÃ SỬA ĐƯỜNG DẪN IMPORT CHUẨN XÁC - TRÁNH LỖI ĐỎ LÒM CỦA VITE
 import { paperAPI } from '../lib/api/paper.api';
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   Constants
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 const FIELD_DATA = [
- { n: 'AI & ML', v: 45, c: '#DEDBC8' },
- { n: 'Biotech', v: 30, c: '#DEDBC8' },
- { n: 'Climate', v: 25, c: '#A09878' },
+  { n: 'AI & ML', v: 45, c: '#DEDBC8' },
+  { n: 'Biotech', v: 30, c: '#DEDBC8' },
+  { n: 'Climate', v: 25, c: '#A09878' },
+  { n: 'Quantum', v: 18, c: '#DEDBC8' },
+  { n: 'Medicine', v: 35, c: '#A09878' },
+  { n: 'Energy', v: 15, c: '#DEDBC8' },
 ];
 
 const SUGGESTED_KEYWORDS = [
- 'Transformer',
- 'Large Language Models',
- 'Computer Vision',
- 'Genome Editing',
- 'Neural Networks',
- 'Deep Learning',
+  'Transformer', 'Large Language Models', 'Computer Vision',
+  'Genome Editing', 'Neural Networks', 'Deep Learning',
+  'Climate Change', 'Quantum Computing', 'mRNA Vaccine',
 ];
 
-export default function SearchPapers() {
- const { t } = useTranslation('search');
- const [papers, setPapers] = useState([]);
- const [isLoading, setIsLoading] = useState(false);
- const [error, setError] = useState(null);
+/* ═══════════════════════════════════════════════════════════════════════════
+   Loading Skeleton
+   ═══════════════════════════════════════════════════════════════════════════ */
 
- // State quản lý phân trang
- const [currentPage, setCurrentPage] = useState(0);
- const [totalPages, setTotalPages] = useState(1);
- const [totalElements, setTotalElements] = useState(0);
-
- const [query, setQuery] = useState('');
- const [savedBookmarks, setSavedBookmarks] = useState([]);
- const [filters, setFilters] = useState({
- startYear: '',
- endYear: '',
- fields: [],
- minCitations: '',
- openAccess: false,
- });
- const [showGraph, setShowGraph] = useState(false);
- const [selectedPaper, setSelectedPaper] = useState(null);
-
- // ─── Search history ─────────────────────────────────────────────────────
- const [searchHistory, setSearchHistory] = useState([]);
- const [showSuggestions, setShowSuggestions] = useState(false);
- const searchInputRef = useRef(null);
-
- // ─── Viewed papers history ──────────────────────────────────────────────
- const [viewedPapers, setViewedPapers] = useState([]);
-
- const currentRole = sessionStorage.getItem('userRole');
- const storageKey = `scitrack_bookmarks_${currentRole}`;
-
- // Reset về trang đầu khi từ khóa hoặc bộ lọc thay đổi
- useEffect(() => {
- setCurrentPage(0);
- }, [query, filters]);
-
- useEffect(() => {
- const loadPapersData = async () => {
-  setIsLoading(true);
-  setError(null);
-  try {
-  // Nếu có query thì gọi API search (POST), ngược lại gọi API lấy dữ liệu có sẵn (GET)
-  if (query && query.trim()) {
-   const requestBody = {
-   query: query.trim(),
-   authorName: '',
-   journalId: '',
-   page: currentPage,
-   };
-
-   const response = await paperAPI.searchPapers(requestBody);
-
-   // Response structure: { status, message, data: { papers, totalElements, totalPages, currentPage, pageSize, hasNext, hasPrev }, timestamp }
-   if (response && response.data) {
-   const { papers, totalElements: respTotalElements, totalPages: respTotalPages } = response.data;
-   const validPapers = Array.isArray(papers) ? papers.filter((p) => p !== null && p !== undefined) : [];
-   setPapers(validPapers);
-   setTotalPages(respTotalPages || 1);
-   setTotalElements(respTotalElements || validPapers.length);
-   } else {
-   setPapers([]);
-   setTotalPages(1);
-   setTotalElements(0);
-   }
-  } else {
-   // Gọi API GET /api/v1/papers chỉ với page + size để hiển thị dữ liệu có sẵn (Cố định hiển thị 5 bài báo)
-   const apiParams = { page: currentPage, size: 5 };
-   const response = await paperAPI.search(apiParams);
-
-   if (response && response.papers && Array.isArray(response.papers)) {
-   const validPapers = response.papers.filter((p) => p !== null && p !== undefined);
-   setPapers(validPapers);
-   setTotalPages(response.totalPages || 1);
-   setTotalElements(response.totalElements || validPapers.length);
-   } else if (Array.isArray(response)) {
-   const validPapers = response.filter((p) => p !== null && p !== undefined);
-   setPapers(validPapers);
-   setTotalPages(Math.ceil(validPapers.length / 5) || 1);
-   setTotalElements(validPapers.length);
-   } else {
-   const validPapers = response?.list || [];
-   setPapers(validPapers);
-   setTotalPages(response?.totalPages || 1);
-   setTotalElements(response?.totalElements || validPapers.length);
-   }
-  }
-  } catch (err) {
-  console.error('API error:', err);
-  if (err.response && err.response.status === 401) {
-   setError(
-   'Phiên làm việc đã hết hạn hoặc Token không hợp lệ. Bạn hãy bấm Sign Out rồi đăng nhập lại nhé!',
-   );
-  } else {
-   setError(t('results.error'));
-  }
-  } finally {
-  setIsLoading(false);
-  }
- };
-
- const delayDebounce = setTimeout(() => {
-  loadPapersData();
- }, 400);
-
- return () => clearTimeout(delayDebounce);
- }, [query, filters, currentPage]);
-
- useEffect(() => {
- const localData = sessionStorage.getItem(storageKey);
- if (localData) {
-  try {
-  setSavedBookmarks(JSON.parse(localData));
-  } catch (e) {
-  setSavedBookmarks([]);
-  }
- } else {
-  setSavedBookmarks([]);
- }
- }, [storageKey]);
-
- // Load search history from localStorage
- useEffect(() => {
- const key = `scitrack_search_history_${currentRole}`;
- try {
-  const data = localStorage.getItem(key);
-  if (data) setSearchHistory(JSON.parse(data));
- } catch { setSearchHistory([]); }
- }, [currentRole]);
-
- // Load viewed papers from localStorage
- useEffect(() => {
- const key = `scitrack_viewed_papers_${currentRole}`;
- try {
-  const data = localStorage.getItem(key);
-  if (data) setViewedPapers(JSON.parse(data));
- } catch { setViewedPapers([]); }
- }, [currentRole]);
-
- const toggleBookmark = (paper) => {
- if (!paper || !paper.title) return;
- setSavedBookmarks((prev) => {
-  const isAlreadySaved = prev.some((p) => p.title === paper.title);
-  const newData = isAlreadySaved
-  ? prev.filter((p) => p.title !== paper.title)
-  : [...prev, paper];
-  sessionStorage.setItem(storageKey, JSON.stringify(newData));
-  return newData;
- });
- };
-
- const clearAllFilters = () => {
- setFilters({
-  startYear: '',
-  endYear: '',
-  fields: [],
-  minCitations: '',
-  openAccess: false,
- });
- };
-
- // ─── Save keyword to search history ─────────────────────────────────────
- const saveToSearchHistory = (keyword) => {
- const trimmed = keyword.trim();
- if (!trimmed) return;
- const key = `scitrack_search_history_${currentRole}`;
- const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
- setSearchHistory(updated);
- localStorage.setItem(key, JSON.stringify(updated));
- };
-
- const clearSearchHistory = () => {
- const key = `scitrack_search_history_${currentRole}`;
- setSearchHistory([]);
- localStorage.removeItem(key);
- setShowSuggestions(false);
- };
-
- const removeSearchHistoryItem = (keyword) => {
- const key = `scitrack_search_history_${currentRole}`;
- const updated = searchHistory.filter((k) => k !== keyword);
- setSearchHistory(updated);
- localStorage.setItem(key, JSON.stringify(updated));
- };
-
- // ─── View paper (save to history + open dialog) ─────────────────────────
- const handleViewPaper = (paper) => {
- setSelectedPaper(paper);
- if (!paper || !paper.title) return;
- const key = `scitrack_viewed_papers_${currentRole}`;
- const entry = {
-  title: paper.title,
-  authors: paper.authors,
-  year: paper.pubYear || paper.year,
-  field: paper.fieldName || paper.field,
-  viewedAt: new Date().toISOString(),
- };
- const updated = [entry, ...viewedPapers.filter((p) => p.title !== entry.title)].slice(0, 20);
- setViewedPapers(updated);
- localStorage.setItem(key, JSON.stringify(updated));
- };
-
- const clearViewedPapers = () => {
- const key = `scitrack_viewed_papers_${currentRole}`;
- setViewedPapers([]);
- localStorage.removeItem(key);
- };
-
- // Filter history based on current query input
- const filteredSuggestions = query.trim()
- ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
- : searchHistory;
-
- const renderPageNumbers = () => {
- const pages = [];
- const maxVisiblePages = 5;
- let startPage = Math.max(0, currentPage - 2);
- let endPage = Math.min(totalPages - 1, startPage + maxVisiblePages - 1);
-
- if (endPage - startPage < maxVisiblePages - 1) {
-  startPage = Math.max(0, endPage - maxVisiblePages + 1);
- }
-
- for (let i = startPage; i <= endPage; i++) {
-  pages.push(
-  <button
-   key={i}
-   type="button"
-   onClick={() => setCurrentPage(i)}
-   className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
-   currentPage === i
-    ? 'bg-blue-500 text-white '
-    : 'bg-transparent text-slate-400 hover:bg-white/5 hover:text-white border border-[#DEDBC8]/10'
-   }`}
-  >
-   {i + 1}
-  </button>,
+function SkeletonCard() {
+  return (
+    <div className="bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-5 space-y-3 animate-pulse">
+      <div className="flex items-center gap-2">
+        <div className="h-3 w-20 bg-[#DEDBC8]/10 rounded-full" />
+        <div className="h-3 w-16 bg-[#DEDBC8]/5 rounded-full" />
+      </div>
+      <div className="h-4 w-3/4 bg-[#DEDBC8]/8 rounded" />
+      <div className="h-3 w-full bg-[#DEDBC8]/5 rounded" />
+      <div className="h-3 w-2/3 bg-[#DEDBC8]/5 rounded" />
+      <div className="flex gap-2 pt-2">
+        <div className="h-5 w-14 bg-[#DEDBC8]/10 rounded-full" />
+        <div className="h-5 w-16 bg-[#DEDBC8]/10 rounded-full" />
+        <div className="h-5 w-12 bg-[#DEDBC8]/10 rounded-full" />
+      </div>
+    </div>
   );
- }
- return pages;
- };
+}
 
- return (
- <div className="space-y-5 p-8 max-w-6xl mx-auto min-h-screen bg-transparent">
-  <AcademicLimitAlert
-  userRole={currentRole}
-  searchCount={3}
-  maxLimit={10}
-  />
+/* ═══════════════════════════════════════════════════════════════════════════
+   Empty State
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-  {/* Search Bar */}
-  <div className="relative">
-  <Search
-   size={16}
-   className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 dark:text-slate-400"
-  />
-  <Input
-   ref={searchInputRef}
-   type="text"
-   placeholder={t('placeholder')}
-   value={query}
-   onChange={(e) => setQuery(e.target.value)}
-   onKeyDown={(e) => {
-   if (e.key === 'Enter' && query.trim()) {
-    saveToSearchHistory(query);
+function EmptyState({ hasQuery }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-20 text-center"
+    >
+      <div className="w-20 h-20 rounded-full bg-[#DEDBC8]/5 flex items-center justify-center mb-6">
+        {hasQuery ? (
+          <Search size={32} className="text-[#DEDBC8]/30" />
+        ) : (
+          <Sparkles size={32} className="text-[#DEDBC8]/30" />
+        )}
+      </div>
+      <h3 className="text-lg font-medium text-[#E1E0CC] mb-2">
+        {hasQuery ? 'No results found' : 'Start exploring'}
+      </h3>
+      <p className="text-sm text-gray-500 max-w-md">
+        {hasQuery
+          ? 'Try a different keyword or check your spelling.'
+          : 'Enter a keyword above to discover academic papers, or pick a trending topic below.'}
+      </p>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Main Component
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export default function SearchPapers() {
+  const { t } = useTranslation('search');
+  const [papers, setPapers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalElements, setTotalElements] = useState(0);
+  const [query, setQuery] = useState('');
+  const [savedBookmarks, setSavedBookmarks] = useState([]);
+  const [showGraph, setShowGraph] = useState(false);
+  const [selectedPaper, setSelectedPaper] = useState(null);
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const searchInputRef = useRef(null);
+  const [viewedPapers, setViewedPapers] = useState([]);
+
+  const currentRole = sessionStorage.getItem('userRole');
+  const storageKey = `scitrack_bookmarks_${currentRole}`;
+
+  // ─── Reset page when query changes ───
+  useEffect(() => { setCurrentPage(0); }, [query]);
+
+  // ─── Load bookmarks ───
+  useEffect(() => {
+    const localData = sessionStorage.getItem(storageKey);
+    if (localData) {
+      try { setSavedBookmarks(JSON.parse(localData)); } catch { setSavedBookmarks([]); }
+    } else { setSavedBookmarks([]); }
+  }, [storageKey]);
+
+  // ─── Load search history ───
+  useEffect(() => {
+    const key = `scitrack_search_history_${currentRole}`;
+    try { const data = localStorage.getItem(key); if (data) setSearchHistory(JSON.parse(data)); }
+    catch { setSearchHistory([]); }
+  }, [currentRole]);
+
+  // ─── Load viewed papers ───
+  useEffect(() => {
+    const key = `scitrack_viewed_papers_${currentRole}`;
+    try { const data = localStorage.getItem(key); if (data) setViewedPapers(JSON.parse(data)); }
+    catch { setViewedPapers([]); }
+  }, [currentRole]);
+
+  // ─── Search ───
+  useEffect(() => {
+    const loadPapersData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        if (query && query.trim()) {
+          const response = await paperAPI.searchByKeyword(query.trim(), currentPage, 5);
+          if (response) {
+            const { papers, totalElements: respTotalElements, totalPages: respTotalPages } = response;
+            const validPapers = Array.isArray(papers) ? papers.filter((p) => p !== null && p !== undefined) : [];
+            setPapers(validPapers);
+            setTotalPages(respTotalPages || 1);
+            setTotalElements(respTotalElements || validPapers.length);
+          } else {
+            setPapers([]); setTotalPages(1); setTotalElements(0);
+          }
+        } else {
+          setPapers([]); setTotalPages(1); setTotalElements(0);
+        }
+      } catch (err) {
+        console.error('API error:', err);
+        if (err.response && err.response.status === 401) {
+          setError('Session expired. Please sign out and log in again.');
+        } else {
+          setError(t('results.error'));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const delayDebounce = setTimeout(() => { loadPapersData(); }, 400);
+    return () => clearTimeout(delayDebounce);
+  }, [query, currentPage]);
+
+  // ─── Helpers ───
+  const saveToSearchHistory = (keyword) => {
+    const trimmed = keyword.trim();
+    if (!trimmed) return;
+    const key = `scitrack_search_history_${currentRole}`;
+    const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  const clearSearchHistory = () => {
+    const key = `scitrack_search_history_${currentRole}`;
+    setSearchHistory([]);
+    localStorage.removeItem(key);
     setShowSuggestions(false);
-   }
-   }}
-   onFocus={() => {
-   if (searchHistory.length > 0) setShowSuggestions(true);
-   }}
-   onBlur={() => {
-   // Delay so click on suggestion registers before hiding
-   setTimeout(() => setShowSuggestions(false), 150);
-   }}
-   className="pl-11 pr-4 py-5 rounded-xl text-sm transition-colors focus-visible:border-gray-300 dark:focus-visible:border-white/20 focus-visible:ring-0 bg-[#101010] border-[#DEDBC8]/10 text-gray-900 dark:text-slate-200 "
-  />
+  };
 
-  {/* Search suggestions dropdown */}
-  {showSuggestions && filteredSuggestions.length > 0 && (
-   <div className="absolute top-full left-0 right-0 mt-1 z-20 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 shadow-lg overflow-hidden">
-   {filteredSuggestions.slice(0, 8).map((kw) => (
-    <button
-    key={kw}
-    type="button"
-    onMouseDown={(e) => {
-     e.preventDefault();
-     setQuery(kw);
-     saveToSearchHistory(kw);
-     setShowSuggestions(false);
-    }}
-    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-left hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-gray-700 dark:text-slate-300"
-    >
-    <Clock size={12} className="text-gray-400 dark:text-slate-500 shrink-0" />
-    <span className="flex-1 truncate">{kw}</span>
-    <button
-     type="button"
-     onMouseDown={(e) => {
-     e.preventDefault();
-     e.stopPropagation();
-     removeSearchHistoryItem(kw);
-     }}
-     className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-white/10 text-gray-400 dark:text-slate-500 hover:text-red-500 shrink-0"
-    >
-     <X size={11} />
-    </button>
-    </button>
-   ))}
-   <div className="border-t border-gray-100 border-[#DEDBC8]/5">
-    <button
-    type="button"
-    onMouseDown={(e) => {
-     e.preventDefault();
-     clearSearchHistory();
-    }}
-    className="w-full flex items-center gap-2 px-4 py-2.5 text-[11px] font-medium text-gray-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-    >
-    <Trash2 size={11} /> Clear search history
-    </button>
-   </div>
-   </div>
-  )}
-  </div>
+  const removeSearchHistoryItem = (keyword) => {
+    const key = `scitrack_search_history_${currentRole}`;
+    const updated = searchHistory.filter((k) => k !== keyword);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
 
-  {/* Quick Search Tags */}
-  <div className="flex gap-2 flex-wrap items-center text-xs">
-  <span className="text-gray-500 dark:text-slate-500 mr-1">
-   {t('quickSearch')}
-  </span>
-  {FIELD_DATA.map((f) => (
-   <button
-   key={f.n}
-   type="button"
-   onClick={() => { setQuery(f.n); saveToSearchHistory(f.n); }}
-   className="px-3 py-1.5 rounded-full font-medium transition-transform hover:scale-105"
-   style={{
-    background: `${f.c}1A`,
-    color: f.c,
-    border: `1px solid ${f.c}25`,
-   }}
-   >
-   {f.n}
-   </button>
-  ))}
-  {query && (
-   <button
-   type="button"
-   onClick={() => setQuery('')}
-   className="px-3 py-1.5 rounded-full font-medium flex items-center gap-1 transition-colors bg-gray-200 text-gray-600 hover:bg-gray-300 dark:bg-white/5 dark:border border-[#DEDBC8]/10 dark:text-slate-400 dark:hover:bg-white/10"
-   >
-   <X size={10} /> {t('clearQuery')}
-   </button>
-  )}
-  </div>
+  const handleSearch = (kw) => {
+    setQuery(kw);
+    saveToSearchHistory(kw);
+    setShowSuggestions(false);
+    setHasSearched(true);
+  };
 
-  {/* Two-column layout */}
-  <div className="flex flex-col lg:flex-row items-start gap-6 pt-2 w-full">
-  
-  {/* Left Column: Fixed layout cho bộ lọc và từ khóa gợi ý */}
-  <div className="w-full lg:w-[320px] shrink-0 space-y-4">
-   <AdvancedFilter
-   userRole={currentRole}
-   filters={filters}
-   setFilters={setFilters}
-   clearFilters={clearAllFilters}
-   fieldData={FIELD_DATA}
-   />
+  const handleViewPaper = (paper) => {
+    setSelectedPaper(paper);
+    if (!paper || !paper.title) return;
+    const key = `scitrack_viewed_papers_${currentRole}`;
+    const entry = {
+      title: paper.title, authors: paper.authors,
+      year: paper.pubYear || paper.year,
+      field: paper.fieldName || paper.field,
+      viewedAt: new Date().toISOString(),
+    };
+    const updated = [entry, ...viewedPapers.filter((p) => p.title !== entry.title)].slice(0, 20);
+    setViewedPapers(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
 
-   <div className="rounded-xl p-5 space-y-4 transition-all duration-300 bg-[#101010] border border-[#DEDBC8]/10 ">
-   <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">
-    {t('suggestedKeywords')}
-   </h5>
-   <div className="flex flex-wrap gap-2">
-    {SUGGESTED_KEYWORDS.map((kw) => (
-    <button
-     key={kw}
-     type="button"
-     onClick={() => { setQuery(kw); saveToSearchHistory(kw); }}
-     className={`text-[11px] px-2.5 py-1.5 rounded-lg border transition-all duration-200 text-left truncate max-w-full ${
-     query.toLowerCase() === kw.toLowerCase()
-      ? 'bg-blue-100 text-blue-700 border-blue-300 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/40 font-medium'
-      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 hover:text-gray-900 dark:bg-[#121824]/60 dark:text-slate-300 border-[#DEDBC8]/5 dark:hover:bg-white/5 dark:hover:text-white'
-     }`}
-    >
-     {kw}
-    </button>
-    ))}
-   </div>
-   </div>
+  const toggleBookmark = (paper) => {
+    if (!paper || !paper.title) return;
+    setSavedBookmarks((prev) => {
+      const isAlreadySaved = prev.some((p) => p.title === paper.title);
+      const newData = isAlreadySaved ? prev.filter((p) => p.title !== paper.title) : [...prev, paper];
+      sessionStorage.setItem(storageKey, JSON.stringify(newData));
+      return newData;
+    });
+  };
 
-   {/* Recently Viewed Papers */}
-   <div className="rounded-xl p-5 space-y-3 transition-all duration-300 bg-[#101010] border border-[#DEDBC8]/10 ">
-   <div className="flex items-center justify-between">
-    <h5 className="text-xs uppercase tracking-wider font-bold text-gray-500 dark:text-slate-400">
-    Recently Viewed
-    </h5>
-    {viewedPapers.length > 0 && (
-    <button
-     type="button"
-     onClick={clearViewedPapers}
-     className="text-[10px] text-gray-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors flex items-center gap-1"
-    >
-     <Trash2 size={10} /> Clear
-    </button>
-    )}
-   </div>
-   {viewedPapers.length === 0 ? (
-    <p className="text-[11px] text-gray-400 dark:text-slate-600 italic">
-    No papers viewed yet
-    </p>
-   ) : (
-    <div className="space-y-2">
-    {viewedPapers.slice(0, 5).map((paper, i) => (
-     <button
-     key={paper.title || i}
-     type="button"
-     onClick={() => handleViewPaper(paper)}
-     className="w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
-     >
-     <div className="flex items-center gap-1.5 mb-0.5">
-      {paper.field && (
-      <span
-       className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-       style={{
-       background: `${FIELD_DATA.find((f) => f.n === paper.field)?.c || '#DEDBC8'}1A`,
-       color: FIELD_DATA.find((f) => f.n === paper.field)?.c || '#DEDBC8',
-       }}
-      >
-       {paper.field}
-      </span>
-      )}
-      {paper.year && (
-      <span className="text-[10px] text-gray-400 dark:text-slate-500">{paper.year}</span>
-      )}
-     </div>
-     <p className="text-[11px] font-medium text-gray-700 dark:text-slate-300 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-      {paper.title}
-     </p>
-     <p className="text-[10px] text-gray-400 dark:text-slate-600 mt-0.5">
-      Viewed {(() => {
-      const diff = Date.now() - new Date(paper.viewedAt).getTime();
-      const mins = Math.floor(diff / 60000);
-      const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-      if (mins < 1) return 'just now';
-      if (mins < 60) return `${mins}m ago`;
-      if (hours < 24) return `${hours}h ago`;
-      if (days < 7) return `${days}d ago`;
-      return new Date(paper.viewedAt).toLocaleDateString();
-      })()}
-     </p>
-     </button>
-    ))}
+  const filteredSuggestions = query.trim()
+    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
+    : searchHistory;
+
+  // ─── Pagination ───
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(0, currentPage - 2);
+    let end = Math.min(totalPages - 1, start + maxVisible - 1);
+    if (end - start < maxVisible - 1) start = Math.max(0, end - maxVisible + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(
+        <button key={i} type="button" onClick={() => setCurrentPage(i)}
+          className={`w-8 h-8 rounded-lg text-xs font-medium transition-all ${
+            currentPage === i
+              ? 'bg-[#DEDBC8] text-black'
+              : 'text-slate-400 hover:bg-white/5 hover:text-white border border-[#DEDBC8]/10'
+          }`}
+        >{i + 1}</button>
+      );
+    }
+    return pages;
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     Render
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  return (
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+        {/* ─── Hero Search ─── */}
+        <div className="relative">
+          <div className="relative">
+            <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder={t('placeholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && query.trim()) handleSearch(query); }}
+              onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => { setQuery(''); setHasSearched(false); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </div>
+
+          {/* Search suggestions */}
+          <AnimatePresence>
+            {showSuggestions && filteredSuggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+              >
+                {filteredSuggestions.slice(0, 8).map((kw) => (
+                  <button key={kw} type="button"
+                    onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
+                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
+                  >
+                    <Clock size={12} className="text-gray-500 shrink-0" />
+                    <span className="flex-1 truncate">{kw}</span>
+                    <button type="button"
+                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeSearchHistoryItem(kw); }}
+                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
+                    ><X size={11} /></button>
+                  </button>
+                ))}
+                <div className="border-t border-[#DEDBC8]/5">
+                  <button type="button" onMouseDown={(e) => { e.preventDefault(); clearSearchHistory(); }}
+                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                  ><Trash2 size={11} /> Clear search history</button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* ─── Trending Keywords ─── */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={14} className="text-[#DEDBC8]/50" />
+            <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">Trending</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {FIELD_DATA.map((f, i) => (
+              <motion.button
+                key={f.n}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: i * 0.05 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={() => handleSearch(f.n)}
+                className="px-4 py-2 rounded-full text-xs font-medium transition-all border"
+                style={{
+                  background: `${f.c}10`,
+                  color: f.c,
+                  borderColor: `${f.c}20`,
+                }}
+              >
+                {f.n}
+              </motion.button>
+            ))}
+            {SUGGESTED_KEYWORDS.slice(0, 5).map((kw, i) => (
+              <motion.button
+                key={kw}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: (FIELD_DATA.length + i) * 0.05 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                type="button"
+                onClick={() => handleSearch(kw)}
+                className="px-4 py-2 rounded-full text-xs font-medium bg-[#DEDBC8]/5 text-[#DEDBC8]/70 border border-[#DEDBC8]/10 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8] transition-all"
+              >
+                {kw}
+              </motion.button>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── Knowledge Graph Toggle ─── */}
+        {query && query.trim() && papers.length > 0 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <button type="button"
+              onClick={() => setShowGraph((prev) => !prev)}
+              className="flex items-center gap-2 text-xs font-medium text-gray-500 hover:text-[#DEDBC8] transition-colors"
+            >
+              {showGraph ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+              {t('graph.toggle')}
+            </button>
+            <AnimatePresence>
+              {showGraph && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-3 overflow-hidden">
+                  <Neo4jGraphCard keyword={query.trim()} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* ─── Results ─── */}
+        <div className="space-y-4">
+          {/* Results count */}
+          {query && query.trim() && !isLoading && (
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="text-xs text-gray-500">
+              {t('results.found', { count: totalElements })}
+            </motion.p>
+          )}
+
+          {/* Error */}
+          {error && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12 text-xs rounded-2xl text-red-400 bg-red-500/5 border border-red-500/10">
+              {error}
+            </motion.div>
+          )}
+
+          {/* Loading skeleton */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <SkeletonCard />
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Empty */}
+          {!isLoading && !error && papers.length === 0 && (
+            <EmptyState hasQuery={hasSearched && !!query.trim()} />
+          )}
+
+          {/* Paper card grid */}
+          {!isLoading && !error && papers.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            >
+              {papers.map((paper, i) => (
+                <motion.div
+                  key={paper.id || paper.title || i}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <PaperItemCard
+                    paper={paper}
+                    index={0}
+                    badgeColor={FIELD_DATA.find((f) => f.n === paper.fieldName || f.n === paper.field)?.c || '#DEDBC8'}
+                    isSaved={savedBookmarks.some((saved) => saved.title === paper.title)}
+                    onToggleBookmark={toggleBookmark}
+                    onClick={(p) => handleViewPaper(p)}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Pagination */}
+          {!isLoading && !error && totalPages > 1 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="flex items-center justify-center gap-1.5 pt-4">
+              <button type="button" disabled={currentPage === 0}
+                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 border border-[#DEDBC8]/10 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              ><ChevronLeft size={14} /> Prev</button>
+              <div className="flex items-center gap-1.5 mx-1">{renderPageNumbers()}</div>
+              <button type="button" disabled={currentPage === totalPages - 1}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
+                className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium text-slate-400 border border-[#DEDBC8]/10 hover:bg-white/5 hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
+              >Next <ChevronRight size={14} /></button>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Paper Detail Dialog */}
+      <PaperDetailDialog
+        paper={selectedPaper}
+        open={!!selectedPaper}
+        onOpenChange={(open) => { if (!open) setSelectedPaper(null); }}
+      />
     </div>
-   )}
-   </div>
-  </div>
-
-  {/* Right Column */}
-  <div className="flex-1 min-w-0 space-y-4 w-full flex flex-col">
-   <p className="text-xs pl-1 text-gray-500 dark:text-slate-500">
-   {t('results.found', { count: totalElements })}
-   </p>
-
-   {/* Knowledge Graph Toggle */}
-   {query && query.trim() && papers.length > 0 && (
-   <div className="mb-3">
-    <button
-    type="button"
-    onClick={() => setShowGraph((prev) => !prev)}
-    className="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-slate-400 hover:text-[#DEDBC8] dark:hover:text-blue-400 transition-colors mb-2"
-    >
-    {showGraph ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-    {t('graph.toggle')}
-    </button>
-    {showGraph && <Neo4jGraphCard keyword={query.trim()} />}
-   </div>
-   )}
-
-   <div className="space-y-3 flex-1">
-   {isLoading && (
-    <div className="text-center py-12 text-xs animate-pulse text-gray-500 dark:text-slate-400">
-    {t('results.loading')}
-    </div>
-   )}
-
-   {error && (
-    <div className="text-center py-12 text-xs rounded-xl text-red-600 bg-red-50 border border-red-200 dark:text-red-400 dark:border-red-500/10 dark:bg-red-500/5">
-    {error}
-    </div>
-   )}
-
-   {!isLoading && !error && papers.length === 0 && (
-    <div className="text-center py-12 text-xs rounded-xl border text-gray-500 bg-white border-gray-200 dark:text-slate-500 border-[#DEDBC8]/5 bg-[#101010]/30">
-    {t('results.noResults')}
-    </div>
-   )}
-
-   {!isLoading &&
-    !error &&
-    papers.map((paper, i) => (
-    <PaperItemCard
-     key={paper.id || paper.title || i}
-     paper={paper}
-     index={i}
-     badgeColor={
-     FIELD_DATA.find((f) => f.n === paper.field)?.c || '#DEDBC8'
-     }
-     isSaved={savedBookmarks.some(
-     (saved) => saved.title === paper.title,
-     )}
-     onToggleBookmark={toggleBookmark}
-     onClick={(p) => handleViewPaper(p)}
-    />
-    ))}
-   </div>
-
-   {/* Thanh phân trang bằng Flexbox hiện đại */}
-   {!isLoading && !error && totalPages > 1 && (
-   <div className="flex items-center justify-center gap-1.5 pt-6 pb-2">
-    <button
-    type="button"
-    disabled={currentPage === 0}
-    onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
-    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-[#DEDBC8]/10 hover:bg-white/[0.04] hover:bg-white/5 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
-    >
-    <ChevronLeft size={14} /> Prev
-    </button>
-
-    <div className="flex items-center gap-1.5 mx-1">
-    {renderPageNumbers()}
-    </div>
-
-    <button
-    type="button"
-    disabled={currentPage === totalPages - 1}
-    onClick={() => setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))}
-    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-transparent text-slate-400 border border-[#DEDBC8]/10 hover:bg-white/[0.04] hover:bg-white/5 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400 transition-colors"
-    >
-    Next <ChevronRight size={14} />
-    </button>
-   </div>
-   )}
-  </div>
-  </div>
-
-  <PaperDetailDialog
-  paper={selectedPaper}
-  open={!!selectedPaper}
-  onOpenChange={(open) => {
-   if (!open) setSelectedPaper(null);
-  }}
-  />
- </div>
- );
+  );
 }

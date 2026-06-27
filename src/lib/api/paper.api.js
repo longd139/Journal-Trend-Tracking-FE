@@ -29,4 +29,15 @@ export const paperAPI = {
     });
     return data; // { status, message, data: { papers, totalElements, ... }, timestamp }
   },
+
+  /**
+   * Tìm kiếm bài báo theo từ khóa (keyword-based search).
+   * GET /api/search/keyword/{keyword}?page=0&size=5
+   */
+  async searchByKeyword(keyword, page = 0, size = 5) {
+    const { data } = await axiosClient.get(`/api/search/keyword/${encodeURIComponent(keyword)}`, {
+      params: { page, size },
+    });
+    return data.data || data;
+  },
 };

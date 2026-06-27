@@ -28,7 +28,7 @@ function HeroSection() {
    muted
    playsInline
    className="absolute inset-0 w-full h-full object-cover"
-   src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
+   src="https://videos.pexels.com/video-files/33592812/14279725_1440_2560_45fps.mp4"
   />
 
   {/* Noise overlay */}
@@ -114,18 +114,20 @@ function HeroSection() {
     publications — built for researchers, by researchers.
     </motion.p>
 
-    <motion.button
-    initial={{ y: 20, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-    onClick={() => navigate('/register')}
-    className="group flex items-center gap-2 hover:gap-3 transition-all duration-300 bg-[#DEDBC8] rounded-full pl-5 pr-2 py-2 text-black font-medium text-sm sm:text-base w-fit"
-    >
-    Explore more
-    <span className="bg-black rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-     <ArrowRight size={16} className="text-[#DEDBC8]" />
-    </span>
-    </motion.button>
+    	    	    	    	    	    <motion.button
+	    initial={{ y: 20, opacity: 0 }}
+	    animate={{ y: 0, opacity: 1 }}
+	    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+	    onClick={() => navigate('/register')}
+	    className="group relative flex items-center transition-all duration-500 bg-[#DEDBC8] hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit"
+	    >
+	    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-[#DEDBC8] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
+	     <ArrowRight size={16} className="text-[#DEDBC8] group-hover:text-black transition-colors duration-500" />
+	    </span>
+	    <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-8 sm:group-hover:-translate-x-10">
+	     Explore more
+	    </span>
+	    </motion.button>
    </div>
    </div>
   </div>
@@ -286,9 +288,9 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-    className="bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300"
+    className="group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300"
     >
-    <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 leading-none">
+    <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-all duration-500 leading-none">
      {item.num}
     </span>
     <h3 className="text-lg sm:text-xl font-medium text-[#E1E0CC] mt-3 mb-2">
