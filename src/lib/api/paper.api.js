@@ -31,12 +31,37 @@ export const paperAPI = {
   },
 
   /**
-   * Tìm kiếm bài báo theo từ khóa (keyword-based search).
-   * GET /api/search/keyword/{keyword}?page=0&size=5
+   * Quick statistics for a keyword — total papers, citations,
+   * YoY growth rate, avg citations per paper, and top journals.
+   * GET /api/search/keyword/quick-stats?keyword={keyword}
    */
-  async searchByKeyword(keyword, page = 0, size = 5) {
-    const { data } = await axiosClient.get(`/api/search/keyword/${encodeURIComponent(keyword)}`, {
-      params: { page, size },
+  async getKeywordQuickStats(keyword) {
+    const { data } = await axiosClient.get('/api/search/keyword/quick-stats', {
+      params: { keyword },
+    });
+    return data.data || data;
+  },
+
+  /**
+   * Get co-occurring keywords (satellite trends) for a searched keyword.
+   * Uses Neo4j graph traversal to find keywords that frequently appear
+   * together in recent papers (last 2 years), with YoY growth rates.
+   * GET /api/search/keyword/related-trends?keyword={keyword}
+   */
+  async getRelatedTrends(keyword) {
+    const { data } = await axiosClient.get('/api/search/keyword/related-trends', {
+      params: { keyword },
+    });
+    return data.data || data;
+  },
+
+  /**
+   * Get top 5 most-cited papers for a keyword (DB-only, no external API).
+   * GET /api/search/keyword/top-papers?keyword={keyword}
+   */
+  async getTopPapers(keyword) {
+    const { data } = await axiosClient.get('/api/search/keyword/top-papers', {
+      params: { keyword },
     });
     return data.data || data;
   },

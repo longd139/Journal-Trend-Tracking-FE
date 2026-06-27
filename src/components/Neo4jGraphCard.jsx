@@ -39,32 +39,28 @@ function normalizeGroup(rawGroup) {
 }
 
 /**
- * Chuyển đổi dữ liệu từ API /api/v1/papers/search/graph sang định dạng vis-network.
- * API trả về: { nodes: [{id, label, group, size, paperCount, searchCount, tier}], links: [{source, target, label}] }
- * Field `tier` dùng để phân tầng đồ thị (0 = core, 1 = layer 1, 2 = layer 2, …).
+ * Transform graph data from POST /api/graphs/keyword/search
+ * Response: { nodes: [{id, label, group, size}], links: [{source, target}] }
  */
 function transformGraphData(graphData, t) {
  const { nodes = [], links = [] } = graphData;
 
  const visNodes = nodes.map((node) => {
  const size = node.size || 1;
- const paperCount = node.paperCount ?? 0;
- const searchCount = node.searchCount ?? 0;
- const tier = node.tier ?? 0;
  const normalizedGroup = normalizeGroup(node.group);
- const groupKey = normalizedGroup + '-tier-' + tier;
- const color = tierColor(normalizedGroup, tier);
  return {
   id: node.id,
   label: truncate(node.label, 45),
-  group: groupKey,
+  group: normalizedGroup,
   value: Math.max(size, 1),
-  tier,
-  title: `<b>${node.label}</b><br/>Weight: ${size}<br/>Papers: ${paperCount}<br/>Searches: ${searchCount}`,
+  title: `<b>${node.label}</b><br/>Group: ${normalizedGroup}`,
   color: {
-  background: color,
-  border: color,
-  highlight: { background: tierHighlight(normalizedGroup, tier), border: tierHighlight(normalizedGroup, tier) },
+  background: normalizedGroup === 'keyword' ? '#A09878' : '#DEDBC8',
+  border: normalizedGroup === 'keyword' ? '#A09878' : '#DEDBC8',
+  highlight: {
+   background: normalizedGroup === 'keyword' ? '#33DDC5' : '#6BA0FF',
+   border: normalizedGroup === 'keyword' ? '#33DDC5' : '#6BA0FF',
+  },
   },
  };
  });
@@ -72,7 +68,6 @@ function transformGraphData(graphData, t) {
  const visEdges = links.map((link) => ({
  from: link.source,
  to: link.target,
- label: undefined, // Ẩn nhãn trên cạnh (chứa "suggested", tier) để đồ thị dễ nhìn
  color: { color: '#A0987860' },
  width: 0.6,
  }));
@@ -80,47 +75,24 @@ function transformGraphData(graphData, t) {
  return {
  nodes: new DataSet(visNodes),
  edges: new DataSet(visEdges),
- tiers: [...new Set(nodes.map((n) => n.tier ?? 0))].sort(),
- tierGroups: [...new Set(visNodes.map((n) => n.group))].sort(),
+ tierGroups: ['paper', 'keyword'],
  };
 }
 
 // ─── Vis-network config ──────────────────────────────────────────────────────
-const getGraphOptions = (isDark, tierGroups = []) => {
- // Build dynamic group configs from actual tier groups in data
- const groups = {};
- for (const g of tierGroups) {
- const [baseGroup, , tierStr] = g.split('-');
- const tier = parseInt(tierStr, 10);
- groups[g] = {
-  shape: baseGroup === 'keyword' ? 'diamond' : 'dot',
-  color: {
-  background: tierColor(baseGroup, tier),
-  border: tierColor(baseGroup, tier),
-  highlight: {
-   background: tierHighlight(baseGroup, tier),
-   border: tierHighlight(baseGroup, tier),
+const getGraphOptions = (isDark) => {
+ const groups = {
+  paper: {
+   shape: 'dot',
+   color: { background: '#DEDBC8', border: '#DEDBC8', highlight: { background: '#6BA0FF', border: '#6BA0FF' } },
+   font: { size: 13, color: '#FFFFFF' },
   },
+  keyword: {
+   shape: 'diamond',
+   color: { background: '#A09878', border: '#A09878', highlight: { background: '#33DDC5', border: '#33DDC5' } },
+   font: { size: 10, color: '#FFFFFF' },
   },
-  font: { size: baseGroup === 'keyword' ? 10 : 13, color: '#FFFFFF' },
  };
- }
-
- // Fallback: ensure classic groups exist for nodes without tier
- if (!groups['paper']) {
- groups['paper'] = {
-  shape: 'dot',
-  color: { background: '#DEDBC8', border: '#DEDBC8', highlight: { background: '#6BA0FF', border: '#6BA0FF' } },
-  font: { size: 13, color: '#FFFFFF' },
- };
- }
- if (!groups['keyword']) {
- groups['keyword'] = {
-  shape: 'diamond',
-  color: { background: '#A09878', border: '#A09878', highlight: { background: '#33DDC5', border: '#33DDC5' } },
-  font: { size: 10, color: '#FFFFFF' },
- };
- }
 
  return {
  nodes: {
@@ -199,7 +171,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   setPaperCount(null);
 
   try {
-  const graphData = await graphAPI.getKeywordGraphEnhanced(trimmed, 3);
+  const graphData = await graphAPI.searchGraph(trimmed, 3);
 
   if (cancelled) return;
 
@@ -241,7 +213,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
  dataRef.current = { nodes, edges, tierGroups };
 
  const isDark = document.documentElement.classList.contains('dark');
- const options = getGraphOptions(isDark, tierGroups);
+ const options = getGraphOptions(isDark);
 
  networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
 
@@ -438,38 +410,13 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   {/* Legend */}
   <div className="px-5 pb-4 shrink-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium">
   <span className="text-gray-500 text-gray-500">{t('legend.title')}</span>
-  {(() => {
-   // Deduplicate: one legend entry per base group (paper / keyword)
-   const seen = new Set();
-   const uniqueGroups = [];
-   for (const g of (dataRef.current?.tierGroups || [])) {
-   const baseGroup = g.split('-')[0];
-   if (!seen.has(baseGroup)) {
-    seen.add(baseGroup);
-    uniqueGroups.push(g);
-   }
-   }
-   return uniqueGroups.map((g) => {
-   const [baseGroup, , tierStr] = g.split('-');
-   const tier = parseInt(tierStr, 10);
-   const color = tierColor(baseGroup, tier);
-   const shape = baseGroup === 'keyword' ? '◆' : '●';
-   return (
-    <LegendItem key={baseGroup} color={color} label={tierLabel(baseGroup, t)} shape={shape} />
-   );
-   });
-  })()}
-  {!dataRef.current?.tierGroups?.length && (
-   <>
-   <LegendItem color="#DEDBC8" label={t('legend.paper')} shape="●" />
-   <LegendItem color="#A09878" label={t('legend.keyword')} shape="◆" />
-   </>
-  )}
+  <LegendItem color="#DEDBC8" label={t('legend.paper')} shape="●" />
+  <LegendItem color="#A09878" label={t('legend.keyword')} shape="◆" />
   <span className="ml-auto text-gray-500 text-gray-500">
    {t('tip')}
   </span>
   </div>
- </div>
+  </div>
  );
 }
 

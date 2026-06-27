@@ -67,7 +67,7 @@ function StatCard({ label, value, icon: Icon, color, change }) {
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="relative overflow-hidden rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5 group"
+      className="relative overflow-hidden rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-5 group"
     >
       {/* hover gradient reveal */}
       <div
@@ -78,7 +78,7 @@ function StatCard({ label, value, icon: Icon, color, change }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 mb-3">
             <div
-              className="p-2 rounded-xl transition-colors group-hover:bg-white/[0.04]"
+              className="p-2 rounded-xl transition-colors group-hover:bg-[#DEDBC8]/5"
               style={{ color, opacity: 0.5 }}
             >
               <Icon size={18} />
@@ -130,17 +130,17 @@ function ViewUserModal({ user, onClose }) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.92, opacity: 0, y: 20 }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="w-full max-w-md rounded-2xl border border-white/[0.06] bg-[#0d0d0d] shadow-2xl overflow-hidden"
+        className="w-full max-w-md rounded-2xl border border-[#DEDBC8]/5 bg-[#0d0d0d] shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
-        <div className="relative px-6 pt-6 pb-5 border-b border-white/[0.04]">
+        <div className="relative px-6 pt-6 pb-5 border-b border-[#DEDBC8]/5">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-white flex items-center gap-2.5">
               <span className="w-1.5 h-5 rounded-full bg-indigo-400" />
               User Details
             </h3>
-            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/[0.04] text-slate-500 hover:text-white transition-colors">
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#DEDBC8]/5 text-slate-500 hover:text-white transition-colors">
               <X size={16} />
             </button>
           </div>
@@ -163,8 +163,8 @@ function ViewUserModal({ user, onClose }) {
         {/* body */}
         <div className="px-6 py-4 space-y-1">
           {rows.map((r) => (
-            <div key={r.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.02] transition-colors group">
-              <div className="p-1.5 rounded-lg bg-white/[0.02] group-hover:bg-white/[0.04] transition-colors" style={{ color: r.color }}>
+            <div key={r.label} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#DEDBC8]/5 transition-colors group">
+              <div className="p-1.5 rounded-lg bg-[#DEDBC8]/5 group-hover:bg-[#DEDBC8]/10 transition-colors" style={{ color: r.color }}>
                 <r.icon size={14} />
               </div>
               <span className="text-[11px] text-slate-500 uppercase tracking-wider w-36 shrink-0">{r.label}</span>
@@ -212,7 +212,7 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
         </div>
         <div className="px-6 pb-5 flex gap-2.5 justify-end">
           <button onClick={onCancel}
-            className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-slate-400 hover:bg-white/[0.04] hover:text-white transition-colors">
+            className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-slate-400 hover:bg-[#DEDBC8]/5 hover:text-white transition-colors">
             Cancel
           </button>
           <button onClick={onConfirm} disabled={loading}
@@ -274,7 +274,7 @@ function RolePopover({ user, onClose, onPromoteAdmin }) {
             className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all flex items-center justify-between
               ${role === 'admin'
                 ? 'text-rose-400 hover:bg-rose-500/10'
-                : 'text-slate-400 hover:bg-white/[0.04] hover:text-white'}`}
+                : 'text-slate-400 hover:bg-[#DEDBC8]/5 hover:text-white'}`}
           >
             {DISPLAY_ROLE(role)}
             {changingRole === role && <RefreshCw size={12} className="animate-spin text-indigo-400" />}
@@ -389,15 +389,14 @@ export default function UserManagement() {
             placeholder={t('userManagement.searchPlaceholder') || 'Search users...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-white/[0.02] border border-white/[0.04] text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 focus:bg-white/[0.03] transition-all"
+            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 transition-all"
           />
         </div>
         {/* Filters */}
         <div className="flex items-center gap-2">
           <SlidersHorizontal size={13} className="text-slate-400" />
           <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
-            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#1a1a1a] border border-white/[0.06] text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
-            style={{ colorScheme: 'dark' }}
+            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
           >
             <option value="all">All Roles</option>
             <option value="admin">Admin</option>
@@ -405,8 +404,7 @@ export default function UserManagement() {
             <option value="academic_user">Academic</option>
           </select>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#1a1a1a] border border-white/[0.06] text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
-            style={{ colorScheme: 'dark' }}
+            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -429,12 +427,12 @@ export default function UserManagement() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.05 }}
-        className="rounded-2xl border border-white/[0.04] bg-white/[0.01] overflow-hidden"
+        className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/[0.04] bg-white/[0.01]">
+              <tr className="border-b border-[#DEDBC8]/5 bg-[#0d0d0d]">
                 {[
                   { col: 'fullName', label: 'User' },
                   { col: 'email', label: 'Email' },
@@ -477,7 +475,7 @@ export default function UserManagement() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="border-b border-white/[0.02] hover:bg-white/[0.02] transition-colors group"
+                      className="border-b border-[#DEDBC8]/5 hover:bg-[#DEDBC8]/[0.02] transition-colors group"
                     >
                       {/* User */}
                       <td className={tdCls}>
@@ -556,7 +554,7 @@ export default function UserManagement() {
 
         {/* ─── Pagination ─── */}
         {totalPages > 1 && (
-          <div className="px-5 py-3 border-t border-white/[0.04] flex items-center justify-between text-[13px]">
+          <div className="px-5 py-3 border-t border-[#DEDBC8]/5 flex items-center justify-between text-[13px]">
             <span className="text-slate-500">
               {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
             </span>
@@ -564,7 +562,7 @@ export default function UserManagement() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-xl text-slate-500 hover:bg-white/[0.04] hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                className="p-2 rounded-xl text-slate-500 hover:bg-[#DEDBC8]/5 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={15} />
               </button>
@@ -580,7 +578,7 @@ export default function UserManagement() {
                     className={`w-8 h-8 rounded-xl text-[13px] font-semibold transition-all active:scale-90
                       ${isActive
                         ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/20'
-                        : 'text-slate-500 hover:bg-white/[0.04] hover:text-white'}`}
+                        : 'text-slate-500 hover:bg-[#DEDBC8]/5 hover:text-white'}`}
                   >
                     {pn}
                   </button>
@@ -589,7 +587,7 @@ export default function UserManagement() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-xl text-slate-500 hover:bg-white/[0.04] hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                className="p-2 rounded-xl text-slate-500 hover:bg-[#DEDBC8]/5 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 <ChevronRight size={15} />
               </button>
