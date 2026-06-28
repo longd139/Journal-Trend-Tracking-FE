@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
@@ -87,7 +87,7 @@ function ResultCard({ result }) {
       {key.replace(/([A-Z])/g, ' $1').trim()}
      </td>
      <td className="py-1.5 text-gray-600 dark:text-slate-400 break-all font-mono text-[11px]">
-      {String(value ?? '—')}
+      {String(value ?? '�')}
      </td>
      </tr>
     ))}
@@ -142,7 +142,7 @@ export default function SyncDataPage() {
  const [clearResult, setClearResult] = useState(null);
  const [clearError, setClearError] = useState(null);
 
- const [autoSyncEnabled, setAutoSyncEnabled] = useState(false);
+ const [autoSyncEnabled, setAutoSyncEnabled] = useState(null); // null = loading
  const [autoSyncStats, setAutoSyncStats] = useState(null);
  const [isToggling, setIsToggling] = useState(false);
  const [isLoadingAutoSync, setIsLoadingAutoSync] = useState(true);
@@ -150,9 +150,12 @@ export default function SyncDataPage() {
  const fetchAutoSyncStatus = useCallback(async () => {
  try {
   const response = await adminAPI.getAutoSyncStatus();
-  setAutoSyncStats(response.data || response);
+  const status = response.data || response;
+  setAutoSyncStats(status);
+  setAutoSyncEnabled(status?.enabled ?? false);
  } catch {
-  // silently fail
+  // silently fail � keep null to show error state
+  setAutoSyncEnabled(null);
  } finally {
   setIsLoadingAutoSync(false);
  }
@@ -166,14 +169,15 @@ export default function SyncDataPage() {
  setIsToggling(true);
  try {
   const newState = !autoSyncEnabled;
-  await adminAPI.toggleAutoSync(newState);
-  setAutoSyncEnabled(newState);
-  toast.success(newState ? 'Auto-sync enabled' : 'Auto-sync disabled', {
+  const response = await adminAPI.toggleAutoSync(newState);
+  const enabled = response?.data?.autoSyncEnabled ?? newState;
+  setAutoSyncEnabled(enabled);
+  toast.success(enabled ? 'Auto-sync enabled' : 'Auto-sync disabled', {
   position: 'top-right',
   duration: 3000,
   });
-  // Refresh stats after toggling
-  fetchAutoSyncStatus();
+  // Refresh status after toggling
+  await fetchAutoSyncStatus();
  } catch (err) {
   toast.error(err.response?.data?.message || 'Failed to toggle auto-sync', {
   position: 'top-right',
@@ -184,14 +188,14 @@ export default function SyncDataPage() {
  }
  };
 
- // ── Bulk Sync ──
+ // -- Bulk Sync --
  const [bulkKeywords, setBulkKeywords] = useState('');
  const [bulkPapersPerKeyword, setBulkPapersPerKeyword] = useState(100);
  const [bulkYearFrom, setBulkYearFrom] = useState('');
  const [bulkYearTo, setBulkYearTo] = useState(String(currentYear));
  const [useDefaultBulk, setUseDefaultBulk] = useState(false);
 
- // Derived from store — survives tab navigation
+ // Derived from store � survives tab navigation
  const isBulkSyncing = bulkTask?.status === 'running';
  const bulkResult = bulkTask?.status === 'done' ? (bulkTask.result || bulkTask) : null;
  const bulkError = bulkTask?.status === 'error' ? bulkTask.error : null;
@@ -219,12 +223,12 @@ export default function SyncDataPage() {
   if (bulkYearTo) body.yearTo = parseInt(bulkYearTo, 10);
  }
 
- // Delegate to store — polling lives there and survives tab switches
+ // Delegate to store � polling lives there and survives tab switches
  startBulkSync(body);
  };
 
  const setBulkError = (msg) => {
- // still used for validation errors (not API errors — those are in the store)
+ // still used for validation errors (not API errors � those are in the store)
  toast.error(msg, { position: 'top-right', duration: 5000 });
  };
 
@@ -278,7 +282,7 @@ export default function SyncDataPage() {
 
  return (
  <div className="p-6 space-y-6 max-w-3xl mx-auto">
-  {/* ── Header ── */}
+  {/* -- Header -- */}
   <div>
   <h2 className="text-lg font-black text-[#E1E0CC] font-display flex items-center gap-2">
    <RefreshCw size={18} className="text-emerald-500" />
@@ -289,7 +293,7 @@ export default function SyncDataPage() {
   </p>
   </div>
 
-  {/* ── Sync Form ── */}
+  {/* -- Sync Form -- */}
   <motion.div
   initial={{ opacity: 0, y: 8 }}
   animate={{ opacity: 1, y: 0 }}
@@ -348,7 +352,7 @@ export default function SyncDataPage() {
     <option key={y} value={y}>{y}</option>
    ))}
    </select>
-   <span className="text-xs text-gray-400 dark:text-slate-500">—</span>
+   <span className="text-xs text-gray-400 dark:text-slate-500">�</span>
    <select
    value={yearTo}
    onChange={(e) => setYearTo(e.target.value)}
@@ -362,7 +366,7 @@ export default function SyncDataPage() {
    </select>
   </div>
 
-  {/* Source selection — icon buttons */}
+  {/* Source selection � icon buttons */}
   <div className="space-y-2">
    <div className="flex items-center justify-between">
    <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -412,7 +416,7 @@ export default function SyncDataPage() {
   </Button>
   </motion.div>
 
-  {/* ── Loading ── */}
+  {/* -- Loading -- */}
   {isRunning && (
   <div className="text-center py-8">
    <RefreshCw size={24} className="animate-spin mx-auto text-emerald-500 mb-2" />
@@ -421,12 +425,12 @@ export default function SyncDataPage() {
    <strong className="text-[#E1E0CC]">"{query}"</strong>...
    </p>
    <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
-   You can navigate to other pages — sync continues in the background.
+   You can navigate to other pages � sync continues in the background.
    </p>
   </div>
   )}
 
-  {/* ── Results ── */}
+  {/* -- Results -- */}
   <AnimatePresence>
   {hasResults && (
    <div className="space-y-3">
@@ -464,7 +468,7 @@ export default function SyncDataPage() {
   )}
   </AnimatePresence>
 
-  {/* ── Auto Sync ── */}
+  {/* -- Auto Sync -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
@@ -503,43 +507,58 @@ export default function SyncDataPage() {
    </button>
    </div>
 
-   {/* Stats summary */}
-   {!isLoadingAutoSync && autoSyncStats && (
-   <div className="mt-4 pt-4 border-t border-gray-100 border-[#DEDBC8]/5">
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-     <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-     {autoSyncStats.papers?.total?.toLocaleString() ?? '—'}
-     </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Papers</div>
+   {/* Status indicator */}
+   {!isLoadingAutoSync && autoSyncEnabled !== null && (
+   <div className="mt-4 pt-4 border-t border-[#DEDBC8]/5">
+    <div className="flex items-center gap-2 mb-3">
+     <div className={`w-1.5 h-1.5 rounded-full ${autoSyncEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-gray-500'}`} />
+     <span className={`text-[11px] font-semibold ${autoSyncEnabled ? 'text-emerald-400' : 'text-gray-400'}`}>
+     {autoSyncEnabled ? 'Active � running on schedule' : 'Paused'}
+     </span>
     </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-     <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-     {autoSyncStats.authors?.total?.toLocaleString() ?? '—'}
+
+    {autoSyncStats && (
+     <div className="grid grid-cols-2 gap-3">
+     <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+      <div className="text-lg font-bold text-[#E1E0CC] font-display">
+      {(autoSyncStats.lastPapersCount ?? 0).toLocaleString()}
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+      Papers Last Sync
+      </div>
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Authors</div>
-    </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-     <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-     {autoSyncStats.syncLogs?.total?.toLocaleString() ?? '—'}
+     <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+      <div className="text-sm font-bold text-[#DEDBC8]/80 font-mono">
+      {autoSyncStats.lastSyncTime
+       ? new Date(autoSyncStats.lastSyncTime).toLocaleString()
+       : 'Never'}
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+      Last Sync Time
+      </div>
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Syncs</div>
-    </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02] text-center">
-     <div className="text-xs font-bold text-[#E1E0CC] font-mono">
-     {autoSyncStats.syncLogs?.lastSync
-      ? new Date(autoSyncStats.syncLogs.lastSync).toLocaleDateString()
-      : '—'}
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Last Sync</div>
+    )}
+   </div>
+   )}
+
+   {/* Loading state for auto-sync */}
+   {isLoadingAutoSync && (
+   <div className="mt-4 pt-4 border-t border-[#DEDBC8]/5 animate-pulse">
+    <div className="flex items-center gap-2 mb-3">
+     <div className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]/20" />
+     <div className="h-3 w-28 bg-[#DEDBC8]/8 rounded" />
     </div>
+    <div className="grid grid-cols-2 gap-3">
+     <div className="h-16 bg-[#DEDBC8]/5 rounded-xl" />
+     <div className="h-16 bg-[#DEDBC8]/5 rounded-xl" />
     </div>
    </div>
    )}
   </motion.div>
   </div>
 
-  {/* ── Bulk Sync ── */}
+  {/* -- Bulk Sync -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
@@ -576,7 +595,7 @@ export default function SyncDataPage() {
     />
    </button>
    <span className="text-xs text-gray-700 dark:text-slate-300">
-    Use default trending keywords (20 keywords × 100 papers)
+    Use default trending keywords (20 keywords � 100 papers)
    </span>
    </label>
 
@@ -626,7 +645,7 @@ export default function SyncDataPage() {
       ))}
      </select>
      </div>
-     <span className="text-xs text-gray-400 dark:text-slate-500 pb-2">—</span>
+     <span className="text-xs text-gray-400 dark:text-slate-500 pb-2">�</span>
      <div className="space-y-1.5">
      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
       Year To
@@ -662,7 +681,7 @@ export default function SyncDataPage() {
     : 'Start Bulk Sync'}
    </Button>
 
-   {/* ── Bulk progress bar ── */}
+   {/* -- Bulk progress bar -- */}
    {isBulkSyncing && bulkProgress && (
    <motion.div
     initial={{ opacity: 0, y: -6 }}
@@ -699,7 +718,7 @@ export default function SyncDataPage() {
     <div className="grid grid-cols-3 gap-2 text-center">
     <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
      <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-     {bulkProgress.currentKeyword || '—'}
+     {bulkProgress.currentKeyword || '�'}
      </div>
      <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Current</div>
     </div>
@@ -762,8 +781,8 @@ export default function SyncDataPage() {
     <div className="flex items-center gap-2">
     <CheckCircle2 size={14} className="text-emerald-500" />
     <span className="text-xs font-bold text-[#E1E0CC]">
-     {bulkResult.totalKeywords != null && `${bulkResult.totalKeywords} keywords · `}
-     {bulkResult.totalFetched != null && `${bulkResult.totalFetched} fetched · `}
+     {bulkResult.totalKeywords != null && `${bulkResult.totalKeywords} keywords � `}
+     {bulkResult.totalFetched != null && `${bulkResult.totalFetched} fetched � `}
      {(bulkResult.totalInserted ?? bulkResult.result?.totalInserted) != null
      && `${bulkResult.totalInserted ?? bulkResult.result?.totalInserted} inserted`}
     </span>
@@ -806,7 +825,7 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* ── Clear All Data ── */}
+  {/* -- Clear All Data -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
@@ -854,7 +873,7 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* ── Clear Confirmation Dialog ── */}
+  {/* -- Clear Confirmation Dialog -- */}
   <Dialog open={showClearDialog} onOpenChange={setShowClearDialog}>
   <DialogContent className="sm:max-w-md bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC]">
    <DialogHeader>

@@ -260,25 +260,32 @@ export default function NotificationBell() {
   const userRole = sessionStorage.getItem('userRole');
   const isAdmin = userRole === 'admin';
 
-  /* ── Fetch sync notifications for admin ─────────────────────────── */
+  /* ── Fetch sync notification for admin ─────────────────────────── */
   useEffect(() => {
     if (!isAdmin) return;
-    const fetchSyncNotifs = async () => {
+    const fetchSyncNotif = async () => {
       try {
-        const response = await adminAPI.getSyncNotifications();
-        const data = response.data || response;
-        if (data && data.message) {
+        const response = await adminAPI.getSyncNotification();
+        const notifData = response?.data || response;
+        if (notifData && Object.keys(notifData).length > 0) {
+          // Build a rich description from the data fields
+          const fields = Object.entries(notifData)
+            .map(([k, v]) => `${k}: ${v}`)
+            .join(' · ');
+
           const syncNotif = {
             id: `sync-${Date.now()}`,
             type: 'sync',
             titleKey: null,
-            title: 'Sync Notification',
+            title: response?.message || 'Sync Update',
             descKey: null,
-            desc: data.message,
+            desc: fields || 'Sync notification received',
             detailKey: null,
-            detail: JSON.stringify(data, null, 2),
+            detail: Object.entries(notifData)
+              .map(([k, v]) => `${k}: ${v}`)
+              .join('\n'),
             timeKey: null,
-            time: new Date(response.timestamp || Date.now()).toLocaleString(),
+            time: new Date(response?.timestamp || Date.now()).toLocaleString(),
             timestamp: Date.now(),
             read: false,
             actionable: false,
@@ -292,8 +299,8 @@ export default function NotificationBell() {
         // Silently fail
       }
     };
-    fetchSyncNotifs();
-    const interval = setInterval(fetchSyncNotifs, 60000);
+    fetchSyncNotif();
+    const interval = setInterval(fetchSyncNotif, 60000);
     return () => clearInterval(interval);
   }, [isAdmin]);
 

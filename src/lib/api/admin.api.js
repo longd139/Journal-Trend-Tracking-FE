@@ -31,6 +31,16 @@ export const adminAPI = {
     return data;
   },
 
+  /**
+   * Get system-wide database statistics across all entities
+   * (papers, authors, keywords, journals, Neo4j, sync logs).
+   * GET /api/v1/admin/sync/stats
+   */
+  async getSyncStats() {
+    const { data } = await axiosClient.get('/api/v1/admin/sync/stats');
+    return data; // AppResponse<DatabaseStatsResponse>
+  },
+
   async getSyncHistory({ page = 0, size = 20, status, manual } = {}) {
     const { data } = await axiosClient.get('/api/admin/sync/history', {
       params: { page, size, status, manual },
@@ -89,5 +99,39 @@ export const adminAPI = {
       return { message: `Latest sync: ${pageData.content[0].status}`, timestamp: pageData.content[0].completedAt };
     }
     return { message: 'No sync history available' };
+  },
+
+  /* ──────────── Auto Sync (/auto) ──────────── */
+
+  /**
+   * Check whether auto-sync is enabled and get last sync info.
+   * GET /api/v1/admin/sync/auto/status
+   * Response: { enabled, lastPapersCount, lastSyncTime }
+   */
+  async getAutoSyncStatus() {
+    const { data } = await axiosClient.get('/api/v1/admin/sync/auto/status');
+    return data; // { enabled, lastPapersCount, lastSyncTime }
+  },
+
+  /**
+   * Enable or disable the scheduled auto-sync.
+   * PUT /api/v1/admin/sync/auto/toggle?enabled=true
+   * Response: { status, message, data: { autoSyncEnabled } }
+   */
+  async toggleAutoSync(enabled) {
+    const { data } = await axiosClient.put('/api/v1/admin/sync/auto/toggle', null, {
+      params: { enabled },
+    });
+    return data;
+  },
+
+  /**
+   * Get the latest sync notification for the admin notification bell.
+   * GET /api/v1/admin/sync/notification
+   * Response: { status, message, data: Record<string, string>, timestamp }
+   */
+  async getSyncNotification() {
+    const { data } = await axiosClient.get('/api/v1/admin/sync/notification');
+    return data;
   },
 };
