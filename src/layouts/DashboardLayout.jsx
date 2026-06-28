@@ -6,6 +6,7 @@ import SyncFloatingPanel from '../components/SyncFloatingPanel';
 import {
   Home,
   Search,
+  BookOpen,
   BarChart2,
   FileText,
   Users,
@@ -40,6 +41,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
@@ -48,6 +50,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const researcherNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'analytics', Icon: BarChart2, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -274,6 +277,10 @@ export default function DashboardLayout({ children }) {
     search: {
       title: t('headings.searchPapers'),
       sub: t('subtitles.search'),
+    },
+    'journal-search': {
+      title: t('headings.searchJournals'),
+      sub: t('subtitles.searchJournals'),
     },
     analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },

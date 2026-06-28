@@ -65,4 +65,52 @@ export const paperAPI = {
     });
     return data.data || data;
   },
+
+  // ─── Journal APIs ─────────────────────────────────────────────────────────
+
+  /**
+   * Quick statistics for a journal — name, ISSN, publisher, impact factor,
+   * quartile, total papers, total citations, avg citations, top keywords.
+   * GET /api/search/journal/quick-stats?journalId={journalId}
+   */
+  async getJournalQuickStats(journalId) {
+    const { data } = await axiosClient.get('/api/search/journal/quick-stats', {
+      params: { journalId },
+    });
+    return data.data || data;
+  },
+
+  /**
+   * Timeline data for a journal — yearly paper counts, citation counts,
+   * and avg citations per paper (last 10 years).
+   * GET /api/search/journal/quick-stats/timeline?journalId={journalId}
+   */
+  async getJournalTimeline(journalId) {
+    const { data } = await axiosClient.get('/api/search/journal/quick-stats/timeline', {
+      params: { journalId },
+    });
+    return data.data || data;
+  },
+
+  /**
+   * Top 5 most-cited papers in a journal.
+   * GET /api/search/journal/top-papers?journalId={journalId}
+   */
+  async getJournalTopPapers(journalId) {
+    const { data } = await axiosClient.get('/api/search/journal/top-papers', {
+      params: { journalId },
+    });
+    return data.data || data;
+  },
+
+  /**
+   * Top authors in a journal by citation count.
+   * GET /api/search/journal/top-authors?journalId={journalId}
+   */
+  async getJournalTopAuthors(journalId) {
+    const { data } = await axiosClient.get('/api/search/journal/top-authors', {
+      params: { journalId },
+    });
+    return data.data || data;
+  },
 };

@@ -18,6 +18,7 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 
 // Trang User / Researcher
 const SearchPapers = lazy(() => import('../pages/SearchPapers.jsx'));
+const SearchJournal = lazy(() => import('../pages/SearchJournal.jsx'));
 const AnalyticsView = lazy(() => import('../pages/AnalyticsView.jsx'));
 const BookmarksView = lazy(() => import('../pages/BookmarksView.jsx'));
 const ReportsView = lazy(() => import('../pages/ReportsViewPage.jsx'));
@@ -165,6 +166,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <SearchPapers />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'journal-search', // -> URL thực tế: /:roleName/journal-search
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <SearchJournal />
             </Suspense>
           </ProtectedRoute>
         ),
