@@ -12,6 +12,7 @@ import searchEn from './locales/en/search.json';
 import settingsEn from './locales/en/settings.json';
 import graphEn from './locales/en/graph.json';
 import landingEn from './locales/en/landing.json';
+import followEn from './locales/en/follow.json';
 
 // VI
 import commonVi from './locales/vi/common.json';
@@ -23,6 +24,7 @@ import searchVi from './locales/vi/search.json';
 import settingsVi from './locales/vi/settings.json';
 import graphVi from './locales/vi/graph.json';
 import landingVi from './locales/vi/landing.json';
+import followVi from './locales/vi/follow.json';
 
 const resources = {
   en: {
@@ -35,6 +37,7 @@ const resources = {
     settings: settingsEn,
     graph: graphEn,
     landing: landingEn,
+    follow: followEn,
   },
   vi: {
     common: commonVi,
@@ -46,6 +49,7 @@ const resources = {
     settings: settingsVi,
     graph: graphVi,
     landing: landingVi,
+    follow: followVi,
   },
 };
 
@@ -69,6 +73,7 @@ i18n
       'settings',
       'graph',
       'landing',
+      'follow',
     ],
 
     defaultNS: 'common',

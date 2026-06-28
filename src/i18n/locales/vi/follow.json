@@ -1,0 +1,44 @@
+{
+  "page": {
+    "title": "Đang theo dõi",
+    "subtitle": "Quản lý journal, chủ đề và từ khóa bạn đang theo dõi",
+    "empty": {
+      "title": "Bạn chưa theo dõi gì",
+      "description": "Theo dõi journal, chủ đề hoặc từ khóa để nhận thông báo về bài báo mới"
+    }
+  },
+  "button": {
+    "follow": "Theo dõi",
+    "following": "Đang theo dõi",
+    "unfollow": "Bỏ theo dõi",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "retry": "Thử lại"
+  },
+  "dialog": {
+    "title": "Chọn đối tượng theo dõi",
+    "enableNotification": "Bật thông báo"
+  },
+  "tabs": {
+    "all": "Tất cả",
+    "journals": "Journal",
+    "topics": "Chủ đề",
+    "keywords": "Từ khóa"
+  },
+  "label": {
+    "journal": "Journal",
+    "topic": "Chủ đề",
+    "keyword": "Từ khóa",
+    "followedOn": "Đã theo dõi từ {{date}}",
+    "notification": "Thông báo"
+  },
+  "toast": {
+    "followSuccess": "Đã theo dõi thành công",
+    "unfollowSuccess": "Đã bỏ theo dõi",
+    "toggleSuccess": "Thông báo đã {{status}}",
+    "limitExceeded": "Bạn đã đạt giới hạn theo dõi. Nâng cấp lên Researcher để không giới hạn.",
+    "alreadyExists": "Bạn đã theo dõi đối tượng này",
+    "loadError": "Không thể tải danh sách theo dõi. Vui lòng thử lại.",
+    "genericError": "Đã xảy ra lỗi"
+  }
+}

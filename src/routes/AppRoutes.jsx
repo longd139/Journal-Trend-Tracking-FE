@@ -21,6 +21,7 @@ const SearchPapers = lazy(() => import('../pages/SearchPapers.jsx'));
 const AnalyticsView = lazy(() => import('../pages/AnalyticsView.jsx'));
 const BookmarksView = lazy(() => import('../pages/BookmarksView.jsx'));
 const ReportsView = lazy(() => import('../pages/ReportsViewPage.jsx'));
+const FollowsView = lazy(() => import('../pages/FollowsView.jsx'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage.jsx'));
 
 // Trang Admin
@@ -136,6 +137,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <BookmarksView />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'follows',
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <FollowsView />
             </Suspense>
           </ProtectedRoute>
         ),

@@ -13,6 +13,7 @@ import {
   Database,
   Settings,
   Bookmark,
+  Bell,
   AlertTriangle,
   Sun,
   Moon,
@@ -20,8 +21,10 @@ import {
   ShieldCheck,
   Sliders,
   Cloud,
+  Menu,
+  X,
 } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { userAPI } from '../lib/api/user.api';
 import { useTheme } from '../hooks/useTheme';
 import { useAuthStore } from '../store/useAuthStore';
@@ -31,13 +34,14 @@ import ScitrackSLogo from '../components/prisma/ScitrackSLogo';
    Sidebar
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function Sidebar({ role, activeTab, navigate, user }) {
+function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const { t } = useTranslation('common');
 
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
@@ -46,6 +50,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'analytics', Icon: BarChart2, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
@@ -72,7 +77,11 @@ function Sidebar({ role, activeTab, navigate, user }) {
   };
 
   return (
-    <aside className="w-60 flex flex-col border-r h-screen sticky top-0 shrink-0 bg-black/60 backdrop-blur-sm border-[#DEDBC8]/10">
+    <aside
+      className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col border-r bg-black/60 backdrop-blur-sm border-[#DEDBC8]/10 transition-transform duration-300 lg:sticky lg:translate-x-0 ${
+        open ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
       {/* Logo */}
       <div
         onClick={() => navigate(`/${role}/overview`)}
@@ -87,6 +96,13 @@ function Sidebar({ role, activeTab, navigate, user }) {
         <div className="text-[10px] text-gray-400">
           {role === 'admin' ? t('app.adminConsole') : t('app.researchPlatform')}
         </div>
+        {/* Close button — mobile only */}
+        <button
+          onClick={onClose}
+          className="lg:hidden ml-auto p-1.5 rounded-lg text-gray-400 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+        >
+          <X size={18} />
+        </button>
       </div>
 
       {/* Nav items */}
@@ -96,7 +112,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
           return (
             <button
               key={id}
-              onClick={() => navigate(`/${role}/${id}`)}
+              onClick={() => { navigate(`/${role}/${id}`); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
                   ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]'
@@ -161,7 +177,7 @@ function Sidebar({ role, activeTab, navigate, user }) {
    TopBar
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function TopBar({ title, subtitle }) {
+function TopBar({ title, subtitle, onMenuClick }) {
   const { t } = useTranslation('common');
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -170,16 +186,25 @@ function TopBar({ title, subtitle }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10">
-      <div>
-        <h1 className="text-base font-black text-[#E1E0CC] font-display">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-xs mt-0.5 text-gray-400">
-            {subtitle}
-          </p>
-        )}
+    <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10">
+      <div className="flex items-center gap-3">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+        >
+          <Menu size={20} />
+        </button>
+        <div>
+          <h1 className="text-sm sm:text-base font-black text-[#E1E0CC] font-display">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-[11px] sm:text-xs mt-0.5 text-gray-400">
+              {subtitle}
+            </p>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-4">
         {/* Theme Toggle */}
@@ -214,9 +239,16 @@ export default function DashboardLayout({ children }) {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const pathParts = location.pathname.split('/');
   const activeTab = pathParts[pathParts.length - 1] || 'overview';
   const role = sessionStorage.getItem('userRole') || 'academic';
+
+  // Close sidebar on route change
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -249,6 +281,10 @@ export default function DashboardLayout({ children }) {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
     },
+    follows: {
+      title: t('headings.follows'),
+      sub: t('subtitles.follows'),
+    },
     users: { title: t('headings.userManagement'), sub: t('subtitles.userManagement') },
     'system-api': {
       title: t('headings.apiMonitoring'),
@@ -272,16 +308,27 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen overflow-hidden bg-black">
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       <Sidebar
         role={role}
         activeTab={activeTab}
         navigate={navigate}
         user={user}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
           title={currentHeader.title}
           subtitle={currentHeader.sub}
+          onMenuClick={() => setSidebarOpen(true)}
         />
         <main className="flex-1 overflow-y-auto overflow-x-hidden relative">
           {/* Video background */}
