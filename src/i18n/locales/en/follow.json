@@ -1,0 +1,44 @@
+{
+  "page": {
+    "title": "My Follows",
+    "subtitle": "Manage journals, topics, and keywords you're following",
+    "empty": {
+      "title": "Not following anything yet",
+      "description": "Follow journals, topics, or keywords to get notified about new papers"
+    }
+  },
+  "button": {
+    "follow": "Follow",
+    "following": "Following",
+    "unfollow": "Unfollow",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "retry": "Retry"
+  },
+  "dialog": {
+    "title": "Choose what to follow",
+    "enableNotification": "Enable notification"
+  },
+  "tabs": {
+    "all": "All",
+    "journals": "Journals",
+    "topics": "Topics",
+    "keywords": "Keywords"
+  },
+  "label": {
+    "journal": "Journal",
+    "topic": "Topic",
+    "keyword": "Keyword",
+    "followedOn": "Followed on {{date}}",
+    "notification": "Notification"
+  },
+  "toast": {
+    "followSuccess": "Followed successfully",
+    "unfollowSuccess": "Unfollowed successfully",
+    "toggleSuccess": "Notification {{status}}",
+    "limitExceeded": "You've reached the follow limit. Upgrade to Researcher for unlimited follows.",
+    "alreadyExists": "You're already following this target",
+    "loadError": "Unable to load follows. Please try again.",
+    "genericError": "Something went wrong"
+  }
+}
