@@ -8,6 +8,7 @@ import App from './App.jsx';
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes/AppRoutes.jsx';
 import { Toaster } from 'sonner';
+import HealthCheckToast from './components/HealthCheckToast.jsx';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -23,6 +24,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     {/* <StrictMode> */}
     <RouterProvider router={router} />
     <Toaster richColors position="top-right" />
+    <HealthCheckToast />
     {/* </StrictMode> */}
   </GoogleOAuthProvider>,
 );
