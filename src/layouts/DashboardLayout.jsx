@@ -7,6 +7,7 @@ import {
   Home,
   Search,
   BookOpen,
+  UserSearch,
   BarChart2,
   FileText,
   Users,
@@ -42,6 +43,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
+    { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
@@ -51,6 +53,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
+    { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'analytics', Icon: BarChart2, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -281,6 +284,9 @@ export default function DashboardLayout({ children }) {
     'journal-search': {
       title: t('headings.searchJournals'),
       sub: t('subtitles.searchJournals'),
+    'search-author': {
+      title: t('headings.searchAuthor'),
+      sub: t('subtitles.searchAuthor'),
     },
     analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
