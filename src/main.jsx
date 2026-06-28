@@ -3,12 +3,11 @@ import ReactDOM from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import './i18n/index.js';
-import './index.css';
-import App from './App.jsx';
+import './styles/index.css';
 import { RouterProvider } from 'react-router-dom';
-import { router } from './routes/AppRoutes.jsx';
+import { router } from './app/router.jsx';
 import { Toaster } from 'sonner';
-import HealthCheckToast from './components/HealthCheckToast.jsx';
+import HealthCheckToast from './features/overview/HealthCheckToast.jsx';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 

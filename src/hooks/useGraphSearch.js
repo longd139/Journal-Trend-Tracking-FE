@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { graphAPI } from '../lib/api/graph.api';
+import { graphAPI } from '../features/search/graph.api.js';
 
 const POLL_INTERVAL = 2000; // 2 seconds
 const TIMEOUT_MS = 90000;   // 1 minute 30 seconds

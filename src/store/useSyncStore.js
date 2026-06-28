@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
-import { adminAPI } from '../lib/api/admin.api';
+import { adminAPI } from '../features/admin/api.js';
 import { toast } from 'sonner';
 
 let taskIdCounter = 0;

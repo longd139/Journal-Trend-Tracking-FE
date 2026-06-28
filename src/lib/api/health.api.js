@@ -1,4 +1,4 @@
-import axiosClient from '../http/axiosClient';
+import axiosClient from '../apiClient.js';
 
 export const healthAPI = {
   /**
