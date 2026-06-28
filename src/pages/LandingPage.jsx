@@ -38,7 +38,7 @@ function HeroSection() {
   <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
 
   {/* Auth buttons — top right */}
-  <div className="absolute top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
+  <div className="absolute top-10 sm:top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
    <button
    onClick={() => navigate('/login')}
    className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 hover:text-[#E1E0CC]"

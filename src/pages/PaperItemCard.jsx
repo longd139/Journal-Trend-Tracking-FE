@@ -12,18 +12,19 @@ import {
 import { Card, CardContent } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
+import FollowButton from '../components/follow/FollowButton';
 
 export function PaperItemCard({
- paper,
- index = 0,
- badgeColor = '#DEDBC8',
- isSaved = false,
- onToggleBookmark,
- onClick,
+  paper,
+  index = 0,
+  badgeColor = '#DEDBC8',
+  isSaved = false,
+  onToggleBookmark,
+  onClick,
 }) {
- const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
+  const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
 
- if (!paper) return null;
+  if (!paper) return null;
 
  const field = paper.fieldName || paper.field || '';
  const year = paper.pubYear || paper.year || '';
