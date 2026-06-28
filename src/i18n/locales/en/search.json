@@ -34,5 +34,11 @@
   },
   "graph": {
     "toggle": "Show Knowledge Graph"
+  },
+  "author": {
+    "placeholder": "Search by author name to explore academic profiles...",
+    "clearQuery": "Clear query",
+    "noResults": "No author found.",
+    "error": "Unable to load author data from the system."
   }
 }

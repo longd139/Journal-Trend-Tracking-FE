@@ -8,6 +8,7 @@
   "sidebar": {
     "overview": "Overview",
     "searchPapers": "Search Keyword",
+    "searchAuthor": "Search Author",
     "bookmarks": "Bookmarks",
     "follows": "My Follows",
     "reports": "Reports",
