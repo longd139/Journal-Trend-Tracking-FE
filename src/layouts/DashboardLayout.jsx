@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import NotificationBell from '../pages/NotificationBell';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../components/SyncFloatingPanel';
 import {
@@ -8,7 +7,6 @@ import {
   Search,
   BookOpen,
   UserSearch,
-  BarChart2,
   FileText,
   Users,
   Globe,
@@ -16,6 +14,7 @@ import {
   Settings,
   Bookmark,
   Bell,
+  BellRing,
   AlertTriangle,
   Sun,
   Moon,
@@ -46,6 +45,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
+    { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
@@ -54,9 +54,9 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
-    { id: 'analytics', Icon: BarChart2, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
+    { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
@@ -225,9 +225,6 @@ function TopBar({ title, subtitle, onMenuClick }) {
             <Moon size={16} />
           )}
         </button>
-
-        {/* Notification Bell */}
-        <NotificationBell />
       </div>
     </header>
   );
@@ -284,11 +281,11 @@ export default function DashboardLayout({ children }) {
     'journal-search': {
       title: t('headings.searchJournals'),
       sub: t('subtitles.searchJournals'),
+    },
     'search-author': {
       title: t('headings.searchAuthor'),
       sub: t('subtitles.searchAuthor'),
     },
-    analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     bookmarks: {
       title: t('headings.bookmarks'),
@@ -297,6 +294,10 @@ export default function DashboardLayout({ children }) {
     follows: {
       title: t('headings.follows'),
       sub: t('subtitles.follows'),
+    },
+    notifications: {
+      title: t('headings.notifications'),
+      sub: t('subtitles.notifications'),
     },
     users: { title: t('headings.userManagement'), sub: t('subtitles.userManagement') },
     'system-api': {

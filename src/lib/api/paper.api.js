@@ -71,11 +71,11 @@ export const paperAPI = {
   /**
    * Quick statistics for a journal — name, ISSN, publisher, impact factor,
    * quartile, total papers, total citations, avg citations, top keywords.
-   * GET /api/search/journal/quick-stats?journalId={journalId}
+   * GET /api/search/journal/quick-stats?keyword={keyword}
    */
-  async getJournalQuickStats(journalId) {
+  async getJournalQuickStats(keyword) {
     const { data } = await axiosClient.get('/api/search/journal/quick-stats', {
-      params: { journalId },
+      params: { keyword },
     });
     return data.data || data;
   },
@@ -83,33 +83,33 @@ export const paperAPI = {
   /**
    * Timeline data for a journal — yearly paper counts, citation counts,
    * and avg citations per paper (last 10 years).
-   * GET /api/search/journal/quick-stats/timeline?journalId={journalId}
+   * GET /api/search/journal/quick-stats/timeline?keyword={keyword}
    */
-  async getJournalTimeline(journalId) {
+  async getJournalTimeline(keyword) {
     const { data } = await axiosClient.get('/api/search/journal/quick-stats/timeline', {
-      params: { journalId },
+      params: { keyword },
     });
     return data.data || data;
   },
 
   /**
    * Top 5 most-cited papers in a journal.
-   * GET /api/search/journal/top-papers?journalId={journalId}
+   * GET /api/search/journal/top-papers?keyword={keyword}
    */
-  async getJournalTopPapers(journalId) {
+  async getJournalTopPapers(keyword) {
     const { data } = await axiosClient.get('/api/search/journal/top-papers', {
-      params: { journalId },
+      params: { keyword },
     });
     return data.data || data;
   },
 
   /**
    * Top authors in a journal by citation count.
-   * GET /api/search/journal/top-authors?journalId={journalId}
+   * GET /api/search/journal/top-authors?keyword={keyword}
    */
-  async getJournalTopAuthors(journalId) {
+  async getJournalTopAuthors(keyword) {
     const { data } = await axiosClient.get('/api/search/journal/top-authors', {
-      params: { journalId },
+      params: { keyword },
     });
     return data.data || data;
   },

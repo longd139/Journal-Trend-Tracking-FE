@@ -20,10 +20,11 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 const SearchPapers = lazy(() => import('../pages/SearchPapers.jsx'));
 const SearchJournal = lazy(() => import('../pages/SearchJournal.jsx'));
 const SearchAuthor = lazy(() => import('../pages/SearchAuthor.jsx'));
-const AnalyticsView = lazy(() => import('../pages/AnalyticsView.jsx'));
+
 const BookmarksView = lazy(() => import('../pages/BookmarksView.jsx'));
 const ReportsView = lazy(() => import('../pages/ReportsViewPage.jsx'));
 const FollowsView = lazy(() => import('../pages/FollowsView.jsx'));
+const NotificationsPage = lazy(() => import('../pages/NotificationsPage.jsx'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage.jsx'));
 
 // Trang Admin
@@ -154,6 +155,16 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'notifications',
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <NotificationsPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'overview', // -> URL thực tế: /:roleName/overview
         element: (
           <Suspense fallback={<FallbackLoading />}>
@@ -177,6 +188,11 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <SearchJournal />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: 'search-author', // -> URL thực tế: /:roleName/search-author
         element: (
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
@@ -186,16 +202,7 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: 'analytics', // -> URL thực tế: /:roleName/analytics
-        element: (
-          <ProtectedRoute allowedRoles={['researcher']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <AnalyticsView />
-            </Suspense>
-          </ProtectedRoute>
-        ),
-      },
+
       {
         path: 'reports', // -> URL thực tế: /:roleName/reports
         element: (

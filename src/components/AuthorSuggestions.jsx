@@ -1,72 +1,59 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Sparkles } from 'lucide-react';
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Curated list of well-known authors across diverse academic fields
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-const SUGGESTED_AUTHORS = [
-  // AI / Machine Learning
-  { name: 'Geoffrey Hinton', field: 'AI & Deep Learning' },
-  { name: 'Yann LeCun', field: 'AI & Computer Vision' },
-  { name: 'Yoshua Bengio', field: 'AI & Deep Learning' },
-  { name: 'Andrew Ng', field: 'AI & Online Education' },
-  { name: 'Fei-Fei Li', field: 'AI & Computer Vision' },
-  { name: 'Ian Goodfellow', field: 'AI & Generative Models' },
-  { name: 'Demis Hassabis', field: 'AI & Reinforcement Learning' },
-  { name: 'Jürgen Schmidhuber', field: 'AI & Neural Networks' },
-
-  // Computer Science
-  { name: 'Donald Knuth', field: 'Computer Science' },
-  { name: 'Leslie Lamport', field: 'Distributed Systems' },
-  { name: 'Tim Berners-Lee', field: 'Web & Internet' },
-
-  // Medicine & Biology
-  { name: 'Anthony Fauci', field: 'Immunology' },
-  { name: 'Francis Collins', field: 'Genetics' },
-  { name: 'Jennifer Doudna', field: 'CRISPR & Genetics' },
-  { name: 'Emmanuelle Charpentier', field: 'CRISPR & Microbiology' },
-
-  // Physics
-  { name: 'Stephen Hawking', field: 'Theoretical Physics' },
-  { name: 'Edward Witten', field: 'String Theory' },
-  { name: 'Kip Thorne', field: 'Gravitational Physics' },
-  { name: 'Roger Penrose', field: 'Mathematical Physics' },
-
-  // Economics & Social Sciences
-  { name: 'Paul Krugman', field: 'Economics' },
-  { name: 'Steven Pinker', field: 'Psychology & Linguistics' },
-  { name: 'Daniel Kahneman', field: 'Behavioral Economics' },
-  { name: 'Amartya Sen', field: 'Economics & Philosophy' },
-
-  // Chemistry & Materials
-  { name: 'John B. Goodenough', field: 'Solid-State Chemistry' },
-  { name: 'Robert Langer', field: 'Biomedical Engineering' },
-
-  // Environmental Science
-  { name: 'Jane Goodall', field: 'Primatology & Conservation' },
-  { name: 'James Hansen', field: 'Climate Science' },
-];
+import { Users, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { authorAPI } from '../lib/api/author.api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Field color palette
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const FIELD_COLORS = {
+  'Computer Science': '#4F8CFF',
   'AI': '#4F8CFF',
-  'Computer Science': '#34D399',
+  'Engineering': '#34D399',
   'Medicine': '#F472B6',
+  'Biology': '#34D399',
   'Physics': '#A78BFA',
-  'Economics': '#F59E0B',
   'Chemistry': '#FB923C',
+  'Mathematics': '#60A5FA',
+  'Economics': '#F59E0B',
+  'Psychology': '#C084FC',
   'Environmental': '#60A5FA',
+  'Biochemistry': '#F472B6',
+  'Genetics': '#F472B6',
+  'Materials': '#FB923C',
+  'default': '#DEDBC8',
 };
 
 function getFieldColor(field) {
+  if (!field) return FIELD_COLORS.default;
   for (const [key, color] of Object.entries(FIELD_COLORS)) {
-    if (field.includes(key)) return color;
+    if (field.toLowerCase().includes(key.toLowerCase())) return color;
   }
-  return '#DEDBC8';
+  return FIELD_COLORS.default;
+}
+
+function formatNumber(n) {
+  if (n == null) return '—';
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
+  return String(n);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Loading Skeleton
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function Skeleton() {
+  return (
+    <div className="flex flex-wrap gap-2 animate-pulse">
+      {Array.from({ length: 9 }).map((_, i) => (
+        <div
+          key={i}
+          className="px-4 py-3 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/5 w-44 h-16"
+        />
+      ))}
+    </div>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -74,6 +61,35 @@ function getFieldColor(field) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AuthorSuggestions({ onAuthorClick }) {
+  const [authors, setAuthors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchSuggested() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await authorAPI.getSuggested();
+        if (!cancelled && Array.isArray(data)) {
+          setAuthors(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Failed to load suggested authors:', err);
+          setError(err?.message || 'Failed to load suggestions');
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    fetchSuggested();
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -95,32 +111,42 @@ export default function AuthorSuggestions({ onAuthorClick }) {
         research focus, and collaboration network.
       </p>
 
-      {/* Author chips grouped by field */}
-      <div className="space-y-4">
-        {/* All chips in a flowing wrap layout */}
+      {/* Loading */}
+      {loading && <Skeleton />}
+
+      {/* Error */}
+      {error && !loading && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[11px] text-red-400/70">
+          <AlertCircle size={13} className="shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Author cards */}
+      {!loading && !error && authors.length > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.1, duration: 0.35 }}
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap gap-2.5"
         >
-          {SUGGESTED_AUTHORS.map((author, i) => {
-            const fieldColor = getFieldColor(author.field);
+          {authors.map((author, i) => {
+            const fieldColor = getFieldColor(author.topField);
             return (
               <motion.button
-                key={author.name}
+                key={author.authorId || i}
                 type="button"
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 + i * 0.03 }}
+                transition={{ delay: 0.05 + i * 0.03 }}
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => onAuthorClick?.(author.name)}
-                className="group relative px-4 py-2.5 rounded-xl text-left transition-all
+                onClick={() => onAuthorClick?.(author.fullName)}
+                className="group relative px-4 py-3 rounded-xl text-left transition-all
                            bg-[#101010] border border-[#DEDBC8]/5
                            hover:border-[#DEDBC8]/15 hover:bg-[#1A1F2E]"
               >
-                {/* Field color dot */}
+                {/* Field color dot + name */}
                 <div className="flex items-center gap-2.5">
                   <span
                     className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -128,18 +154,38 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                   />
                   <div>
                     <div className="text-[12px] font-semibold text-[#E1E0CC] group-hover:text-[#DEDBC8] transition-colors leading-tight">
-                      {author.name}
+                      {author.fullName}
                     </div>
-                    <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">
-                      {author.field}
-                    </div>
+                    {author.topField && (
+                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">
+                        {author.topField}
+                      </div>
+                    )}
                   </div>
+                </div>
+
+                {/* Stats row */}
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-600">
+                  {author.hIndex != null && (
+                    <span title="h-index">h-index {author.hIndex}</span>
+                  )}
+                  {author.totalCitations != null && (
+                    <span title="Total citations">{formatNumber(author.totalCitations)} cites</span>
+                  )}
+                  {author.paperCount != null && (
+                    <span title="Paper count">{author.paperCount} papers</span>
+                  )}
                 </div>
               </motion.button>
             );
           })}
         </motion.div>
-      </div>
+      )}
+
+      {/* Empty state (API returned no authors) */}
+      {!loading && !error && authors.length === 0 && (
+        <p className="text-xs text-gray-500">No suggested authors available right now.</p>
+      )}
 
       {/* Footer hint */}
       <div className="flex items-center gap-2 text-[11px] text-gray-500">

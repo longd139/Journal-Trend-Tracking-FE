@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Bell,
@@ -14,93 +15,102 @@ import {
   RefreshCw,
   Inbox,
   Clock,
+  UserCheck,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { notificationAPI } from '../lib/api/notification.api';
 import { adminAPI } from '../lib/api/admin.api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Mock notifications
+   Type → icon + color mapping
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const ICON_MAP = {
+  new_paper: FileText,
   citations: MessageSquare,
   trend: TrendingUp,
   system: FileText,
   security: ShieldAlert,
   sync: RefreshCw,
+  upgrade_prompt: UserCheck,
 };
 
 const COLOR_MAP = {
+  new_paper: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20' },
   citations: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20' },
   trend: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
   system: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20' },
   security: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
   sync: { bg: 'bg-cyan-500/10', text: 'text-cyan-400', border: 'border-cyan-500/20' },
+  upgrade_prompt: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
 };
 
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'citations',
-    titleKey: 'newCitations',
-    descKey: 'newCitationsDesc',
-    detailKey: 'newCitationsDetail',
-    timeKey: '2mAgo',
-    timestamp: Date.now() - 2 * 60 * 1000,
-    read: false,
-    actionable: true,
-  },
-  {
-    id: 2,
-    type: 'trend',
-    titleKey: 'trendAlert',
-    descKey: 'trendAlertDesc',
-    detailKey: 'trendAlertDetail',
-    timeKey: '1hAgo',
-    timestamp: Date.now() - 60 * 60 * 1000,
-    read: false,
-    actionable: true,
-  },
-  {
-    id: 3,
-    type: 'system',
-    titleKey: 'systemNotification',
-    descKey: 'systemNotifDesc',
-    detailKey: 'systemNotifDetail',
-    timeKey: '3hAgo',
-    timestamp: Date.now() - 3 * 60 * 60 * 1000,
-    read: true,
-    actionable: false,
-  },
-  {
-    id: 4,
-    type: 'security',
-    titleKey: 'securityAlert',
-    descKey: 'securityAlertDesc',
-    detailKey: 'securityAlertDetail',
-    timeKey: '1dAgo',
-    timestamp: Date.now() - 24 * 60 * 60 * 1000,
-    read: true,
-    actionable: true,
-  },
-  {
-    id: 5,
-    type: 'system',
-    titleKey: 'systemNotification',
-    descKey: 'systemNotifDesc',
-    detailKey: 'systemNotifDetail',
-    timeKey: '3hAgo',
-    timestamp: Date.now() - 2 * 24 * 60 * 60 * 1000,
-    read: true,
-    actionable: false,
-  },
-];
+/**
+ * Normalize API notification to internal shape.
+ * API returns: { notifId, type, title, message, isRead, createdAt, ... }
+ * Internal uses: { id, type, title, desc, detail, read, timestamp, ... }
+ */
+function normalizeNotif(api) {
+  return {
+    id: api.notifId,
+    type: api.type || 'system',
+    title: api.title || '',
+    desc: api.message || '',
+    detail: api.message || '',
+    relatedPaperId: api.relatedPaperId,
+    relatedPaperTitle: api.relatedPaperTitle,
+    relatedJournalId: api.relatedJournalId,
+    relatedJournalName: api.relatedJournalName,
+    relatedTopicId: api.relatedTopicId,
+    relatedTopicName: api.relatedTopicName,
+    relatedKeywordId: api.relatedKeywordId,
+    relatedKeywordText: api.relatedKeywordText,
+    read: api.isRead === true,
+    timestamp: api.createdAt ? new Date(api.createdAt).getTime() : Date.now(),
+    rawCreatedAt: api.createdAt,
+    actionable: !!api.relatedPaperId,
+  };
+}
+
+function formatRelativeTime(notif) {
+  if (notif.rawCreatedAt) {
+    try {
+      const d = new Date(notif.rawCreatedAt);
+      const now = new Date();
+      const diffMs = now - d;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      // fall through
+    }
+  }
+  // Fallback for old mock data or unparseable dates
+  if (notif.timestamp) {
+    const diff = Date.now() - notif.timestamp;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(notif.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+  return '';
+}
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Notification item card
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function NotificationCard({ notif, isSelected, onClick, onDismiss, renderTitle, renderDesc, renderTime }) {
+function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
 
@@ -135,15 +145,15 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss, renderTitle, 
                 !notif.read ? 'text-[#E1E0CC]' : 'text-gray-400'
               }`}
             >
-              {renderTitle(notif)}
+              {notif.title}
             </h4>
             <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap flex items-center gap-1">
               <Clock size={10} />
-              {renderTime(notif)}
+              {formatRelativeTime(notif)}
             </span>
           </div>
           <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
-            {renderDesc(notif)}
+            {notif.desc}
           </p>
         </div>
       </div>
@@ -166,7 +176,7 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss, renderTitle, 
    Notification detail view
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function NotificationDetail({ notif, onBack, renderTitle, renderDetail, renderTime }) {
+function NotificationDetail({ notif, onBack }) {
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
 
@@ -194,18 +204,18 @@ function NotificationDetail({ notif, onBack, renderTitle, renderDetail, renderTi
       {/* Title & time */}
       <div className="mb-5">
         <h2 className="text-lg font-black text-[#E1E0CC] mb-1.5 font-display tracking-tight">
-          {renderTitle(notif)}
+          {notif.title}
         </h2>
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-500">
           <Clock size={11} />
-          {renderTime(notif)}
+          {formatRelativeTime(notif)}
         </span>
       </div>
 
       {/* Detail content */}
       <div className="flex-1">
         <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
-          {renderDetail(notif)}
+          {notif.detail}
         </p>
       </div>
 
@@ -255,12 +265,57 @@ export default function NotificationBell() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedNotif, setSelectedNotif] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all' | 'unread'
-  const [notifs, setNotifs] = useState(MOCK_NOTIFICATIONS);
+  const [notifs, setNotifs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const userRole = sessionStorage.getItem('userRole');
   const isAdmin = userRole === 'admin';
 
-  /* ── Fetch sync notification for admin ─────────────────────────── */
+  /* ── Fetch notifications from API ────────────────────────────────── */
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const list = await notificationAPI.getNotifications({ page: 0, size: 50, filter: undefined });
+      const normalized = Array.isArray(list) ? list.map(normalizeNotif) : [];
+      setNotifs(normalized);
+    } catch {
+      // Silently fail — keep previous data
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /* ── Fetch unread count ──────────────────────────────────────────── */
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const result = await notificationAPI.getUnreadCount();
+      const count = result?.unreadCount ?? 0;
+      setUnreadCount(count);
+    } catch {
+      // Silently fail
+    }
+  }, []);
+
+  /* ── Initial fetch + polling ─────────────────────────────────────── */
+  useEffect(() => {
+    fetchNotifications();
+    fetchUnreadCount();
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+    }, 30000); // Poll unread count every 30s
+    return () => clearInterval(interval);
+  }, [fetchNotifications, fetchUnreadCount]);
+
+  /* ── Re-fetch when panel opens ───────────────────────────────────── */
+  useEffect(() => {
+    if (isOpen) {
+      fetchNotifications();
+      fetchUnreadCount();
+    }
+  }, [isOpen, fetchNotifications, fetchUnreadCount]);
+
+  /* ── Fetch sync notification for admin ──────────────────────────── */
   useEffect(() => {
     if (!isAdmin) return;
     const fetchSyncNotif = async () => {
@@ -268,7 +323,6 @@ export default function NotificationBell() {
         const response = await adminAPI.getSyncNotification();
         const notifData = response?.data || response;
         if (notifData && Object.keys(notifData).length > 0) {
-          // Build a rich description from the data fields
           const fields = Object.entries(notifData)
             .map(([k, v]) => `${k}: ${v}`)
             .join(' · ');
@@ -276,18 +330,13 @@ export default function NotificationBell() {
           const syncNotif = {
             id: `sync-${Date.now()}`,
             type: 'sync',
-            titleKey: null,
             title: response?.message || 'Sync Update',
-            descKey: null,
             desc: fields || 'Sync notification received',
-            detailKey: null,
             detail: Object.entries(notifData)
               .map(([k, v]) => `${k}: ${v}`)
               .join('\n'),
-            timeKey: null,
-            time: new Date(response?.timestamp || Date.now()).toLocaleString(),
-            timestamp: Date.now(),
             read: false,
+            timestamp: Date.now(),
             actionable: false,
           };
           setNotifs((prev) => {
@@ -305,46 +354,46 @@ export default function NotificationBell() {
   }, [isAdmin]);
 
   /* ── Computed values ────────────────────────────────────────────── */
-  const unreadCount = notifs.filter((n) => !n.read).length;
   const filteredNotifs =
     filter === 'unread' ? notifs.filter((n) => !n.read) : notifs;
   const allRead = unreadCount === 0;
 
-  /* ── Actions ────────────────────────────────────────────────────── */
-  const markAsRead = (id) => {
+  /* ── Actions (call real API + update local state) ────────────────── */
+  const markAsRead = async (id) => {
     setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    setUnreadCount((c) => Math.max(0, c - 1));
+    try {
+      await notificationAPI.markAsRead(id);
+    } catch {
+      // Revert silently on next fetch
+    }
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnreadCount(0);
+    try {
+      await notificationAPI.markAllAsRead();
+    } catch {
+      // Revert silently on next fetch
+    }
   };
 
-  const dismissNotif = (id) => {
+  const dismissNotif = async (id) => {
+    const notif = notifs.find((n) => n.id === id);
     setNotifs((prev) => prev.filter((n) => n.id !== id));
+    if (notif && !notif.read) setUnreadCount((c) => Math.max(0, c - 1));
     if (selectedNotif?.id === id) setSelectedNotif(null);
+    try {
+      await notificationAPI.deleteNotification(id);
+    } catch {
+      // Revert silently on next fetch
+    }
   };
 
   const handleSelect = (notif) => {
     setSelectedNotif(notif);
     if (!notif.read) markAsRead(notif.id);
-  };
-
-  /* ── Render helpers ─────────────────────────────────────────────── */
-  const renderNotifTitle = (n) => {
-    if (n.titleKey) return t(`notifications.${n.titleKey}`, { ns: 'common' });
-    return n.title;
-  };
-  const renderNotifDesc = (n) => {
-    if (n.descKey) return t(`notifications.${n.descKey}`, { ns: 'common' });
-    return n.desc;
-  };
-  const renderNotifTime = (n) => {
-    if (n.timeKey) return t(`notifications.${n.timeKey}`, { ns: 'common' });
-    return n.time;
-  };
-  const renderNotifDetail = (n) => {
-    if (n.detailKey) return t(`notifications.${n.detailKey}`, { ns: 'common' });
-    return n.detail;
   };
 
   /* ── Keyboard: Esc to close ─────────────────────────────────────── */
@@ -407,202 +456,198 @@ export default function NotificationBell() {
         )}
       </motion.button>
 
-      {/* ─── Floating panel overlay ────────────────────────────────── */}
-      <AnimatePresence>
-        {isOpen && (
-          <div className="fixed inset-0 z-[9999] flex items-start justify-end">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              onClick={() => {
-                if (selectedNotif) {
-                  setSelectedNotif(null);
-                } else {
-                  setIsOpen(false);
-                }
-              }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-            />
+      {/* ─── Floating panel — rendered via portal to body ───────────── */}
+      {isOpen &&
+        createPortal(
+          <AnimatePresence>
+            <div className="fixed inset-0 z-[99999] flex items-start justify-end">
+              {/* Backdrop */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                onClick={() => {
+                  if (selectedNotif) {
+                    setSelectedNotif(null);
+                  } else {
+                    setIsOpen(false);
+                  }
+                }}
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+              />
 
-            {/* Panel */}
-            <motion.div
-              initial={{ opacity: 0, x: 80, scale: 0.97 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 80, scale: 0.97 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="relative h-full w-full max-w-[480px] bg-[#0A0D14]/95 backdrop-blur-2xl border-l border-[#DEDBC8]/10 shadow-2xl flex flex-col overflow-hidden"
-            >
-              {/* ─── Header ────────────────────────────────────────── */}
-              <div className="shrink-0 px-6 pt-6 pb-4 border-b border-[#DEDBC8]/8">
-                <AnimatePresence mode="wait">
-                  {!selectedNotif ? (
-                    <motion.div
-                      key="list-header"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      {/* Top row */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-[#DEDBC8]/10 flex items-center justify-center">
-                            <BellRing size={18} className="text-[#DEDBC8]" />
+              {/* Panel */}
+              <motion.div
+                initial={{ opacity: 0, x: 80, scale: 0.97 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                exit={{ opacity: 0, x: 80, scale: 0.97 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                className="relative h-full w-full max-w-[480px] bg-[#0A0D14]/95 backdrop-blur-2xl border-l border-[#DEDBC8]/10 shadow-2xl flex flex-col overflow-hidden"
+              >
+                {/* ─── Header ────────────────────────────────────────── */}
+                <div className="shrink-0 px-6 pt-6 pb-4 border-b border-[#DEDBC8]/8">
+                  <AnimatePresence mode="wait">
+                    {!selectedNotif ? (
+                      <motion.div
+                        key="list-header"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        {/* Top row */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-[#DEDBC8]/10 flex items-center justify-center">
+                              <BellRing size={18} className="text-[#DEDBC8]" />
+                            </div>
+                            <div>
+                              <h2 className="text-base font-black text-[#E1E0CC] font-display tracking-tight">
+                                {t('notifications.title')}
+                              </h2>
+                              {unreadCount > 0 && (
+                                <p className="text-[11px] font-medium text-gray-400">
+                                  {unreadCount} unread {unreadCount === 1 ? 'message' : 'messages'}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          <div>
-                            <h2 className="text-base font-black text-[#E1E0CC] font-display tracking-tight">
-                              {t('notifications.title')}
-                            </h2>
-                            {unreadCount > 0 && (
-                              <p className="text-[11px] font-medium text-gray-400">
-                                {unreadCount} unread {unreadCount === 1 ? 'message' : 'messages'}
-                              </p>
+                          <div className="flex items-center gap-1">
+                            {!allRead && (
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={markAllAsRead}
+                                className="p-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-[#DEDBC8] hover:bg-[#DEDBC8]/5 transition-all flex items-center gap-1"
+                                title="Mark all as read"
+                              >
+                                <CheckCheck size={15} />
+                              </motion.button>
                             )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {!allRead && (
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={markAllAsRead}
-                              className="p-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-[#DEDBC8] hover:bg-[#DEDBC8]/5 transition-all flex items-center gap-1"
-                              title="Mark all as read"
+                              onClick={() => setIsOpen(false)}
+                              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
                             >
-                              <CheckCheck size={15} />
+                              <X size={18} />
                             </motion.button>
-                          )}
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => setIsOpen(false)}
-                            className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
-                          >
-                            <X size={18} />
-                          </motion.button>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Filter tabs */}
-                      <div className="flex gap-1.5 p-1 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/5">
-                        {[
-                          { key: 'all', label: 'All' },
-                          { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
-                        ].map(({ key, label }) => (
-                          <button
-                            key={key}
-                            onClick={() => setFilter(key)}
-                            className={`flex-1 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
-                              filter === key
-                                ? 'bg-[#DEDBC8] text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                                : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.03]'
+                        {/* Filter tabs */}
+                        <div className="flex gap-1.5 p-1 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/5">
+                          {[
+                            { key: 'all', label: 'All' },
+                            { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
+                          ].map(({ key, label }) => (
+                            <button
+                              key={key}
+                              onClick={() => setFilter(key)}
+                              className={`flex-1 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
+                                filter === key
+                                  ? 'bg-[#DEDBC8] text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
+                                  : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.03]'
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="detail-header"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                              (COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).bg
                             }`}
                           >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="detail-header"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                            (COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).bg
-                          }`}
-                        >
-                          {(() => {
-                            const Icon = ICON_MAP[selectedNotif.type] || FileText;
-                            return (
-                              <Icon
-                                size={18}
-                                className={(COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).text}
-                              />
-                            );
-                          })()}
+                            {(() => {
+                              const Icon = ICON_MAP[selectedNotif.type] || FileText;
+                              return (
+                                <Icon
+                                  size={18}
+                                  className={(COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).text}
+                                />
+                              );
+                            })()}
+                          </div>
+                          <h2 className="text-sm font-black text-[#E1E0CC] font-display tracking-tight truncate max-w-[280px]">
+                            {selectedNotif.title}
+                          </h2>
                         </div>
-                        <h2 className="text-sm font-black text-[#E1E0CC] font-display tracking-tight truncate max-w-[280px]">
-                          {renderNotifTitle(selectedNotif)}
-                        </h2>
-                      </div>
-                      <button
-                        onClick={() => setIsOpen(false)}
-                        className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                        <button
+                          onClick={() => setIsOpen(false)}
+                          className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                        >
+                          <X size={18} />
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* ─── Body ──────────────────────────────────────────── */}
+                <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 scrollbar-thin">
+                  <AnimatePresence mode="wait">
+                    {selectedNotif ? (
+                      <NotificationDetail
+                        key={`detail-${selectedNotif.id}`}
+                        notif={selectedNotif}
+                        onBack={() => setSelectedNotif(null)}
+                      />
+                    ) : filteredNotifs.length > 0 ? (
+                      <motion.div
+                        key="list"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="space-y-2 pb-6"
                       >
-                        <X size={18} />
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                        <AnimatePresence>
+                          {filteredNotifs.map((n) => (
+                            <NotificationCard
+                              key={n.id}
+                              notif={n}
+                              isSelected={false}
+                              onClick={handleSelect}
+                              onDismiss={dismissNotif}
+                            />
+                          ))}
+                        </AnimatePresence>
+                      </motion.div>
+                    ) : (
+                      <EmptyState key="empty" t={t} />
+                    )}
+                  </AnimatePresence>
+                </div>
 
-              {/* ─── Body ──────────────────────────────────────────── */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden px-5 py-3 scrollbar-thin">
-                <AnimatePresence mode="wait">
-                  {selectedNotif ? (
-                    <NotificationDetail
-                      key={`detail-${selectedNotif.id}`}
-                      notif={selectedNotif}
-                      onBack={() => setSelectedNotif(null)}
-                      renderTitle={renderNotifTitle}
-                      renderDetail={renderNotifDetail}
-                      renderTime={renderNotifTime}
-                    />
-                  ) : filteredNotifs.length > 0 ? (
-                    <motion.div
-                      key="list"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="space-y-2 pb-6"
-                    >
-                      <AnimatePresence>
-                        {filteredNotifs.map((n) => (
-                          <NotificationCard
-                            key={n.id}
-                            notif={n}
-                            isSelected={false}
-                            onClick={handleSelect}
-                            onDismiss={dismissNotif}
-                            renderTitle={renderNotifTitle}
-                            renderDesc={renderNotifDesc}
-                            renderTime={renderNotifTime}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </motion.div>
-                  ) : (
-                    <EmptyState key="empty" t={t} />
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* ─── Footer ─────────────────────────────────────────── */}
-              {!selectedNotif && filteredNotifs.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="shrink-0 px-6 py-4 border-t border-[#DEDBC8]/8 bg-[#0A0D14]/90 backdrop-blur-xl"
-                >
-                  <p className="text-[11px] text-gray-500 text-center font-medium">
-                    {filter === 'unread'
-                      ? `${filteredNotifs.length} unread notification${filteredNotifs.length !== 1 ? 's' : ''}`
-                      : `${notifs.length} total notification${notifs.length !== 1 ? 's' : ''} · ${unreadCount} unread`}
-                  </p>
-                </motion.div>
-              )}
-            </motion.div>
-          </div>
+                {/* ─── Footer ─────────────────────────────────────────── */}
+                {!selectedNotif && filteredNotifs.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="shrink-0 px-6 py-4 border-t border-[#DEDBC8]/8 bg-[#0A0D14]/90 backdrop-blur-xl"
+                  >
+                    <p className="text-[11px] text-gray-500 text-center font-medium">
+                      {filter === 'unread'
+                        ? `${filteredNotifs.length} unread notification${filteredNotifs.length !== 1 ? 's' : ''}`
+                        : `${notifs.length} total notification${notifs.length !== 1 ? 's' : ''} · ${unreadCount} unread`}
+                    </p>
+                  </motion.div>
+                )}
+              </motion.div>
+            </div>
+          </AnimatePresence>,
+          document.body,
         )}
-      </AnimatePresence>
     </>
   );
 }

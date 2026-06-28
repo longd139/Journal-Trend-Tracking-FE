@@ -10,9 +10,11 @@ import {
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { paperAPI } from '../lib/api/paper.api';
+import { journalAPI } from '../lib/api/journal.api';
 import { StatCard } from '../components/SharedUI';
 import { PaperItemCard } from './PaperItemCard';
 import { PaperDetailDialog } from './PaperDetailDialog';
+import FollowButton from '../components/follow/FollowButton';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -61,6 +63,11 @@ function JournalHeader({ journal }) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
+          {/* Follow */}
+          <FollowButton
+            journalId={journal.journalId}
+            journalName={journal.journalName}
+          />
           {/* Impact Factor */}
           {journal.impactFactor != null && (
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -304,9 +311,17 @@ export default function SearchJournal() {
   const [topAuthors, setTopAuthors] = useState([]);
   const [selectedPaper, setSelectedPaper] = useState(null);
 
+  // ─── Browse mode (categories) ───
+  const [categories, setCategories] = useState([]);
+  const [selectedFieldId, setSelectedFieldId] = useState(null);
+  const [fieldData, setFieldData] = useState(null);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingField, setLoadingField] = useState(false);
+  const [browseError, setBrowseError] = useState(null);
+
   /* ─── Search journal ─── */
-  const handleSearch = () => {
-    const q = query.trim();
+  const handleSearch = (keywordOverride) => {
+    const q = (keywordOverride || query).trim();
     if (!q) return;
 
     let cancelled = false;
@@ -352,6 +367,63 @@ export default function SearchJournal() {
     if (e.key === 'Enter') handleSearch();
   };
 
+  /* ─── Browse mode: fetch categories when no query ─── */
+  useEffect(() => {
+    if (query.trim()) return;
+
+    let cancelled = false;
+
+    async function loadCategories() {
+      setLoadingCategories(true);
+      setBrowseError(null);
+      try {
+        const cats = await journalAPI.getCategories();
+        if (!cancelled && Array.isArray(cats)) {
+          // Sort by journalCount descending
+          const sorted = cats.sort((a, b) => (b.journalCount || 0) - (a.journalCount || 0));
+          setCategories(sorted);
+          // Auto-select first category
+          if (cats.length > 0) {
+            setSelectedFieldId(cats[0].fieldId);
+            setFieldData(cats[0]);
+          }
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Failed to load categories:', err);
+          setBrowseError(err?.message || 'Failed to load journal categories');
+        }
+      } finally {
+        if (!cancelled) setLoadingCategories(false);
+      }
+    }
+
+    loadCategories();
+    return () => { cancelled = true; };
+  }, [query]);
+
+  /* ─── Browse mode: fetch journals for a specific field ─── */
+  const handleFieldClick = async (fieldId) => {
+    if (fieldId === selectedFieldId) return;
+    setSelectedFieldId(fieldId);
+    setLoadingField(true);
+    try {
+      // Check if we already have full data from categories
+      const cat = categories.find((c) => c.fieldId === fieldId);
+      if (cat && cat.topJournals && cat.topJournals.length > 0) {
+        setFieldData(cat);
+      } else {
+        const data = await journalAPI.getByField(fieldId);
+        setFieldData(data);
+      }
+    } catch (err) {
+      console.error('Failed to load field journals:', err);
+      // Keep showing previous field data on error
+    } finally {
+      setLoadingField(false);
+    }
+  };
+
   /* ═══════════════════════════════════════════════════════════════════════════
      Render
      ═══════════════════════════════════════════════════════════════════════════ */
@@ -383,20 +455,181 @@ export default function SearchJournal() {
           </div>
         </div>
 
-        {/* ─── Pre-search: empty state ─── */}
-        {!query.trim() && !isLoading && !journalStats && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center justify-center py-16 text-center"
-          >
-            <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
-              <Newspaper size={32} className="text-[#DEDBC8]/30" />
-            </div>
-            <p className="text-sm text-gray-500 max-w-sm">
-              Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
-            </p>
-          </motion.div>
+        {/* ─── Browse mode: category tabs + journal cards ─── */}
+        {!query.trim() && !isLoading && (
+          <div className="space-y-5">
+            {/* Loading categories */}
+            {loadingCategories && (
+              <div className="space-y-4">
+                <div className="flex gap-2 overflow-hidden">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <div key={i} className="h-9 w-36 rounded-full bg-[#DEDBC8]/5 animate-pulse shrink-0" />
+                  ))}
+                </div>
+                <JournalSkeleton />
+              </div>
+            )}
+
+            {/* Browse error */}
+            {browseError && !loadingCategories && (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[11px] text-red-400/70">
+                <AlertCircle size={13} className="shrink-0" />
+                <span>{browseError}</span>
+              </div>
+            )}
+
+            {/* Categories loaded */}
+            {!loadingCategories && categories.length > 0 && (
+              <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#0A0A0A]/80 p-5 space-y-4">
+                {/* ── Category Tabs ── */}
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-1.5 flex-wrap"
+                >
+                  {categories.map((cat) => {
+                    const active = cat.fieldId === selectedFieldId;
+                    return (
+                      <button
+                        key={cat.fieldId}
+                        type="button"
+                        onClick={() => handleFieldClick(cat.fieldId)}
+                        disabled={loadingField}
+                        className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
+                          active
+                            ? 'bg-[#DEDBC8]/15 text-[#DEDBC8] border-[#DEDBC8]/30'
+                            : 'text-gray-400 border-[#DEDBC8]/8 hover:bg-[#DEDBC8]/5 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/15'
+                        }`}
+                      >
+                        {cat.fieldName}
+                        {cat.journalCount > 0 && (
+                          <span className={`ml-1.5 text-[10px] ${active ? 'text-[#DEDBC8]/60' : 'text-gray-600'}`}>
+                            {cat.journalCount}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </motion.div>
+
+                {/* ── Journal Cards Grid ── */}
+                {loadingField ? (
+                  <JournalSkeleton />
+                ) : fieldData && fieldData.topJournals && fieldData.topJournals.length > 0 ? (
+                  <motion.div
+                    key={selectedFieldId}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                    className="space-y-3"
+                  >
+                    {/* Field description */}
+                    {fieldData.description && (
+                      <p className="text-xs text-gray-500 px-1">
+                        {fieldData.description}
+                      </p>
+                    )}
+
+                    {/* Journal cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {fieldData.topJournals.map((journal, i) => (
+                        <motion.div
+                          key={journal.journalId || i}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.06, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                          onClick={() => {
+                            setQuery(journal.journalName);
+                            handleSearch(journal.journalName);
+                          }}
+                          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3 hover:border-[#DEDBC8]/20 transition-all cursor-pointer"
+                        >
+                          {/* Journal name + quartile */}
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="space-y-1 min-w-0">
+                              <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate">
+                                {journal.journalName}
+                              </h3>
+                              {journal.publisher && (
+                                <span className="text-[11px] text-gray-500 flex items-center gap-1">
+                                  <Globe size={10} />
+                                  {journal.publisher}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {/* Follow — stopPropagation so clicking doesn't trigger the card */}
+                              <span onClick={(e) => e.stopPropagation()}>
+                                <FollowButton
+                                  journalId={journal.journalId}
+                                  journalName={journal.journalName}
+                                />
+                              </span>
+                              {journal.impactFactor != null && (
+                                <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                  IF {journal.impactFactor}
+                                </span>
+                              )}
+                              {journal.quartile && (
+                                <span
+                                  className="px-2 py-1 rounded-md text-[10px] font-bold"
+                                  style={{
+                                    background: `${Q_COLORS[journal.quartile] || '#6B7280'}18`,
+                                    color: Q_COLORS[journal.quartile] || '#6B7280',
+                                    border: `1px solid ${Q_COLORS[journal.quartile] || '#6B7280'}30`,
+                                  }}
+                                >
+                                  {journal.quartile}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* ISSN */}
+                          {journal.issn && (
+                            <div className="flex items-center gap-1 text-[10px] text-gray-600">
+                              <Hash size={10} />
+                              ISSN {journal.issn}
+                            </div>
+                          )}
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ) : !loadingField ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-12 text-center"
+                  >
+                    <div className="p-3 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-3">
+                      <Newspaper size={24} className="text-[#DEDBC8]/20" />
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      No journals found in this category yet.
+                    </p>
+                  </motion.div>
+                ) : null}
+              </div>
+            )}
+
+            {/* Categories empty (no error, no data, not loading) */}
+            {!loadingCategories && !browseError && categories.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-16 text-center"
+              >
+                <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
+                  <Newspaper size={32} className="text-[#DEDBC8]/30" />
+                </div>
+                <p className="text-sm text-gray-500 max-w-sm">
+                  Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
+                </p>
+              </motion.div>
+            )}
+          </div>
         )}
 
         {/* ─── Loading ─── */}

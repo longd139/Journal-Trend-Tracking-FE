@@ -45,6 +45,33 @@ export default function FollowButton({
   // Hide button if no targets available
   if (options.length === 0) return null;
 
+  // On mount, check if user is already following this target
+  React.useEffect(() => {
+    let cancelled = false;
+
+    const checkExisting = async () => {
+      try {
+        const response = await followAPI.getMyFollows();
+        const follows = response?.data ?? response ?? [];
+        const list = Array.isArray(follows) ? follows : follows?.data ?? [];
+
+        const isFollowing = list.some((f) => {
+          if (journalId && f.journalId === journalId) return true;
+          if (topicId && f.topicId === topicId) return true;
+          if (keywordId && f.keywordId === keywordId) return true;
+          return false;
+        });
+
+        if (!cancelled && isFollowing) setStatus('followed');
+      } catch {
+        // Silently fail — keep default state
+      }
+    };
+
+    checkExisting();
+    return () => { cancelled = true; };
+  }, [journalId, topicId, keywordId]);
+
   const doFollow = async (target, notifyEnabled = true) => {
     setStatus('loading');
     setDialogOpen(false);

@@ -44,4 +44,14 @@ export const authorAPI = {
     });
     return data.data || data;
   },
+
+  /**
+   * Danh sách tác giả được đề xuất (zero-state).
+   * GET /api/search/author/suggested
+   * Auth: JWT required
+   */
+  async getSuggested() {
+    const { data } = await axiosClient.get('/api/search/author/suggested');
+    return data.data || data;
+  },
 };
