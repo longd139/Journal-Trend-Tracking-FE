@@ -34,5 +34,11 @@
   },
   "graph": {
     "toggle": "Hiển thị đồ thị tri thức"
+  },
+  "author": {
+    "placeholder": "Tìm kiếm theo tên tác giả để khám phá hồ sơ học thuật...",
+    "clearQuery": "Xóa tìm kiếm",
+    "noResults": "Không tìm thấy tác giả.",
+    "error": "Không thể tải dữ liệu tác giả từ hệ thống."
   }
 }
