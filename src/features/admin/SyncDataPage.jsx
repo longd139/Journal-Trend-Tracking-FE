@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
- ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle,
+ ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -202,6 +202,16 @@ export default function SyncDataPage() {
  // bulkProgress = the live task object from store (has percent, keywordStats, etc.)
  const bulkProgress = bulkTask?.status === 'running' ? bulkTask : null;
 
+ // -- Deep Sync OpenAlex --
+ const [deepQuery, setDeepQuery] = useState('');
+ const [deepMailto, setDeepMailto] = useState('');
+ const [deepLimit, setDeepLimit] = useState(500);
+ const [deepYearFrom, setDeepYearFrom] = useState(String(currentYear - 3));
+ const [deepYearTo, setDeepYearTo] = useState(String(currentYear));
+ const [isDeepSyncing, setIsDeepSyncing] = useState(false);
+ const [deepSyncResult, setDeepSyncResult] = useState(null);
+ const [deepSyncError, setDeepSyncError] = useState(null);
+
  const handleBulkSync = async () => {
  let body;
  if (useDefaultBulk) {
@@ -231,6 +241,39 @@ export default function SyncDataPage() {
  // still used for validation errors (not API errors � those are in the store)
  toast.error(msg, { position: 'top-right', duration: 5000 });
  };
+
+  // -- Deep Sync OpenAlex handler --
+  const handleDeepSync = async () => {
+   if (!deepQuery.trim() || !deepMailto.trim()) return;
+
+   setIsDeepSyncing(true);
+   setDeepSyncError(null);
+   setDeepSyncResult(null);
+
+   try {
+    const response = await adminAPI.syncOpenAlexDeep({
+     query: deepQuery.trim(),
+     mailto: deepMailto.trim(),
+     limit: deepLimit,
+     yearFrom: deepYearFrom ? parseInt(deepYearFrom, 10) : undefined,
+     yearTo: deepYearTo ? parseInt(deepYearTo, 10) : undefined,
+    });
+    setDeepSyncResult(response);
+    toast.success(response.message || 'Deep sync completed', {
+     position: 'top-right',
+     duration: 4000,
+    });
+   } catch (err) {
+    const msg = err.response?.data?.message || err.message || 'Deep sync failed';
+    setDeepSyncError(msg);
+    toast.error(msg, { position: 'top-right', duration: 5000 });
+   } finally {
+    setIsDeepSyncing(false);
+   }
+  };
+
+  const canDeepSync = deepQuery.trim() && deepMailto.trim() && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
+
 
  const handleClearAll = async () => {
  setIsClearing(true);
@@ -825,7 +868,212 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* -- Clear All Data -- */}
+  
+  {/* -- Deep Sync OpenAlex -- */}
+  <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
+   <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className={`${card} p-5 border-l-[3px]`}
+    style={{ borderLeftColor: '#4F8CFF' }}
+   >
+    <div className="flex items-start gap-3 mb-4">
+     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-500 shrink-0">
+      <Zap size={18} />
+     </div>
+     <div>
+      <h4 className="text-sm font-bold text-[#E1E0CC]">Deep Sync OpenAlex</h4>
+      <p className="text-xs text-gray-500 dark:text-slate-400">
+       Deep sync papers from OpenAlex for multiple keywords with polite pool email. Paste keywords separated by commas or newlines.
+      </p>
+     </div>
+    </div>
+
+    <div className="space-y-3 mb-4">
+     {/* Keywords textarea */}
+     <div className="space-y-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+       Keywords <span className="text-red-500">*</span>
+      </label>
+      <textarea
+       placeholder="Enter keywords, one per line or comma-separated&#10;e.g.&#10;Computer Vision&#10;Deep Learning&#10;NLP&#10;Reinforcement Learning"
+       value={deepQuery}
+       onChange={(e) => setDeepQuery(e.target.value)}
+       disabled={isDeepSyncing}
+       rows={4}
+       className="w-full p-3 rounded-lg text-xs bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors resize-none"
+      />
+     </div>
+
+     {/* Email + Limit row */}
+     <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex-1 space-y-1.5">
+       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        Polite Pool Email <span className="text-red-500">*</span>
+       </label>
+       <Input
+        type="email"
+        placeholder="your@email.com"
+        value={deepMailto}
+        onChange={(e) => setDeepMailto(e.target.value)}
+        disabled={isDeepSyncing}
+        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+       />
+      </div>
+
+      <div className="w-full sm:w-32 space-y-1.5">
+       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        Limit
+       </label>
+       <Input
+        type="number"
+        min={1}
+        max={40000}
+        value={deepLimit}
+        onChange={(e) => setDeepLimit(parseInt(e.target.value, 10) || 500)}
+        disabled={isDeepSyncing}
+        className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+       />
+      </div>
+     </div>
+
+     {/* Year range row */}
+     <div className="flex items-center gap-2">
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 shrink-0">
+       Year
+      </span>
+      <select
+       value={deepYearFrom}
+       onChange={(e) => setDeepYearFrom(e.target.value)}
+       disabled={isDeepSyncing}
+       className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
+       style={{ colorScheme: 'dark' }}
+      >
+       <option value="">From</option>
+       {YEAR_OPTIONS.map((y) => (
+        <option key={y} value={y}>{y}</option>
+       ))}
+      </select>
+      <span className="text-xs text-gray-400 dark:text-slate-500">–</span>
+      <select
+       value={deepYearTo}
+       onChange={(e) => setDeepYearTo(e.target.value)}
+       disabled={isDeepSyncing}
+       className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
+       style={{ colorScheme: 'dark' }}
+      >
+       <option value="">To</option>
+       {YEAR_OPTIONS.map((y) => (
+        <option key={y} value={y}>{y}</option>
+       ))}
+      </select>
+     </div>
+    </div>
+
+    <Button
+     type="button"
+     disabled={!canDeepSync}
+     onClick={handleDeepSync}
+     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+     <RefreshCw size={15} className={isDeepSyncing ? 'animate-spin' : ''} />
+     {isDeepSyncing ? 'Deep syncing...' : 'Start Deep Sync'}
+    </Button>
+
+    {/* Deep sync error */}
+    {deepSyncError && (
+     <div className="mt-4 flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10">
+      <AlertCircle size={14} className="text-red-500" />
+      <span className="text-xs text-red-600 dark:text-red-400">{deepSyncError}</span>
+     </div>
+    )}
+
+    {/* Deep sync result */}
+    {deepSyncResult && !isDeepSyncing && (
+     <div className="mt-4 space-y-3 border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+      <div className="flex items-center gap-2">
+       <CheckCircle2 size={14} className="text-emerald-500" />
+       <span className="text-xs font-bold text-[#E1E0CC]">
+        {deepSyncResult.data?.totalKeywords != null && `${deepSyncResult.data.totalKeywords} keyword(s) – `}
+        {deepSyncResult.data?.totalFetched != null && `${deepSyncResult.data.totalFetched} fetched – `}
+        {deepSyncResult.data?.totalInserted != null && `${deepSyncResult.data.totalInserted} inserted`}
+       </span>
+       {deepSyncResult.data?.yearRange && (
+        <span className="text-[10px] text-gray-500 dark:text-slate-400">
+         {deepSyncResult.data.yearRange}
+        </span>
+       )}
+       {deepSyncResult.timestamp && (
+        <span className="text-[10px] text-gray-500 dark:text-slate-400 ml-auto">
+         {new Date(deepSyncResult.timestamp).toLocaleString()}
+        </span>
+       )}
+      </div>
+
+      {/* Summary stats */}
+      {deepSyncResult.data && (
+       <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
+         <div className="text-sm font-bold text-[#E1E0CC] font-mono">
+          {deepSyncResult.data.totalKeywords ?? '—'}
+         </div>
+         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Keywords</div>
+        </div>
+        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
+         <div className="text-sm font-bold text-blue-600 dark:text-blue-400 font-mono">
+          {deepSyncResult.data.totalFetched ?? 0}
+         </div>
+         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</div>
+        </div>
+        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
+         <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+          {deepSyncResult.data.totalInserted ?? 0}
+         </div>
+         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</div>
+        </div>
+       </div>
+      )}
+
+      {/* Per-keyword stats */}
+      {deepSyncResult.data?.keywordStats && Object.keys(deepSyncResult.data.keywordStats).length > 0 && (
+       <div className="bg-[#1a1a1a] border border-[#DEDBC8]/5 rounded-lg p-3 max-h-48 overflow-y-auto">
+        <table className="w-full text-xs">
+         <thead>
+          <tr className="border-b border-gray-200 border-[#DEDBC8]/5">
+           <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
+           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
+           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
+          </tr>
+         </thead>
+         <tbody>
+          {Object.entries(deepSyncResult.data.keywordStats).map(([kw, stats]) => (
+           <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
+            <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">{kw}</td>
+            <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned}</td>
+            <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
+           </tr>
+          ))}
+         </tbody>
+        </table>
+       </div>
+      )}
+
+      {/* Raw JSON toggle */}
+      <details className="mt-2">
+       <summary className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
+        <ChevronDown size={12} />
+        Raw response
+       </summary>
+       <pre className="mt-2 p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5 text-slate-300 text-[11px] overflow-x-auto font-mono max-h-40 overflow-y-auto">
+        {JSON.stringify(deepSyncResult, null, 2)}
+       </pre>
+      </details>
+     </div>
+    )}
+   </motion.div>
+  </div>
+
+{/* -- Clear All Data -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
