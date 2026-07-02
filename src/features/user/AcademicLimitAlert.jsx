@@ -2,10 +2,10 @@
 import { useTranslation } from "react-i18next";
 import { ShieldAlert } from "lucide-react";
 
-export function AcademicLimitAlert({ userRole = "academic", searchCount = 0, maxLimit = 10 }) {
+export function AcademicLimitAlert({ userRole = "academic_user", searchCount = 0, maxLimit = 10 }) {
  const { t } = useTranslation('common');
 
- if (userRole !== "academic") return null;
+ if (userRole !== "academic_user") return null;
 
  return (
  <div className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-200 p-4 rounded-xl flex items-start gap-3 shadow-sm mb-5 ">
