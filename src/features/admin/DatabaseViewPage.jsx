@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +14,8 @@ import { adminAPI } from './api';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const card = 'bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl';
+
+const ZERO_RETRY_DELAY_MS = 4_000; // retry after 4s if cache was stale (all zeros)
 
 const SOURCE_META = {
   openalex: { icon: Globe, label: 'OpenAlex', color: '#4F8CFF' },
@@ -140,30 +142,48 @@ export default function DatabaseViewPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const cancelledRef = useRef(false);
+  const zeroRetryRef = useRef(null);
 
-    async function fetchStats() {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await adminAPI.getSyncStats();
-        if (!cancelled) {
-          setStats(response.data || response);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          console.error('Stats error:', err);
-          setError(err?.message || 'Failed to load database statistics');
-        }
-      } finally {
-        if (!cancelled) setIsLoading(false);
+  const fetchStats = useCallback(async ({ isRetry = false } = {}) => {
+    if (!isRetry) setIsLoading(true);
+    setError(null);
+    try {
+      const response = await adminAPI.getSyncStats();
+      if (cancelledRef.current) return;
+
+      const data = response.data || response;
+
+      // ── Edge case: cache just expired → all zeros ──
+      // BE says retry after 3–5 s; we use 4 s.
+      if (!isRetry && data?.papers?.total === 0) {
+        setStats(data); // show zeros briefly rather than a loader
+        setIsLoading(false);
+        zeroRetryRef.current = setTimeout(() => {
+          if (!cancelledRef.current) fetchStats({ isRetry: true });
+        }, ZERO_RETRY_DELAY_MS);
+        return;
       }
-    }
 
-    fetchStats();
-    return () => { cancelled = true; };
+      setStats(data);
+    } catch (err) {
+      if (!cancelledRef.current) {
+        console.error('Stats error:', err);
+        setError(err?.message || 'Failed to load database statistics');
+      }
+    } finally {
+      if (!cancelledRef.current) setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    cancelledRef.current = false;
+    fetchStats();
+    return () => {
+      cancelledRef.current = true;
+      clearTimeout(zeroRetryRef.current);
+    };
+  }, [fetchStats]);
 
   /* ─── Loading ─── */
   if (isLoading) return <Skeleton />;
@@ -223,7 +243,7 @@ export default function DatabaseViewPage() {
           <div className="p-1.5 rounded-lg" style={{ background: `${NEO4J_COLOR}18`, color: NEO4J_COLOR }}>
             <Database size={17} />
           </div>
-          <div>
+          <div className="flex-1">
             <h2 className="text-lg font-black text-[#E1E0CC] font-display">
               {t('headings.database')}
             </h2>
@@ -231,6 +251,15 @@ export default function DatabaseViewPage() {
               System-wide statistics and data health overview
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => fetchStats()}
+            disabled={isLoading}
+            className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all disabled:opacity-40"
+            title="Refresh statistics"
+          >
+            <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+          </button>
         </div>
 
         {/* Last sync badge */}

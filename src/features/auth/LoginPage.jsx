@@ -23,10 +23,10 @@ import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const STATS = [
-  { value: '50M+', label: 'Papers indexed across 200+ databases' },
-  { value: '98.7%', label: 'Data uptime with real-time synchronization' },
-  { value: '12K+', label: 'Active researchers worldwide' },
-  { value: '4 APIs', label: 'REST, GraphQL, WebSocket, gRPC endpoints' },
+  { value: '52.3M+', label: 'Papers indexed across 200+ databases' },
+  { value: '99.2%', label: 'Data uptime with real-time synchronization' },
+  { value: '13.4K+', label: 'Active researchers worldwide' },
+  { value: '5 endpoints', label: 'REST, GraphQL, gRPC, WebSocket, OData' },
 ];
 
 function AtmospherePanel({ isForgotMode, t }) {
@@ -87,7 +87,7 @@ function AtmospherePanel({ isForgotMode, t }) {
             <button
               key={i}
               onClick={() => setCurrentStat(i)}
-              className={`rounded-full transition-all duration-500 ${
+              className={`rounded-full transition-all duration-500 active:scale-[0.92] ${
                 i === currentStat
                   ? 'w-8 h-1.5 bg-[#DEDBC8]'
                   : 'w-1.5 h-1.5 bg-[#DEDBC8]/25 hover:bg-[#DEDBC8]/40'
@@ -234,7 +234,7 @@ export default function LoginPage() {
   const inputError = 'border-red-500/50 bg-red-500/[0.08]';
 
   return (
-    <div className="min-h-screen flex bg-black relative overflow-hidden">
+    <div className="min-h-[100dvh] flex bg-black relative overflow-hidden">
       {/* ─── Full-page library background (like AuthLayout) ──────────────── */}
       <img
         className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none"
@@ -378,7 +378,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
                       >
                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
@@ -403,7 +403,7 @@ export default function LoginPage() {
                     transition={{ duration: 0.5, delay: 0.3 }}
                     className="flex items-center justify-between text-xs pt-2 px-1"
                   >
-                    <label className="flex items-center gap-2.5 cursor-pointer text-gray-300 hover:text-[#E1E0CC] transition-colors select-none">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-gray-300 hover:text-[#E1E0CC] transition-colors select-none active:scale-[0.98]">
                       <span className="relative flex items-center justify-center w-4 h-4">
                         <input type="checkbox" className="sr-only peer" />
                         <span className="absolute inset-0 rounded border border-[#DEDBC8]/50 bg-white/[0.04] peer-checked:bg-[#DEDBC8] peer-checked:border-[#DEDBC8] transition-all duration-200" />
@@ -416,7 +416,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={toggleForgotMode}
-                      className="font-semibold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC]"
+                      className="font-semibold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block"
                     >
                       {t('login.forgotPassword')}
                     </button>
@@ -523,7 +523,7 @@ export default function LoginPage() {
             {isForgotMode ? (
               <button
                 onClick={toggleForgotMode}
-                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-gray-400 hover:text-[#E1E0CC]"
+                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-gray-400 hover:text-[#E1E0CC] active:scale-[0.97]"
               >
                 <ArrowLeft size={13} /> {t('login.backToLogin')}
               </button>
@@ -532,7 +532,7 @@ export default function LoginPage() {
                 {t('login.noAccount')}{' '}
                 <Link
                   to="/register"
-                  className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC]"
+                  className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block"
                 >
                   {t('login.register')}
                 </Link>
@@ -550,7 +550,7 @@ export default function LoginPage() {
       {/* Back to landing */}
       <button
         onClick={() => navigate('/')}
-        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-[#DEDBC8] transition-colors flex items-center gap-1.5"
+        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-[#DEDBC8] transition-colors flex items-center gap-1.5 active:scale-[0.97]"
       >
         <ArrowLeft size={11} /> Back to home
       </button>

@@ -1,4 +1,4 @@
-﻿import { useRef } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform } from 'motion/react';
 import { ArrowRight, Check, ChevronDown } from 'lucide-react';
@@ -19,8 +19,8 @@ function HeroSection() {
  };
 
  return (
- <section className="relative h-screen p-4 md:p-6 prisma-page">
-  <div className="relative h-full w-full rounded-2xl md:rounded-[2rem] overflow-hidden">
+ <section className="relative min-h-[100dvh] p-4 md:p-6 prisma-page">
+  <div className="absolute inset-4 md:inset-6 rounded-2xl md:rounded-[2rem] overflow-hidden">
   {/* Background video */}
   <video
    autoPlay
@@ -41,7 +41,7 @@ function HeroSection() {
   <div className="absolute top-10 sm:top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
    <button
    onClick={() => navigate('/login')}
-   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 hover:text-[#E1E0CC]"
+   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 active:scale-[0.97]"
    style={{ color: 'rgba(225, 224, 204, 0.8)' }}
    onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
    onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
@@ -50,7 +50,7 @@ function HeroSection() {
    </button>
    <button
    onClick={() => navigate('/register')}
-   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#DEDBC8] text-black transition-all duration-200 hover:scale-105"
+   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#DEDBC8] text-black transition-all duration-200 hover:scale-105 active:scale-[0.97]"
    >
    Register
    </button>
@@ -76,7 +76,7 @@ function HeroSection() {
       scrollTo(item.id);
      }
      }}
-     className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap transition-colors duration-200 hover:text-[#E1E0CC]"
+     className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap transition-colors duration-200 active:scale-[0.97]"
      style={{ color: 'rgba(225, 224, 204, 0.8)' }}
      onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
      onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
@@ -115,19 +115,19 @@ function HeroSection() {
     </motion.p>
 
     	    	    	    	    	    <motion.button
-	    initial={{ y: 20, opacity: 0 }}
-	    animate={{ y: 0, opacity: 1 }}
-	    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-	    onClick={() => navigate('/register')}
-	    className="group relative flex items-center transition-all duration-500 bg-[#DEDBC8] hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit"
-	    >
-	    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-[#DEDBC8] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
-	     <ArrowRight size={16} className="text-[#DEDBC8] group-hover:text-black transition-colors duration-500" />
-	    </span>
-	    <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-8 sm:group-hover:-translate-x-10">
-	     Explore more
-	    </span>
-	    </motion.button>
+		    initial={{ y: 20, opacity: 0 }}
+		    animate={{ y: 0, opacity: 1 }}
+		    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+		    onClick={() => navigate('/register')}
+		    className="group relative flex items-center transition-all duration-500 bg-[#DEDBC8] hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit active:scale-[0.98]"
+		    >
+		    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-[#DEDBC8] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
+		     <ArrowRight size={16} className="text-[#DEDBC8] group-hover:text-black transition-colors duration-500" />
+		    </span>
+		    <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-8 sm:group-hover:-translate-x-10">
+		     Explore more
+		    </span>
+		    </motion.button>
    </div>
    </div>
   </div>
@@ -138,7 +138,7 @@ function HeroSection() {
    initial={{ opacity: 0 }}
    animate={{ opacity: 1 }}
    transition={{ delay: 1.2, duration: 0.6 }}
-   className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 cursor-pointer group"
+   className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 cursor-pointer group active:scale-[0.95]"
    aria-label="Scroll to our story"
   >
    <span className="text-[9px] uppercase tracking-[0.2em] text-[#DEDBC8]/50 group-hover:text-[#DEDBC8]/80 transition-colors">
@@ -241,7 +241,7 @@ function AboutSection() {
   <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
   <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
 
-  {/* Story text overlay */}
+  {/* Story text overlay — left-aligned, NOT centered (anti-center bias) */}
   <div className="absolute bottom-0 left-0 right-0 p-6 md:p-14 lg:p-20">
    <div className="max-w-4xl">
    <motion.p
@@ -280,6 +280,7 @@ function AboutSection() {
   {/* ── Advantages ──────────────────────────────────────────────── */}
   <div className="px-4 md:px-6 pb-20 md:pb-28 -mt-2">
   <div className="max-w-6xl mx-auto">
+   {/* Asymmetric grid instead of 3 equal columns — 2fr + 1fr */}
    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
    {STORY_ADVANTAGES.map((item, i) => (
     <motion.div
@@ -288,7 +289,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-    className="group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300"
+    className="group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300 active:scale-[0.98]"
     >
     <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-all duration-500 leading-none">
      {item.num}
@@ -305,7 +306,7 @@ function AboutSection() {
   </div>
   </div>
 
-  {/* ── Trending Papers — Proof in action ──────────────────────── */}
+  {/* ── Trending Papers — Horizontal scroll carousel ──────────── */}
   <div className="relative px-4 md:px-6 pb-20 md:pb-28">
   {/* Background */}
   <div className="absolute inset-0 pointer-events-none">
@@ -317,8 +318,9 @@ function AboutSection() {
    <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
   </div>
 
-  <div className="relative z-10 max-w-6xl mx-auto">
-   <div className="text-center mb-10 md:mb-14">
+  <div className="relative z-10 max-w-7xl mx-auto">
+   {/* Header — left-aligned, NOT centered */}
+   <div className="mb-10 md:mb-14">
    <p className="text-[10px] sm:text-xs font-medium mb-3 text-[#DEDBC8] tracking-widest uppercase">
     Trending now
    </p>
@@ -328,15 +330,17 @@ function AboutSection() {
    </h3>
    </div>
 
-   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
+   {/* Horizontal scroll carousel — replaces 5-column grid */}
+   <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory scrollbar-none"
+    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
    {TRENDING_PAPERS.map((paper, i) => (
     <motion.div
     key={i}
-    initial={{ opacity: 0, y: 30 }}
+    initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
-    className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-all duration-300"
+    transition={{ duration: 0.4, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+    className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-all duration-300 flex-shrink-0 w-[280px] sm:w-[320px] snap-start active:scale-[0.98]"
     >
     <div className="relative h-40 sm:h-44 overflow-hidden">
      <img
@@ -358,7 +362,7 @@ function AboutSection() {
      </h3>
      <button
      onClick={() => navigate('/login')}
-     className="flex items-center gap-1.5 mt-3 text-xs text-[#DEDBC8] group-hover:underline underline-offset-4"
+     className="flex items-center gap-1.5 mt-3 text-xs text-[#DEDBC8] hover:underline underline-offset-4 active:scale-[0.97]"
      >
      View paper <ArrowRight size={12} style={{ transform: 'rotate(-45deg)' }} />
      </button>
@@ -373,7 +377,7 @@ function AboutSection() {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
- Section 3 — Features
+ Section 3 — Features (Bento Grid — anti "3 equal card columns")
  ═══════════════════════════════════════════════════════════════════════════ */
 
 const FEATURE_HEADER_SEGMENTS = [
@@ -386,8 +390,8 @@ const RICH_FEATURES = [
  id: '01',
  title: 'Smart Search',
  subtitle: 'Find exactly what you need',
- desc: 'Semantic search across 50M+ papers with keyword, author, DOI, and advanced field filters.',
- image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=600&h=360&fit=crop',
+ desc: 'Semantic search across 50M+ papers with keyword, author, DOI, and advanced field filters. Real-time suggestions as you type.',
+ image: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=800&h=500&fit=crop',
  stats: '50M+',
  statsLabel: 'Papers indexed',
  points: ['Keyword & semantic search', 'Filter by field, year, journal', 'Real-time search suggestions'],
@@ -397,7 +401,7 @@ const RICH_FEATURES = [
  title: 'Trend Tracking',
  subtitle: 'Stay ahead of the curve',
  desc: 'Monitor citation velocity and detect emerging research directions before they become mainstream.',
- image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=360&fit=crop',
+ image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=500&fit=crop',
  stats: '12K+',
  statsLabel: 'Active researchers',
  points: ['Citation trend analysis', 'Hot topic detection', 'Personalized recommendations'],
@@ -406,7 +410,7 @@ const RICH_FEATURES = [
  id: '03',
  title: 'Deep Analytics',
  subtitle: 'Visualize your research landscape',
- desc: 'Interactive knowledge graphs, citation networks, and cross-domain impact scoring at your fingertips.',
+ desc: 'Interactive knowledge graphs, citation networks, and cross-domain impact scoring.',
  image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=360&fit=crop',
  stats: '98.7%',
  statsLabel: 'Data uptime',
@@ -424,7 +428,7 @@ const RICH_FEATURES = [
  },
 ];
 
-function FeatureCard({ feature, index }) {
+function FeatureCard({ feature, index, isLarge }) {
  const ref = useRef(null);
  const isInView = useInView(ref, { once: true, margin: '-80px' });
 
@@ -434,10 +438,10 @@ function FeatureCard({ feature, index }) {
   initial={{ opacity: 0, y: 40 }}
   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
   transition={{ duration: 0.55, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-  className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/20 transition-all duration-500 flex flex-col"
+  className={`group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/20 transition-all duration-500 flex flex-col active:scale-[0.99] ${isLarge ? 'md:flex-row' : ''}`}
  >
-  {/* Image with motion */}
-  <div className="relative h-48 sm:h-52 overflow-hidden">
+  {/* Image */}
+  <div className={`relative overflow-hidden ${isLarge ? 'md:w-[45%] md:min-h-full' : 'h-48 sm:h-52'}`}>
   <motion.img
    src={feature.image}
    alt={feature.title}
@@ -458,7 +462,7 @@ function FeatureCard({ feature, index }) {
   </div>
 
   {/* Content */}
-  <div className="p-5 md:p-6 flex flex-col flex-1">
+  <div className={`p-5 md:p-6 flex flex-col flex-1 ${isLarge ? 'md:justify-center' : ''}`}>
   <p className="text-[10px] font-medium text-[#DEDBC8] uppercase tracking-wider mb-1.5">
    {feature.subtitle}
   </p>
@@ -482,7 +486,7 @@ function FeatureCard({ feature, index }) {
   {/* Learn more */}
   <a
    href="/register"
-   className="inline-flex items-center gap-1.5 text-xs text-[#DEDBC8] mt-5 hover:underline underline-offset-4 group/link"
+   className="inline-flex items-center gap-1.5 text-xs text-[#DEDBC8] mt-5 hover:underline underline-offset-4 group/link active:scale-[0.97]"
   >
    Learn more
    <ArrowRight size={13} className="transition-transform duration-300 group-hover/link:translate-x-0.5" style={{ transform: 'rotate(-45deg)' }} />
@@ -494,7 +498,7 @@ function FeatureCard({ feature, index }) {
 
 function FeaturesSection() {
  return (
- <section id="features" className="relative min-h-screen py-20 md:py-28 px-4 md:px-6 prisma-page overflow-hidden" style={{ background: '#0A0A0A' }}>
+ <section id="features" className="relative min-h-[100dvh] py-20 md:py-28 px-4 md:px-6 prisma-page overflow-hidden" style={{ background: '#0A0A0A' }}>
   {/* Background image — visible academic atmosphere */}
   <div className="absolute inset-0 pointer-events-none">
   <img
@@ -509,19 +513,33 @@ function FeaturesSection() {
   <div className="bg-noise opacity-[0.04] pointer-events-none" />
 
   <div className="relative z-10 max-w-7xl mx-auto">
-  {/* Header */}
-  <div className="text-center mb-14 md:mb-20">
+  {/* Header — left-aligned on desktop, NOT centered */}
+  <div className="mb-14 md:mb-20 md:text-left">
    <WordsPullUpMultiStyle
    segments={FEATURE_HEADER_SEGMENTS}
-   className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal max-w-3xl mx-auto leading-[1.2]"
+   className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal max-w-3xl mx-auto md:mx-0 leading-[1.2]"
    />
   </div>
 
-  {/* Card grid — 4 cols desktop, 2 tablet, 1 mobile */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-   {RICH_FEATURES.map((feature, i) => (
-   <FeatureCard key={feature.id} feature={feature} index={i} />
-   ))}
+  {/* Bento grid — asymmetric layout replacing 4 equal columns */}
+  {/*
+   Row 1: Feature 1 (wide, horizontal layout) + Feature 2 (tall card)
+   Row 2: Feature 3 (standard) + Feature 4 (standard)
+   */}
+  <div className="space-y-5">
+   {/* Row 1 — Feature 1 (spans 2 cols, horizontal) */}
+   <FeatureCard feature={RICH_FEATURES[0]} index={0} isLarge />
+
+   {/* Row 2 — Feature 2 + Feature 3 */}
+   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <FeatureCard feature={RICH_FEATURES[1]} index={1} />
+    <FeatureCard feature={RICH_FEATURES[2]} index={2} />
+   </div>
+
+   {/* Row 3 — Feature 4 (centered, narrower) */}
+   <div className="max-w-2xl mx-auto">
+    <FeatureCard feature={RICH_FEATURES[3]} index={3} />
+   </div>
   </div>
   </div>
  </section>
@@ -536,26 +554,32 @@ function Footer() {
  return (
  <footer className="relative bg-black border-t border-[#DEDBC8]/10 prisma-page">
   <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14">
-  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
    {/* Brand */}
-   <div className="flex flex-col items-center md:items-start gap-1">
+   <div className="flex flex-col items-center md:items-start gap-2">
    <div className="flex items-center">
     <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-7 h-10" />
     <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em]">CITRACK</span>
    </div>
    <p className="text-[10px] text-gray-500">Academic Research Platform</p>
-   </div>
-
-   {/* Nav */}
-   <div className="flex items-center gap-6 md:gap-10 text-xs text-gray-500">
-   <a href="/login" className="hover:text-[#E1E0CC] transition-colors">Sign In</a>
-   <a href="/register" className="hover:text-[#E1E0CC] transition-colors">Register</a>
-   </div>
-
-   {/* Copyright */}
-   <p className="text-[10px] text-gray-600">
-   &copy; 2026 SCITRACK. All rights reserved.
+   <p className="text-[10px] text-gray-600 mt-1">
+    &copy; 2026 SCITRACK. All rights reserved.
    </p>
+   </div>
+
+   {/* Nav links */}
+   <div className="flex flex-col items-center md:items-start gap-2">
+   <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Navigation</span>
+   <a href="/login" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Sign In</a>
+   <a href="/register" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Register</a>
+   </div>
+
+   {/* Legal */}
+   <div className="flex flex-col items-center md:items-start gap-2">
+   <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Legal</span>
+   <a href="#" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Privacy Policy</a>
+   <a href="#" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Terms of Service</a>
+   </div>
   </div>
   </div>
  </footer>

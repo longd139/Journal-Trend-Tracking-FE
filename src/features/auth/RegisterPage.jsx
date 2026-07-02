@@ -223,11 +223,11 @@ export default function RegisterPage() {
   <motion.div layout>
   <Link
    to="/auth"
-   className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-[#E1E0CC] mb-4 transition-colors"
+   className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-[#E1E0CC] mb-4 transition-colors active:scale-[0.97]"
   >
    <ArrowLeft size={13} /> {t('roleSelect.heading')}
   </Link>
-  <h2 className="text-2xl lg:text-3xl font-black text-white mb-1 font-display tracking-tight">
+  <h2 className="text-2xl lg:text-3xl font-bold text-white mb-1 font-display tracking-tight">
    {t('register.createAccount')}
   </h2>
   <p className="text-sm mb-8 text-gray-300">
@@ -320,7 +320,7 @@ export default function RegisterPage() {
      handleChange('institution', uni.name);
      setShowSuggestions(false);
      }}
-     className="px-4 py-2.5 text-xs text-[#E1E0CC] hover:bg-[#DEDBC8]/10 cursor-pointer border-b border-[#DEDBC8]/5 last:border-b-0 transition-colors"
+     className="px-4 py-2.5 text-xs text-[#E1E0CC] hover:bg-[#DEDBC8]/10 cursor-pointer border-b border-[#DEDBC8]/5 last:border-b-0 transition-colors active:scale-[0.98] active:bg-[#DEDBC8]/15"
     >
      {uni.name}
     </li>
@@ -392,7 +392,7 @@ export default function RegisterPage() {
     <button
     type="button"
     onClick={() => setShowPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
     >
     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -429,7 +429,7 @@ export default function RegisterPage() {
     <button
     type="button"
     onClick={() => setShowConfirmPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
     >
     {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -485,7 +485,7 @@ export default function RegisterPage() {
   <motion.div layout className="mt-7 pt-6 border-t border-[#DEDBC8]/10 text-center text-xs">
   <span className="text-gray-400">
    {t('register.haveAccount')}{' '}
-   <Link to="/login" className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC]">
+   <Link to="/login" className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block">
    {t('register.signIn')}
    </Link>
   </span>
