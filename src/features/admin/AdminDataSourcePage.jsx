@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw, Plus, Trash2, Globe, CheckCircle2, XCircle,
   Database, X, Edit3, Cloud,
@@ -9,6 +10,8 @@ import { adminAPI } from './api';
 const emptyForm = { sourceName: '', baseUrl: '', rateLimitRpm: 60 };
 
 export default function AdminDataSourcePage() {
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [sources, setSources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -82,18 +85,18 @@ export default function AdminDataSourcePage() {
               <Cloud size={15} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">Data Sources</h2>
-              <p className="text-[11px] text-gray-500">Manage academic API integrations and rate limits</p>
+              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">{t('dataSources.title')}</h2>
+              <p className="text-[11px] text-gray-500">{t('dataSources.description')}</p>
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={fetchSources} disabled={loading}
               className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
-              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
             </button>
             <button onClick={openCreate}
               className="px-4 py-1.5 rounded-lg text-[11px] font-bold bg-[#DEDBC8] text-black hover:bg-[#E1E0CC] transition-all flex items-center gap-1.5">
-              <Plus size={12} />Add Source
+              <Plus size={12} />{t('dataSources.addSource')}
             </button>
           </div>
         </div>
@@ -103,11 +106,11 @@ export default function AdminDataSourcePage() {
       <div className="grid gap-3 md:grid-cols-2">
         {loading ? (
           <div className="col-span-2 text-center py-12 text-gray-500">
-            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />Loading...
+            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />{tc('actions.loading')}
           </div>
         ) : sources.length === 0 ? (
           <div className="col-span-2 text-center py-12 text-gray-500">
-            <Database size={24} className="mx-auto mb-2 opacity-30" />No data sources configured
+            <Database size={24} className="mx-auto mb-2 opacity-30" />{t('dataSources.noSourcesConfigured')}
           </div>
         ) : (
           sources.map((src) => (
@@ -126,25 +129,25 @@ export default function AdminDataSourcePage() {
                 <div className="flex items-center gap-1">
                   {src.isActive ? (
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      <CheckCircle2 size={10} />Active
+                      <CheckCircle2 size={10} />{tc('status.active')}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
-                      <XCircle size={10} />Inactive
+                      <XCircle size={10} />{tc('status.inactive')}
                     </span>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-4 text-[10px] text-gray-500 mb-3">
-                <span>Rate Limit: <b className="text-gray-300">{src.rateLimitRpm || '—'} rpm</b></span>
+                <span>{t('dataSources.rateLimit')} <b className="text-gray-300">{src.rateLimitRpm || '—'} {t('dataSources.rpm')}</b></span>
                 {src.lastSyncedAt && (
-                  <span>Last Sync: <b className="text-gray-300">{new Date(src.lastSyncedAt).toLocaleDateString()}</b></span>
+                  <span>{t('dataSources.lastSync')} <b className="text-gray-300">{new Date(src.lastSyncedAt).toLocaleDateString()}</b></span>
                 )}
               </div>
               <div className="flex gap-2 pt-3 border-t border-[#DEDBC8]/5">
                 <button onClick={() => openEdit(src)}
                   className="flex-1 py-2 rounded-lg text-xs font-bold text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/10 transition-all flex items-center justify-center gap-1">
-                  <Edit3 size={11} />Edit
+                  <Edit3 size={11} />{tc('actions.edit')}
                 </button>
                 <button onClick={() => handleDelete(src.sourceId)}
                   className="py-2 px-3 rounded-lg text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/10 transition-all">
@@ -166,35 +169,35 @@ export default function AdminDataSourcePage() {
               className="rounded-2xl border p-6 w-full max-w-md mx-4 shadow-2xl bg-[#151922] border-[#DEDBC8]/10"
               onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-bold text-white">{editingId ? 'Edit Source' : 'Add Data Source'}</h3>
+                <h3 className="text-base font-bold text-white">{editingId ? t('dataSources.editSource') : t('dataSources.addDataSource')}</h3>
                 <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white"><X size={18} /></button>
               </div>
               <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Source Name</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{t('dataSources.sourceName')}</label>
                   <input type="text" value={form.sourceName} onChange={(e) => setForm({ ...form, sourceName: e.target.value })}
                     placeholder="e.g., Semantic Scholar"
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none bg-[#0f131a] text-[#E1E0CC] border-[#DEDBC8]/20 focus:border-[#DEDBC8]/60 transition-all" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Base URL</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{t('dataSources.baseUrl')}</label>
                   <input type="text" value={form.baseUrl} onChange={(e) => setForm({ ...form, baseUrl: e.target.value })}
                     placeholder="https://api.example.com"
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none bg-[#0f131a] text-[#E1E0CC] border-[#DEDBC8]/20 focus:border-[#DEDBC8]/60 transition-all font-mono" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">Rate Limit (rpm)</label>
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block mb-1">{t('dataSources.rateLimitRpm')}</label>
                   <input type="number" value={form.rateLimitRpm} onChange={(e) => setForm({ ...form, rateLimitRpm: parseInt(e.target.value) || 0 })}
                     className="w-full px-3 py-2.5 rounded-lg border text-sm outline-none bg-[#0f131a] text-[#E1E0CC] border-[#DEDBC8]/20 focus:border-[#DEDBC8]/60 transition-all" />
                 </div>
               </div>
               <div className="flex gap-2 mt-6">
                 <button onClick={() => setShowModal(false)}
-                  className="flex-1 py-2.5 rounded-lg text-xs font-bold text-gray-400 border border-[#DEDBC8]/10 hover:bg-white/5 transition-all">Cancel</button>
+                  className="flex-1 py-2.5 rounded-lg text-xs font-bold text-gray-400 border border-[#DEDBC8]/10 hover:bg-white/5 transition-all">{tc('actions.cancel')}</button>
                 <button onClick={handleSave} disabled={saving || !form.sourceName || !form.baseUrl}
                   className="flex-1 py-2.5 rounded-lg text-xs font-bold text-black bg-[#DEDBC8] hover:bg-[#E1E0CC] disabled:opacity-40 transition-all flex items-center justify-center gap-1.5">
                   {saving ? <RefreshCw size={12} className="animate-spin" /> : <Plus size={12} />}
-                  {editingId ? 'Update' : 'Create'}
+                  {editingId ? tc('actions.update') : tc('actions.create')}
                 </button>
               </div>
             </motion.div>

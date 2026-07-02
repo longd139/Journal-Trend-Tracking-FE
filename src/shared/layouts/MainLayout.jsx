@@ -25,12 +25,14 @@ import {
   Cloud,
   Menu,
   X,
+  HelpCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../../features/user/api';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuthStore } from '../../features/user/store';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
+import SupportDialog from '../../components/common/SupportDialog';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Sidebar
@@ -38,13 +40,14 @@ import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 
 function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const { t } = useTranslation('common');
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
-    { id: 'analytics', Icon: BarChart3, label: 'Analytics' },
+    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
@@ -56,7 +59,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
-    { id: 'analytics', Icon: BarChart3, label: 'Analytics' },
+    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
@@ -69,9 +72,9 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
-    { id: 'audit-logs', Icon: ShieldCheck, label: 'Audit Logs' },
-    { id: 'configs', Icon: Sliders, label: 'Configs' },
-    { id: 'data-sources', Icon: Cloud, label: 'Data Sources' },
+    { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
+    { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
+    { id: 'data-sources', Icon: Cloud, label: t('sidebar.dataSources') },
   ];
 
   let nav = academicNav;
@@ -130,6 +133,15 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
 
       {/* Bottom section */}
       <div className="p-4 border-t border-[#DEDBC8]/10 space-y-3">
+        {/* Support */}
+        <button
+          onClick={() => setSupportOpen(true)}
+          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-[#DEDBC8]/5 text-gray-400 hover:bg-[#DEDBC8]/15 hover:text-[#E1E0CC]"
+        >
+          <HelpCircle size={14} />
+          {t('sidebar.support')}
+        </button>
+
         {/* Sign out */}
         <button
           onClick={() => {
@@ -141,6 +153,13 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
           {t('sidebar.signOut')}
         </button>
       </div>
+
+      {/* Support Dialog */}
+      <SupportDialog
+        open={supportOpen}
+        onClose={() => setSupportOpen(false)}
+        role={role}
+      />
     </aside>
   );
 }
@@ -297,7 +316,7 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.searchAuthor'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
-    analytics: { title: 'Research Analytics', sub: 'Deep insights into your research performance' },
+    analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),

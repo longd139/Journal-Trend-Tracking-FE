@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
- ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap,
+ ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap, HelpCircle,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -204,13 +204,15 @@ export default function SyncDataPage() {
 
  // -- Deep Sync OpenAlex --
  const [deepQuery, setDeepQuery] = useState('');
- const [deepMailto, setDeepMailto] = useState('');
+ const [deepApiKey, setDeepApiKey] = useState(() => localStorage.getItem('deepSyncApiKey') || '');
+ const [deepMailto, setDeepMailto] = useState(() => localStorage.getItem('deepSyncMailto') || '');
  const [deepLimit, setDeepLimit] = useState(500);
  const [deepYearFrom, setDeepYearFrom] = useState(String(currentYear - 3));
  const [deepYearTo, setDeepYearTo] = useState(String(currentYear));
  const [isDeepSyncing, setIsDeepSyncing] = useState(false);
  const [deepSyncResult, setDeepSyncResult] = useState(null);
  const [deepSyncError, setDeepSyncError] = useState(null);
+ const [showApiKeyHelp, setShowApiKeyHelp] = useState(false);
 
  const handleBulkSync = async () => {
  let body;
@@ -244,7 +246,7 @@ export default function SyncDataPage() {
 
   // -- Deep Sync OpenAlex handler --
   const handleDeepSync = async () => {
-   if (!deepQuery.trim() || !deepMailto.trim()) return;
+   if (!deepQuery.trim() || (!deepApiKey.trim() && !deepMailto.trim())) return;
 
    setIsDeepSyncing(true);
    setDeepSyncError(null);
@@ -253,7 +255,8 @@ export default function SyncDataPage() {
    try {
     const response = await adminAPI.syncOpenAlexDeep({
      query: deepQuery.trim(),
-     mailto: deepMailto.trim(),
+     apiKey: deepApiKey.trim() || undefined,
+     mailto: deepMailto.trim() || undefined,
      limit: deepLimit,
      yearFrom: deepYearFrom ? parseInt(deepYearFrom, 10) : undefined,
      yearTo: deepYearTo ? parseInt(deepYearTo, 10) : undefined,
@@ -272,7 +275,7 @@ export default function SyncDataPage() {
    }
   };
 
-  const canDeepSync = deepQuery.trim() && deepMailto.trim() && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
+  const canDeepSync = deepQuery.trim() && (deepApiKey.trim() || deepMailto.trim()) && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
 
 
  const handleClearAll = async () => {
@@ -893,7 +896,7 @@ export default function SyncDataPage() {
      <div>
       <h4 className="text-sm font-bold text-[#E1E0CC]">Deep Sync OpenAlex</h4>
       <p className="text-xs text-gray-500 dark:text-slate-400">
-       Deep sync papers from OpenAlex for multiple keywords with polite pool email. Paste keywords separated by commas or newlines.
+       Deep sync papers from OpenAlex for multiple keywords. Paste keywords separated by commas or newlines. Each team member needs their own API key from openalex.org.
       </p>
      </div>
     </div>
@@ -914,17 +917,39 @@ export default function SyncDataPage() {
       />
      </div>
 
-     {/* Email + Limit row */}
+     {/* API Key + Email + Limit row */}
      <div className="flex flex-col sm:flex-row gap-3">
       <div className="flex-1 space-y-1.5">
+       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
+        OpenAlex API Key <span className="text-red-500">*</span>
+        <button
+         type="button"
+         onClick={() => setShowApiKeyHelp(true)}
+         className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 transition-colors"
+         title="How to get API key"
+        >
+         <HelpCircle size={10} />
+        </button>
+       </label>
+       <Input
+        type="text"
+        placeholder="Paste your OpenAlex API key"
+        value={deepApiKey}
+        onChange={(e) => { setDeepApiKey(e.target.value); localStorage.setItem('deepSyncApiKey', e.target.value); }}
+        disabled={isDeepSyncing}
+        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+       />
+      </div>
+
+      <div className="flex-1 space-y-1.5">
        <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-        Polite Pool Email <span className="text-red-500">*</span>
+        Polite Pool Email
        </label>
        <Input
         type="email"
         placeholder="your@email.com"
         value={deepMailto}
-        onChange={(e) => setDeepMailto(e.target.value)}
+        onChange={(e) => { setDeepMailto(e.target.value); localStorage.setItem('deepSyncMailto', e.target.value); }}
         disabled={isDeepSyncing}
         className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
        />
@@ -1080,6 +1105,52 @@ export default function SyncDataPage() {
      </div>
     )}
    </motion.div>
+
+   {/* API Key Help Dialog */}
+   <Dialog open={showApiKeyHelp} onOpenChange={setShowApiKeyHelp}>
+    <DialogContent className="sm:max-w-lg bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC]">
+     <DialogHeader>
+      <DialogTitle className="flex items-center gap-2 text-base">
+       <HelpCircle size={18} className="text-blue-400" />
+       How to get an OpenAlex API Key
+      </DialogTitle>
+      <DialogDescription className="text-xs text-gray-400 space-y-3 pt-2">
+       <p>OpenAlex requires an API key for all requests since February 2026. It's <strong className="text-[#E1E0CC]">free</strong> and takes less than a minute.</p>
+
+       <div className="space-y-2.5 mt-3">
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">1</span>
+         <p className="text-xs">Go to <a href="https://openalex.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">openalex.org/settings/api</a> and sign up or log in.</p>
+        </div>
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">2</span>
+         <p className="text-xs">On the API settings page, you'll see your API key. Click <strong className="text-[#E1E0CC]">Copy</strong> to copy it.</p>
+        </div>
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">3</span>
+         <p className="text-xs">Paste the key into the input field above. Each team member should use their own key for fair usage.</p>
+        </div>
+       </div>
+
+       <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10 mt-3">
+        <p className="text-[11px] text-gray-400">
+         <strong className="text-[#E1E0CC]">Tip:</strong> The free tier allows up to 100,000 requests per day — more than enough for individual use. Keep your key private and never commit it to version control.
+        </p>
+       </div>
+      </DialogDescription>
+     </DialogHeader>
+     <DialogFooter>
+      <Button
+       type="button"
+       variant="outline"
+       onClick={() => setShowApiKeyHelp(false)}
+       className="text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:text-white"
+      >
+       Got it
+      </Button>
+     </DialogFooter>
+    </DialogContent>
+   </Dialog>
   </div>
 
 {/* -- Clear All Data -- */}

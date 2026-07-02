@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import {
   RefreshCw, Settings, Save, Plus, Trash2, Globe,
   CheckCircle2, XCircle, Sliders,
@@ -7,6 +8,8 @@ import {
 import { adminAPI } from './api';
 
 export default function AdminConfigPage() {
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [configs, setConfigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -61,18 +64,18 @@ export default function AdminConfigPage() {
               <Sliders size={15} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">System Configuration</h2>
-              <p className="text-[11px] text-gray-500">Manage platform-wide settings and parameters</p>
+              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">{t('configs.title')}</h2>
+              <p className="text-[11px] text-gray-500">{t('configs.description')}</p>
             </div>
           </div>
           <div className="flex gap-2">
             <button onClick={fetchConfigs} disabled={loading}
               className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
-              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+              <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
             </button>
             <button onClick={handleSave} disabled={saving || Object.keys(editing).length === 0}
               className="px-4 py-1.5 rounded-lg text-[11px] font-bold bg-[#DEDBC8] text-black hover:bg-[#E1E0CC] disabled:opacity-40 transition-all flex items-center gap-1.5">
-              <Save size={12} />{saving ? 'Saving...' : 'Save Changes'}
+              <Save size={12} />{saving ? t('configs.saving') : t('configs.saveChanges')}
             </button>
           </div>
         </div>
@@ -82,11 +85,11 @@ export default function AdminConfigPage() {
       <div className="grid gap-3">
         {loading ? (
           <div className="text-center py-12 text-gray-500">
-            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />Loading configs...
+            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />{t('configs.loading')}
           </div>
         ) : configs.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <Settings size={24} className="mx-auto mb-2 opacity-30" />No configurations found
+            <Settings size={24} className="mx-auto mb-2 opacity-30" />{t('configs.noConfigsFound')}
           </div>
         ) : (
           configs.map((cfg) => {
@@ -105,7 +108,7 @@ export default function AdminConfigPage() {
                       <Settings size={13} className="text-[#DEDBC8]" />
                       <h3 className="text-sm font-bold text-[#E1E0CC] font-mono">{cfg.configKey}</h3>
                     </div>
-                    <p className="text-xs text-gray-500 mb-3">{cfg.description || 'No description'}</p>
+                    <p className="text-xs text-gray-500 mb-3">{cfg.description || t('configs.noDescription')}</p>
                     <input
                       type="text"
                       value={displayValue || ''}
@@ -115,14 +118,14 @@ export default function AdminConfigPage() {
                   </div>
                   {isEdited && (
                     <span className="shrink-0 px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                      EDITED
+                      {t('configs.edited')}
                     </span>
                   )}
                 </div>
                 {cfg.updatedAt && (
                   <div className="mt-3 pt-3 border-t border-[#DEDBC8]/5 flex items-center gap-1 text-[10px] text-gray-500">
                     <RefreshCw size={10} />
-                    Updated: {new Date(cfg.updatedAt).toLocaleString()}
+                    {t('configs.updated')} {new Date(cfg.updatedAt).toLocaleString()}
                   </div>
                 )}
               </motion.div>

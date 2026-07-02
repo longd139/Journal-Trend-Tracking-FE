@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BellOff, AlertCircle } from 'lucide-react';
+import { Bell, BellOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { followAPI } from './api';
 import FollowCard from './FollowCard';

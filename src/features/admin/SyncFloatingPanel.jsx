@@ -1,9 +1,11 @@
 ﻿import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { RefreshCw, CheckCircle2, XCircle, X, Minimize2, Maximize2 } from 'lucide-react';
 import { useSyncStore } from '../../store/useSyncStore';
 
 export default function SyncFloatingPanel() {
+ const { t } = useTranslation('admin');
  const tasks = useSyncStore((s) => s.tasks);
  const bulkTask = useSyncStore((s) => s.bulkTask);
  const dismissTask = useSyncStore((s) => s.dismissTask);
@@ -48,8 +50,8 @@ export default function SyncFloatingPanel() {
    )}
    <span>
    {!isAllDone
-    ? `Syncing ${totalDone + totalErrors + 1}/${totalTasks}...`
-    : `${totalDone} done${totalErrors > 0 ? `, ${totalErrors} failed` : ''}`}
+    ? t('sync.syncingProgress', { current: totalDone + totalErrors + 1, total: totalTasks })
+    : `${t('sync.doneCount', { count: totalDone })}${totalErrors > 0 ? `, ${t('sync.failedCount', { count: totalErrors })}` : ''}`}
    </span>
    <Maximize2 size={12} className="text-gray-400 dark:text-slate-500" />
   </button>
@@ -64,7 +66,7 @@ export default function SyncFloatingPanel() {
     ) : (
     <CheckCircle2 size={12} className="text-emerald-500" />
     )}
-    Sync Progress
+    {t('sync.progress')}
    </h4>
    <div className="flex items-center gap-1">
     {isAllDone && (
@@ -75,7 +77,7 @@ export default function SyncFloatingPanel() {
      setExpanded(false);
      }}
      className="p-1 rounded text-[10px] text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
-     title="Clear all"
+     title={t('sync.clearAll')}
     >
      <X size={12} />
     </button>
@@ -84,7 +86,7 @@ export default function SyncFloatingPanel() {
     type="button"
     onClick={() => setExpanded(false)}
     className="p-1 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
-    title="Minimize"
+    title={t('sync.minimize')}
     >
     <Minimize2 size={12} />
     </button>
@@ -133,7 +135,7 @@ export default function SyncFloatingPanel() {
       type="button"
       onClick={() => dismissTask(task.id)}
       className="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
-      title="Dismiss"
+      title={t('sync.dismiss')}
       >
       <X size={10} />
       </button>
@@ -165,7 +167,7 @@ export default function SyncFloatingPanel() {
       <XCircle size={12} className="text-red-500 shrink-0" />
       )}
       <span className="text-[11px] font-medium text-gray-700 dark:text-slate-300 truncate">
-      Bulk Sync
+      {t('sync.bulkSync')}
       </span>
      </div>
 
@@ -177,7 +179,7 @@ export default function SyncFloatingPanel() {
       )}
       {bulkTask.status === 'done' && bulkTask.result?.totalInserted != null && (
       <span className="text-[9px] text-gray-500 dark:text-slate-500 truncate max-w-[80px]">
-       {bulkTask.result.totalInserted} inserted
+       {t('sync.insertedCount', { count: bulkTask.result.totalInserted })}
       </span>
       )}
       {bulkTask.status === 'error' && (
@@ -190,7 +192,7 @@ export default function SyncFloatingPanel() {
        type="button"
        onClick={() => dismissBulkTask()}
        className="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
-       title="Dismiss"
+       title={t('sync.dismiss')}
       >
        <X size={10} />
       </button>

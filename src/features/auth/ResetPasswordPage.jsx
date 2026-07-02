@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Lock, RefreshCw, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
+import { authAPI } from './api';
 
 /* ─── Local cream particles ────────────────────────────────────────────── */
 const RESET_PARTICLES = Array.from({ length: 12 }, (_, i) => ({
@@ -54,7 +55,7 @@ export default function ResetPasswordPage() {
  setErrors({ ...newErrors, apiError: '' });
 
  try {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  await authAPI.resetPassword({ token, newPassword: form.password });
   setIsSuccess(true);
  } catch (error) {
   setErrors((prev) => ({

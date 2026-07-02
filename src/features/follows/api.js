@@ -36,6 +36,9 @@ export const followAPI = {
         params: { notifyEnabled },
       },
     );
+    // Invalidate cache so next getMyFollows fetches fresh data
+    _followsCache = null;
+    _followsCacheTs = 0;
     return data; // AppResponse<FollowResponse>
   },
 

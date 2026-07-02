@@ -43,13 +43,14 @@ const roleBadgeStyle = (role) => {
    Shared micro-components
    ═══════════════════════════════════════════════════════════════════════════ */
 function StatusBadge({ isActive, size = 'sm' }) {
+  const { t: tc } = useTranslation('common');
   const s = size === 'lg' ? 'px-2.5 py-1 text-[11px]' : 'px-2 py-0.5 text-[9px]';
   const cls = isActive
     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
     : 'bg-slate-500/10 text-slate-400 border-slate-500/20';
   return (
     <span className={`${s} rounded-md font-bold uppercase tracking-wider border ${cls} transition-colors`}>
-      {isActive ? 'Active' : 'Inactive'}
+      {isActive ? tc('status.active') : tc('status.inactive')}
     </span>
   );
 }
@@ -110,6 +111,8 @@ function StatCard({ label, value, icon: Icon, color, change }) {
    View User Modal
    ═══════════════════════════════════════════════════════════════════════════ */
 function ViewUserModal({ user, onClose }) {
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const rows = [
     { label: 'Email', value: user.email || 'N/A', icon: Mail, color: '#94a3b8' },
     { label: 'Institution', value: user.institution || 'N/A', icon: Building2, color: '#a78bfa' },
@@ -138,7 +141,7 @@ function ViewUserModal({ user, onClose }) {
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-white flex items-center gap-2.5">
               <span className="w-1.5 h-5 rounded-full bg-indigo-400" />
-              User Details
+              {t('userManagement.userDetails')}
             </h3>
             <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-[#DEDBC8]/5 text-slate-500 hover:text-white transition-colors">
               <X size={16} />
@@ -149,7 +152,7 @@ function ViewUserModal({ user, onClose }) {
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black text-white shrink-0"
               style={{ background: `linear-gradient(135deg, ${avatarGradient(0)[0]}, ${avatarGradient(0)[1]})` }}
             >
-              {user.fullName?.split(' ').pop()?.[0] || '?'}
+              {user.fullName?.split(' ').pop()?.[0] || tc('actions.unknown')}
             </div>
             <div>
               <h4 className="text-[15px] font-bold text-white">{user.fullName}</h4>
@@ -182,6 +185,8 @@ function ViewUserModal({ user, onClose }) {
    Confirm Admin Modal
    ═══════════════════════════════════════════════════════════════════════════ */
 function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -203,9 +208,9 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
               <AlertTriangle size={20} className="text-rose-400" />
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-white">Promote to Admin</h3>
+              <h3 className="text-[15px] font-bold text-white">{t('userManagement.promoteToAdmin')}</h3>
               <p className="text-[13px] text-slate-400 mt-2 leading-relaxed">
-                Grant <span className="text-white font-semibold">{user?.fullName}</span> full administrator access, including user management, system configuration, and data source control.
+                {t('userManagement.promoteConfirmText')}
               </p>
             </div>
           </div>
@@ -213,13 +218,13 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
         <div className="px-6 pb-5 flex gap-2.5 justify-end">
           <button onClick={onCancel}
             className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-slate-400 hover:bg-[#DEDBC8]/5 hover:text-white transition-colors">
-            Cancel
+            {tc('actions.cancel')}
           </button>
           <button onClick={onConfirm} disabled={loading}
             className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white bg-rose-500 hover:bg-rose-600 flex items-center gap-2 transition-colors disabled:opacity-60"
           >
             {loading && <RefreshCw size={13} className="animate-spin" />}
-            Yes, Make Admin
+            {t('userManagement.confirmPromote')}
           </button>
         </div>
       </motion.div>
@@ -231,6 +236,7 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
    Role Popover
    ═══════════════════════════════════════════════════════════════════════════ */
 function RolePopover({ user, onClose, onPromoteAdmin }) {
+  const { t } = useTranslation('admin');
   const { updateUserRole } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [changingRole, setChangingRole] = useState(null);
@@ -263,7 +269,7 @@ function RolePopover({ user, onClose, onPromoteAdmin }) {
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className="absolute right-0 top-full mt-2 z-40 w-40 rounded-2xl border border-white/[0.06] bg-[#151515] shadow-2xl p-1.5 backdrop-blur-xl"
     >
-      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2.5 pt-1 pb-2">Change Role</p>
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2.5 pt-1 pb-2">{t('userManagement.changeRole')}</p>
       {loading ? (
         <div className="flex items-center justify-center py-4">
           <RefreshCw size={16} className="animate-spin text-indigo-400" />
@@ -289,7 +295,8 @@ function RolePopover({ user, onClose, onPromoteAdmin }) {
    Main Page
    ═══════════════════════════════════════════════════════════════════════════ */
 export default function UserManagement() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const { users, isLoading, fetchUsers, updateUserStatus, updateUserRole } = useUserStore();
 
   const [search, setSearch] = useState('');
@@ -374,9 +381,9 @@ export default function UserManagement() {
         transition={{ duration: 0.3 }}
         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
-        <StatCard label="Total Users" value={stats.total} icon={Users} color="#818cf8" />
-        <StatCard label="Active" value={stats.active} icon={UserCheck} color="#34d399" />
-        <StatCard label="Inactive" value={stats.inactive} icon={UserX} color="#f87171" />
+        <StatCard label={t('userManagement.totalUsers')} value={stats.total} icon={Users} color="#818cf8" />
+        <StatCard label={tc('status.active')} value={stats.active} icon={UserCheck} color="#34d399" />
+        <StatCard label={tc('status.inactive')} value={stats.inactive} icon={UserX} color="#f87171" />
       </motion.div>
 
       {/* ─── Toolbar ─── */}
@@ -398,17 +405,17 @@ export default function UserManagement() {
           <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
             className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
           >
-            <option value="all">All Roles</option>
-            <option value="admin">Admin</option>
-            <option value="researcher">Researcher</option>
-            <option value="academic_user">Academic</option>
+            <option value="all">{t('userManagement.filter.allRoles')}</option>
+            <option value="admin">{t('userManagement.filter.admin')}</option>
+            <option value="researcher">{t('userManagement.filter.researcher')}</option>
+            <option value="academic_user">{t('userManagement.filter.academic')}</option>
           </select>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
             className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="all">{t('userManagement.filter.allStatus')}</option>
+            <option value="active">{t('userManagement.filter.active')}</option>
+            <option value="inactive">{t('userManagement.filter.inactive')}</option>
           </select>
         </div>
         <div className="flex items-center gap-2 ml-auto">
@@ -417,7 +424,7 @@ export default function UserManagement() {
             className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold text-white bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/20 transition-all active:scale-[0.97]"
           >
             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
-            Refresh
+            {tc('actions.refresh')}
           </button>
         </div>
       </div>
@@ -434,11 +441,11 @@ export default function UserManagement() {
             <thead>
               <tr className="border-b border-[#DEDBC8]/5 bg-[#0d0d0d]">
                 {[
-                  { col: 'fullName', label: 'User' },
-                  { col: 'email', label: 'Email' },
-                  { col: 'roleName', label: 'Role' },
-                  { col: 'institution', label: 'Institution' },
-                  { col: 'isActive', label: 'Status' },
+                  { col: 'fullName', label: t('userManagement.table.user') },
+                  { col: 'email', label: t('userManagement.table.email') },
+                  { col: 'roleName', label: t('userManagement.table.role') },
+                  { col: 'institution', label: t('userManagement.table.institution') },
+                  { col: 'isActive', label: t('userManagement.table.status') },
                 ].map((h) => (
                   <th key={h.col} onClick={() => toggleSort(h.col)} className={`${thCls} cursor-pointer hover:text-slate-300 transition-colors`}>
                     <span className="inline-flex items-center gap-1.5">
@@ -447,7 +454,7 @@ export default function UserManagement() {
                     </span>
                   </th>
                 ))}
-                <th className={thCls}>Actions</th>
+                <th className={thCls}>{t('userManagement.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -455,14 +462,14 @@ export default function UserManagement() {
                 <tr>
                   <td colSpan={6} className="text-center py-20">
                     <RefreshCw size={28} className="animate-spin mx-auto text-indigo-400 mb-3" />
-                    <p className="text-[13px] text-slate-500">Loading users...</p>
+                    <p className="text-[13px] text-slate-500">{t('userManagement.loadingUsers')}</p>
                   </td>
                 </tr>
               ) : paged.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-20">
                     <Users size={28} className="mx-auto text-slate-700 mb-3" />
-                    <p className="text-[13px] text-slate-500">No users found</p>
+                    <p className="text-[13px] text-slate-500">{t('userManagement.noUsersFound')}</p>
                   </td>
                 </tr>
               ) : (
@@ -487,7 +494,7 @@ export default function UserManagement() {
                             className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shrink-0 group-hover:scale-105 transition-transform"
                             style={{ background: `linear-gradient(135deg, ${avatarGradient(i)[0]}, ${avatarGradient(i)[1]})` }}
                           >
-                            {u.fullName?.split(' ').pop()?.[0]?.toUpperCase() || '?'}
+                            {u.fullName?.split(' ').pop()?.[0]?.toUpperCase() || tc('actions.unknown')}
                           </div>
                           <div>
                             <p className="text-[13px] font-semibold text-white group-hover:text-indigo-300 transition-colors truncate max-w-[140px]">
@@ -521,7 +528,7 @@ export default function UserManagement() {
                             <button
                               onClick={() => setRolePopoverUserId(rolePopoverUserId === u.userId ? null : u.userId)}
                               className="p-2 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all active:scale-90"
-                              title="Change Role"
+                              title={t('userManagement.changeRole')}
                             >
                               <Shield size={14} />
                             </button>
@@ -538,7 +545,7 @@ export default function UserManagement() {
                               ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'
                               : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
                               }`}
-                            title={u.isActive ? 'Deactivate' : 'Activate'}
+                            title={u.isActive ? t('userManagement.deactivate') : t('userManagement.activate')}
                           >
                             {u.isActive ? <UserX size={14} /> : <UserCheck size={14} />}
                           </button>

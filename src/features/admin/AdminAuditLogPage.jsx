@@ -24,7 +24,8 @@ function ActionBadge({ action }) {
 }
 
 export default function AdminAuditLogPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -66,13 +67,13 @@ export default function AdminAuditLogPage() {
               <Shield size={15} />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">Audit Logs</h2>
-              <p className="text-[11px] text-gray-500">Track all administrative actions across the system</p>
+              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">{t('auditLogs.title')}</h2>
+              <p className="text-[11px] text-gray-500">{t('auditLogs.description')}</p>
             </div>
           </div>
           <button onClick={fetchLogs} disabled={loading}
             className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
-            <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+            <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
           </button>
         </div>
       </motion.div>
@@ -81,7 +82,7 @@ export default function AdminAuditLogPage() {
       <div className="flex gap-3">
         <select value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(0); }}
           className="px-3 py-2 rounded-lg border border-[#DEDBC8]/20 bg-[#151922] text-sm text-[#E1E0CC] outline-none">
-          <option value="">All Actions</option>
+          <option value="">{t('auditLogs.allActions')}</option>
           <option value="CREATE">CREATE</option>
           <option value="UPDATE">UPDATE</option>
           <option value="DELETE">DELETE</option>
@@ -95,21 +96,21 @@ export default function AdminAuditLogPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#DEDBC8]/10 text-left">
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Admin</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Action</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Target</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">IP Address</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.admin')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.action')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.target')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.ipAddress')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.date')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                  <RefreshCw size={20} className="animate-spin mx-auto mb-2" />Loading...
+                  <RefreshCw size={20} className="animate-spin mx-auto mb-2" />{tc('actions.loading')}
                 </td></tr>
               ) : logs.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                  <Activity size={24} className="mx-auto mb-2 opacity-30" />No audit logs found
+                  <Activity size={24} className="mx-auto mb-2 opacity-30" />{t('auditLogs.noLogsFound')}
                 </td></tr>
               ) : (
                 logs.map((log) => (
@@ -119,7 +120,7 @@ export default function AdminAuditLogPage() {
                         <div className="w-7 h-7 rounded-lg bg-[#DEDBC8]/10 flex items-center justify-center">
                           <User size={12} className="text-[#DEDBC8]" />
                         </div>
-                        <span className="text-xs text-[#E1E0CC] font-medium">{log.adminEmail || 'System'}</span>
+                        <span className="text-xs text-[#E1E0CC] font-medium">{log.adminEmail || t('auditLogs.system')}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3"><ActionBadge action={log.action} /></td>
@@ -141,7 +142,7 @@ export default function AdminAuditLogPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-[#DEDBC8]/10">
-            <span className="text-xs text-gray-500">Page {page + 1} of {totalPages}</span>
+            <span className="text-xs text-gray-500">{t('auditLogs.pagination', { current: page + 1, total: totalPages })}</span>
             <div className="flex gap-1">
               <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors">

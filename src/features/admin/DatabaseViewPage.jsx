@@ -137,7 +137,8 @@ function Skeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function DatabaseViewPage() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -169,12 +170,12 @@ export default function DatabaseViewPage() {
     } catch (err) {
       if (!cancelledRef.current) {
         console.error('Stats error:', err);
-        setError(err?.message || 'Failed to load database statistics');
+        setError(err?.message || t('database.loadError'));
       }
     } finally {
       if (!cancelledRef.current) setIsLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     cancelledRef.current = false;
@@ -196,7 +197,7 @@ export default function DatabaseViewPage() {
           <AlertTriangle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">Failed to load database statistics</h3>
+          <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('database.loadError')}</h3>
           <p className="text-xs text-red-400">{error}</p>
         </div>
         <button
@@ -204,7 +205,7 @@ export default function DatabaseViewPage() {
           onClick={() => window.location.reload()}
           className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] hover:bg-[#DEDBC8]/20 transition-all"
         >
-          Retry
+          {tc('actions.retry')}
         </button>
       </div>
     );
@@ -241,11 +242,11 @@ export default function DatabaseViewPage() {
         className="flex items-center justify-between"
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] text-gray-500">System-wide statistics and data health overview</span>
+          <span className="text-[11px] text-gray-500">{t('database.systemOverview')}</span>
           {syncLogs?.lastSync && (
             <span className="flex items-center gap-1 text-[10px] text-gray-500">
               <CheckCircle2 size={11} className="text-emerald-500" />
-              Last sync:{' '}
+              {t('database.lastSync')}{' '}
               <span className="text-[#DEDBC8]/70 font-medium">
                 {new Date(syncLogs.lastSync).toLocaleString()}
               </span>
@@ -257,7 +258,7 @@ export default function DatabaseViewPage() {
           onClick={() => fetchStats()}
           disabled={isLoading}
           className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all disabled:opacity-40"
-          title="Refresh statistics"
+          title={t('database.refreshStats')}
         >
           <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
         </button>
@@ -265,17 +266,17 @@ export default function DatabaseViewPage() {
 
       {/* ── Top Stat Cards (4 main KPIs) ── */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Papers" value={papers?.total} Icon={FileText} accent={PAPER_COLOR} />
-        <StatCard label="Authors" value={authors?.total} Icon={Users} accent={AUTHOR_COLOR} />
-        <StatCard label="Keywords" value={keywords?.total} Icon={Hash} accent={KEYWORD_COLOR} />
-        <StatCard label="Journals" value={journals?.total} Icon={BookOpen} accent={JOURNAL_COLOR} />
+        <StatCard label={t('database.papers')} value={papers?.total} Icon={FileText} accent={PAPER_COLOR} />
+        <StatCard label={t('database.authors')} value={authors?.total} Icon={Users} accent={AUTHOR_COLOR} />
+        <StatCard label={t('database.keywords')} value={keywords?.total} Icon={Hash} accent={KEYWORD_COLOR} />
+        <StatCard label={t('database.journals')} value={journals?.total} Icon={BookOpen} accent={JOURNAL_COLOR} />
       </div>
 
       {/* ── Main 2-column layout ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* ── Left: Papers detail ── */}
         <div className="space-y-4">
-          <Section title="Paper Breakdown" Icon={FileText} accent={PAPER_COLOR}>
+          <Section title={t('database.paperBreakdown')} Icon={FileText} accent={PAPER_COLOR}>
             {/* Open Access & PDF */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
@@ -283,7 +284,7 @@ export default function DatabaseViewPage() {
                   {papers?.openAccess?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
-                  Open Access
+                  {t('database.openAccess')}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
@@ -291,7 +292,7 @@ export default function DatabaseViewPage() {
                   {papers?.hasPdfUrl?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
-                  Has PDF URL
+                  {t('database.hasPdfUrl')}
                 </div>
               </div>
             </div>
@@ -300,7 +301,7 @@ export default function DatabaseViewPage() {
             {sourceEntries.length > 0 && (
               <div className="pt-4 border-t border-[#DEDBC8]/5">
                 <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
-                  Papers by Source
+                  {t('database.papersBySource')}
                 </h5>
                 <div className="space-y-2.5">
                   {sourceEntries.map(([source, count]) => {
@@ -325,7 +326,7 @@ export default function DatabaseViewPage() {
             {yearEntries.length > 0 && (
               <div className="pt-4 border-t border-[#DEDBC8]/5">
                 <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
-                  Papers by Year
+                  {t('database.papersByYear')}
                 </h5>
                 <div className="space-y-2">
                   {yearEntries.map(([year, count]) => (
@@ -346,14 +347,14 @@ export default function DatabaseViewPage() {
         {/* ── Right column ── */}
         <div className="space-y-4">
           {/* Neo4j Graph */}
-          <Section title="Knowledge Graph (Neo4j)" Icon={Network} accent={NEO4J_COLOR}>
+          <Section title={t('database.knowledgeGraph')} Icon={Network} accent={NEO4J_COLOR}>
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl bg-[#4F8CFF]/[0.03] border border-[#4F8CFF]/10 text-center">
                 <div className="text-xl font-bold text-[#4F8CFF] font-display">
                   {neo4j?.paperNodes?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
-                  Paper Nodes
+                  {t('database.paperNodes')}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#34D399]/[0.03] border border-[#34D399]/10 text-center">
@@ -361,7 +362,7 @@ export default function DatabaseViewPage() {
                   {neo4j?.keywordNodes?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
-                  Keyword Nodes
+                  {t('database.keywordNodes')}
                 </div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#A78BFA]/[0.03] border border-[#A78BFA]/10 text-center">
@@ -369,33 +370,33 @@ export default function DatabaseViewPage() {
                   {neo4j?.relationships?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
-                  Relationships
+                  {t('database.relationships')}
                 </div>
               </div>
             </div>
           </Section>
 
           {/* Research Fields & Topics */}
-          <Section title="Research & Topics" Icon={TrendingUp} accent="#F59E0B">
+          <Section title={t('database.researchTopicsTitle')} Icon={TrendingUp} accent="#F59E0B">
             <div className="grid grid-cols-2 gap-3 mb-3">
               <div className="p-3.5 rounded-xl bg-[#F59E0B]/[0.03] border border-[#F59E0B]/10 text-center">
                 <div className="text-xl font-bold text-amber-500 font-display">
                   {researchFields?.total?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Fields</div>
+                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">{t('database.fields')}</div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#A78BFA]/[0.03] border border-[#A78BFA]/10 text-center">
                 <div className="text-xl font-bold text-[#A78BFA] font-display">
                   {researchTopics?.total?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Topics</div>
+                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">{t('database.topics')}</div>
               </div>
             </div>
             {researchTopics?.trending > 0 && (
               <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
                 <Sparkles size={14} className="text-amber-400" />
                 <span className="text-xs text-amber-400/80">
-                  <strong className="text-amber-400">{researchTopics.trending.toLocaleString()}</strong> trending topics
+                  {t('database.trendingTopics', { count: researchTopics.trending.toLocaleString() })}
                 </span>
               </div>
             )}
@@ -403,13 +404,13 @@ export default function DatabaseViewPage() {
 
           {/* Orphaned Data Warnings */}
           {hasOrphans && (
-            <Section title="Data Health" Icon={FileCheck} accent="#EF4444">
+            <Section title={t('database.dataHealth')} Icon={FileCheck} accent="#EF4444">
               <div className="space-y-2">
                 {authors?.orphaned > 0 && (
                   <div className="flex items-center justify-between p-3 rounded-xl bg-red-500/5 border border-red-500/10">
                     <div className="flex items-center gap-2">
                       <AlertTriangle size={13} className="text-red-400" />
-                      <span className="text-xs text-red-400/80">Orphaned Authors</span>
+                      <span className="text-xs text-red-400/80">{t('database.orphanedAuthors')}</span>
                     </div>
                     <span className="text-xs font-bold text-red-400">{authors.orphaned}</span>
                   </div>
@@ -418,7 +419,7 @@ export default function DatabaseViewPage() {
                   <div className="flex items-center justify-between p-3 rounded-xl bg-red-500/5 border border-red-500/10">
                     <div className="flex items-center gap-2">
                       <AlertTriangle size={13} className="text-red-400" />
-                      <span className="text-xs text-red-400/80">Orphaned Keywords</span>
+                      <span className="text-xs text-red-400/80">{t('database.orphanedKeywords')}</span>
                     </div>
                     <span className="text-xs font-bold text-red-400">{keywords.orphaned}</span>
                   </div>
@@ -431,14 +432,14 @@ export default function DatabaseViewPage() {
           {!hasOrphans && (
             <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
               <CheckCircle2 size={13} className="text-emerald-500" />
-              <span className="text-[11px] text-emerald-400/80">All data is healthy — no orphaned records</span>
+              <span className="text-[11px] text-emerald-400/80">{t('database.dataHealthy')}</span>
             </div>
           )}
         </div>
       </div>
 
       {/* ── Sync Logs Footer ── */}
-      <Section title="Sync Activity" Icon={Clock} accent="#DEDBC8">
+      <Section title={t('database.syncActivity')} Icon={Clock} accent="#DEDBC8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="p-4 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
             <div className="text-2xl font-bold text-[#DEDBC8] font-display">
@@ -446,18 +447,18 @@ export default function DatabaseViewPage() {
             </div>
             <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
               <RefreshCw size={10} />
-              Total Sync Runs
+              {t('database.totalSyncRuns')}
             </div>
           </div>
           <div className="p-4 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
             <div className="text-sm font-bold text-[#DEDBC8]/80 font-mono">
               {syncLogs?.lastSync
                 ? new Date(syncLogs.lastSync).toLocaleString()
-                : 'Never'}
+                : t('database.never')}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
               <Clock size={10} />
-              Last Sync Time
+              {t('database.lastSyncTime')}
             </div>
           </div>
         </div>

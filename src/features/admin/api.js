@@ -142,13 +142,14 @@ export const adminAPI = {
    * POST /api/v1/admin/sync/openalex/deep
    * Content-Type: application/x-www-form-urlencoded
    *
-   * @param {{ query: string, mailto: string, limit?: number, yearFrom?: number, yearTo?: number }} params
+   * @param {{ query: string, mailto?: string, apiKey?: string, limit?: number, yearFrom?: number, yearTo?: number }} params
    * @returns { status, message, data: { totalKeywords, totalFetched, totalInserted, yearRange, keywordStats }, timestamp }
    */
-  async syncOpenAlexDeep({ query, mailto, limit, yearFrom, yearTo }) {
+  async syncOpenAlexDeep({ query, mailto, apiKey, limit, yearFrom, yearTo }) {
     const formParams = new URLSearchParams();
     formParams.append('query', query);
-    formParams.append('mailto', mailto);
+    if (mailto) formParams.append('mailto', mailto);
+    if (apiKey) formParams.append('apiKey', apiKey);
     if (limit != null) formParams.append('limit', String(limit));
     if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
     if (yearTo != null) formParams.append('yearTo', String(yearTo));

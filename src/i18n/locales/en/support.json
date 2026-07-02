@@ -1,0 +1,180 @@
+{
+  "title": "User Guide",
+  "roleAdmin": "Admin",
+  "roleUser": "Researcher & Academic",
+  "tip": "Tip",
+  "admin": {
+    "sections": {
+      "overview": "Dashboard",
+      "users": "User Management",
+      "system-api": "API Monitoring",
+      "database": "Database",
+      "sync-data": "Sync Data",
+      "audit-logs": "Audit Logs",
+      "configs": "Configs",
+      "data-sources": "Data Sources",
+      "settings": "Settings"
+    },
+    "descriptions": {
+      "overview": "System dashboard and key metrics at a glance",
+      "users": "Manage user accounts, roles, and permissions",
+      "system-api": "Monitor API usage, rate limits, and performance",
+      "database": "View and manage database tables and records",
+      "sync-data": "Sync papers from OpenAlex, Semantic Scholar, arXiv, and CORE",
+      "audit-logs": "Track all system activities and changes",
+      "configs": "Configure system-wide settings and parameters",
+      "data-sources": "Manage external data source connections",
+      "settings": "Admin profile and account preferences"
+    },
+    "content": {
+      "overview": {
+        "heading": "System Dashboard",
+        "description": "The Dashboard gives you a bird's-eye view of the entire system. Monitor total users, active researchers, papers synced, API usage trends, and system health status. Use the quick-action cards to jump to frequent admin tasks.",
+        "steps": "View system metrics on the dashboard cards|Monitor API call trends in the chart|Check recent user registrations|Use quick-action buttons for common tasks"
+      },
+      "users": {
+        "heading": "Managing Users",
+        "description": "View all registered users, their roles (Admin, Researcher, Academic), verification status, and account activity. You can change user roles, deactivate accounts, and view individual user statistics.",
+        "steps": "Browse the user list with search and filter|Click a user row to view full details|Change user role via the dropdown|Deactivate or reactivate accounts as needed|View per-user activity statistics"
+      },
+      "system-api": {
+        "heading": "API Monitoring",
+        "description": "Monitor all external API integrations including OpenAlex, Semantic Scholar, arXiv, and CORE. Track request counts, success rates, error rates, and response times. Set rate limits and view API key usage.",
+        "steps": "View real-time API call metrics per source|Check error rates and response times|Monitor rate limit consumption|Review API key usage across the system"
+      },
+      "database": {
+        "heading": "Database Management",
+        "description": "Browse and inspect database tables including papers, authors, journals, keywords, users, and sync logs. View record counts, table sizes, and run custom queries for debugging or reporting.",
+        "steps": "Select a table from the list to browse records|View record counts and table metadata|Search and filter records|Export data if needed for analysis"
+      },
+      "sync-data": {
+        "heading": "Data Synchronization",
+        "description": "Trigger manual syncs from OpenAlex, Semantic Scholar, arXiv, and CORE. Use the Deep Sync feature for bulk keyword-based syncing with your own OpenAlex API key. Configure auto-sync schedules for automatic background updates.",
+        "steps": "Enter a search query and select data sources|Set year range and result limit|Click Sync to fetch and import papers|Use Bulk Sync for multiple keywords at once|Use Deep Sync with your OpenAlex API key for large-scale imports|Toggle Auto Sync for scheduled background updates"
+      },
+      "audit-logs": {
+        "heading": "Audit Logs",
+        "description": "Track every important action in the system: user logins, role changes, data syncs, configuration updates, and more. Each log entry includes timestamp, actor, action type, and details.",
+        "steps": "Browse audit logs sorted by most recent|Filter by action type or user|Click an entry to view full details|Use date range to narrow results"
+      },
+      "configs": {
+        "heading": "System Configuration",
+        "description": "Manage system-wide settings such as academic user limits, sync intervals, API rate limits, and feature toggles. Changes take effect immediately across the entire platform.",
+        "steps": "Browse configurable parameters by category|Edit a value and save to apply immediately|Add new config keys if needed|Review change history for each setting"
+      },
+      "data-sources": {
+        "heading": "Data Sources",
+        "description": "Manage connections to external academic data providers (OpenAlex, Semantic Scholar, arXiv, CORE). Configure API endpoints, authentication, and priority settings for each source.",
+        "steps": "View all connected data sources and their status|Edit source configuration (endpoint, auth)|Enable or disable sources as needed|Test connectivity to verify source availability"
+      },
+      "settings": {
+        "heading": "Admin Settings",
+        "description": "Manage your admin profile, update your password, configure notification preferences, and set language/theme defaults. These settings are personal to your admin account.",
+        "steps": "Update profile information (name, avatar)|Change your password|Configure notification preferences|Set preferred language and theme"
+      }
+    },
+    "tips": {
+      "overview": "Check the dashboard regularly to spot unusual activity or system issues early.",
+      "users": "Use the search bar to quickly find users by name or email.",
+      "system-api": "Set up alerts for when API error rates exceed thresholds.",
+      "database": "Be careful when running direct queries — use read-only mode when possible.",
+      "sync-data": "Each team member should use their own OpenAlex API key for Deep Sync to avoid rate limiting.",
+      "audit-logs": "Audit logs are kept for 90 days by default. Export important logs before they expire.",
+      "configs": "Document any config changes in your team's change log for traceability.",
+      "data-sources": "Test connectivity after changing any source configuration to avoid sync failures.",
+      "settings": "Enable 2FA for your admin account in the security settings.",
+      "default": "Use the sidebar to quickly navigate between admin sections."
+    }
+  },
+  "user": {
+    "sections": {
+      "overview": "Overview",
+      "search": "Search Papers",
+      "journal-search": "Search Journals",
+      "search-author": "Search Author",
+      "analytics": "Analytics",
+      "bookmarks": "Bookmarks",
+      "follows": "Follows",
+      "notifications": "Notifications",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "descriptions": {
+      "overview": "Dashboard and key metrics at a glance",
+      "search": "Find academic papers from millions of sources",
+      "journal-search": "Browse and explore academic journals",
+      "search-author": "Look up author profiles, stats, and co-authors",
+      "analytics": "Visualize your research performance and trends",
+      "bookmarks": "Save and organize papers for later reading",
+      "follows": "Track journals, topics, and keywords you care about",
+      "notifications": "Stay updated on new papers in your interests",
+      "reports": "Generate and export research summary reports",
+      "settings": "Profile and account preferences"
+    },
+    "content": {
+      "overview": {
+        "heading": "Dashboard Overview",
+        "description": "The Overview page is your home base. It shows key metrics about your research activity, trending papers in your field, recent publications from followed topics, and quick-access cards to jump to frequently used features.",
+        "steps": "View your research stats on the dashboard cards|Check trending papers in your field|See recent publications from followed topics|Use quick-action cards to jump to Search, Analytics, or Reports"
+      },
+      "search": {
+        "heading": "Finding Papers",
+        "description": "Search across millions of academic papers from OpenAlex, Semantic Scholar, arXiv, and more. Filter by year range, sort by relevance or citation count, and view detailed paper information including abstracts, authors, citations, and full-text links.",
+        "steps": "Type your keyword in the search box and press Enter|Use filters (year, source) to narrow results|Click any paper to view full details including abstract and citations|Use the Follow button to track journals or topics related to a paper|Bookmark papers to save them for later"
+      },
+      "journal-search": {
+        "heading": "Browsing Journals",
+        "description": "Explore academic journals by name, subject area, or publisher. Each journal card shows its ISSN, publisher, citation metrics, and top papers. Follow a journal to get notified when new papers are published in it.",
+        "steps": "Type a journal name or subject in the search box|Browse journal cards with key metrics|Click a journal to view its top papers|Use Follow to subscribe to new publications"
+      },
+      "search-author": {
+        "heading": "Author Lookup",
+        "description": "Search for authors by name to view their publication history, citation metrics (h-index, total works), research focus areas as a pie chart, publication timeline, and top co-authors. Data is fetched in real-time from OpenAlex.",
+        "steps": "Enter an author name and press Enter|View quick stats: h-index, total works, citation count|Explore the timeline chart for publication trends over the years|Check the research focus pie chart for topic distribution|Browse co-authors to discover potential collaborators"
+      },
+      "analytics": {
+        "heading": "Research Analytics",
+        "description": "The Analytics page provides deep insights into your research activity. View interactive charts for publication trends, citation impact over time, research topic distribution, and collaboration networks. Data is based on your followed topics and bookmarked papers.",
+        "steps": "Select a time range and metric to view|Explore publication trend charts|Check citation impact analysis|View topic distribution across your research areas"
+      },
+      "bookmarks": {
+        "heading": "Managing Bookmarks",
+        "description": "Bookmark papers you want to read later or reference in your work. Your bookmarks are private and organized by date. Search through them, remove ones you no longer need, and export them for use in reference managers.",
+        "steps": "Click the bookmark icon on any paper to save it instantly|Visit the Bookmarks page to view all saved papers|Use the search bar to filter your bookmarks|Remove bookmarks you no longer need|Export bookmarks as CSV from the Reports page"
+      },
+      "follows": {
+        "heading": "Following Topics & Journals",
+        "description": "Stay updated by following journals, research topics, or keywords. When new papers match your followed interests, you'll receive notifications. Manage all your follows from this page — filter by type, toggle notifications on/off, or unfollow.",
+        "steps": "Click Follow on any paper, journal, or search result|Choose what to follow: journal, topic, or keyword|Toggle the bell icon to enable/disable notifications per follow|Visit the Follows page to manage all your subscriptions in one place|Use filter tabs (All, Journals, Topics, Keywords) to organize"
+      },
+      "notifications": {
+        "heading": "Notifications",
+        "description": "The Notifications page shows all alerts about new papers published in your followed topics, journals, and keywords. Notifications are automatically marked as read when you view them. Stay on top of the latest research without manually checking each source.",
+        "steps": "View all notifications sorted by most recent|Click a notification to view the related paper|Notifications are marked as read automatically|Filter by notification type if needed"
+      },
+      "reports": {
+        "heading": "Generating Reports",
+        "description": "Generate research summary reports based on your bookmarked papers and followed topics. Reports include publication summaries, citation metrics, and trend analysis. Export as PDF for sharing with colleagues or for your own records.",
+        "steps": "Select a report type and time range|Click Generate to create the report|Review the summary statistics and charts|Export as PDF or share via link|Use reports for literature reviews or grant proposals"
+      },
+      "settings": {
+        "heading": "Account Settings",
+        "description": "Manage your profile, update your password, configure notification preferences, and set your preferred language and theme. For academic users, this is also where you can view your usage limits and upgrade options.",
+        "steps": "Update your profile information (name, avatar)|Change your password securely|Configure notification preferences|Set your preferred language (English / Vietnamese)|Toggle between dark and light theme"
+      }
+    },
+    "tips": {
+      "overview": "Bookmark this page (Ctrl+D) for quick access to your research dashboard.",
+      "search": "Use quotes for exact phrase matching, e.g., \"deep learning\" for more precise results.",
+      "journal-search": "Follow high-impact journals in your field to stay on top of new research automatically.",
+      "search-author": "Click the ORCID link on an author profile to view their complete publication record.",
+      "analytics": "Follow more topics and journals to get richer analytics data over time.",
+      "bookmarks": "Export your bookmarks as CSV from the Reports page for use in reference managers.",
+      "follows": "Researchers get unlimited follows. Academic users have a monthly follow limit shown in Settings.",
+      "notifications": "Toggle notifications per follow to reduce noise — keep only the most important ones active.",
+      "reports": "Reports are generated based on your bookmarked papers and followed topics — keep them updated.",
+      "settings": "Academic users can view their monthly search and follow limits on the Settings page.",
+      "default": "Use the sidebar on the left to quickly jump between sections — the layout is the same for all roles."
+    }
+  }
+}
