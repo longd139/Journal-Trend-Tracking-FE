@@ -138,24 +138,113 @@ export const adminAPI = {
   /* ──────────── Deep Sync OpenAlex (/api/v1/admin/sync/openalex/deep) ──────────── */
 
   /**
-   * Trigger a deep sync from OpenAlex for a specific keyword with email for polite pool.
+   * Trigger a deep sync from OpenAlex for one or more keywords.
    * POST /api/v1/admin/sync/openalex/deep
    * Content-Type: application/x-www-form-urlencoded
    *
-   * @param {{ query: string, mailto: string, limit?: number, yearFrom?: number, yearTo?: number }} params
+   * @param {{ query: string, limit?: number, yearFrom?: number, yearTo?: number, mailto?: string, apiKey?: string }} params
    * @returns { status, message, data: { totalKeywords, totalFetched, totalInserted, yearRange, keywordStats }, timestamp }
    */
-  async syncOpenAlexDeep({ query, mailto, limit, yearFrom, yearTo }) {
+  async syncOpenAlexDeep({ query, limit, yearFrom, yearTo, mailto, apiKey }) {
     const formParams = new URLSearchParams();
     formParams.append('query', query);
-    formParams.append('mailto', mailto);
     if (limit != null) formParams.append('limit', String(limit));
     if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
     if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    if (mailto) formParams.append('mailto', mailto);
+    if (apiKey) formParams.append('apiKey', apiKey);
 
     const { data } = await axiosClient.post('/api/v1/admin/sync/openalex/deep', formParams, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     });
+    return data;
+  },
+
+  /* ──────────── Single-source Sync (/api/v1/admin/sync) ──────────── */
+
+  async syncOpenAlex({ query, limit, yearFrom, yearTo } = {}) {
+    const formParams = new URLSearchParams();
+    formParams.append('query', query);
+    if (limit != null) formParams.append('limit', String(limit));
+    if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
+    if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    const { data } = await axiosClient.post('/api/v1/admin/sync/openalex', formParams, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return data;
+  },
+
+  async syncSemanticScholar({ query, limit, yearFrom, yearTo } = {}) {
+    const formParams = new URLSearchParams();
+    formParams.append('query', query);
+    if (limit != null) formParams.append('limit', String(limit));
+    if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
+    if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    const { data } = await axiosClient.post('/api/v1/admin/sync/semantic-scholar', formParams, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return data;
+  },
+
+  async syncArxiv({ query, limit, yearFrom, yearTo } = {}) {
+    const formParams = new URLSearchParams();
+    formParams.append('query', query);
+    if (limit != null) formParams.append('limit', String(limit));
+    if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
+    if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    const { data } = await axiosClient.post('/api/v1/admin/sync/arxiv', formParams, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return data;
+  },
+
+  async syncCore({ query, limit, yearFrom, yearTo } = {}) {
+    const formParams = new URLSearchParams();
+    formParams.append('query', query);
+    if (limit != null) formParams.append('limit', String(limit));
+    if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
+    if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    const { data } = await axiosClient.post('/api/v1/admin/sync/core', formParams, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return data;
+  },
+
+  /* ──────────── Bulk Sync (/api/v1/admin/sync/bulk) ──────────── */
+
+  /**
+   * Start an async bulk sync from OpenAlex for multiple keywords.
+   * POST /api/v1/admin/sync/bulk
+   * Content-Type: application/json
+   *
+   * @param {{ keywords?: string[], papersPerKeyword?: number, yearFrom?: number, yearTo?: number }} body
+   * @returns {{ status, message, data: { taskId, totalKeywords } }}
+   */
+  async bulkSync(body) {
+    const { data } = await axiosClient.post('/api/v1/admin/sync/bulk', body);
+    return data;
+  },
+
+  /**
+   * Poll bulk sync progress.
+   * GET /api/v1/admin/sync/bulk/{taskId}/progress
+   *
+   * @param {string} taskId
+   * @returns {{ status, message, data: BulkProgressResponse }}
+   */
+  async getBulkSyncProgress(taskId) {
+    const { data } = await axiosClient.get(`/api/v1/admin/sync/bulk/${taskId}/progress`);
+    return data;
+  },
+
+  /**
+   * Get list of all bulk sync tasks (running + recent completed/failed).
+   * GET /api/v1/admin/sync/bulk/tasks
+   *
+   * @returns {{ status, message, data: { total, running, tasks: BulkTask[] } }}
+   */
+  async getBulkSyncTasks() {
+    const { data } = await axiosClient.get('/api/v1/admin/sync/bulk/tasks');
     return data;
   },
 };
