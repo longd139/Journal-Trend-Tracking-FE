@@ -66,6 +66,15 @@ export const paperAPI = {
     return data.data || data;
   },
 
+  /**
+   * Lấy chi tiết một paper theo ID.
+   * GET /api/v1/papers/{paperId}
+   */
+  async getPaperById(paperId) {
+    const { data } = await axiosClient.get(`/api/v1/papers/${paperId}`);
+    return data.data || data;
+  },
+
   // ─── Journal APIs ─────────────────────────────────────────────────────────
 
   /**
@@ -112,5 +121,68 @@ export const paperAPI = {
       params: { keyword },
     });
     return data.data || data;
+  },
+
+  // ─── Advanced Search APIs ──────────────────────────────────────────────────
+
+  /**
+   * Advanced filtering — by year range, research field, min citations, open access.
+   * GET /api/v1/papers/filter/advanced
+   */
+  async searchPapersAdvanced(params = {}) {
+    const { data } = await axiosClient.get('/api/v1/papers/filter/advanced', {
+      params: {
+        query: params.query || '',
+        startYear: params.startYear || '',
+        endYear: params.endYear || '',
+        fields: params.fields?.join(',') || '',
+        minCitations: params.minCitations || '',
+        openAccess: params.openAccess || false,
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
+    });
+    return data; // AppResponse<Page<Paper>>
+  },
+
+  /**
+   * Search papers published in a specific journal.
+   * GET /api/v1/papers/search/journal
+   */
+  async searchPapersByJournal(params = {}) {
+    const { data } = await axiosClient.get('/api/v1/papers/search/journal', {
+      params: {
+        journalName: params.journalName || '',
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
+    });
+    return data; // AppResponse<Page<Paper>>
+  },
+
+  /**
+   * Search papers written by a specific author.
+   * GET /api/v1/papers/search/author
+   */
+  async searchPapersByAuthor(params = {}) {
+    const { data } = await axiosClient.get('/api/v1/papers/search/author', {
+      params: {
+        authorName: params.authorName || '',
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
+    });
+    return data; // AppResponse<Page<Paper>>
+  },
+
+  // ─── PDF Request ───────────────────────────────────────────────────────────
+
+  /**
+   * Request full-text PDF access for a paper.
+   * POST /api/v1/papers/{paperId}/pdf-requests
+   */
+  async requestPdf(paperId) {
+    const { data } = await axiosClient.post(`/api/v1/papers/${paperId}/pdf-requests`);
+    return data; // AppResponse<{ status, message }>
   },
 };

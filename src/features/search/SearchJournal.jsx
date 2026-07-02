@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
+  Clock, Trash2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -13,8 +16,8 @@ import { paperAPI } from './paper.api';
 import { journalAPI } from './journal.api';
 import { StatCard } from '../../components/SharedUI';
 import { PaperItemCard } from './PaperItemCard';
-import { PaperDetailDialog } from './PaperDetailDialog';
 import FollowButton from '../follows/FollowButton';
+import { bookmarkAPI } from '../bookmarks/api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -302,14 +305,114 @@ function JournalSkeleton() {
 
 export default function SearchJournal() {
   const { t } = useTranslation('search');
-  const [query, setQuery] = useState('');
+  const navigate = useNavigate();
+  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_journal_query') || '');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [journalStats, setJournalStats] = useState(null);
   const [timeline, setTimeline] = useState(null);
   const [topPapers, setTopPapers] = useState([]);
   const [topAuthors, setTopAuthors] = useState([]);
-  const [selectedPaper, setSelectedPaper] = useState(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+  const [searchHistory, setSearchHistory] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef(null);
+
+  const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+
+  // Load search history
+  useEffect(() => {
+    const key = `scitrack_journal_history_${currentRole}`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) setSearchHistory(JSON.parse(data));
+    } catch {
+      setSearchHistory([]);
+    }
+  }, [currentRole]);
+
+  // Helpers
+  const saveToHistory = (kw) => {
+    const trimmed = kw.trim();
+    if (!trimmed) return;
+    const key = `scitrack_journal_history_${currentRole}`;
+    const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  const clearHistory = () => {
+    const key = `scitrack_journal_history_${currentRole}`;
+    setSearchHistory([]);
+    localStorage.removeItem(key);
+    setShowSuggestions(false);
+  };
+
+  const removeHistoryItem = (kw) => {
+    const key = `scitrack_journal_history_${currentRole}`;
+    const updated = searchHistory.filter((k) => k !== kw);
+    setSearchHistory(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+  };
+
+  const filteredSuggestions = query.trim()
+    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
+    : searchHistory;
+
+  // Restore search on mount if query was persisted
+  useEffect(() => {
+    const savedQuery = sessionStorage.getItem('scitrack_journal_query');
+    if (savedQuery && savedQuery.trim()) {
+      handleSearch(savedQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fetch user's bookmarks to know which papers are saved
+  const refreshBookmarks = useCallback(async () => {
+    try {
+      const response = await bookmarkAPI.getMyBookmarks();
+      let items = response?.data;
+      if (items && Array.isArray(items.data)) items = items.data;
+      if (Array.isArray(items)) {
+        const ids = new Set();
+        items.forEach((b) => {
+          const paperId = b.paperId || b.paper?.paperId;
+          if (paperId) ids.add(paperId);
+        });
+        setBookmarkedIds(ids);
+      }
+    } catch {
+      // Silently fail — bookmark state just won't show as saved
+    }
+  }, []);
+
+  useEffect(() => { refreshBookmarks(); }, [refreshBookmarks]);
+
+  const handleToggleBookmark = useCallback(async (paper) => {
+    const paperId = paper.paperId;
+    if (!paperId) return;
+
+    if (bookmarkedIds.has(paperId)) {
+      // Remove bookmark by paper ID
+      try {
+        await bookmarkAPI.removeBookmarkByPaper(paperId);
+        setBookmarkedIds((prev) => { const next = new Set(prev); next.delete(paperId); return next; });
+        toast.success('Removed from bookmarks');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to remove bookmark');
+      }
+    } else {
+      // Add bookmark
+      try {
+        await bookmarkAPI.addBookmark(paperId);
+        setBookmarkedIds((prev) => new Set(prev).add(paperId));
+        toast.success('Saved to bookmarks');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to save bookmark');
+      }
+    }
+  }, [bookmarkedIds]);
 
   // ─── Browse mode (categories) ───
   const [categories, setCategories] = useState([]);
@@ -323,6 +426,9 @@ export default function SearchJournal() {
   const handleSearch = (keywordOverride) => {
     const q = (keywordOverride || query).trim();
     if (!q) return;
+
+    saveToHistory(q);
+    setShowSuggestions(false);
 
     let cancelled = false;
 
@@ -347,6 +453,8 @@ export default function SearchJournal() {
           if (tl) setTimeline(Array.isArray(tl.timeline) ? tl.timeline : Array.isArray(tl) ? tl : []);
           if (papers) setTopPapers(Array.isArray(papers) ? papers : []);
           if (authors) setTopAuthors(Array.isArray(authors) ? authors : []);
+          // Persist query so it survives tab switches
+          sessionStorage.setItem('scitrack_journal_query', q);
         }
       } catch (err) {
         if (!cancelled) {
@@ -436,23 +544,57 @@ export default function SearchJournal() {
           <div className="relative">
             <BookOpen size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
             <input
+              ref={searchInputRef}
               type="text"
               placeholder="Search by journal name or ID..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
+              onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
             />
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); }}
+                onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
               </button>
             )}
           </div>
+
+          {/* Search suggestions */}
+          <AnimatePresence>
+            {showSuggestions && filteredSuggestions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+              >
+                {filteredSuggestions.slice(0, 8).map((kw) => (
+                  <button key={kw} type="button"
+                    onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
+                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
+                  >
+                    <Clock size={12} className="text-gray-500 shrink-0" />
+                    <span className="flex-1 truncate">{kw}</span>
+                    <button type="button"
+                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeHistoryItem(kw); }}
+                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
+                    ><X size={11} /></button>
+                  </button>
+                ))}
+                <div className="border-t border-[#DEDBC8]/5">
+                  <button type="button" onMouseDown={(e) => { e.preventDefault(); clearHistory(); }}
+                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                  ><Trash2 size={11} /> Clear search history</button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* ─── Browse mode: category tabs + journal cards ─── */}
@@ -713,16 +855,16 @@ export default function SearchJournal() {
                         paper={paper}
                         index={i}
                         badgeColor="#F59E0B"
-                        onClick={(p) => setSelectedPaper(p)}
+                        isSaved={bookmarkedIds.has(paper.paperId)}
+                        onToggleBookmark={handleToggleBookmark}
+                        onClick={(p) => {
+                          const role = sessionStorage.getItem('userRole') || 'researcher';
+                          navigate(`/${role}/papers/${p.paperId}`);
+                        }}
                       />
                     </motion.div>
                   ))}
                 </div>
-                <PaperDetailDialog
-                  paper={selectedPaper}
-                  open={!!selectedPaper}
-                  onOpenChange={(open) => { if (!open) setSelectedPaper(null); }}
-                />
               </motion.div>
             )}
 

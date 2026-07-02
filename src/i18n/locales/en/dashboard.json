@@ -15,6 +15,9 @@
     "database": "Database Control",
     "syncData": "Sync Data",
     "settings": "Settings",
+    "auditLogs": "Audit Logs",
+    "configs": "Configs",
+    "dataSources": "Data Sources",
     "dashboard": "Dashboard"
   },
   "subtitles": {
@@ -33,6 +36,9 @@
     "database": "Manage schemas and data integrity",
     "syncData": "Fetch and import papers from OpenAlex",
     "settings": "Manage your account profile",
+    "auditLogs": "Track system activity and security events",
+    "configs": "Manage system configuration parameters",
+    "dataSources": "Manage external data integrations",
     "welcomeBack": "Welcome back"
   },
   "admin": {
@@ -108,5 +114,15 @@
       "active": "Active",
       "inactive": "Inactive"
     }
+  },
+  "bulk": {
+    "selected": "{{count}} selected",
+    "deselectAll": "Deselect All",
+    "selectAll": "Select All",
+    "removeSelected": "Remove Selected",
+    "exportSelected": "Export Citations",
+    "removeSuccess": "{{count}} bookmark removed",
+    "removeSuccess_plural": "{{count}} bookmarks removed",
+    "removeError": "Failed to remove some bookmarks"
   }
 }

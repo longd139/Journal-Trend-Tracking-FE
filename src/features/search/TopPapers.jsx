@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Star, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { PaperItemCard } from './PaperItemCard';
-import { PaperDetailDialog } from './PaperDetailDialog';
 import { paperAPI } from './paper.api';
+import { bookmarkAPI } from '../bookmarks/api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Loading Skeleton
@@ -37,11 +39,58 @@ function Skeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function TopPapers({ keyword }) {
+export default function TopPapers({ keyword, sortBy = 'relevance' }) {
+  const navigate = useNavigate();
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedPaper, setSelectedPaper] = useState(null);
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  // Fetch user's bookmarks to know which papers are saved
+  const refreshBookmarks = useCallback(async () => {
+    try {
+      const response = await bookmarkAPI.getMyBookmarks();
+      let items = response?.data;
+      if (items && Array.isArray(items.data)) items = items.data;
+      if (Array.isArray(items)) {
+        const ids = new Set();
+        items.forEach((b) => {
+          const paperId = b.paperId || b.paper?.paperId;
+          if (paperId) ids.add(paperId);
+        });
+        setBookmarkedIds(ids);
+      }
+    } catch {
+      // Silently fail — bookmark state just won't show as saved
+    }
+  }, []);
+
+  useEffect(() => { refreshBookmarks(); }, [refreshBookmarks]);
+
+  const handleToggleBookmark = useCallback(async (paper) => {
+    const paperId = paper.paperId;
+    if (!paperId) return;
+
+    if (bookmarkedIds.has(paperId)) {
+      // Remove bookmark by paper ID
+      try {
+        await bookmarkAPI.removeBookmarkByPaper(paperId);
+        setBookmarkedIds((prev) => { const next = new Set(prev); next.delete(paperId); return next; });
+        toast.success('Removed from bookmarks');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to remove bookmark');
+      }
+    } else {
+      // Add bookmark
+      try {
+        await bookmarkAPI.addBookmark(paperId);
+        setBookmarkedIds((prev) => new Set(prev).add(paperId));
+        toast.success('Saved to bookmarks');
+      } catch (err) {
+        toast.error(err?.response?.data?.message || err?.message || 'Failed to save bookmark');
+      }
+    }
+  }, [bookmarkedIds]);
 
   useEffect(() => {
     if (!keyword || !keyword.trim()) {
@@ -77,6 +126,25 @@ export default function TopPapers({ keyword }) {
     };
   }, [keyword]);
 
+  // Client-side sorting based on sortBy prop
+  const sortedPapers = useMemo(() => {
+    if (!papers.length) return [];
+    const sorted = [...papers];
+    switch (sortBy) {
+      case 'newest':
+        return sorted.sort((a, b) => (b.pubYear || b.year || 0) - (a.pubYear || a.year || 0));
+      case 'oldest':
+        return sorted.sort((a, b) => (a.pubYear || a.year || 0) - (b.pubYear || b.year || 0));
+      case 'leastCited':
+        return sorted.sort((a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0));
+      case 'mostCited':
+        return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+      case 'relevance':
+      default:
+        return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+    }
+  }, [papers, sortBy]);
+
   if (!keyword || !keyword.trim()) return null;
   if (isLoading) return <Skeleton />;
 
@@ -111,7 +179,7 @@ export default function TopPapers({ keyword }) {
 
       {/* Paper cards */}
       <div className="grid grid-cols-1 gap-4">
-        {papers.map((paper, i) => (
+        {sortedPapers.map((paper, i) => (
           <motion.div
             key={paper.paperId || i}
             initial={{ opacity: 0, y: 12 }}
@@ -122,18 +190,16 @@ export default function TopPapers({ keyword }) {
               paper={paper}
               index={i}
               badgeColor="#F59E0B"
-              onClick={(p) => setSelectedPaper(p)}
+              isSaved={bookmarkedIds.has(paper.paperId)}
+              onToggleBookmark={handleToggleBookmark}
+              onClick={(p) => {
+                const role = sessionStorage.getItem('userRole') || 'researcher';
+                navigate(`/${role}/papers/${p.paperId}`);
+              }}
             />
           </motion.div>
         ))}
       </div>
-
-      {/* Paper Detail Dialog */}
-      <PaperDetailDialog
-        paper={selectedPaper}
-        open={!!selectedPaper}
-        onOpenChange={(open) => { if (!open) setSelectedPaper(null); }}
-      />
     </motion.div>
   );
 }

@@ -1,239 +1,343 @@
-﻿import React, { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Download, FileSpreadsheet, BarChart2, BookOpen, Clock, CheckCircle2, AlertCircle, FileArchive, X, Settings2 } from 'lucide-react';
+import {
+  BarChart2, BookOpen, User, Loader2, AlertCircle,
+  CheckCircle2, Clock, Download, TrendingUp, FileText,
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { reportAPI } from './api';
+import { Skeleton } from '../../components/ui/skeleton';
 
-const INITIAL_REPORTS = [
- { id: 1, name: 'May 2026 - IoT Trend Analysis', type: 'PDF', size: '2.4 MB', date: '2026-05-28', status: 'ready' },
- { id: 2, name: 'My Citation Growth Q1', type: 'CSV', size: '850 KB', date: '2026-05-15', status: 'ready' },
-];
+/* ═══════════════════════════════════════════════════════════════════════════
+   Report Generator Card
+   ═══════════════════════════════════════════════════════════════════════════ */
+function GeneratorCard({ icon: Icon, iconColor, title, description, placeholder, onGenerate, loading }) {
+  const [input, setInput] = useState('');
 
-export default function ReportsViewPage() {
- const { t } = useTranslation('reports');
- const { t: tCommon } = useTranslation('common');
- const [reports, setReports] = useState(INITIAL_REPORTS);
- const [isGenerating, setIsGenerating] = useState(false);
- const [downloadingId, setDownloadingId] = useState(null);
-
- const [showModal, setShowModal] = useState(false);
- const [customForm, setCustomForm] = useState({
- name: 'My Custom Report',
- format: 'PDF',
- dateRange: '30days',
- includeCitations: true,
- includeAbstracts: false
- });
-
- const role = sessionStorage.getItem('userRole') || 'academic';
-
- const handleGenerateReport = (reportName, type) => {
- setShowModal(false);
- setIsGenerating(true);
-
- setTimeout(() => {
-  const newReport = {
-  id: Date.now(),
-  name: reportName,
-  type: type,
-  size: `${(Math.random() * 3 + 1).toFixed(1)} MB`,
-  date: new Date().toISOString().split('T')[0],
-  status: 'ready'
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const trimmed = input.trim();
+    if (!trimmed) return;
+    onGenerate(trimmed);
   };
 
-  setReports([newReport, ...reports]);
-  setIsGenerating(false);
- }, 2000);
- };
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSubmit(e);
+  };
 
- const handleDownload = (id) => {
- setDownloadingId(id);
- setTimeout(() => setDownloadingId(null), 1500);
- };
-
- return (
- <div className="w-full h-full min-h-screen p-8 space-y-6 overflow-y-auto relative bg-transparent ">
-
-  {/* HEADER */}
-  <div className="flex justify-between items-end mb-6">
-  <div>
-   <h2 className="text-2xl font-black text-[#E1E0CC]">{t('heading.title')}</h2>
-   <p className="text-sm text-gray-500 text-gray-400 mt-1">{t('heading.subtitle')}</p>
-  </div>
-  <button
-   disabled={isGenerating}
-   onClick={() => setShowModal(true)}
-   className="px-5 py-2.5 rounded-xl text-sm font-bold text-white flex items-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 bg-[#DEDBC8] text-black"
-  >
-   {isGenerating ? <Clock size={16} className="animate-spin" /> : <Settings2 size={16} />}
-   {isGenerating ? tCommon('actions.generating') : t('button.customReport')}
-  </button>
-  </div>
-
-  {/* QUICK TEMPLATES */}
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-  <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-[#101010] border-[#DEDBC8]/10 transition-colors">
-   <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 card-icon-accent" style={{ '--icon-accent': '#3B82F6', background: '#3B82F61A', color: '#3B82F6' }}>
-   <BarChart2 size={20} />
-   </div>
-   <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('templates.trendAnalysis.name')}</h3>
-   <p className="text-xs text-gray-500 text-gray-400 mb-4 line-clamp-2">{t('templates.trendAnalysis.description')}</p>
-   <button onClick={() => handleGenerateReport(t('templates.trendAnalysis.name'), 'PDF')} className="text-xs font-semibold text-blue-600 dark:text-[#DEDBC8] hover:text-blue-800 dark:hover:text-white transition-colors">{t('templates.trendAnalysis.quickPdf')}</button>
-  </motion.div>
-
-  <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-[#101010] border-[#DEDBC8]/10 transition-colors">
-   <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 card-icon-accent" style={{ '--icon-accent': '#DEDBC8', background: '#DEDBC81A', color: '#DEDBC8' }}>
-   <BookOpen size={20} />
-   </div>
-   <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('templates.readingList.name')}</h3>
-   <p className="text-xs text-gray-500 text-gray-400 mb-4 line-clamp-2">{t('templates.readingList.description')}</p>
-   <button onClick={() => handleGenerateReport(t('templates.readingList.name'), 'CSV')} className="text-xs font-semibold text-purple-600 dark:text-[#DEDBC8] hover:text-purple-800 dark:hover:text-white transition-colors">{t('templates.readingList.quickCsv')}</button>
-  </motion.div>
-
-  <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.2 }} className="p-5 rounded-xl border relative overflow-hidden group bg-[#101010] border-[#DEDBC8]/10 transition-colors">
-   <div className="w-10 h-10 rounded-lg flex items-center justify-center mb-4 card-icon-accent" style={{ '--icon-accent': '#A09878', background: '#A098781A', color: '#A09878' }}>
-   <FileText size={20} />
-   </div>
-   <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">
-   {role === 'researcher' ? t('templates.authorImpact.name') : t('templates.courseworkRefs.name')}
-   </h3>
-   <p className="text-xs text-gray-500 text-gray-400 mb-4 line-clamp-2">
-   {role === 'researcher' ? t('templates.authorImpact.description') : t('templates.courseworkRefs.description')}
-   </p>
-   <button onClick={() => handleGenerateReport(t('templates.detailedMetrics'), 'PDF')} className="text-xs font-semibold text-teal-600 dark:text-[#A09878] hover:text-teal-800 dark:hover:text-white transition-colors">{t('templates.authorImpact.quickPdf')}</button>
-  </motion.div>
-  </div>
-
-  {/* REPORT HISTORY TABLE */}
-  <div className="rounded-xl border overflow-hidden mt-8 bg-[#101010] border-[#DEDBC8]/5 transition-colors">
-  <div className="flex items-center justify-between p-5 border-b border-gray-200 border-[#DEDBC8]/5">
-   <h3 className="text-sm font-bold text-[#E1E0CC]">{t('history.title')}</h3>
-   <span className="text-xs text-gray-500 text-gray-400">{t('history.showing')}</span>
-  </div>
-
-  <div className="overflow-x-auto">
-   <table className="w-full">
-   <thead>
-    <tr className="border-b border-gray-200 border-[#DEDBC8]/5 bg-gray-50 dark:bg-transparent">
-    {[
-     t('history.columns.reportName'),
-     t('history.columns.type'),
-     t('history.columns.dateGenerated'),
-     t('history.columns.size'),
-     t('history.columns.status'),
-     t('history.columns.action'),
-    ].map((h) => (
-     <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-500 text-gray-400">{h}</th>
-    ))}
-    </tr>
-   </thead>
-   <tbody>
-    {reports.map((report) => (
-    <tr key={report.id} className="border-b border-gray-100 border-[#DEDBC8]/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
-     <td className="px-5 py-4">
-     <div className="flex items-center gap-3">
-      {report.type === 'PDF' && <FileText size={16} className="text-red-500 dark:text-red-400" />}
-      {report.type === 'CSV' && <FileSpreadsheet size={16} className="text-emerald-500 dark:text-green-400" />}
-      {report.type === 'ZIP' && <FileArchive size={16} className="text-amber-500 dark:text-yellow-400" />}
-      <span className="text-sm font-semibold text-[#E1E0CC]">{report.name}</span>
-     </div>
-     </td>
-     <td className="px-5 py-4">
-     <span className="text-[10px] font-bold px-2 py-1 rounded bg-white/[0.04] text-gray-600 dark:text-gray-300">{report.type}</span>
-     </td>
-     <td className="px-5 py-4 text-xs text-gray-500 text-gray-400">{report.date}</td>
-     <td className="px-5 py-4 text-xs text-gray-500 text-gray-400">{report.size}</td>
-     <td className="px-5 py-4">
-     {report.status === 'ready' ? (
-      <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md"><CheckCircle2 size={12} /> {tCommon('status.ready')}</span>
-     ) : (
-      <span className="flex items-center gap-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-400/10 w-fit px-2.5 py-1 rounded-md"><AlertCircle size={12} /> {tCommon('status.expired')}</span>
-     )}
-     </td>
-     <td className="px-5 py-4">
-     <button
-      onClick={() => handleDownload(report.id)}
-      disabled={report.status === 'expired' || downloadingId === report.id}
-      className="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-white bg-gray-100 dark:bg-white/10 hover:bg-white/10 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-gray-100 dark:disabled:hover:bg-white/10 w-[110px] justify-center"
-     >
-      {downloadingId === report.id ? <><Clock size={14} className="animate-spin" /> {tCommon('actions.downloading')}</> : <><Download size={14} /> {tCommon('actions.download')}</>}
-     </button>
-     </td>
-    </tr>
-    ))}
-   </tbody>
-   </table>
-  </div>
-  </div>
-
-  {/* MODAL: CUSTOMIZE REPORT */}
-  <AnimatePresence>
-  {showModal && (
-   <>
-   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)} className="fixed inset-0 bg-gray-900/40 dark:bg-black/60 backdrop-blur-sm z-40" />
-
-   <motion.div
-    initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-    className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white bg-[#0A0A0A] border border-[#DEDBC8]/10 rounded-2xl p-6 z-50 shadow-2xl transition-colors"
-   >
-    <div className="flex justify-between items-center mb-5">
-    <h3 className="text-lg font-bold text-[#E1E0CC]">{t('modal.title')}</h3>
-    <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"><X size={20} /></button>
-    </div>
-
-    <div className="space-y-4">
-    <div>
-     <label className="text-xs font-semibold text-[#E1E0CC] block mb-1.5">{t('modal.reportName')}</label>
-     <input type="text" value={customForm.name} onChange={(e) => setCustomForm({...customForm, name: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-[#DEDBC8]/10 bg-gray-50 bg-[#101010] text-sm text-[#E1E0CC] outline-none focus:border-blue-500 dark:focus:border-[#DEDBC8] transition-colors" />
-    </div>
-
-    <div className="grid grid-cols-2 gap-4">
-     <div>
-     <label className="text-xs font-semibold text-[#E1E0CC] block mb-1.5">{t('modal.format')}</label>
-     <select value={customForm.format} onChange={(e) => setCustomForm({...customForm, format: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-[#DEDBC8]/10 bg-gray-50 bg-[#101010] text-sm text-[#E1E0CC] outline-none focus:border-blue-500 dark:focus:border-[#DEDBC8] appearance-none transition-colors">
-      <option value="PDF">{t('modal.formatOptions.pdf')}</option>
-      <option value="CSV">{t('modal.formatOptions.csv')}</option>
-      <option value="ZIP">{t('modal.formatOptions.zip')}</option>
-     </select>
-     </div>
-     <div>
-     <label className="text-xs font-semibold text-[#E1E0CC] block mb-1.5">{t('modal.dateRange')}</label>
-     <select value={customForm.dateRange} onChange={(e) => setCustomForm({...customForm, dateRange: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-[#DEDBC8]/10 bg-gray-50 bg-[#101010] text-sm text-[#E1E0CC] outline-none focus:border-blue-500 dark:focus:border-[#DEDBC8] appearance-none transition-colors">
-      <option value="30days">{t('modal.dateOptions.30days')}</option>
-      <option value="6months">{t('modal.dateOptions.6months')}</option>
-      <option value="1year">{t('modal.dateOptions.1year')}</option>
-      <option value="all">{t('modal.dateOptions.all')}</option>
-     </select>
-     </div>
-    </div>
-
-    <div>
-     <label className="text-xs font-semibold text-[#E1E0CC] block mb-2 mt-2">{t('modal.includeDataColumns')}</label>
-     <div className="space-y-2">
-     <label className="flex items-center gap-3 cursor-pointer group">
-      <input type="checkbox" checked={customForm.includeCitations} onChange={(e) => setCustomForm({...customForm, includeCitations: e.target.checked})} className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-50 bg-[#101010] accent-blue-500" />
-      <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{t('modal.citationCounts')}</span>
-     </label>
-     <label className="flex items-center gap-3 cursor-pointer group">
-      <input type="checkbox" checked={customForm.includeAbstracts} onChange={(e) => setCustomForm({...customForm, includeAbstracts: e.target.checked})} className="w-4 h-4 rounded border-gray-300 dark:border-white/20 bg-gray-50 bg-[#101010] accent-blue-500" />
-      <span className="text-sm text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">{t('modal.fullAbstracts')}</span>
-     </label>
-     </div>
-    </div>
-    </div>
-
-    <div className="mt-6 pt-5 border-t border-[#DEDBC8]/10 flex justify-end gap-3 transition-colors">
-    <button onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-white/[0.04] hover:bg-white/5 transition-colors">{tCommon('actions.cancel')}</button>
-    <button
-     onClick={() => handleGenerateReport(customForm.name, customForm.format)}
-     className="px-5 py-2.5 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity bg-[#DEDBC8] text-black "
+  return (
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.2 }}
+      className="p-5 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 flex flex-col"
     >
-     {tCommon('actions.generate')}
-    </button>
+      {/* Icon */}
+      <div
+        className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+        style={{ background: `${iconColor}1A`, color: iconColor }}
+      >
+        <Icon size={20} />
+      </div>
+
+      {/* Title + Description */}
+      <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{title}</h3>
+      <p className="text-xs text-gray-400 mb-4 line-clamp-2">{description}</p>
+
+      {/* Input + Button */}
+      <form onSubmit={handleSubmit} className="mt-auto space-y-2.5">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          disabled={loading}
+          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-[#0A0A0A] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 transition-colors disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={loading || !input.trim()}
+          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-[#DEDBC8] text-black hover:opacity-90"
+        >
+          {loading ? (
+            <><Loader2 size={14} className="animate-spin" /> Generating...</>
+          ) : (
+            'Generate Report'
+          )}
+        </button>
+      </form>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Report Type Config
+   ═══════════════════════════════════════════════════════════════════════════ */
+const REPORT_TYPES = {
+  'keyword-trend': { icon: BarChart2, color: '#3B82F6', label: 'Keyword Trend' },
+  'journal-quality': { icon: BookOpen, color: '#DEDBC8', label: 'Journal Quality' },
+  'author-impact': { icon: User, color: '#A09878', label: 'Author Impact' },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Result Panel
+   ═══════════════════════════════════════════════════════════════════════════ */
+function ResultPanel({ result, onClose }) {
+  const { t } = useTranslation('reports');
+
+  if (!result) return null;
+
+  const typeConfig = REPORT_TYPES[result.type] || {};
+  const TypeIcon = typeConfig.icon || FileText;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -8 }}
+      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: `${typeConfig.color || '#DEDBC8'}1A`, color: typeConfig.color || '#DEDBC8' }}
+          >
+            <TypeIcon size={18} />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-[#E1E0CC]">
+              {typeConfig.label} Report
+            </h3>
+            <p className="text-[11px] text-gray-500">
+              &quot;{result.query}&quot; — {new Date(result.timestamp).toLocaleString()}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="p-5 max-h-[500px] overflow-y-auto">
+        <pre className="text-xs text-gray-300 font-mono whitespace-pre-wrap break-words bg-[#0A0A0A] rounded-xl p-4 border border-[#DEDBC8]/5">
+          {JSON.stringify(result.data, null, 2)}
+        </pre>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-3 p-4 border-t border-[#DEDBC8]/5 bg-[#0A0A0A]/50">
+        <button
+          onClick={() => {
+            const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${result.type}_${result.query.replace(/\s+/g, '_')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+        >
+          <Download size={14} />
+          Download JSON
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Main Component
+   ═══════════════════════════════════════════════════════════════════════════ */
+export default function ReportsViewPage() {
+  const { t } = useTranslation('reports');
+  const [loading, setLoading] = useState(null); // string: report type đang load, hoặc null
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [history, setHistory] = useState([]);
+
+  const generateReport = useCallback(async (type, query, apiFn) => {
+    setLoading(type);
+    setError(null);
+    setResult(null);
+    try {
+      const data = await apiFn(query);
+      const entry = {
+        type,
+        query,
+        timestamp: Date.now(),
+        status: 'ready',
+        data: data?.data || data,
+      };
+      setResult(entry);
+      setHistory((prev) => [entry, ...prev].slice(0, 20)); // keep last 20
+      toast.success(t('toast.success') || 'Report generated successfully');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to generate report';
+      setError(msg);
+      toast.error(t('toast.error') || msg);
+    } finally {
+      setLoading(null);
+    }
+  }, [t]);
+
+  /* ── Error Banner ── */
+  const ErrorBanner = error && (
+    <motion.div
+      initial={{ opacity: 0, y: -8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[11px] text-red-400/80"
+    >
+      <AlertCircle size={13} className="shrink-0" />
+      <span>{error}</span>
+      <button onClick={() => setError(null)} className="ml-auto text-red-400/50 hover:text-red-400">✕</button>
+    </motion.div>
+  );
+
+  return (
+    <div className="w-full h-full min-h-screen p-8 space-y-6 overflow-y-auto bg-transparent">
+      {/* HEADER — compact stats strip, title is in TopBar */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-wrap items-center gap-3"
+      >
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+          <FileText size={13} className="text-[#DEDBC8]" />
+          <span className="text-xs font-bold text-[#DEDBC8]">3 Report Types</span>
+        </div>
+        <span className="text-[11px] text-gray-500">Generate analytics reports for journals, authors, or topics</span>
+      </motion.div>
+
+      {/* Error Banner */}
+      {ErrorBanner}
+
+      {/* 3 REPORT GENERATOR CARDS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <GeneratorCard
+          icon={BarChart2}
+          iconColor="#3B82F6"
+          title={t('templates.trendAnalysis.name')}
+          description={t('templates.trendAnalysis.description')}
+          placeholder={t('input.placeholder.keyword') || 'Enter keyword...'}
+          loading={loading === 'keyword-trend'}
+          onGenerate={(keyword) =>
+            generateReport('keyword-trend', keyword, reportAPI.getKeywordTrend)
+          }
+        />
+        <GeneratorCard
+          icon={BookOpen}
+          iconColor="#DEDBC8"
+          title={t('templates.readingList.name')}
+          description={t('templates.readingList.description')}
+          placeholder={t('input.placeholder.journal') || 'Enter journal name...'}
+          loading={loading === 'journal-quality'}
+          onGenerate={(journalName) =>
+            generateReport('journal-quality', journalName, reportAPI.getJournalQuality)
+          }
+        />
+        <GeneratorCard
+          icon={User}
+          iconColor="#A09878"
+          title={t('templates.authorImpact.name')}
+          description={t('templates.authorImpact.description')}
+          placeholder={t('input.placeholder.author') || 'Enter author name...'}
+          loading={loading === 'author-impact'}
+          onGenerate={(authorName) =>
+            generateReport('author-impact', authorName, reportAPI.getAuthorImpact)
+          }
+        />
+      </div>
+
+      {/* RESULT PANEL */}
+      <AnimatePresence mode="wait">
+        {result && (
+          <ResultPanel
+            result={result}
+            onClose={() => setResult(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* REPORT HISTORY */}
+      {history.length > 0 && (
+        <div className="rounded-xl border overflow-hidden bg-[#101010] border-[#DEDBC8]/5">
+          <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
+            <h3 className="text-sm font-bold text-[#E1E0CC]">{t('history.title')}</h3>
+            <span className="text-xs text-gray-400">
+              {history.length} report{history.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#DEDBC8]/5">
+                  {['Type', 'Query', 'Generated', 'Status', ''].map((h) => (
+                    <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-400">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((entry, i) => {
+                  const typeConfig = REPORT_TYPES[entry.type] || {};
+                  const TypeIcon = typeConfig.icon || FileText;
+                  const typeColor = typeConfig.color || '#DEDBC8';
+
+                  return (
+                    <tr
+                      key={`${entry.type}-${entry.timestamp}-${i}`}
+                      className="border-b border-[#DEDBC8]/5 hover:bg-white/[0.02] transition-colors"
+                    >
+                      <td className="px-5 py-4">
+                        <div className="flex items-center gap-2">
+                          <TypeIcon size={15} style={{ color: typeColor }} />
+                          <span className="text-xs font-semibold text-[#E1E0CC]">
+                            {typeConfig.label || entry.type}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="text-xs text-gray-400 font-mono">&quot;{entry.query}&quot;</span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <Clock size={11} />
+                          {new Date(entry.timestamp).toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md">
+                          <CheckCircle2 size={12} />
+                          Ready
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          onClick={() => setResult(entry)}
+                          className="flex items-center gap-1.5 text-xs font-semibold text-[#DEDBC8] hover:text-white transition-colors"
+                        >
+                          <TrendingUp size={13} />
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
-   </motion.div>
-   </>
-  )}
-  </AnimatePresence>
- </div>
- );
+  );
 }

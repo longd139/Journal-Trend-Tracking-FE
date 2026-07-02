@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  Users, Server, Database, Cpu, Activity,
+  Users, Server, Database, Cpu,
   AlertTriangle, Zap, Clock, Globe, HardDrive,
   CheckCircle2, ArrowUpRight, TrendingUp, Shield,
 } from 'lucide-react';
@@ -93,33 +93,74 @@ export default function AdminOverview() {
 
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
-        {/* ─── Header ─── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {/* ─── Admin Status Banner ─── */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
         >
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Activity size={16} className="text-[#DEDBC8]" />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#DEDBC8]/70">Admin Console</span>
+          {/* Subtle top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#DEDBC8]/60 to-transparent" />
+
+          <div className="px-5 sm:px-7 py-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              {/* Left: Status overview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/10 border border-[#DEDBC8]/15">
+                    <PulseDot color="#34D399" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#DEDBC8]">Live</span>
+                  </div>
+                  <span className="text-[11px] text-gray-500">
+                    {now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString()}
+                  </span>
+                </div>
+                <h1 className="text-lg sm:text-xl font-black text-[#E1E0CC] font-display tracking-tight">
+                  Admin Console
+                </h1>
+                <p className="text-xs text-gray-500 max-w-md">
+                  Real-time platform monitoring, user analytics, and system health dashboard.
+                </p>
+              </div>
+
+              {/* Right: Quick stat pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Users size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">12,847</div>
+                    <div className="text-[9px] text-gray-500 uppercase">Users</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-emerald-400">99.97%</div>
+                    <div className="text-[9px] text-gray-500 uppercase">Uptime</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Clock size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">42ms</div>
+                    <div className="text-[9px] text-gray-500 uppercase">Latency</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Database size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">2.4TB</div>
+                    <div className="text-[9px] text-gray-500 uppercase">Storage</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#E1E0CC] flex items-center gap-3">
-              System Dashboard
-              <span className="flex items-center gap-1.5 text-[11px] font-normal text-gray-400">
-                <PulseDot /> All systems operational
-              </span>
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Last updated: {now.toLocaleTimeString()} • Real-time monitoring active
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Operational</span>
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-amber-500" /> Degraded</span>
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-red-500" /> Down</span>
           </div>
         </motion.div>
 

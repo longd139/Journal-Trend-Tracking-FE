@@ -325,16 +325,25 @@ export default function SyncDataPage() {
 
  return (
  <div className="p-6 space-y-6 max-w-3xl mx-auto">
-  {/* -- Header -- */}
-  <div>
-  <h2 className="text-lg font-black text-[#E1E0CC] font-display flex items-center gap-2">
-   <RefreshCw size={18} className="text-emerald-500" />
-   Sync Data
-  </h2>
-  <p className="text-xs mt-0.5 text-gray-400">
-   Fetch and import academic papers from multiple sources into the system database.
-  </p>
-  </div>
+  {/* Header banner */}
+  <motion.div
+   initial={{ opacity: 0, y: -8 }}
+   animate={{ opacity: 1, y: 0 }}
+   className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+  >
+   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+   <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="flex items-center gap-3">
+     <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+      <RefreshCw size={15} />
+     </div>
+     <div>
+      <h2 className="text-sm font-bold text-[#E1E0CC] font-display">Sync Data</h2>
+      <p className="text-[11px] text-gray-500">Fetch and import academic papers from OpenAlex & external sources</p>
+     </div>
+    </div>
+   </div>
+  </motion.div>
 
   {/* -- Sync Form -- */}
   <motion.div

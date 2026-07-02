@@ -121,15 +121,34 @@ export default function APIMonitoring() {
 
  return (
  <div className="p-6 space-y-5">
-  <div className="flex items-center justify-between">
-  <div>
-   <h2 className="text-lg font-black text-[#E1E0CC] font-display flex items-center gap-2"><Globe size={18} className="text-[#DEDBC8]" />API Monitoring</h2>
-   <p className={`text-xs mt-0.5 ${muted}`}>{stats.total} endpoints monitored • Last refreshed {lastRefresh.toLocaleTimeString()}</p>
-  </div>
-  <button onClick={() => setLastRefresh(new Date())} className="px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 transition-colors">
-   <RefreshCw size={12} /> Refresh
-  </button>
-  </div>
+  {/* Header banner */}
+  <motion.div
+   initial={{ opacity: 0, y: -8 }}
+   animate={{ opacity: 1, y: 0 }}
+   className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+  >
+   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+   <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="flex items-center gap-3">
+     <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/15">
+      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Live</span>
+     </div>
+     <div className="flex items-center gap-1.5">
+      <Globe size={14} className="text-[#DEDBC8]" />
+      <span className="text-sm font-bold text-[#E1E0CC]">API Monitoring</span>
+     </div>
+     <span className="w-1 h-1 rounded-full bg-[#DEDBC8]/20 hidden sm:block" />
+     <span className="text-[11px] text-gray-500 hidden sm:block">{stats.total} endpoints monitored</span>
+    </div>
+    <div className="flex items-center gap-2">
+     <span className="text-[10px] text-gray-600">Last refreshed {lastRefresh.toLocaleTimeString()}</span>
+     <button onClick={() => setLastRefresh(new Date())} className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
+      <RefreshCw size={11} /> Refresh
+     </button>
+    </div>
+   </div>
+  </motion.div>
 
   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
   {[

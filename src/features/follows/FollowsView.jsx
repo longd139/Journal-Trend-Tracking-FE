@@ -60,25 +60,16 @@ export default function FollowsView() {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Fetch follows
+  // Fetch follows — force fresh data on mount
   const fetchFollows = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await followAPI.getMyFollows();
-      // Handle different response shapes: { data: [...] } or { data: { data: [...] } } or direct array
-      let items = response?.data;
-      if (items && Array.isArray(items.data)) {
-        // nested AppResponse -> PaginatedResponse
-        items = items.data;
-      }
-      if (Array.isArray(items)) {
-        setFollows(items);
-      } else if (Array.isArray(response)) {
-        setFollows(response);
-      } else {
-        setFollows([]);
-      }
+      const response = await followAPI.getMyFollows(true);
+      // Backend returns AppResponse<List<FollowResponse>>:
+      // { status: 200, message: "...", data: [...] }
+      const list = response?.data;
+      setFollows(Array.isArray(list) ? list : []);
     } catch (err) {
       setError(err?.response?.data?.message || err?.message || t('toast.loadError'));
       toast.error(t('toast.loadError'));
@@ -95,11 +86,9 @@ export default function FollowsView() {
   const handleToggleNotify = useCallback(
     async (followId, enabled) => {
       const response = await followAPI.toggleNotify(followId, enabled);
-      // Optimistic: update local state with the response data or the original toggle
-      const updatedFollow =
-        response?.data?.data ||
-        response?.data ||
-        response;
+      // Backend returns AppResponse<FollowResponse>:
+      // { status: 200, message: "...", data: { followId, notifyEnabled, ... } }
+      const updatedFollow = response?.data;
       if (updatedFollow && updatedFollow.followId) {
         setFollows((prev) =>
           prev.map((f) =>
@@ -215,12 +204,31 @@ export default function FollowsView() {
   /* ── Data State ── */
   return (
     <div className="p-8 space-y-6 min-h-screen bg-transparent">
-      {/* Header */}
-      <div>
-        <h2 className="text-lg font-bold text-[#E1E0CC]">{t('page.title')}</h2>
-        <p className="text-sm text-gray-400">
-          {follows.length} {follows.length === 1 ? 'follow' : 'follows'}
-        </p>
+      {/* Header — compact stats, title is in TopBar */}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+          <Bell size={13} className="text-[#DEDBC8]" />
+          <span className="text-xs font-bold text-[#DEDBC8]">{follows.length}</span>
+          <span className="text-[11px] text-gray-400">{follows.length === 1 ? 'follow' : 'follows'}</span>
+        </div>
+      </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Journals', count: counts.journals, color: '#4F8CFF' },
+          { label: 'Topics', count: counts.topics, color: '#F59E0B' },
+          { label: 'Keywords', count: counts.keywords, color: '#A78BFA' },
+        ].map((stat) => (
+          <motion.div
+            key={stat.label}
+            whileHover={{ y: -2 }}
+            className="p-3 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 text-center"
+          >
+            <div className="text-xl font-bold text-[#E1E0CC]">{stat.count}</div>
+            <div className="text-[10px] uppercase tracking-wider font-bold text-gray-500">{stat.label}</div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Filter Tabs */}

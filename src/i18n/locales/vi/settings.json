@@ -35,5 +35,48 @@
     "button": "Lưu thay đổi",
     "saving": "Đang lưu...",
     "success": "Đã cập nhật hồ sơ!"
+  },
+  "password": {
+    "title": "Đổi mật khẩu",
+    "description": "Cập nhật mật khẩu tài khoản của bạn. Bạn sẽ vẫn đăng nhập.",
+    "currentPassword": "Mật khẩu hiện tại",
+    "newPassword": "Mật khẩu mới",
+    "confirmPassword": "Xác nhận mật khẩu mới",
+    "submit": "Đổi mật khẩu",
+    "submitting": "Đang đổi...",
+    "showForm": "Đổi mật khẩu",
+    "success": "Đổi mật khẩu thành công!",
+    "error": {
+      "mismatch": "Mật khẩu không khớp.",
+      "tooShort": "Mật khẩu phải có ít nhất 6 ký tự.",
+      "wrongCurrent": "Mật khẩu hiện tại không đúng."
+    }
+  },
+  "notifications": {
+    "title": "Tùy chọn thông báo",
+    "description": "Chọn loại thông báo bạn muốn nhận.",
+    "emailNotifications": "Thông báo qua email",
+    "pushNotifications": "Thông báo đẩy",
+    "categories": {
+      "newPapers": "Cảnh báo bài báo mới",
+      "citations": "Cảnh báo trích dẫn",
+      "journalUpdates": "Cập nhật tạp chí",
+      "followActivity": "Hoạt động theo dõi"
+    }
+  },
+  "appearance": {
+    "title": "Giao diện",
+    "description": "Tùy chỉnh cách SCITRACK hiển thị.",
+    "theme": "Chủ đề",
+    "themeDark": "Tối",
+    "themeLight": "Sáng",
+    "themeSystem": "Hệ thống",
+    "fontSize": "Cỡ chữ",
+    "fontSmall": "Nhỏ",
+    "fontMedium": "Vừa",
+    "fontLarge": "Lớn",
+    "density": "Mật độ bố cục",
+    "densityCompact": "Thu gọn",
+    "densityComfortable": "Thoải mái"
   }
 }

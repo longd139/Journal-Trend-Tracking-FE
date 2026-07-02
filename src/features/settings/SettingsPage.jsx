@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   User,
@@ -17,6 +17,9 @@ import {
   Bell,
   Lock,
   LogOut,
+  Palette,
+  Camera,
+  X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +28,9 @@ import { userAPI } from '../user/api';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../../utils/localization';
 import { useAuthStore } from '../user/store';
+import ChangePasswordForm from './ChangePasswordForm';
+import AppearanceSettings from './AppearanceSettings';
+import NotificationSettings from './NotificationSettings';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -143,6 +149,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState('');
   const updateStoreUser = useAuthStore((s) => s.updateUser);
   const user = useAuthStore((s) => s.user);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   /* ── Language preview ────────────────────────────────────────────── */
   const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
@@ -167,11 +174,17 @@ export default function SettingsPage() {
     bio: '',
   });
 
+  /* ── Avatar state ────────────────────────────────────────────────── */
+  const [avatarPreview, setAvatarPreview] = useState(null); // base64 data URL
+  const [avatarChanged, setAvatarChanged] = useState(false);
+  const fileInputRef = useRef(null);
+
   /* ── Dirty tracking ───────────────────────────────────────────────── */
   const isDirty =
     editForm.fullName !== formData.fullName ||
     editForm.institution !== formData.institution ||
-    editForm.bio !== formData.bio;
+    editForm.bio !== formData.bio ||
+    avatarChanged;
 
   /* ── Fetch profile ────────────────────────────────────────────────── */
   useEffect(() => {
@@ -189,12 +202,16 @@ export default function SettingsPage() {
           institution: userData.institution || '',
           bio: userData.bio || '',
           isVerified: userData.isVerified || false,
+          avatarUrl: userData.avatarUrl || '',
         });
         setEditForm({
           fullName: userData.fullName || '',
           institution: userData.institution || '',
           bio: userData.bio || '',
         });
+        if (userData.avatarUrl) {
+          setAvatarPreview(userData.avatarUrl);
+        }
       } catch (err) {
         console.error('Error fetching user info:', err);
         setError(t('errors.loadFailed', { ns: 'common' }));
@@ -249,6 +266,41 @@ export default function SettingsPage() {
     return () => clearTimeout(timer);
   }, [editForm.institution]);
 
+  /* ── Avatar handlers ──────────────────────────────────────────────── */
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate type and size
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarPreview(reader.result);
+      setAvatarChanged(true);
+    };
+    reader.readAsDataURL(file);
+
+    // Reset input so same file can be re-selected
+    e.target.value = '';
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(null);
+    setAvatarChanged(true);
+  };
+
   /* ── Handlers ─────────────────────────────────────────────────────── */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -267,7 +319,7 @@ export default function SettingsPage() {
       const payload = {
         fullName: editForm.fullName,
         institution: editForm.institution,
-        avatarUrl: formData.avatarUrl || 'string',
+        avatarUrl: avatarChanged ? (avatarPreview || '') : (formData.avatarUrl || ''),
       };
       await userAPI.updateProfile(payload);
 
@@ -276,11 +328,15 @@ export default function SettingsPage() {
         fullName: editForm.fullName,
         institution: editForm.institution,
         bio: editForm.bio,
+        avatarUrl: avatarChanged ? (avatarPreview || '') : prev.avatarUrl,
       }));
+
+      setAvatarChanged(false);
 
       updateStoreUser({
         fullName: editForm.fullName,
         institution: editForm.institution,
+        avatarUrl: avatarChanged ? (avatarPreview || '') : formData.avatarUrl,
       });
 
       setSuccess(true);
@@ -326,23 +382,18 @@ export default function SettingsPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-6 pb-16">
-      {/* ─── Page heading ──────────────────────────────────────────── */}
+      {/* ─── Page heading — compact, title is in TopBar ──────────── */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="flex items-center justify-between"
+        className="flex items-center gap-3"
       >
-        <div>
-          <h2 className="text-xl font-black text-[#E1E0CC] font-display tracking-tight">
-            {t('heading.title')}
-          </h2>
-          <p className="text-xs text-gray-400 mt-1">
-            {t('heading.subtitle')}
-          </p>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+          <User size={13} className="text-[#DEDBC8]" />
+          <span className="text-xs font-bold text-[#DEDBC8]">Profile</span>
         </div>
-
-        {/* Quick save (sticky alternative) — visible on scroll? simplified for now */}
+        <span className="text-[11px] text-gray-500">Manage your personal information, preferences, and appearance</span>
       </motion.div>
 
       {/* ═════════════════════════════════════════════════════════════════
@@ -356,14 +407,55 @@ export default function SettingsPage() {
       >
         {/* Avatar + identity banner */}
         <div className="flex items-center gap-5 mb-8 pb-8 border-b border-[#DEDBC8]/6">
-          <div className="relative">
-            <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#DEDBC8] to-[#B8B48A] flex items-center justify-center text-2xl font-black text-black uppercase shadow-[0_8px_32px_rgba(222,219,200,0.15)] ring-2 ring-[#DEDBC8]/20">
-              {getInitials(formData.fullName)}
+          {/* Hidden file input */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleAvatarFileChange}
+          />
+
+          {/* Clickable avatar */}
+          <button
+            type="button"
+            onClick={handleAvatarClick}
+            className="relative group shrink-0"
+            title="Click to change avatar"
+          >
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="w-[72px] h-[72px] rounded-full object-cover shadow-[0_8px_32px_rgba(222,219,200,0.15)] ring-2 ring-[#DEDBC8]/20"
+              />
+            ) : (
+              <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#DEDBC8] to-[#B8B48A] flex items-center justify-center text-2xl font-black text-black uppercase shadow-[0_8px_32px_rgba(222,219,200,0.15)] ring-2 ring-[#DEDBC8]/20">
+                {getInitials(formData.fullName)}
+              </div>
+            )}
+            {/* Hover overlay */}
+            <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+              <Camera size={20} className="text-white" />
             </div>
+            {/* Online dot */}
             <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0A0D14] border-2 border-[#DEDBC8]/20 flex items-center justify-center">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
             </div>
-          </div>
+          </button>
+
+          {/* Remove avatar button (only when avatar is set) */}
+          {avatarPreview && (
+            <button
+              type="button"
+              onClick={handleRemoveAvatar}
+              className="text-[10px] font-semibold text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+            >
+              <X size={12} />
+              Remove
+            </button>
+          )}
+
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-[#E1E0CC] truncate font-display">
               {formData.fullName || '—'}
@@ -554,6 +646,8 @@ export default function SettingsPage() {
                       institution: formData.institution,
                       bio: formData.bio,
                     });
+                    setAvatarPreview(formData.avatarUrl || null);
+                    setAvatarChanged(false);
                   }}
                   className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.04] transition-all border border-transparent hover:border-[#DEDBC8]/10"
                 >
@@ -668,52 +762,31 @@ export default function SettingsPage() {
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════
-         SECTION 3 — Preferences (placeholder for future)
+         SECTION 3 — Appearance
          ═════════════════════════════════════════════════════════════════ */}
       <SectionCard
-        icon={Bell}
-        title="Preferences"
-        description="Notification and display preferences for your account."
+        icon={Palette}
+        title={t('appearance.title')}
+        description={t('appearance.description')}
         delay={0.15}
       >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {[
-            { icon: Bell, label: 'Notifications', desc: 'Manage alerts', active: true, coming: false },
-            { icon: BookOpen, label: 'Appearance', desc: 'Theme & layout', active: false, coming: true },
-            { icon: Lock, label: 'Privacy', desc: 'Data & visibility', active: false, coming: true },
-          ].map((item, i) => (
-            <div
-              key={i}
-              className={`p-4 rounded-2xl border transition-all ${
-                item.active
-                  ? 'border-[#DEDBC8]/15 bg-[#DEDBC8]/[0.03] cursor-pointer hover:bg-[#DEDBC8]/[0.06] hover:border-[#DEDBC8]/25'
-                  : 'border-[#DEDBC8]/5 bg-transparent opacity-60'
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${item.active ? 'bg-[#DEDBC8]/10' : 'bg-white/[0.03]'}`}>
-                  <item.icon size={16} className={item.active ? 'text-[#DEDBC8]' : 'text-gray-500'} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className={`text-xs font-bold truncate ${item.active ? 'text-[#E1E0CC]' : 'text-gray-500'}`}>
-                    {item.label}
-                  </h4>
-                  <p className="text-[10px] text-gray-500 truncate">{item.desc}</p>
-                </div>
-                {item.coming && (
-                  <span className="text-[9px] font-bold text-gray-600 bg-white/[0.03] px-1.5 py-0.5 rounded-md">SOON</span>
-                )}
-                {item.active && (
-                  <ChevronRight size={14} className="text-gray-500" />
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <AppearanceSettings />
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════
-         SECTION 4 — Danger Zone
+         SECTION 4 — Notification Preferences
+         ═════════════════════════════════════════════════════════════════ */}
+      <SectionCard
+        icon={Bell}
+        title={t('notifications.title')}
+        description={t('notifications.description')}
+        delay={0.18}
+      >
+        <NotificationSettings />
+      </SectionCard>
+
+      {/* ═════════════════════════════════════════════════════════════════
+         SECTION 5 — Account Actions
          ═════════════════════════════════════════════════════════════════ */}
       <SectionCard
         icon={LogOut}
@@ -721,25 +794,59 @@ export default function SettingsPage() {
         description="Sign out or manage your account status."
         delay={0.2}
       >
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <h4 className="text-sm font-bold text-[#E1E0CC]">Sign out of your account</h4>
-            <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
-              You will be redirected to the login page.
-            </p>
+        <div className="space-y-4">
+          {/* Change Password */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h4 className="text-sm font-bold text-[#E1E0CC]">Change your password</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                Use a strong password that you haven't used before.
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setShowPasswordForm((v) => !v)}
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                showPasswordForm
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  : 'bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/35'
+              }`}
+            >
+              <Lock size={14} />
+              {t('password.showForm')}
+            </motion.button>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={() => {
-              sessionStorage.removeItem('userRole');
-              navigate('/login');
-            }}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/35 transition-all flex items-center gap-2"
-          >
-            <LogOut size={14} />
-            Sign Out
-          </motion.button>
+
+          <ChangePasswordForm
+            visible={showPasswordForm}
+            onClose={() => setShowPasswordForm(false)}
+          />
+
+          {/* Divider */}
+          <div className="border-t border-[#DEDBC8]/6" />
+
+          {/* Sign Out */}
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h4 className="text-sm font-bold text-[#E1E0CC]">Sign out of your account</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                You will be redirected to the login page.
+              </p>
+            </div>
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                sessionStorage.removeItem('userRole');
+                navigate('/login');
+              }}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/35 transition-all flex items-center gap-2"
+            >
+              <LogOut size={14} />
+              Sign Out
+            </motion.button>
+          </div>
         </div>
       </SectionCard>
 

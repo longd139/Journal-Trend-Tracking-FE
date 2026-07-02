@@ -21,4 +21,12 @@ export const userAPI = {
     const { data } = await axiosClient.put('/api/users/me/language', { language });
     return data;
   },
+
+  async changePassword({ currentPassword, newPassword }) {
+    const { data } = await axiosClient.put('/api/users/me/password', {
+      currentPassword,
+      newPassword,
+    });
+    return data;
+  },
 };

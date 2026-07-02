@@ -15,6 +15,9 @@
     "database": "Quản lý cơ sở dữ liệu",
     "syncData": "Đồng bộ dữ liệu",
     "settings": "Cài đặt",
+    "auditLogs": "Nhật ký hệ thống",
+    "configs": "Cấu hình",
+    "dataSources": "Nguồn dữ liệu",
     "dashboard": "Bảng điều khiển"
   },
   "subtitles": {
@@ -33,6 +36,9 @@
     "database": "Quản lý lược đồ và toàn vẹn dữ liệu",
     "syncData": "Tải và nhập bài báo từ OpenAlex",
     "settings": "Quản lý hồ sơ tài khoản",
+    "auditLogs": "Theo dõi hoạt động hệ thống và sự kiện bảo mật",
+    "configs": "Quản lý tham số cấu hình hệ thống",
+    "dataSources": "Quản lý tích hợp dữ liệu bên ngoài",
     "welcomeBack": "Chào mừng trở lại"
   },
   "admin": {
@@ -108,5 +114,15 @@
       "active": "Hoạt động",
       "inactive": "Không hoạt động"
     }
+  },
+  "bulk": {
+    "selected": "Đã chọn {{count}}",
+    "deselectAll": "Bỏ chọn tất cả",
+    "selectAll": "Chọn tất cả",
+    "removeSelected": "Xóa đã chọn",
+    "exportSelected": "Xuất trích dẫn",
+    "removeSuccess": "Đã xóa {{count}} bookmark",
+    "removeSuccess_plural": "Đã xóa {{count}} bookmark",
+    "removeError": "Không thể xóa một số bookmark"
   }
 }

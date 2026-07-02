@@ -14,13 +14,22 @@ import AuthorSuggestions from './AuthorSuggestions';
 
 export default function SearchAuthor() {
   const { t } = useTranslation('search');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_author_query') || '');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInputRef = useRef(null);
   const resultsRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
+
+  // Restore persisted search
+  useEffect(() => {
+    const saved = sessionStorage.getItem('scitrack_author_query');
+    if (saved && saved.trim() && !query) {
+      setQuery(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ─── Load search history ───
   useEffect(() => {
@@ -60,8 +69,8 @@ export default function SearchAuthor() {
   const handleSearch = (kw) => {
     setQuery(kw);
     saveToSearchHistory(kw);
+    sessionStorage.setItem('scitrack_author_query', kw);
     setShowSuggestions(false);
-    // Scroll to results after a short delay (wait for render)
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 150);
@@ -96,7 +105,7 @@ export default function SearchAuthor() {
             {query && (
               <button
                 type="button"
-                onClick={() => setQuery('')}
+                onClick={() => { setQuery(''); sessionStorage.removeItem('scitrack_author_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />

@@ -231,19 +231,20 @@ export default function NotificationsPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState('all');
   const [selectedNotif, setSelectedNotif] = useState(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
 
   const userRole = sessionStorage.getItem('userRole');
   const isAdmin = userRole === 'admin';
 
-  const fetchNotifications = useCallback(async () => {
-    setLoading(true);
+  const fetchNotifications = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const list = await notificationAPI.getNotifications({ page: 0, size: 50 });
       setNotifs(Array.isArray(list) ? list.map(normalizeNotif) : []);
     } catch {
       // keep current
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
@@ -260,6 +261,16 @@ export default function NotificationsPage() {
     fetchNotifications();
     fetchUnreadCount();
   }, [fetchNotifications, fetchUnreadCount]);
+
+  // Auto-refresh polling
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(() => {
+      fetchNotifications(true);
+      fetchUnreadCount();
+    }, 30000); // every 30s
+    return () => clearInterval(interval);
+  }, [autoRefresh, fetchNotifications, fetchUnreadCount]);
 
   /* Admin sync notification */
   useEffect(() => {
@@ -302,6 +313,34 @@ export default function NotificationsPage() {
 
   const filteredNotifs = filter === 'unread' ? notifs.filter((n) => !n.read) : notifs;
 
+  // Group notifications by date
+  const groupedNotifs = (() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+    const weekAgo = new Date(today.getTime() - 7 * 86400000);
+
+    const groups = { Today: [], Yesterday: [], 'This Week': [], Earlier: [] };
+
+    filteredNotifs.forEach((n) => {
+      const d = n.rawCreatedAt ? new Date(n.rawCreatedAt) : new Date(n.timestamp);
+      const dateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+      if (dateOnly.getTime() >= today.getTime()) {
+        groups['Today'].push(n);
+      } else if (dateOnly.getTime() >= yesterday.getTime()) {
+        groups['Yesterday'].push(n);
+      } else if (dateOnly.getTime() >= weekAgo.getTime()) {
+        groups['This Week'].push(n);
+      } else {
+        groups['Earlier'].push(n);
+      }
+    });
+
+    // Remove empty groups
+    return Object.entries(groups).filter(([, items]) => items.length > 0);
+  })();
+
   const markAsRead = async (id) => {
     setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
     setUnreadCount((c) => Math.max(0, c - 1));
@@ -341,6 +380,20 @@ export default function NotificationsPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Auto-refresh toggle */}
+          <button
+            type="button"
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all border ${
+              autoRefresh
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                : 'text-gray-400 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+            }`}
+            title={autoRefresh ? 'Auto-refresh active (30s)' : 'Enable auto-refresh'}
+          >
+            <RefreshCw size={12} className={autoRefresh ? 'animate-spin-slow' : ''} />
+            {autoRefresh ? 'Live' : 'Live'}
+          </button>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
@@ -389,17 +442,24 @@ export default function NotificationsPage() {
       {/* Loading */}
       {loading && <NotificationSkeleton />}
 
-      {/* List */}
+      {/* List — Grouped by date */}
       {!loading && filteredNotifs.length > 0 && (
-        <div className="space-y-3">
+        <div className="space-y-6">
           <AnimatePresence>
-            {filteredNotifs.map((n) => (
-              <NotificationCard
-                key={n.id}
-                notif={n}
-                onClick={handleSelect}
-                onDismiss={dismissNotif}
-              />
+            {groupedNotifs.map(([group, items]) => (
+              <div key={group} className="space-y-2">
+                <span className="text-[10px] uppercase tracking-wider font-bold text-gray-600 px-1">
+                  {group}
+                </span>
+                {items.map((n) => (
+                  <NotificationCard
+                    key={n.id}
+                    notif={n}
+                    onClick={handleSelect}
+                    onDismiss={dismissNotif}
+                  />
+                ))}
+              </div>
             ))}
           </AnimatePresence>
         </div>

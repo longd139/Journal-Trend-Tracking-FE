@@ -1,11 +1,24 @@
 ﻿import { useTranslation } from 'react-i18next';
 import * as React from "react";
-import { Filter, SlidersHorizontal, Calendar, Layers, Quote } from "lucide-react";
+import { Filter, Calendar, Layers, Quote, X } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
+
+// Generate year range — from 1950 to current year
+const currentYear = new Date().getFullYear();
+const START_YEAR = 1950;
+const YEARS = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) =>
+  String(currentYear - i),
+);
 
 export function AdvancedFilter({
- userRole = "academic",
  filters,
  setFilters,
  clearFilters,
@@ -25,16 +38,6 @@ export function AdvancedFilter({
 
  return (
  <Card className="bg-[#101010] border-[#DEDBC8]/5 relative overflow-hidden h-fit rounded-xl shadow-sm ">
-  {userRole === "academic" && (
-  <div className="absolute inset-0 bg-white/90 dark:bg-slate-950/85 backdrop-blur-[1px] z-10 flex flex-col items-center justify-center text-center p-4">
-   <SlidersHorizontal className="w-6 h-6 text-gray-400 dark:text-slate-500 mb-2" />
-   <p className="text-sm font-semibold text-gray-900 dark:text-slate-300">Feature Locked</p>
-   <p className="text-[11px] text-gray-500 dark:text-slate-500 mt-1 px-4 leading-relaxed">
-   Advanced filtering by year and citations is exclusive to Premium Researchers.
-   </p>
-  </div>
-  )}
-
   <CardHeader className="pb-3 border-b border-gray-200 border-[#DEDBC8]/5 ">
   <div className="flex items-center justify-between">
    <CardTitle className="text-xs text-[#E1E0CC] flex items-center gap-2 uppercase tracking-wider font-bold">
@@ -51,25 +54,67 @@ export function AdvancedFilter({
   </CardHeader>
 
   <CardContent className="space-y-5 pt-4">
+  {/* ── Year Range ── */}
   <div className="space-y-2">
    <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
    <Calendar size={13} /> {t('filters.yearRange')}
    </label>
    <div className="grid grid-cols-2 gap-2">
-   <input
-    type="number"
-    placeholder={t('filters.startYear')}
-    value={filters.startYear || ""}
-    onChange={(e) => setFilters(p => ({ ...p, startYear: e.target.value }))}
-    className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 border-[#DEDBC8]/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
-   />
-   <input
-    type="number"
-    placeholder={t('filters.endYear')}
-    value={filters.endYear || ""}
-    onChange={(e) => setFilters(p => ({ ...p, endYear: e.target.value }))}
-    className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 border-[#DEDBC8]/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
-   />
+   {/* Start Year */}
+   <div className="relative">
+    <Select
+     value={filters.startYear || ""}
+     onValueChange={(v) => setFilters((p) => ({ ...p, startYear: v }))}
+    >
+     <SelectTrigger className="w-full h-[34px] px-2.5 py-0 text-xs bg-[#121824]/60 border-[#DEDBC8]/5 text-slate-200 hover:border-[#DEDBC8]/20 focus:ring-0 rounded-md [&>svg]:hidden">
+      <SelectValue placeholder={t('filters.startYear')} />
+     </SelectTrigger>
+     <SelectContent className="max-h-[200px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+      {YEARS.map((year) => (
+       <SelectItem key={year} value={year} className="text-xs cursor-pointer">
+        {year}
+       </SelectItem>
+      ))}
+     </SelectContent>
+    </Select>
+    {filters.startYear && (
+     <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); setFilters((p) => ({ ...p, startYear: '' })); }}
+      className="absolute right-7 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+     >
+      <X size={11} />
+     </button>
+    )}
+   </div>
+
+   {/* End Year */}
+   <div className="relative">
+    <Select
+     value={filters.endYear || ""}
+     onValueChange={(v) => setFilters((p) => ({ ...p, endYear: v }))}
+    >
+     <SelectTrigger className="w-full h-[34px] px-2.5 py-0 text-xs bg-[#121824]/60 border-[#DEDBC8]/5 text-slate-200 hover:border-[#DEDBC8]/20 focus:ring-0 rounded-md [&>svg]:hidden">
+      <SelectValue placeholder={t('filters.endYear')} />
+     </SelectTrigger>
+     <SelectContent className="max-h-[200px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+      {YEARS.map((year) => (
+       <SelectItem key={year} value={year} className="text-xs cursor-pointer">
+        {year}
+       </SelectItem>
+      ))}
+     </SelectContent>
+    </Select>
+    {filters.endYear && (
+     <button
+      type="button"
+      onClick={(e) => { e.stopPropagation(); setFilters((p) => ({ ...p, endYear: '' })); }}
+      className="absolute right-7 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+     >
+      <X size={11} />
+     </button>
+    )}
+   </div>
    </div>
   </div>
 

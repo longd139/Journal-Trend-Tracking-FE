@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   Search, RefreshCw, ChevronLeft, ChevronRight,
-  Calendar, User, Activity, Database, FileText,
+  Calendar, User, Activity, Database, FileText, Shield,
 } from 'lucide-react';
 import { adminAPI } from './api';
 
@@ -53,17 +53,29 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black text-white font-display">Audit Logs</h1>
-          <p className="text-xs text-gray-400 mt-1">Track all administrative actions across the system</p>
+      {/* Header banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+      >
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+        <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+              <Shield size={15} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">Audit Logs</h2>
+              <p className="text-[11px] text-gray-500">Track all administrative actions across the system</p>
+            </div>
+          </div>
+          <button onClick={fetchLogs} disabled={loading}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
+            <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> Refresh
+          </button>
         </div>
-        <button onClick={fetchLogs} disabled={loading}
-          className="p-2.5 rounded-xl bg-white/[0.04] border border-[#DEDBC8]/10 text-gray-400 hover:text-white transition-colors">
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
-      </div>
+      </motion.div>
 
       {/* Filters */}
       <div className="flex gap-3">

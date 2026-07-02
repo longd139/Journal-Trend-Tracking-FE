@@ -233,47 +233,34 @@ export default function DatabaseViewPage() {
 
   return (
     <div className="p-6 space-y-5">
-      {/* ── Header ── */}
+      {/* ── Header — compact, title is in TopBar ── */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
+        className="flex items-center justify-between"
       >
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 rounded-lg" style={{ background: `${NEO4J_COLOR}18`, color: NEO4J_COLOR }}>
-            <Database size={17} />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-black text-[#E1E0CC] font-display">
-              {t('headings.database')}
-            </h2>
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              System-wide statistics and data health overview
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => fetchStats()}
-            disabled={isLoading}
-            className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all disabled:opacity-40"
-            title="Refresh statistics"
-          >
-            <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
-          </button>
-        </div>
-
-        {/* Last sync badge */}
-        {syncLogs?.lastSync && (
-          <div className="flex items-center gap-1.5 mt-3 ml-11">
-            <CheckCircle2 size={11} className="text-emerald-500" />
-            <span className="text-[10px] text-gray-500">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[11px] text-gray-500">System-wide statistics and data health overview</span>
+          {syncLogs?.lastSync && (
+            <span className="flex items-center gap-1 text-[10px] text-gray-500">
+              <CheckCircle2 size={11} className="text-emerald-500" />
               Last sync:{' '}
               <span className="text-[#DEDBC8]/70 font-medium">
                 {new Date(syncLogs.lastSync).toLocaleString()}
               </span>
             </span>
-          </div>
-        )}
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => fetchStats()}
+          disabled={isLoading}
+          className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all disabled:opacity-40"
+          title="Refresh statistics"
+        >
+          <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
+        </button>
       </motion.div>
 
       {/* ── Top Stat Cards (4 main KPIs) ── */}

@@ -40,5 +40,13 @@
     "clearQuery": "Xóa tìm kiếm",
     "noResults": "Không tìm thấy tác giả.",
     "error": "Không thể tải dữ liệu tác giả từ hệ thống."
+  },
+  "sort": {
+    "label": "Sắp xếp theo",
+    "relevance": "Liên quan",
+    "newest": "Mới nhất",
+    "oldest": "Cũ nhất",
+    "mostCited": "Trích dẫn nhiều",
+    "leastCited": "Trích dẫn ít"
   }
 }
