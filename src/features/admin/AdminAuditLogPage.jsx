@@ -72,7 +72,7 @@ export default function AdminAuditLogPage() {
             </div>
           </div>
           <button onClick={fetchLogs} disabled={loading}
-            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 border border-[#DEDBC8]/8">
             <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
           </button>
         </div>
@@ -105,8 +105,19 @@ export default function AdminAuditLogPage() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                  <RefreshCw size={20} className="animate-spin mx-auto mb-2" />{tc('actions.loading')}
+                <tr><td colSpan={5} className="px-4 py-12">
+                  <div className="space-y-3 animate-pulse max-w-3xl mx-auto">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-4 px-4">
+                        <div className="h-7 w-7 bg-[#DEDBC8]/8 rounded-lg" />
+                        <div className="h-3 w-28 bg-[#DEDBC8]/8 rounded flex-1" />
+                        <div className="h-5 w-14 bg-[#DEDBC8]/5 rounded" />
+                        <div className="h-3 w-32 bg-[#DEDBC8]/8 rounded flex-1" />
+                        <div className="h-3 w-24 bg-[#DEDBC8]/8 rounded" />
+                        <div className="h-3 w-20 bg-[#DEDBC8]/8 rounded" />
+                      </div>
+                    ))}
+                  </div>
                 </td></tr>
               ) : logs.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
@@ -142,14 +153,14 @@ export default function AdminAuditLogPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-[#DEDBC8]/10">
-            <span className="text-xs text-gray-500">{t('auditLogs.pagination', { current: page + 1, total: totalPages })}</span>
+            <span className="text-xs text-gray-500 font-mono tabular-nums">{t('auditLogs.pagination', { current: page + 1, total: totalPages })}</span>
             <div className="flex gap-1">
               <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors">
+                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 active:scale-[0.97] disabled:opacity-30 transition-all duration-150">
                 <ChevronLeft size={14} />
               </button>
               <button onClick={() => setPage(Math.min(totalPages - 1, page + 1))} disabled={page >= totalPages - 1}
-                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors">
+                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 active:scale-[0.97] disabled:opacity-30 transition-all duration-150">
                 <ChevronRight size={14} />
               </button>
             </div>

@@ -91,7 +91,7 @@ function StatCard({ label, value, icon: Icon, color, change }) {
               key={value}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[28px] font-bold leading-none text-white tracking-tight"
+              className="text-[28px] font-bold leading-none text-white tracking-tight font-mono tabular-nums"
             >
               {value}
             </motion.p>
@@ -562,7 +562,7 @@ export default function UserManagement() {
         {/* ─── Pagination ─── */}
         {totalPages > 1 && (
           <div className="px-5 py-3 border-t border-[#DEDBC8]/5 flex items-center justify-between text-[13px]">
-            <span className="text-slate-500">
+            <span className="text-slate-500 font-mono tabular-nums">
               {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
             </span>
             <div className="flex items-center gap-1">
