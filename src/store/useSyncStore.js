@@ -30,9 +30,27 @@ export const useSyncStore = create(
         // ── State ──
         tasks: [],
         bulkTask: null, // { id, status, percent, totalKeywords, completedKeywords, currentKeyword, totalFetched, totalInserted, error?, result? }
+        bulkTasksList: [],      // list of all bulk tasks from GET /bulk/tasks
+        bulkTasksLoading: false,
 
         // ── Actions ──
 
+        /**
+         * Fetch the list of all bulk sync tasks (running + recent).
+         */
+        fetchBulkTasks: async () => {
+          set({ bulkTasksLoading: true });
+          try {
+            const res = await adminAPI.getBulkSyncTasks();
+            const payload = res?.data || res;
+            set({
+              bulkTasksList: payload?.tasks || [],
+              bulkTasksLoading: false,
+            });
+          } catch {
+            set({ bulkTasksLoading: false });
+          }
+        },
         /**
          * Start sync tasks for the given sources.
          */
@@ -169,6 +187,9 @@ export const useSyncStore = create(
                           totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted,
                           result: progress.result || progress,
                           keywordStats: progress.keywordStats,
+                          keywordErrors: progress.keywordErrors,
+                          startedAt: progress.startedAt,
+                          completedAt: progress.completedAt,
                         }
                       : null,
                   }));
@@ -188,11 +209,14 @@ export const useSyncStore = create(
                           ...state.bulkTask,
                           status: 'error',
                           percent: progress.percent ?? state.bulkTask.percent,
-                          error: progress.error || 'Bulk sync failed',
+                          error: progress.errorMessage || progress.error || 'Bulk sync failed',
+                          keywordStats: progress.keywordStats,
+                          keywordErrors: progress.keywordErrors,
+                          completedAt: progress.completedAt,
                         }
                       : null,
                   }));
-                  toast.error(progress.error || 'Bulk sync failed', {
+                  toast.error(progress.errorMessage || progress.error || 'Bulk sync failed', {
                     position: 'top-right',
                     duration: 5000,
                   });
@@ -212,6 +236,8 @@ export const useSyncStore = create(
                         totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched,
                         totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted,
                         keywordStats: progress.keywordStats,
+                        keywordErrors: progress.keywordErrors,
+                        startedAt: progress.startedAt,
                       }
                     : null,
                 }));

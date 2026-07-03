@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
- ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap, HelpCircle,
+ ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap,
+ Info, ExternalLink,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -125,8 +126,10 @@ export default function SyncDataPage() {
 
  const tasks = useSyncStore((s) => s.tasks);
  const bulkTask = useSyncStore((s) => s.bulkTask);
+ const bulkTasksList = useSyncStore((s) => s.bulkTasksList);
  const startTasks = useSyncStore((s) => s.startTasks);
  const startBulkSync = useSyncStore((s) => s.startBulkSync);
+ const fetchBulkTasks = useSyncStore((s) => s.fetchBulkTasks);
  const clearCompleted = useSyncStore((s) => s.clearCompleted);
 
  // Only show tasks from the current query context (latest batch)
@@ -164,6 +167,13 @@ export default function SyncDataPage() {
  useEffect(() => {
  fetchAutoSyncStatus();
  }, [fetchAutoSyncStatus]);
+
+ // Fetch bulk tasks list on mount + poll every 30s while on page
+ useEffect(() => {
+  fetchBulkTasks();
+  const id = setInterval(fetchBulkTasks, 30_000);
+  return () => clearInterval(id);
+ }, [fetchBulkTasks]);
 
  const handleToggleAutoSync = async () => {
  setIsToggling(true);
@@ -203,9 +213,10 @@ export default function SyncDataPage() {
  const bulkProgress = bulkTask?.status === 'running' ? bulkTask : null;
 
  // -- Deep Sync OpenAlex --
+ const DEEP_API_KEY_STORAGE = 'scitrack_openalex_api_key';
  const [deepQuery, setDeepQuery] = useState('');
- const [deepApiKey, setDeepApiKey] = useState(() => localStorage.getItem('deepSyncApiKey') || '');
- const [deepMailto, setDeepMailto] = useState(() => localStorage.getItem('deepSyncMailto') || '');
+ const [deepApiKey, setDeepApiKey] = useState(() => localStorage.getItem(DEEP_API_KEY_STORAGE) || '');
+ const [deepMailto, setDeepMailto] = useState(''); // deprecated, kept for optional use
  const [deepLimit, setDeepLimit] = useState(500);
  const [deepYearFrom, setDeepYearFrom] = useState(String(currentYear - 3));
  const [deepYearTo, setDeepYearTo] = useState(String(currentYear));
@@ -213,6 +224,15 @@ export default function SyncDataPage() {
  const [deepSyncResult, setDeepSyncResult] = useState(null);
  const [deepSyncError, setDeepSyncError] = useState(null);
  const [showApiKeyHelp, setShowApiKeyHelp] = useState(false);
+
+ // Persist API key to localStorage so user doesn't have to re-enter
+ useEffect(() => {
+  if (deepApiKey) {
+   localStorage.setItem(DEEP_API_KEY_STORAGE, deepApiKey);
+  } else {
+   localStorage.removeItem(DEEP_API_KEY_STORAGE);
+  }
+ }, [deepApiKey]);
 
  const handleBulkSync = async () => {
  let body;
@@ -246,7 +266,7 @@ export default function SyncDataPage() {
 
   // -- Deep Sync OpenAlex handler --
   const handleDeepSync = async () => {
-   if (!deepQuery.trim() || (!deepApiKey.trim() && !deepMailto.trim())) return;
+   if (!deepQuery.trim()) return;
 
    setIsDeepSyncing(true);
    setDeepSyncError(null);
@@ -255,11 +275,11 @@ export default function SyncDataPage() {
    try {
     const response = await adminAPI.syncOpenAlexDeep({
      query: deepQuery.trim(),
-     apiKey: deepApiKey.trim() || undefined,
-     mailto: deepMailto.trim() || undefined,
      limit: deepLimit,
      yearFrom: deepYearFrom ? parseInt(deepYearFrom, 10) : undefined,
      yearTo: deepYearTo ? parseInt(deepYearTo, 10) : undefined,
+     mailto: deepMailto.trim() || undefined,
+     apiKey: deepApiKey.trim() || undefined,
     });
     setDeepSyncResult(response);
     toast.success(response.message || 'Deep sync completed', {
@@ -275,7 +295,7 @@ export default function SyncDataPage() {
    }
   };
 
-  const canDeepSync = deepQuery.trim() && (deepApiKey.trim() || deepMailto.trim()) && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
+  const canDeepSync = deepQuery.trim() && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
 
 
  const handleClearAll = async () => {
@@ -798,7 +818,7 @@ export default function SyncDataPage() {
      <thead>
       <tr className="border-b border-gray-200 border-[#DEDBC8]/5">
       <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
       <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
       </tr>
      </thead>
@@ -811,12 +831,28 @@ export default function SyncDataPage() {
         <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse align-middle" />
        )}
        </td>
-       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.fetched}</td>
-       <td className="py-1.5 text-right font-mono text-[#DEDBC8]">{stats.inserted}</td>
+       <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
+       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
       </tr>
       ))}
      </tbody>
      </table>
+    </div>
+    )}
+
+    {/* Keyword errors during progress */}
+    {bulkProgress.keywordErrors && Object.keys(bulkProgress.keywordErrors).length > 0 && (
+    <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-lg p-3">
+     <div className="flex items-center gap-1.5 mb-2">
+      <AlertCircle size={11} className="text-red-500" />
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">Errors</span>
+     </div>
+     {Object.entries(bulkProgress.keywordErrors).map(([kw, err]) => (
+      <div key={kw} className="text-[10px] text-red-600 dark:text-red-400 flex gap-2 py-0.5">
+       <span className="font-medium shrink-0">{kw}:</span>
+       <span className="truncate">{err}</span>
+      </div>
+     ))}
     </div>
     )}
    </motion.div>
@@ -859,7 +895,7 @@ export default function SyncDataPage() {
      <thead>
       <tr className="border-b border-gray-200 border-[#DEDBC8]/5">
       <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
       <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
       </tr>
      </thead>
@@ -867,12 +903,28 @@ export default function SyncDataPage() {
       {Object.entries(bulkResult.keywordStats || bulkProgress?.keywordStats || {}).map(([kw, stats]) => (
       <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
        <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">{kw}</td>
-       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.fetched}</td>
-       <td className="py-1.5 text-right font-mono text-[#DEDBC8]">{stats.inserted}</td>
+       <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
+       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
       </tr>
       ))}
      </tbody>
      </table>
+    </div>
+    )}
+
+    {/* Keyword errors on completion */}
+    {((bulkResult.keywordErrors && Object.keys(bulkResult.keywordErrors).length > 0) || (bulkProgress?.keywordErrors && Object.keys(bulkProgress.keywordErrors).length > 0)) && (
+    <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-lg p-3">
+     <div className="flex items-center gap-1.5 mb-2">
+      <AlertCircle size={11} className="text-red-500" />
+      <span className="text-[10px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">Errors</span>
+     </div>
+     {Object.entries(bulkResult.keywordErrors || bulkProgress?.keywordErrors || {}).map(([kw, err]) => (
+      <div key={kw} className="text-[10px] text-red-600 dark:text-red-400 flex gap-2 py-0.5">
+       <span className="font-medium shrink-0">{kw}:</span>
+       <span className="truncate">{err}</span>
+      </div>
+     ))}
     </div>
     )}
    </div>
@@ -881,6 +933,110 @@ export default function SyncDataPage() {
   </div>
 
   
+
+  {/* -- Bulk Tasks List -- */}
+  {bulkTasksList.length > 0 && (
+  <div className="border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2">
+   <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className={`${card} p-5`}
+   >
+    <div className="flex items-center gap-2 mb-4">
+     <div className="w-1 h-5 rounded-full" style={{ background: '#A78BFA' }} />
+     <Layers size={14} style={{ color: '#A78BFA' }} />
+     <h4 className="text-sm font-bold text-[#E1E0CC]">Bulk Sync Tasks</h4>
+     <span className="text-[10px] text-gray-500 ml-auto">
+      {bulkTasksList.filter(t => t.status === 'RUNNING').length} running &middot; {bulkTasksList.length} total
+     </span>
+    </div>
+
+    <div className="space-y-2">
+     {bulkTasksList.map((t) => {
+      const isRunning = t.status === 'RUNNING';
+      const isFailed = t.status === 'FAILED';
+      const isDone = t.status === 'COMPLETED';
+
+      return (
+       <div
+        key={t.taskId}
+        className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 space-y-2"
+       >
+        {/* Top row: status + percent + time */}
+        <div className="flex items-center gap-2">
+         {isRunning ? (
+          <RefreshCw size={12} className="animate-spin text-amber-500 shrink-0" />
+         ) : isFailed ? (
+          <AlertCircle size={12} className="text-red-500 shrink-0" />
+         ) : (
+          <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
+         )}
+         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
+          isRunning ? 'bg-amber-500/15 text-amber-400' :
+          isFailed ? 'bg-red-500/15 text-red-400' :
+          'bg-emerald-500/15 text-emerald-400'
+         }`}>
+          {t.status}
+         </span>
+         <span className="text-[10px] text-gray-500 ml-auto">
+          {t.startedAt ? new Date(t.startedAt).toLocaleTimeString() : ''}
+          {t.completedAt ? ` → ${new Date(t.completedAt).toLocaleTimeString()}` : ''}
+         </span>
+        </div>
+
+        {/* Progress bar (only for RUNNING) */}
+        {isRunning && (
+         <div className="space-y-1">
+          <div className="flex items-center justify-between text-[10px]">
+           <span className="text-gray-400">
+            {t.currentKeyword || '...'} ({t.completedKeywords ?? 0}/{t.totalKeywords ?? '?'} keywords)
+           </span>
+           <span className="font-mono font-bold text-[#E1E0CC]">{t.percent ?? 0}%</span>
+          </div>
+          <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
+           <div
+            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-500"
+            style={{ width: `${t.percent ?? 0}%` }}
+           />
+          </div>
+         </div>
+        )}
+
+        {/* Summary row */}
+        <div className="flex items-center gap-3 text-[10px] text-gray-500">
+         <span>{t.totalFetched ?? 0} scanned</span>
+         <span className="text-emerald-400">{t.totalInserted ?? 0} inserted</span>
+         {t.totalKeywords > 0 && (
+          <span>{t.completedKeywords}/{t.totalKeywords} keywords</span>
+         )}
+        </div>
+
+        {/* Error message */}
+        {isFailed && t.errorMessage && (
+         <div className="text-[10px] text-red-400 bg-red-500/5 rounded-lg p-2">
+          {t.errorMessage}
+         </div>
+        )}
+
+        {/* Keyword errors */}
+        {t.keywordErrors && Object.keys(t.keywordErrors).length > 0 && (
+         <div className="text-[10px] space-y-0.5">
+          {Object.entries(t.keywordErrors).map(([kw, err]) => (
+           <div key={kw} className="text-red-400 flex gap-1.5">
+            <span className="font-medium shrink-0">{kw}:</span>
+            <span className="truncate">{err}</span>
+           </div>
+          ))}
+         </div>
+        )}
+       </div>
+      );
+     })}
+    </div>
+   </motion.div>
+  </div>
+  )}
+
   {/* -- Deep Sync OpenAlex -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
    <motion.div
@@ -896,7 +1052,7 @@ export default function SyncDataPage() {
      <div>
       <h4 className="text-sm font-bold text-[#E1E0CC]">Deep Sync OpenAlex</h4>
       <p className="text-xs text-gray-500 dark:text-slate-400">
-       Deep sync papers from OpenAlex for multiple keywords. Paste keywords separated by commas or newlines. Each team member needs their own API key from openalex.org.
+       Deep sync papers from OpenAlex for multiple keywords. Supports comma, semicolon, or newline separators. Uses server API key by default.
       </p>
      </div>
     </div>
@@ -908,7 +1064,7 @@ export default function SyncDataPage() {
        Keywords <span className="text-red-500">*</span>
       </label>
       <textarea
-       placeholder="Enter keywords, one per line or comma-separated&#10;e.g.&#10;Computer Vision&#10;Deep Learning&#10;NLP&#10;Reinforcement Learning"
+       placeholder="Enter keywords (comma, semicolon, or newline)&#10;e.g.&#10;machine learning, deep learning, nlp&#10;computer vision; reinforcement learning"
        value={deepQuery}
        onChange={(e) => setDeepQuery(e.target.value)}
        disabled={isDeepSyncing}
@@ -917,41 +1073,50 @@ export default function SyncDataPage() {
       />
      </div>
 
-     {/* API Key + Email + Limit row */}
+     {/* API Key + Limit row */}
      <div className="flex flex-col sm:flex-row gap-3">
       <div className="flex-1 space-y-1.5">
-       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-        OpenAlex API Key <span className="text-red-500">*</span>
-        <button
-         type="button"
-         onClick={() => setShowApiKeyHelp(true)}
-         className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 transition-colors"
-         title="How to get API key"
+       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+        OpenAlex API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+        <span
+         className="relative inline-flex cursor-pointer"
+         onMouseEnter={() => setShowApiKeyHelp(true)}
+         onMouseLeave={() => setShowApiKeyHelp(false)}
         >
-         <HelpCircle size={10} />
-        </button>
+         <Info size={12} className="text-gray-500 hover:text-blue-400 transition-colors" />
+         {showApiKeyHelp && (
+          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3.5 rounded-xl bg-[#1a1a1a] border border-[#DEDBC8]/15 text-left shadow-xl shadow-black/40 z-50">
+           <span className="block text-[11px] font-bold text-[#E1E0CC] mb-2">How to get an API key</span>
+           <span className="block text-[10px] text-gray-400 space-y-1.5">
+            <span className="block">1. Go to{' '}
+             <a
+              href="https://openalex.org/settings/api"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline items-center gap-0.5 text-blue-400 hover:text-blue-300 underline"
+              onClick={(e) => e.stopPropagation()}
+             >
+              openalex.org/settings/api<ExternalLink size={9} className="inline ml-0.5 -mt-0.5" />
+             </a>
+            </span>
+            <span className="block">2. Sign in or create a free account</span>
+            <span className="block">3. Copy your API key (starts with <code className="px-1 py-0.5 rounded bg-[#DEDBC8]/10 text-[#DEDBC8] font-mono text-[9px]">sk_</code>)</span>
+            <span className="block">4. Paste it here — it'll be saved for next time</span>
+            <span className="block mt-1.5 text-[9px] text-gray-500">An API key gives you faster, authenticated access to OpenAlex.</span>
+           </span>
+           {/* Arrow */}
+           <span className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#DEDBC8]/15" />
+          </span>
+         )}
+        </span>
        </label>
        <Input
         type="text"
-        placeholder="Paste your OpenAlex API key"
+        placeholder="sk_xxxx — get yours at openalex.org/settings/api"
         value={deepApiKey}
-        onChange={(e) => { setDeepApiKey(e.target.value); localStorage.setItem('deepSyncApiKey', e.target.value); }}
+        onChange={(e) => setDeepApiKey(e.target.value)}
         disabled={isDeepSyncing}
-        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
-       />
-      </div>
-
-      <div className="flex-1 space-y-1.5">
-       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-        Polite Pool Email
-       </label>
-       <Input
-        type="email"
-        placeholder="your@email.com"
-        value={deepMailto}
-        onChange={(e) => { setDeepMailto(e.target.value); localStorage.setItem('deepSyncMailto', e.target.value); }}
-        disabled={isDeepSyncing}
-        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200 font-mono"
        />
       </div>
 
@@ -961,7 +1126,7 @@ export default function SyncDataPage() {
        </label>
        <Input
         type="number"
-        min={1}
+        min={10}
         max={40000}
         value={deepLimit}
         onChange={(e) => setDeepLimit(parseInt(e.target.value, 10) || 500)}
@@ -969,6 +1134,21 @@ export default function SyncDataPage() {
         className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
        />
       </div>
+     </div>
+
+     {/* Polite Pool Email (deprecated) */}
+     <div className="space-y-1.5">
+      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+       Polite Pool Email <span className="text-[10px] font-normal text-gray-600">(deprecated)</span>
+      </label>
+      <Input
+       type="email"
+       placeholder="your@email.com (optional)"
+       value={deepMailto}
+       onChange={(e) => setDeepMailto(e.target.value)}
+       disabled={isDeepSyncing}
+       className="py-2 rounded-lg text-xs bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-300"
+      />
      </div>
 
      {/* Year range row */}
@@ -1077,6 +1257,8 @@ export default function SyncDataPage() {
            <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
            <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
            <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
+           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Skip-Yr</th>
+           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Skip-Dup</th>
           </tr>
          </thead>
          <tbody>
@@ -1085,6 +1267,8 @@ export default function SyncDataPage() {
             <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">{kw}</td>
             <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned}</td>
             <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
+            <td className="py-1.5 text-right font-mono text-amber-600 dark:text-amber-400">{stats.skippedByYear ?? 0}</td>
+            <td className="py-1.5 text-right font-mono text-red-600 dark:text-red-400">{stats.skippedByDuplicate ?? 0}</td>
            </tr>
           ))}
          </tbody>
