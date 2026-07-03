@@ -160,6 +160,30 @@ export const adminAPI = {
     return data;
   },
 
+  /* ──────────── Deep Sync CORE (/api/v1/admin/sync/core/deep) ──────────── */
+
+  /**
+   * Trigger a deep sync from CORE for one or more keywords.
+   * POST /api/v1/admin/sync/core/deep
+   * Content-Type: application/x-www-form-urlencoded
+   *
+   * @param {{ query: string, limit?: number, yearFrom?: number, yearTo?: number, apiKey?: string }} params
+   * @returns { code, message, data: { totalKeywords, totalFetched, totalInserted, yearRange, keywordStats }, timestamp }
+   */
+  async syncCoreDeep({ query, limit, yearFrom, yearTo, apiKey }) {
+    const formParams = new URLSearchParams();
+    formParams.append('query', query);
+    if (limit != null) formParams.append('limit', String(limit));
+    if (yearFrom != null) formParams.append('yearFrom', String(yearFrom));
+    if (yearTo != null) formParams.append('yearTo', String(yearTo));
+    if (apiKey) formParams.append('apiKey', apiKey);
+
+    const { data } = await axiosClient.post('/api/v1/admin/sync/core/deep', formParams, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return data;
+  },
+
   /* ──────────── Single-source Sync (/api/v1/admin/sync) ──────────── */
 
   async syncOpenAlex({ query, limit, yearFrom, yearTo } = {}) {
@@ -222,6 +246,39 @@ export const adminAPI = {
    */
   async bulkSync(body) {
     const { data } = await axiosClient.post('/api/v1/admin/sync/bulk', body);
+    return data;
+  },
+
+  /**
+   * Start an async bulk sync from CORE for multiple keywords.
+   * POST /api/v1/admin/sync/core/bulk
+   * Content-Type: application/json
+   *
+   * @param {{ keywords?: string[], papersPerKeyword?: number, yearFrom?: number, yearTo?: number, apiKey?: string }} body
+   * @returns {{ status, message, data: { taskId, totalKeywords, papersPerKeyword, estimatedMaxPapers } }}
+   */
+  async syncCoreBulk(body) {
+    const { data } = await axiosClient.post('/api/v1/admin/sync/core/bulk', body);
+    return data;
+  },
+
+  /**
+   * Start an async bulk sync from Semantic Scholar for multiple keywords.
+   * POST /api/v1/admin/sync/semantic-scholar/bulk
+   * Content-Type: application/json
+   */
+  async syncSemanticScholarBulk(body) {
+    const { data } = await axiosClient.post('/api/v1/admin/sync/semantic-scholar/bulk', body);
+    return data;
+  },
+
+  /**
+   * Start an async bulk sync from arXiv for multiple keywords.
+   * POST /api/v1/admin/sync/arxiv/bulk
+   * Content-Type: application/json
+   */
+  async syncArxivBulk(body) {
+    const { data } = await axiosClient.post('/api/v1/admin/sync/arxiv/bulk', body);
     return data;
   },
 
