@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
  ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap,
- Info, ExternalLink,
+ HelpCircle, Info, ExternalLink,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
