@@ -38,7 +38,7 @@ export default function SyncFloatingPanel() {
   <button
    type="button"
    onClick={() => setExpanded(true)}
-   className="flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-lg border text-xs font-semibold transition-all cursor-pointer
+   className="flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-lg border text-xs font-semibold transition-all cursor-pointer active:scale-[0.97]
    bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] hover:shadow-xl"
   >
    {!isAllDone ? (
@@ -85,7 +85,7 @@ export default function SyncFloatingPanel() {
     <button
     type="button"
     onClick={() => setExpanded(false)}
-    className="p-1 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+    className="p-1 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 active:scale-[0.90] transition-all duration-150"
     title={t('sync.minimize')}
     >
     <Minimize2 size={12} />

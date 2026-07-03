@@ -91,11 +91,11 @@ export default function AdminDataSourcePage() {
           </div>
           <div className="flex gap-2">
             <button onClick={fetchSources} disabled={loading}
-              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
+              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 border border-[#DEDBC8]/8">
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
             </button>
             <button onClick={openCreate}
-              className="px-4 py-1.5 rounded-lg text-[11px] font-bold bg-[#DEDBC8] text-black hover:bg-[#E1E0CC] transition-all flex items-center gap-1.5">
+              className="px-4 py-1.5 rounded-lg text-[11px] font-bold bg-[#DEDBC8] text-black hover:bg-[#E1E0CC] active:scale-[0.97] transition-all duration-150 flex items-center gap-1.5">
               <Plus size={12} />{t('dataSources.addSource')}
             </button>
           </div>
@@ -105,8 +105,26 @@ export default function AdminDataSourcePage() {
       {/* Sources grid */}
       <div className="grid gap-3 md:grid-cols-2">
         {loading ? (
-          <div className="col-span-2 text-center py-12 text-gray-500">
-            <RefreshCw size={24} className="animate-spin mx-auto mb-2" />{tc('actions.loading')}
+          <div className="col-span-2 grid gap-3 md:grid-cols-2 animate-pulse">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] p-5 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#DEDBC8]/8 rounded-xl" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-24 bg-[#DEDBC8]/8 rounded" />
+                      <div className="h-3 w-32 bg-[#DEDBC8]/5 rounded" />
+                    </div>
+                  </div>
+                  <div className="h-4 w-14 bg-[#DEDBC8]/5 rounded" />
+                </div>
+                <div className="h-3 w-40 bg-[#DEDBC8]/5 rounded" />
+                <div className="flex gap-2 pt-3 border-t border-[#DEDBC8]/5">
+                  <div className="flex-1 h-8 bg-[#DEDBC8]/5 rounded-lg" />
+                  <div className="w-12 h-8 bg-[#DEDBC8]/5 rounded-lg" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : sources.length === 0 ? (
           <div className="col-span-2 text-center py-12 text-gray-500">
@@ -146,11 +164,11 @@ export default function AdminDataSourcePage() {
               </div>
               <div className="flex gap-2 pt-3 border-t border-[#DEDBC8]/5">
                 <button onClick={() => openEdit(src)}
-                  className="flex-1 py-2 rounded-lg text-xs font-bold text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/10 transition-all flex items-center justify-center gap-1">
+                  className="flex-1 py-2 rounded-lg text-xs font-bold text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/10 active:scale-[0.97] transition-all duration-150 flex items-center justify-center gap-1">
                   <Edit3 size={11} />{tc('actions.edit')}
                 </button>
                 <button onClick={() => handleDelete(src.sourceId)}
-                  className="py-2 px-3 rounded-lg text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/10 transition-all">
+                  className="py-2 px-3 rounded-lg text-xs font-bold text-red-400 border border-red-500/20 hover:bg-red-500/10 active:scale-[0.97] transition-all duration-150">
                   <Trash2 size={11} />
                 </button>
               </div>

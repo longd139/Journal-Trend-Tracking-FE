@@ -477,7 +477,7 @@ export default function SyncDataPage() {
    <button
     type="button"
     onClick={toggleAll}
-    className="text-[10px] font-medium text-gray-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+    className="text-[10px] font-medium text-gray-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.97] transition-all duration-150"
    >
     {allSelected ? 'Deselect All' : 'Select All'}
    </button>
@@ -509,7 +509,7 @@ export default function SyncDataPage() {
    type="button"
    disabled={!canSync}
    onClick={handleSync}
-   className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+   className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 rounded-lg active:scale-[0.97] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
   >
    <RefreshCw size={15} className={isRunning ? 'animate-spin' : ''} />
    {isRunning
@@ -547,7 +547,7 @@ export default function SyncDataPage() {
     <button
      type="button"
      onClick={clearCompleted}
-     className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+     className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-150"
     >
      Clear all
     </button>
@@ -630,7 +630,7 @@ export default function SyncDataPage() {
       </div>
      </div>
      <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-      <div className="text-sm font-bold text-[#DEDBC8]/80 font-mono">
+      <div className="text-sm font-bold text-[#DEDBC8]/80 font-mono tabular-nums">
       {autoSyncStats.lastSyncTime
        ? new Date(autoSyncStats.lastSyncTime).toLocaleString()
        : 'Never'}
@@ -1198,7 +1198,7 @@ export default function SyncDataPage() {
      type="button"
      onClick={() => setShowClearDialog(true)}
      disabled={isClearing || isRunning || isBulkSyncing}
-     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg active:scale-[0.97] transition-all duration-150"
     >
      <AlertTriangle size={14} />
      Clear All Data
@@ -1249,7 +1249,7 @@ export default function SyncDataPage() {
     type="button"
     onClick={handleClearAll}
     disabled={isClearing || isRunning || isBulkSyncing}
-    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-lg active:scale-[0.97] transition-all duration-150"
    >
     <RefreshCw size={13} className={isClearing ? 'animate-spin' : ''} />
     {isClearing ? 'Deleting...' : 'Yes, Delete Everything'}

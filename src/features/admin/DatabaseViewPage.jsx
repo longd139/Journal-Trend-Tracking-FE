@@ -39,7 +39,7 @@ function StatCard({ label, value, Icon, accent, sub }) {
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ duration: 0.18 }}
-      className={`${card} p-4 flex items-center gap-3.5 group cursor-default`}
+      className={`${card} p-4 flex items-center gap-3.5 group cursor-default hover:shadow-lg hover:shadow-[#DEDBC8]/5`}
     >
       <div
         className="p-2.5 rounded-xl shrink-0 transition-colors"
@@ -49,7 +49,7 @@ function StatCard({ label, value, Icon, accent, sub }) {
       </div>
       <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</div>
-        <div className="text-lg font-bold text-[#E1E0CC] font-display">
+        <div className="text-lg font-bold text-[#E1E0CC] font-mono tabular-nums">
           {value?.toLocaleString() ?? '—'}
         </div>
         {sub && <div className="text-[10px] text-gray-500 mt-0.5">{sub}</div>}
@@ -203,7 +203,7 @@ export default function DatabaseViewPage() {
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] hover:bg-[#DEDBC8]/20 transition-all active:scale-[0.97]"
         >
           {tc('actions.retry')}
         </button>
@@ -257,7 +257,7 @@ export default function DatabaseViewPage() {
           type="button"
           onClick={() => fetchStats()}
           disabled={isLoading}
-          className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all disabled:opacity-40"
+          className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all active:scale-[0.97] disabled:opacity-40"
           title={t('database.refreshStats')}
         >
           <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
@@ -280,7 +280,7 @@ export default function DatabaseViewPage() {
             {/* Open Access & PDF */}
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-                <div className="text-xl font-bold text-emerald-500 font-display">
+                <div className="text-xl font-bold text-emerald-500 font-mono tabular-nums">
                   {papers?.openAccess?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
@@ -288,7 +288,7 @@ export default function DatabaseViewPage() {
                 </div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-                <div className="text-xl font-bold text-[#DEDBC8] font-display">
+                <div className="text-xl font-bold text-[#DEDBC8] font-mono tabular-nums">
                   {papers?.hasPdfUrl?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
@@ -350,7 +350,7 @@ export default function DatabaseViewPage() {
           <Section title={t('database.knowledgeGraph')} Icon={Network} accent={NEO4J_COLOR}>
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3.5 rounded-xl bg-[#4F8CFF]/[0.03] border border-[#4F8CFF]/10 text-center">
-                <div className="text-xl font-bold text-[#4F8CFF] font-display">
+                <div className="text-xl font-bold text-[#4F8CFF] font-mono tabular-nums">
                   {neo4j?.paperNodes?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
@@ -358,7 +358,7 @@ export default function DatabaseViewPage() {
                 </div>
               </div>
               <div className="p-3.5 rounded-xl bg-[#34D399]/[0.03] border border-[#34D399]/10 text-center">
-                <div className="text-xl font-bold text-emerald-500 font-display">
+                <div className="text-xl font-bold text-emerald-500 font-mono tabular-nums">
                   {neo4j?.keywordNodes?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
