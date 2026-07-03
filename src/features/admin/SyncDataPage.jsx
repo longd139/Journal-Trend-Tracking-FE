@@ -2,13 +2,14 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
- ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle, Zap,
- HelpCircle, Info, ExternalLink,
+ ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle,
+ Info, ExternalLink,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { useSyncStore } from '../../store/useSyncStore';
 import { adminAPI } from './api';
+import { trendAPI } from '../search/trend.api';
 import { toast } from 'sonner';
 import {
  Dialog,
@@ -29,6 +30,13 @@ const SOURCES = [
  { key: 'semanticScholar', label: 'Semantic Scholar', Icon: Brain },
  { key: 'arxiv', label: 'arXiv', Icon: Archive },
  { key: 'core', label: 'CORE', Icon: Layers },
+];
+
+const BULK_TABS = [
+ { key: 'openalex', label: 'OpenAlex', color: '#4F8CFF', defaultPapers: 100, defaultKeywords: 20 },
+ { key: 'semanticScholar', label: 'Semantic Scholar', color: '#10B981', defaultPapers: 200, defaultKeywords: 20 },
+ { key: 'arxiv', label: 'arXiv', color: '#F59E0B', defaultPapers: 100, defaultKeywords: 20 },
+ { key: 'core', label: 'CORE', color: '#A78BFA', defaultPapers: 500, defaultKeywords: 30 },
 ];
 
 function ResultCard({ result }) {
@@ -88,7 +96,7 @@ function ResultCard({ result }) {
       {key.replace(/([A-Z])/g, ' $1').trim()}
      </td>
      <td className="py-1.5 text-gray-600 dark:text-slate-400 break-all font-mono text-[11px]">
-      {String(value ?? '�')}
+      {String(value ?? '—')}
      </td>
      </tr>
     ))}
@@ -126,10 +134,11 @@ export default function SyncDataPage() {
 
  const tasks = useSyncStore((s) => s.tasks);
  const bulkTask = useSyncStore((s) => s.bulkTask);
- const bulkTasksList = useSyncStore((s) => s.bulkTasksList);
  const startTasks = useSyncStore((s) => s.startTasks);
  const startBulkSync = useSyncStore((s) => s.startBulkSync);
- const fetchBulkTasks = useSyncStore((s) => s.fetchBulkTasks);
+ const startCoreBulkSync = useSyncStore((s) => s.startCoreBulkSync);
+ const startSemanticScholarBulkSync = useSyncStore((s) => s.startSemanticScholarBulkSync);
+ const startArxivBulkSync = useSyncStore((s) => s.startArxivBulkSync);
  const clearCompleted = useSyncStore((s) => s.clearCompleted);
 
  // Only show tasks from the current query context (latest batch)
@@ -157,7 +166,7 @@ export default function SyncDataPage() {
   setAutoSyncStats(status);
   setAutoSyncEnabled(status?.enabled ?? false);
  } catch {
-  // silently fail � keep null to show error state
+  // silently fail — keep null to show error state
   setAutoSyncEnabled(null);
  } finally {
   setIsLoadingAutoSync(false);
@@ -167,13 +176,6 @@ export default function SyncDataPage() {
  useEffect(() => {
  fetchAutoSyncStatus();
  }, [fetchAutoSyncStatus]);
-
- // Fetch bulk tasks list on mount + poll every 30s while on page
- useEffect(() => {
-  fetchBulkTasks();
-  const id = setInterval(fetchBulkTasks, 30_000);
-  return () => clearInterval(id);
- }, [fetchBulkTasks]);
 
  const handleToggleAutoSync = async () => {
  setIsToggling(true);
@@ -199,103 +201,128 @@ export default function SyncDataPage() {
  };
 
  // -- Bulk Sync --
- const [bulkKeywords, setBulkKeywords] = useState('');
- const [bulkPapersPerKeyword, setBulkPapersPerKeyword] = useState(100);
+ const [bulkSource, setBulkSource] = useState('openalex');
+ const [bulkPapersPerKeyword, setBulkPapersPerKeyword] = useState(500);
  const [bulkYearFrom, setBulkYearFrom] = useState('');
  const [bulkYearTo, setBulkYearTo] = useState(String(currentYear));
- const [useDefaultBulk, setUseDefaultBulk] = useState(false);
+ // Keyword input mode: 'trending' = chip selector, 'manual' = textarea
+ const [keywordInputMode, setKeywordInputMode] = useState('trending');
+ const [bulkKeywords, setBulkKeywords] = useState('');
+ // Trending keyword selector
+ const [trendingKeywords, setTrendingKeywords] = useState([]);
+ const [selectedKeywords, setSelectedKeywords] = useState([]);
+ const [isLoadingTrending, setIsLoadingTrending] = useState(true);
+ const CORE_API_KEY_STORAGE = 'scitrack_core_api_key';
+ const [coreApiKey, setCoreApiKey] = useState(() => localStorage.getItem(CORE_API_KEY_STORAGE) || '');
+ const OPENALEX_API_KEY_STORAGE = 'scitrack_openalex_api_key';
+ const [openAlexApiKey, setOpenAlexApiKey] = useState(() => localStorage.getItem(OPENALEX_API_KEY_STORAGE) || '');
+ const SEMANTIC_SCHOLAR_KEY_STORAGE = 'scitrack_semantic_scholar_api_key';
+ const [semanticScholarApiKey, setSemanticScholarApiKey] = useState(() => localStorage.getItem(SEMANTIC_SCHOLAR_KEY_STORAGE) || '');
+ const [bulkMailto, setBulkMailto] = useState('');
 
- // Derived from store � survives tab navigation
+ // Persist CORE API key to localStorage
+ useEffect(() => {
+  if (coreApiKey) {
+   localStorage.setItem(CORE_API_KEY_STORAGE, coreApiKey);
+  } else {
+   localStorage.removeItem(CORE_API_KEY_STORAGE);
+  }
+ }, [coreApiKey]);
+
+ // Persist OpenAlex API key to localStorage
+ useEffect(() => {
+  if (openAlexApiKey) {
+   localStorage.setItem(OPENALEX_API_KEY_STORAGE, openAlexApiKey);
+  } else {
+   localStorage.removeItem(OPENALEX_API_KEY_STORAGE);
+  }
+ }, [openAlexApiKey]);
+
+ // Persist Semantic Scholar API key to localStorage
+ useEffect(() => {
+  if (semanticScholarApiKey) {
+   localStorage.setItem(SEMANTIC_SCHOLAR_KEY_STORAGE, semanticScholarApiKey);
+  } else {
+   localStorage.removeItem(SEMANTIC_SCHOLAR_KEY_STORAGE);
+  }
+ }, [semanticScholarApiKey]);
+
+ // Fetch trending keywords for selector
+ useEffect(() => {
+  let cancelled = false;
+  async function load() {
+   setIsLoadingTrending(true);
+   try {
+    const data = await trendAPI.getTrendingKeywords(30);
+    if (!cancelled) {
+     setTrendingKeywords(Array.isArray(data) ? data : []);
+     // Pre-select all by default
+     if (Array.isArray(data)) {
+      setSelectedKeywords(data.map((k) => k.keywordText));
+     }
+    }
+   } catch {
+    if (!cancelled) setTrendingKeywords([]);
+   } finally {
+    if (!cancelled) setIsLoadingTrending(false);
+   }
+  }
+  load();
+  return () => { cancelled = true; };
+ }, [bulkSource]);
+
+ // Derived from store — survives tab navigation
  const isBulkSyncing = bulkTask?.status === 'running';
  const bulkResult = bulkTask?.status === 'done' ? (bulkTask.result || bulkTask) : null;
  const bulkError = bulkTask?.status === 'error' ? bulkTask.error : null;
- // bulkProgress = the live task object from store (has percent, keywordStats, etc.)
  const bulkProgress = bulkTask?.status === 'running' ? bulkTask : null;
 
- // -- Deep Sync OpenAlex --
- const DEEP_API_KEY_STORAGE = 'scitrack_openalex_api_key';
- const [deepQuery, setDeepQuery] = useState('');
- const [deepApiKey, setDeepApiKey] = useState(() => localStorage.getItem(DEEP_API_KEY_STORAGE) || '');
- const [deepMailto, setDeepMailto] = useState(''); // deprecated, kept for optional use
- const [deepLimit, setDeepLimit] = useState(500);
- const [deepYearFrom, setDeepYearFrom] = useState(String(currentYear - 3));
- const [deepYearTo, setDeepYearTo] = useState(String(currentYear));
- const [isDeepSyncing, setIsDeepSyncing] = useState(false);
- const [deepSyncResult, setDeepSyncResult] = useState(null);
- const [deepSyncError, setDeepSyncError] = useState(null);
- const [showApiKeyHelp, setShowApiKeyHelp] = useState(false);
+ const activeTab = BULK_TABS.find((t) => t.key === bulkSource) || BULK_TABS[0];
 
- // Persist API key to localStorage so user doesn't have to re-enter
- useEffect(() => {
-  if (deepApiKey) {
-   localStorage.setItem(DEEP_API_KEY_STORAGE, deepApiKey);
+ const handleBulkSync = () => {
+  let body;
+
+  if (keywordInputMode === 'trending') {
+   if (selectedKeywords.length === 0) {
+    body = {};
+   } else {
+    body = { keywords: selectedKeywords, papersPerKeyword: bulkPapersPerKeyword };
+    if (bulkYearFrom) body.yearFrom = parseInt(bulkYearFrom, 10);
+    if (bulkYearTo) body.yearTo = parseInt(bulkYearTo, 10);
+   }
   } else {
-   localStorage.removeItem(DEEP_API_KEY_STORAGE);
+   const keywords = bulkKeywords
+    .split(/[\n,]+/)
+    .map((k) => k.trim())
+    .filter(Boolean);
+   if (keywords.length === 0) {
+    setBulkError('Please enter at least one keyword.');
+    return;
+   }
+   body = { keywords, papersPerKeyword: bulkPapersPerKeyword };
+   if (bulkYearFrom) body.yearFrom = parseInt(bulkYearFrom, 10);
+   if (bulkYearTo) body.yearTo = parseInt(bulkYearTo, 10);
   }
- }, [deepApiKey]);
 
- const handleBulkSync = async () => {
- let body;
- if (useDefaultBulk) {
-  body = {};
- } else {
-  const keywords = bulkKeywords
-  .split(/[\n,]+/)
-  .map((k) => k.trim())
-  .filter(Boolean);
-  if (keywords.length === 0) {
-  setBulkError('Please enter at least one keyword.');
-  return;
+  // Route to correct store method based on selected tab
+  if (bulkSource === 'core') {
+   if (coreApiKey.trim()) body.apiKey = coreApiKey.trim();
+   startCoreBulkSync(body);
+  } else if (bulkSource === 'semanticScholar') {
+   if (semanticScholarApiKey.trim()) body.apiKey = semanticScholarApiKey.trim();
+   startSemanticScholarBulkSync(body);
+  } else if (bulkSource === 'arxiv') {
+   startArxivBulkSync(body);
+  } else {
+   if (openAlexApiKey.trim()) body.apiKey = openAlexApiKey.trim();
+   if (bulkMailto.trim()) body.mailto = bulkMailto.trim();
+   startBulkSync(body);
   }
-  body = {
-  keywords,
-  papersPerKeyword: bulkPapersPerKeyword,
-  };
-  if (bulkYearFrom) body.yearFrom = parseInt(bulkYearFrom, 10);
-  if (bulkYearTo) body.yearTo = parseInt(bulkYearTo, 10);
- }
-
- // Delegate to store � polling lives there and survives tab switches
- startBulkSync(body);
  };
 
  const setBulkError = (msg) => {
- // still used for validation errors (not API errors � those are in the store)
- toast.error(msg, { position: 'top-right', duration: 5000 });
+  toast.error(msg, { position: 'top-right', duration: 5000 });
  };
-
-  // -- Deep Sync OpenAlex handler --
-  const handleDeepSync = async () => {
-   if (!deepQuery.trim()) return;
-
-   setIsDeepSyncing(true);
-   setDeepSyncError(null);
-   setDeepSyncResult(null);
-
-   try {
-    const response = await adminAPI.syncOpenAlexDeep({
-     query: deepQuery.trim(),
-     limit: deepLimit,
-     yearFrom: deepYearFrom ? parseInt(deepYearFrom, 10) : undefined,
-     yearTo: deepYearTo ? parseInt(deepYearTo, 10) : undefined,
-     mailto: deepMailto.trim() || undefined,
-     apiKey: deepApiKey.trim() || undefined,
-    });
-    setDeepSyncResult(response);
-    toast.success(response.message || 'Deep sync completed', {
-     position: 'top-right',
-     duration: 4000,
-    });
-   } catch (err) {
-    const msg = err.response?.data?.message || err.message || 'Deep sync failed';
-    setDeepSyncError(msg);
-    toast.error(msg, { position: 'top-right', duration: 5000 });
-   } finally {
-    setIsDeepSyncing(false);
-   }
-  };
-
-  const canDeepSync = deepQuery.trim() && !isDeepSyncing && !isRunning && !isBulkSyncing && !isClearing;
 
 
  const handleClearAll = async () => {
@@ -368,7 +395,7 @@ export default function SyncDataPage() {
    </div>
   </motion.div>
 
-  {/* -- Sync Form -- */}
+  {/* -- Normal Sync -- */}
   <motion.div
   initial={{ opacity: 0, y: 8 }}
   animate={{ opacity: 1, y: 0 }}
@@ -427,7 +454,7 @@ export default function SyncDataPage() {
     <option key={y} value={y}>{y}</option>
    ))}
    </select>
-   <span className="text-xs text-gray-400 dark:text-slate-500">�</span>
+   <span className="text-xs text-gray-400 dark:text-slate-500">–</span>
    <select
    value={yearTo}
    onChange={(e) => setYearTo(e.target.value)}
@@ -441,7 +468,7 @@ export default function SyncDataPage() {
    </select>
   </div>
 
-  {/* Source selection � icon buttons */}
+  {/* Source selection — icon buttons */}
   <div className="space-y-2">
    <div className="flex items-center justify-between">
    <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -500,7 +527,7 @@ export default function SyncDataPage() {
    <strong className="text-[#E1E0CC]">"{query}"</strong>...
    </p>
    <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
-   You can navigate to other pages � sync continues in the background.
+   You can navigate to other pages — sync continues in the background.
    </p>
   </div>
   )}
@@ -588,7 +615,7 @@ export default function SyncDataPage() {
     <div className="flex items-center gap-2 mb-3">
      <div className={`w-1.5 h-1.5 rounded-full ${autoSyncEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-gray-500'}`} />
      <span className={`text-[11px] font-semibold ${autoSyncEnabled ? 'text-emerald-400' : 'text-gray-400'}`}>
-     {autoSyncEnabled ? 'Active � running on schedule' : 'Paused'}
+     {autoSyncEnabled ? 'Active — running on schedule' : 'Paused'}
      </span>
     </div>
 
@@ -639,56 +666,173 @@ export default function SyncDataPage() {
    initial={{ opacity: 0 }}
    animate={{ opacity: 1 }}
    className={`${card} p-5`}
+   style={{ borderLeft: `3px solid ${activeTab.color}` }}
   >
    <div className="flex items-start gap-3 mb-4">
-   <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-500 shrink-0">
-    <Layers size={18} />
-   </div>
-   <div>
-    <h4 className="text-sm font-bold text-[#E1E0CC]">Bulk Sync</h4>
-    <p className="text-xs text-gray-500 dark:text-slate-400">
-    Sync multiple keywords at once or use default trending keywords.
-    </p>
-   </div>
+    <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: `${activeTab.color}15`, color: activeTab.color }}>
+     <Layers size={18} />
+    </div>
+    <div>
+     <h4 className="text-sm font-bold text-[#E1E0CC]">Bulk Sync</h4>
+     <p className="text-xs text-gray-500 dark:text-slate-400">
+      Sync multiple keywords at once from OpenAlex or CORE with real-time progress tracking.
+     </p>
+    </div>
    </div>
 
-   {/* Default toggle */}
-   <label className="flex items-center gap-3 mb-4 cursor-pointer">
-   <button
-    type="button"
-    onClick={() => setUseDefaultBulk(!useDefaultBulk)}
-    className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors border-2 ${
-    useDefaultBulk
-     ? 'bg-amber-500 border-amber-500'
-     : 'bg-gray-300 dark:bg-gray-600 border-gray-300 dark:border-gray-500'
-    }`}
-   >
-    <span
-    className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transition-transform ${
-     useDefaultBulk ? 'translate-x-[18px]' : 'translate-x-[2px]'
-    }`}
-    />
-   </button>
-   <span className="text-xs text-gray-700 dark:text-slate-300">
-    Use default trending keywords (20 keywords � 100 papers)
-   </span>
-   </label>
+   {/* Tab buttons */}
+   <div className="flex gap-1.5 mb-4 p-1 rounded-lg bg-[#DEDBC8]/[0.03] border border-[#DEDBC8]/5">
+    {BULK_TABS.map(({ key, label, color }) => {
+     const isActive = bulkSource === key;
+     return (
+      <button
+       key={key}
+       type="button"
+       onClick={() => { if (!isBulkSyncing) setBulkSource(key); }}
+       disabled={isBulkSyncing}
+       className={`flex-1 py-2 rounded-md text-xs font-semibold transition-all ${
+        isActive
+         ? 'text-white shadow-sm'
+         : 'text-gray-500 hover:text-gray-300'
+       }`}
+       style={isActive ? { backgroundColor: color } : {}}
+      >
+       {label}
+      </button>
+     );
+    })}
+   </div>
 
-   {!useDefaultBulk && (
-   <div className="space-y-3 mb-4">
-    <div className="space-y-1.5">
-    <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+   {/* Keyword input mode toggle */}
+   <div className="flex items-center gap-2 mb-4">
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 shrink-0">
      Keywords
-    </label>
-    <textarea
-     placeholder="Enter keywords, one per line or comma-separated&#10;e.g.&#10;machine learning&#10;deep learning&#10;computer vision"
-     value={bulkKeywords}
-     onChange={(e) => setBulkKeywords(e.target.value)}
-     rows={4}
-     className="w-full p-3 rounded-lg text-xs bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-amber-500/50 transition-colors resize-none"
-    />
+    </span>
+    <div className="flex rounded-lg bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/8 p-0.5">
+     <button
+      type="button"
+      onClick={() => setKeywordInputMode('trending')}
+      disabled={isBulkSyncing}
+      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
+       keywordInputMode === 'trending'
+        ? 'text-white shadow-sm'
+        : 'text-gray-500 hover:text-gray-300'
+      }`}
+      style={keywordInputMode === 'trending' ? { backgroundColor: activeTab.color } : {}}
+     >
+      Trending
+     </button>
+     <button
+      type="button"
+      onClick={() => setKeywordInputMode('manual')}
+      disabled={isBulkSyncing}
+      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
+       keywordInputMode === 'manual'
+        ? 'text-white shadow-sm'
+        : 'text-gray-500 hover:text-gray-300'
+      }`}
+      style={keywordInputMode === 'manual' ? { backgroundColor: activeTab.color } : {}}
+     >
+      Manual
+     </button>
+    </div>
+   </div>
+
+   {/* Manual mode — textarea */}
+   {keywordInputMode === 'manual' && (
+    <div className="space-y-1.5 mb-4">
+     <textarea
+      placeholder="Enter keywords, one per line or comma-separated&#10;e.g.&#10;machine learning&#10;deep learning&#10;computer vision"
+      value={bulkKeywords}
+      onChange={(e) => setBulkKeywords(e.target.value)}
+      disabled={isBulkSyncing}
+      rows={4}
+      className="w-full p-3 rounded-lg text-xs bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-current transition-colors resize-none"
+     />
+    </div>
+   )}
+
+   {/* Trending mode — keyword chips */}
+   {keywordInputMode === 'trending' && (
+   <div className="space-y-3 mb-4">
+    <div className="flex items-center justify-between">
+     <span className="text-[10px] text-gray-500">
+      {selectedKeywords.length} selected
+     </span>
+     <div className="flex items-center gap-2">
+      {isLoadingTrending ? (
+       <span className="text-[10px] text-gray-500 animate-pulse">Loading…</span>
+      ) : (
+       <>
+        <button
+         type="button"
+         onClick={() => setSelectedKeywords(trendingKeywords.map((k) => k.keywordText))}
+         disabled={isBulkSyncing}
+         className="text-[10px] font-medium text-gray-500 hover:text-gray-300 transition-colors"
+        >
+         Select All
+        </button>
+        <span className="text-gray-600 text-[10px]">·</span>
+        <button
+         type="button"
+         onClick={() => setSelectedKeywords([])}
+         disabled={isBulkSyncing}
+         className="text-[10px] font-medium text-gray-500 hover:text-gray-300 transition-colors"
+        >
+         Clear
+        </button>
+       </>
+      )}
+     </div>
     </div>
 
+    {isLoadingTrending ? (
+     <div className="flex flex-wrap gap-1.5">
+      {Array.from({ length: 8 }).map((_, i) => (
+       <div key={i} className="h-7 w-24 rounded-full bg-[#DEDBC8]/5 animate-pulse" />
+      ))}
+     </div>
+    ) : trendingKeywords.length === 0 ? (
+     <p className="text-xs text-gray-500 py-2">No trending keywords available. Try again later.</p>
+    ) : (
+     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
+      {trendingKeywords.map((kw) => {
+       const isSelected = selectedKeywords.includes(kw.keywordText);
+       return (
+        <button
+         key={kw.keywordText}
+         type="button"
+         onClick={() => {
+          setSelectedKeywords((prev) =>
+           isSelected
+            ? prev.filter((k) => k !== kw.keywordText)
+            : [...prev, kw.keywordText],
+          );
+         }}
+         disabled={isBulkSyncing}
+         className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
+          isSelected
+           ? 'text-white border-current'
+           : 'bg-[#DEDBC8]/[0.03] border-[#DEDBC8]/10 text-gray-400 hover:text-gray-200 hover:border-[#DEDBC8]/20'
+         }`}
+         style={isSelected ? { backgroundColor: activeTab.color, borderColor: activeTab.color } : {}}
+        >
+         {kw.keywordText}
+         {kw.paperCount > 0 && (
+          <span className={`text-[9px] ${isSelected ? 'text-white/70' : 'text-gray-600'}`}>
+           {kw.paperCount}
+          </span>
+         )}
+        </button>
+       );
+      })}
+     </div>
+    )}
+   </div>
+   )}
+
+   {/* Papers per keyword + Year range */}
+   <div className="space-y-3 mb-4">
     <div className="flex flex-col sm:flex-row gap-3">
     <div className="w-full sm:w-40 space-y-1.5">
      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
@@ -697,9 +841,10 @@ export default function SyncDataPage() {
      <Input
      type="number"
      min={1}
-     max={500}
+     max={2000}
      value={bulkPapersPerKeyword}
-     onChange={(e) => setBulkPapersPerKeyword(parseInt(e.target.value, 10) || 100)}
+     onChange={(e) => setBulkPapersPerKeyword(parseInt(e.target.value, 10) || 500)}
+     disabled={isBulkSyncing}
      className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
      />
     </div>
@@ -711,7 +856,8 @@ export default function SyncDataPage() {
      <select
       value={bulkYearFrom}
       onChange={(e) => setBulkYearFrom(e.target.value)}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
+      disabled={isBulkSyncing}
+      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-current transition-colors cursor-pointer"
       style={{ colorScheme: 'dark' }}
      >
       <option value="">Any</option>
@@ -720,7 +866,7 @@ export default function SyncDataPage() {
       ))}
      </select>
      </div>
-     <span className="text-xs text-gray-400 dark:text-slate-500 pb-2">�</span>
+     <span className="text-xs text-gray-400 dark:text-slate-500 pb-2">–</span>
      <div className="space-y-1.5">
      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
       Year To
@@ -728,7 +874,8 @@ export default function SyncDataPage() {
      <select
       value={bulkYearTo}
       onChange={(e) => setBulkYearTo(e.target.value)}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-amber-500/50 transition-colors cursor-pointer"
+      disabled={isBulkSyncing}
+      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-current transition-colors cursor-pointer"
       style={{ colorScheme: 'dark' }}
      >
       <option value="">Any</option>
@@ -740,20 +887,113 @@ export default function SyncDataPage() {
     </div>
     </div>
    </div>
-   )}
+
+    {/* OpenAlex API Key + Mailto (only for OpenAlex tab) */}
+    {bulkSource === 'openalex' && (
+    <>
+    <div className="space-y-1.5">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+      OpenAlex API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+      <a
+       href="https://openalex.org/settings/api"
+       target="_blank"
+       rel="noopener noreferrer"
+       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-blue-400 transition-colors"
+      >
+       <Info size={12} />
+       <ExternalLink size={9} />
+      </a>
+     </label>
+     <Input
+      type="text"
+      placeholder="sk_xxxx — get yours at openalex.org/settings/api"
+      value={openAlexApiKey}
+      onChange={(e) => setOpenAlexApiKey(e.target.value)}
+      disabled={isBulkSyncing}
+      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200 font-mono"
+     />
+    </div>
+    <div className="space-y-1.5">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+      Polite Pool Email <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+     </label>
+     <Input
+      type="email"
+      placeholder="your@email.com (for higher rate limits)"
+      value={bulkMailto}
+      onChange={(e) => setBulkMailto(e.target.value)}
+      disabled={isBulkSyncing}
+      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+     />
+    </div>
+    </>
+    )}
+
+    {/* Semantic Scholar API Key (only for Semantic Scholar tab) */}
+    {bulkSource === 'semanticScholar' && (
+    <div className="space-y-1.5">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+      Semantic Scholar API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+      <a
+       href="https://www.semanticscholar.org/product/api"
+       target="_blank"
+       rel="noopener noreferrer"
+       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-emerald-400 transition-colors"
+      >
+       <Info size={12} />
+       <ExternalLink size={9} />
+      </a>
+     </label>
+     <Input
+      type="text"
+      placeholder="Your Semantic Scholar API key"
+      value={semanticScholarApiKey}
+      onChange={(e) => setSemanticScholarApiKey(e.target.value)}
+      disabled={isBulkSyncing}
+      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200 font-mono"
+     />
+    </div>
+    )}
+
+    {/* CORE API Key (only for CORE tab) */}
+    {bulkSource === 'core' && (
+    <div className="space-y-1.5">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+      CORE API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+      <a
+       href="https://core.ac.uk/api-v2"
+       target="_blank"
+       rel="noopener noreferrer"
+       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-violet-400 transition-colors"
+      >
+       <Info size={12} />
+       <ExternalLink size={9} />
+      </a>
+     </label>
+     <Input
+      type="text"
+      placeholder="Your CORE API key — get yours at core.ac.uk/api-v2"
+      value={coreApiKey}
+      onChange={(e) => setCoreApiKey(e.target.value)}
+      disabled={isBulkSyncing}
+      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200 font-mono"
+     />
+    </div>
+    )}
 
    <Button
    type="button"
    disabled={isBulkSyncing || isRunning || isClearing}
    onClick={handleBulkSync}
-   className="w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+   className="w-full flex items-center justify-center gap-2 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+   style={{ backgroundColor: activeTab.color }}
    >
    <RefreshCw size={15} className={isBulkSyncing ? 'animate-spin' : ''} />
    {isBulkSyncing && bulkProgress
     ? `Syncing... ${bulkProgress.percent ?? 0}%`
     : isBulkSyncing
     ? 'Starting bulk sync...'
-    : 'Start Bulk Sync'}
+    : `Start ${activeTab.label} Bulk Sync`}
    </Button>
 
    {/* -- Bulk progress bar -- */}
@@ -766,11 +1006,11 @@ export default function SyncDataPage() {
     {/* Percent + status */}
     <div className="flex items-center justify-between">
     <div className="flex items-center gap-2">
-     <RefreshCw size={14} className="animate-spin text-amber-500" />
+     <RefreshCw size={14} className="animate-spin" style={{ color: activeTab.color }} />
      <span className="text-xs font-bold text-[#E1E0CC]">
      {bulkProgress.percent ?? 0}% complete
      </span>
-     <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400">
+     <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${activeTab.color}15`, color: activeTab.color }}>
      {bulkProgress.status || 'RUNNING'}
      </span>
     </div>
@@ -782,7 +1022,8 @@ export default function SyncDataPage() {
     {/* Progress bar */}
     <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
     <motion.div
-     className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500"
+     className="h-full rounded-full"
+     style={{ backgroundColor: activeTab.color }}
      initial={{ width: 0 }}
      animate={{ width: `${bulkProgress.percent ?? 0}%` }}
      transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -793,18 +1034,18 @@ export default function SyncDataPage() {
     <div className="grid grid-cols-3 gap-2 text-center">
     <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
      <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-     {bulkProgress.currentKeyword || '�'}
+     {bulkProgress.currentKeyword || '—'}
      </div>
      <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Current</div>
     </div>
     <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
-     <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+     <div className="text-sm font-bold text-blue-400 font-mono">
      {bulkProgress.totalFetched ?? 0}
      </div>
      <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</div>
     </div>
     <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
-     <div className="text-sm font-bold text-[#DEDBC8] font-mono">
+     <div className="text-sm font-bold text-emerald-400 font-mono">
      {bulkProgress.totalInserted ?? 0}
      </div>
      <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</div>
@@ -828,7 +1069,7 @@ export default function SyncDataPage() {
        <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">
        {kw}
        {bulkProgress.currentKeyword === kw && (
-        <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse align-middle" />
+        <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full animate-pulse align-middle" style={{ backgroundColor: activeTab.color }} />
        )}
        </td>
        <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
@@ -872,8 +1113,8 @@ export default function SyncDataPage() {
     <div className="flex items-center gap-2">
     <CheckCircle2 size={14} className="text-emerald-500" />
     <span className="text-xs font-bold text-[#E1E0CC]">
-     {bulkResult.totalKeywords != null && `${bulkResult.totalKeywords} keywords � `}
-     {bulkResult.totalFetched != null && `${bulkResult.totalFetched} fetched � `}
+     {bulkResult.totalKeywords != null && `${bulkResult.totalKeywords} keywords — `}
+     {bulkResult.totalFetched != null && `${bulkResult.totalFetched} fetched — `}
      {(bulkResult.totalInserted ?? bulkResult.result?.totalInserted) != null
      && `${bulkResult.totalInserted ?? bulkResult.result?.totalInserted} inserted`}
     </span>
@@ -932,410 +1173,7 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  
 
-  {/* -- Bulk Tasks List -- */}
-  {bulkTasksList.length > 0 && (
-  <div className="border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2">
-   <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className={`${card} p-5`}
-   >
-    <div className="flex items-center gap-2 mb-4">
-     <div className="w-1 h-5 rounded-full" style={{ background: '#A78BFA' }} />
-     <Layers size={14} style={{ color: '#A78BFA' }} />
-     <h4 className="text-sm font-bold text-[#E1E0CC]">Bulk Sync Tasks</h4>
-     <span className="text-[10px] text-gray-500 ml-auto">
-      {bulkTasksList.filter(t => t.status === 'RUNNING').length} running &middot; {bulkTasksList.length} total
-     </span>
-    </div>
-
-    <div className="space-y-2">
-     {bulkTasksList.map((t) => {
-      const isRunning = t.status === 'RUNNING';
-      const isFailed = t.status === 'FAILED';
-      const isDone = t.status === 'COMPLETED';
-
-      return (
-       <div
-        key={t.taskId}
-        className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 space-y-2"
-       >
-        {/* Top row: status + percent + time */}
-        <div className="flex items-center gap-2">
-         {isRunning ? (
-          <RefreshCw size={12} className="animate-spin text-amber-500 shrink-0" />
-         ) : isFailed ? (
-          <AlertCircle size={12} className="text-red-500 shrink-0" />
-         ) : (
-          <CheckCircle2 size={12} className="text-emerald-500 shrink-0" />
-         )}
-         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-          isRunning ? 'bg-amber-500/15 text-amber-400' :
-          isFailed ? 'bg-red-500/15 text-red-400' :
-          'bg-emerald-500/15 text-emerald-400'
-         }`}>
-          {t.status}
-         </span>
-         <span className="text-[10px] text-gray-500 ml-auto">
-          {t.startedAt ? new Date(t.startedAt).toLocaleTimeString() : ''}
-          {t.completedAt ? ` → ${new Date(t.completedAt).toLocaleTimeString()}` : ''}
-         </span>
-        </div>
-
-        {/* Progress bar (only for RUNNING) */}
-        {isRunning && (
-         <div className="space-y-1">
-          <div className="flex items-center justify-between text-[10px]">
-           <span className="text-gray-400">
-            {t.currentKeyword || '...'} ({t.completedKeywords ?? 0}/{t.totalKeywords ?? '?'} keywords)
-           </span>
-           <span className="font-mono font-bold text-[#E1E0CC]">{t.percent ?? 0}%</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
-           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500 transition-all duration-500"
-            style={{ width: `${t.percent ?? 0}%` }}
-           />
-          </div>
-         </div>
-        )}
-
-        {/* Summary row */}
-        <div className="flex items-center gap-3 text-[10px] text-gray-500">
-         <span>{t.totalFetched ?? 0} scanned</span>
-         <span className="text-emerald-400">{t.totalInserted ?? 0} inserted</span>
-         {t.totalKeywords > 0 && (
-          <span>{t.completedKeywords}/{t.totalKeywords} keywords</span>
-         )}
-        </div>
-
-        {/* Error message */}
-        {isFailed && t.errorMessage && (
-         <div className="text-[10px] text-red-400 bg-red-500/5 rounded-lg p-2">
-          {t.errorMessage}
-         </div>
-        )}
-
-        {/* Keyword errors */}
-        {t.keywordErrors && Object.keys(t.keywordErrors).length > 0 && (
-         <div className="text-[10px] space-y-0.5">
-          {Object.entries(t.keywordErrors).map(([kw, err]) => (
-           <div key={kw} className="text-red-400 flex gap-1.5">
-            <span className="font-medium shrink-0">{kw}:</span>
-            <span className="truncate">{err}</span>
-           </div>
-          ))}
-         </div>
-        )}
-       </div>
-      );
-     })}
-    </div>
-   </motion.div>
-  </div>
-  )}
-
-  {/* -- Deep Sync OpenAlex -- */}
-  <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
-   <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    className={`${card} p-5 border-l-[3px]`}
-    style={{ borderLeftColor: '#4F8CFF' }}
-   >
-    <div className="flex items-start gap-3 mb-4">
-     <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-500 shrink-0">
-      <Zap size={18} />
-     </div>
-     <div>
-      <h4 className="text-sm font-bold text-[#E1E0CC]">Deep Sync OpenAlex</h4>
-      <p className="text-xs text-gray-500 dark:text-slate-400">
-       Deep sync papers from OpenAlex for multiple keywords. Supports comma, semicolon, or newline separators. Uses server API key by default.
-      </p>
-     </div>
-    </div>
-
-    <div className="space-y-3 mb-4">
-     {/* Keywords textarea */}
-     <div className="space-y-1.5">
-      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-       Keywords <span className="text-red-500">*</span>
-      </label>
-      <textarea
-       placeholder="Enter keywords (comma, semicolon, or newline)&#10;e.g.&#10;machine learning, deep learning, nlp&#10;computer vision; reinforcement learning"
-       value={deepQuery}
-       onChange={(e) => setDeepQuery(e.target.value)}
-       disabled={isDeepSyncing}
-       rows={4}
-       className="w-full p-3 rounded-lg text-xs bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors resize-none"
-      />
-     </div>
-
-     {/* API Key + Limit row */}
-     <div className="flex flex-col sm:flex-row gap-3">
-      <div className="flex-1 space-y-1.5">
-       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-        OpenAlex API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
-        <span
-         className="relative inline-flex cursor-pointer"
-         onMouseEnter={() => setShowApiKeyHelp(true)}
-         onMouseLeave={() => setShowApiKeyHelp(false)}
-        >
-         <Info size={12} className="text-gray-500 hover:text-blue-400 transition-colors" />
-         {showApiKeyHelp && (
-          <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-72 p-3.5 rounded-xl bg-[#1a1a1a] border border-[#DEDBC8]/15 text-left shadow-xl shadow-black/40 z-50">
-           <span className="block text-[11px] font-bold text-[#E1E0CC] mb-2">How to get an API key</span>
-           <span className="block text-[10px] text-gray-400 space-y-1.5">
-            <span className="block">1. Go to{' '}
-             <a
-              href="https://openalex.org/settings/api"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline items-center gap-0.5 text-blue-400 hover:text-blue-300 underline"
-              onClick={(e) => e.stopPropagation()}
-             >
-              openalex.org/settings/api<ExternalLink size={9} className="inline ml-0.5 -mt-0.5" />
-             </a>
-            </span>
-            <span className="block">2. Sign in or create a free account</span>
-            <span className="block">3. Copy your API key (starts with <code className="px-1 py-0.5 rounded bg-[#DEDBC8]/10 text-[#DEDBC8] font-mono text-[9px]">sk_</code>)</span>
-            <span className="block">4. Paste it here — it'll be saved for next time</span>
-            <span className="block mt-1.5 text-[9px] text-gray-500">An API key gives you faster, authenticated access to OpenAlex.</span>
-           </span>
-           {/* Arrow */}
-           <span className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-[#DEDBC8]/15" />
-          </span>
-         )}
-        </span>
-       </label>
-       <Input
-        type="text"
-        placeholder="sk_xxxx — get yours at openalex.org/settings/api"
-        value={deepApiKey}
-        onChange={(e) => setDeepApiKey(e.target.value)}
-        disabled={isDeepSyncing}
-        className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200 font-mono"
-       />
-      </div>
-
-      <div className="w-full sm:w-32 space-y-1.5">
-       <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
-        Limit
-       </label>
-       <Input
-        type="number"
-        min={10}
-        max={40000}
-        value={deepLimit}
-        onChange={(e) => setDeepLimit(parseInt(e.target.value, 10) || 500)}
-        disabled={isDeepSyncing}
-        className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
-       />
-      </div>
-     </div>
-
-     {/* Polite Pool Email (deprecated) */}
-     <div className="space-y-1.5">
-      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
-       Polite Pool Email <span className="text-[10px] font-normal text-gray-600">(deprecated)</span>
-      </label>
-      <Input
-       type="email"
-       placeholder="your@email.com (optional)"
-       value={deepMailto}
-       onChange={(e) => setDeepMailto(e.target.value)}
-       disabled={isDeepSyncing}
-       className="py-2 rounded-lg text-xs bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-300"
-      />
-     </div>
-
-     {/* Year range row */}
-     <div className="flex items-center gap-2">
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 shrink-0">
-       Year
-      </span>
-      <select
-       value={deepYearFrom}
-       onChange={(e) => setDeepYearFrom(e.target.value)}
-       disabled={isDeepSyncing}
-       className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
-       style={{ colorScheme: 'dark' }}
-      >
-       <option value="">From</option>
-       {YEAR_OPTIONS.map((y) => (
-        <option key={y} value={y}>{y}</option>
-       ))}
-      </select>
-      <span className="text-xs text-gray-400 dark:text-slate-500">–</span>
-      <select
-       value={deepYearTo}
-       onChange={(e) => setDeepYearTo(e.target.value)}
-       disabled={isDeepSyncing}
-       className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-[#DEDBC8]/10 text-slate-200 outline-none focus:border-blue-500/50 transition-colors cursor-pointer"
-       style={{ colorScheme: 'dark' }}
-      >
-       <option value="">To</option>
-       {YEAR_OPTIONS.map((y) => (
-        <option key={y} value={y}>{y}</option>
-       ))}
-      </select>
-     </div>
-    </div>
-
-    <Button
-     type="button"
-     disabled={!canDeepSync}
-     onClick={handleDeepSync}
-     className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-     <RefreshCw size={15} className={isDeepSyncing ? 'animate-spin' : ''} />
-     {isDeepSyncing ? 'Deep syncing...' : 'Start Deep Sync'}
-    </Button>
-
-    {/* Deep sync error */}
-    {deepSyncError && (
-     <div className="mt-4 flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10">
-      <AlertCircle size={14} className="text-red-500" />
-      <span className="text-xs text-red-600 dark:text-red-400">{deepSyncError}</span>
-     </div>
-    )}
-
-    {/* Deep sync result */}
-    {deepSyncResult && !isDeepSyncing && (
-     <div className="mt-4 space-y-3 border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
-      <div className="flex items-center gap-2">
-       <CheckCircle2 size={14} className="text-emerald-500" />
-       <span className="text-xs font-bold text-[#E1E0CC]">
-        {deepSyncResult.data?.totalKeywords != null && `${deepSyncResult.data.totalKeywords} keyword(s) – `}
-        {deepSyncResult.data?.totalFetched != null && `${deepSyncResult.data.totalFetched} fetched – `}
-        {deepSyncResult.data?.totalInserted != null && `${deepSyncResult.data.totalInserted} inserted`}
-       </span>
-       {deepSyncResult.data?.yearRange && (
-        <span className="text-[10px] text-gray-500 dark:text-slate-400">
-         {deepSyncResult.data.yearRange}
-        </span>
-       )}
-       {deepSyncResult.timestamp && (
-        <span className="text-[10px] text-gray-500 dark:text-slate-400 ml-auto">
-         {new Date(deepSyncResult.timestamp).toLocaleString()}
-        </span>
-       )}
-      </div>
-
-      {/* Summary stats */}
-      {deepSyncResult.data && (
-       <div className="grid grid-cols-3 gap-2 text-center">
-        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
-         <div className="text-sm font-bold text-[#E1E0CC] font-mono">
-          {deepSyncResult.data.totalKeywords ?? '—'}
-         </div>
-         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Keywords</div>
-        </div>
-        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
-         <div className="text-sm font-bold text-blue-600 dark:text-blue-400 font-mono">
-          {deepSyncResult.data.totalFetched ?? 0}
-         </div>
-         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</div>
-        </div>
-        <div className="p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5">
-         <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-          {deepSyncResult.data.totalInserted ?? 0}
-         </div>
-         <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</div>
-        </div>
-       </div>
-      )}
-
-      {/* Per-keyword stats */}
-      {deepSyncResult.data?.keywordStats && Object.keys(deepSyncResult.data.keywordStats).length > 0 && (
-       <div className="bg-[#1a1a1a] border border-[#DEDBC8]/5 rounded-lg p-3 max-h-48 overflow-y-auto">
-        <table className="w-full text-xs">
-         <thead>
-          <tr className="border-b border-gray-200 border-[#DEDBC8]/5">
-           <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
-           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
-           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
-           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Skip-Yr</th>
-           <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Skip-Dup</th>
-          </tr>
-         </thead>
-         <tbody>
-          {Object.entries(deepSyncResult.data.keywordStats).map(([kw, stats]) => (
-           <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
-            <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">{kw}</td>
-            <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned}</td>
-            <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
-            <td className="py-1.5 text-right font-mono text-amber-600 dark:text-amber-400">{stats.skippedByYear ?? 0}</td>
-            <td className="py-1.5 text-right font-mono text-red-600 dark:text-red-400">{stats.skippedByDuplicate ?? 0}</td>
-           </tr>
-          ))}
-         </tbody>
-        </table>
-       </div>
-      )}
-
-      {/* Raw JSON toggle */}
-      <details className="mt-2">
-       <summary className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer flex items-center gap-1">
-        <ChevronDown size={12} />
-        Raw response
-       </summary>
-       <pre className="mt-2 p-3 rounded-lg bg-[#1a1a1a] border border-[#DEDBC8]/5 text-slate-300 text-[11px] overflow-x-auto font-mono max-h-40 overflow-y-auto">
-        {JSON.stringify(deepSyncResult, null, 2)}
-       </pre>
-      </details>
-     </div>
-    )}
-   </motion.div>
-
-   {/* API Key Help Dialog */}
-   <Dialog open={showApiKeyHelp} onOpenChange={setShowApiKeyHelp}>
-    <DialogContent className="sm:max-w-lg bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC]">
-     <DialogHeader>
-      <DialogTitle className="flex items-center gap-2 text-base">
-       <HelpCircle size={18} className="text-blue-400" />
-       How to get an OpenAlex API Key
-      </DialogTitle>
-      <DialogDescription className="text-xs text-gray-400 space-y-3 pt-2">
-       <p>OpenAlex requires an API key for all requests since February 2026. It's <strong className="text-[#E1E0CC]">free</strong> and takes less than a minute.</p>
-
-       <div className="space-y-2.5 mt-3">
-        <div className="flex items-start gap-3">
-         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">1</span>
-         <p className="text-xs">Go to <a href="https://openalex.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">openalex.org/settings/api</a> and sign up or log in.</p>
-        </div>
-        <div className="flex items-start gap-3">
-         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">2</span>
-         <p className="text-xs">On the API settings page, you'll see your API key. Click <strong className="text-[#E1E0CC]">Copy</strong> to copy it.</p>
-        </div>
-        <div className="flex items-start gap-3">
-         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">3</span>
-         <p className="text-xs">Paste the key into the input field above. Each team member should use their own key for fair usage.</p>
-        </div>
-       </div>
-
-       <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10 mt-3">
-        <p className="text-[11px] text-gray-400">
-         <strong className="text-[#E1E0CC]">Tip:</strong> The free tier allows up to 100,000 requests per day — more than enough for individual use. Keep your key private and never commit it to version control.
-        </p>
-       </div>
-      </DialogDescription>
-     </DialogHeader>
-     <DialogFooter>
-      <Button
-       type="button"
-       variant="outline"
-       onClick={() => setShowApiKeyHelp(false)}
-       className="text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:text-white"
-      >
-       Got it
-      </Button>
-     </DialogFooter>
-    </DialogContent>
-   </Dialog>
-  </div>
 
 {/* -- Clear All Data -- */}
   <div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
