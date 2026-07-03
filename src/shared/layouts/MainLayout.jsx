@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import {
@@ -41,6 +42,7 @@ import SupportDialog from '../../components/common/SupportDialog';
 function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const { t } = useTranslation('common');
   const [supportOpen, setSupportOpen] = useState(false);
+  const clearTokens = useAuthStore((s) => s.clearTokens);
 
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
@@ -146,6 +148,8 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
         <button
           onClick={() => {
             sessionStorage.removeItem('userRole');
+            clearTokens();
+            toast.success('Signed out successfully', { duration: 3000 });
             navigate('/login');
           }}
           className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white"
