@@ -26,6 +26,7 @@ export default function FollowButton({
   const { t } = useTranslation('follow');
   const [status, setStatus] = React.useState('default'); // default | loading | followed
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const followIdRef = React.useRef(null); // store followId for unfollow
 
   // Build the list of available follow targets
   const options = React.useMemo(() => {
@@ -46,14 +47,18 @@ export default function FollowButton({
   if (options.length === 0) return null;
 
   // On mount, check if user is already following this target
+  // Uses the module-level cache in followAPI to avoid N+1 requests
   React.useEffect(() => {
     let cancelled = false;
 
     const checkExisting = async () => {
       try {
         const response = await followAPI.getMyFollows();
-        const follows = response?.data ?? response ?? [];
-        const list = Array.isArray(follows) ? follows : follows?.data ?? [];
+        // Backend returns AppResponse<List<FollowResponse>>:
+        // { status: 200, message: "...", data: [...] }
+        const list = response?.data ?? [];
+
+        if (!Array.isArray(list)) return;
 
         const isFollowing = list.some((f) => {
           if (journalId && f.journalId === journalId) return true;
@@ -62,7 +67,17 @@ export default function FollowButton({
           return false;
         });
 
-        if (!cancelled && isFollowing) setStatus('followed');
+        if (!cancelled && isFollowing) {
+          // Store the followId for potential unfollow
+          const matched = list.find((f) => {
+            if (journalId && f.journalId === journalId) return true;
+            if (topicId && f.topicId === topicId) return true;
+            if (keywordId && f.keywordId === keywordId) return true;
+            return false;
+          });
+          if (matched) followIdRef.current = matched.followId;
+          setStatus('followed');
+        }
       } catch {
         // Silently fail — keep default state
       }
@@ -76,6 +91,7 @@ export default function FollowButton({
     setStatus('loading');
     setDialogOpen(false);
 
+    // Backend FollowRequest: exactly one of journalId/topicId/keywordId must be non-null
     const body = {
       journalId: target.type === 'journal' ? target.id : null,
       topicId: target.type === 'topic' ? target.id : null,
@@ -84,7 +100,10 @@ export default function FollowButton({
     };
 
     try {
-      await followAPI.addFollow(body);
+      const response = await followAPI.addFollow(body);
+      // Store followId for potential unfollow
+      const created = response?.data;
+      if (created?.followId) followIdRef.current = created.followId;
       setStatus('followed');
       toast.success(t('toast.followSuccess'));
       onFollowed?.();
@@ -103,7 +122,7 @@ export default function FollowButton({
           action: {
             label: t('button.follow'),
             onClick: () => {
-              const role = sessionStorage.getItem('userRole') || 'academic';
+              const role = sessionStorage.getItem('userRole') || 'academic_user';
               window.location.href = `/${role}/settings`;
             },
           },
@@ -116,8 +135,27 @@ export default function FollowButton({
     }
   };
 
+  const doUnfollow = async () => {
+    if (!followIdRef.current) return;
+    setStatus('loading');
+    try {
+      await followAPI.unfollow(followIdRef.current);
+      followIdRef.current = null;
+      setStatus('default');
+      toast.success(t('toast.unfollowSuccess'));
+      onFollowed?.();
+    } catch (error) {
+      setStatus('followed'); // revert on error
+      const msg = error?.response?.data?.message || error?.message || t('toast.genericError');
+      toast.error(msg);
+    }
+  };
+
   const handleClick = () => {
-    if (status === 'followed') return; // already followed, do nothing
+    if (status === 'followed') {
+      doUnfollow();
+      return;
+    }
     if (options.length === 1) {
       // Only one target — follow directly
       doFollow(options[0], true);

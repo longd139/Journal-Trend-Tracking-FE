@@ -13,6 +13,8 @@ import settingsEn from './locales/en/settings.json';
 import graphEn from './locales/en/graph.json';
 import landingEn from './locales/en/landing.json';
 import followEn from './locales/en/follow.json';
+import supportEn from './locales/en/support.json';
+import adminEn from './locales/en/admin.json';
 
 // VI
 import commonVi from './locales/vi/common.json';
@@ -25,6 +27,8 @@ import settingsVi from './locales/vi/settings.json';
 import graphVi from './locales/vi/graph.json';
 import landingVi from './locales/vi/landing.json';
 import followVi from './locales/vi/follow.json';
+import supportVi from './locales/vi/support.json';
+import adminVi from './locales/vi/admin.json';
 
 const resources = {
   en: {
@@ -38,6 +42,8 @@ const resources = {
     graph: graphEn,
     landing: landingEn,
     follow: followEn,
+    support: supportEn,
+    admin: adminEn,
   },
   vi: {
     common: commonVi,
@@ -50,6 +56,8 @@ const resources = {
     graph: graphVi,
     landing: landingVi,
     follow: followVi,
+    support: supportVi,
+    admin: adminVi,
   },
 };
 
@@ -74,6 +82,8 @@ i18n
       'graph',
       'landing',
       'follow',
+      'support',
+      'admin',
     ],
 
     defaultNS: 'common',

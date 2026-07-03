@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  Users, Server, Database, Cpu, Activity,
+  Users, Server, Database, Cpu,
   AlertTriangle, Zap, Clock, Globe, HardDrive,
   CheckCircle2, ArrowUpRight, TrendingUp, Shield,
 } from 'lucide-react';
@@ -22,10 +22,10 @@ const REQUEST_SERIES = Array.from({ length: 24 }, (_, i) => ({
 }));
 
 const RESOURCE_USAGE = [
-  { name: 'CPU', value: 34, color: '#DEDBC8' },
-  { name: 'Memory', value: 62, color: '#DEDBC8' },
-  { name: 'Disk', value: 87, color: '#E1E0CC' },
-  { name: 'Network', value: 28, color: '#A09878' },
+  { name: 'cpu', value: 34, color: '#DEDBC8' },
+  { name: 'memory', value: 62, color: '#DEDBC8' },
+  { name: 'disk', value: 87, color: '#E1E0CC' },
+  { name: 'network', value: 28, color: '#A09878' },
 ];
 
 const VISITORS_TODAY = Array.from({ length: 24 }, (_, i) => ({
@@ -87,49 +87,91 @@ function PulseDot({ color = '#34D399' }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AdminOverview() {
-  const { t } = useTranslation('dashboard');
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [now, setNow] = useState(new Date());
   useEffect(() => { const i = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(i); }, []);
 
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-6">
-        {/* ─── Header ─── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {/* ─── Admin Status Banner ─── */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
         >
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Activity size={16} className="text-[#DEDBC8]" />
-              <span className="text-[11px] font-bold uppercase tracking-widest text-[#DEDBC8]/70">Admin Console</span>
+          {/* Subtle top accent line */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#DEDBC8]/60 to-transparent" />
+
+          <div className="px-5 sm:px-7 py-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+              {/* Left: Status overview */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/10 border border-[#DEDBC8]/15">
+                    <PulseDot color="#34D399" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#DEDBC8]">{tc('actions.live')}</span>
+                  </div>
+                  <span className="text-[11px] text-gray-500">
+                    {now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString()}
+                  </span>
+                </div>
+                <h1 className="text-lg sm:text-xl font-black text-[#E1E0CC] font-display tracking-tight">
+                  {t('overview.console')}
+                </h1>
+                <p className="text-xs text-gray-500 max-w-md">
+                  {t('overview.description')}
+                </p>
+              </div>
+
+              {/* Right: Quick stat pills */}
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Users size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">12,847</div>
+                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.users')}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
+                  <div className="flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-emerald-400">99.97%</div>
+                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.uptime')}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Clock size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">42ms</div>
+                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.latency')}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+                  <Database size={13} className="text-[#DEDBC8]" />
+                  <div>
+                    <div className="text-sm font-bold text-[#E1E0CC]">2.4TB</div>
+                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.storage')}</div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#E1E0CC] flex items-center gap-3">
-              System Dashboard
-              <span className="flex items-center gap-1.5 text-[11px] font-normal text-gray-400">
-                <PulseDot /> All systems operational
-              </span>
-            </h1>
-            <p className="text-xs text-gray-500 mt-1">
-              Last updated: {now.toLocaleTimeString()} • Real-time monitoring active
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Operational</span>
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-amber-500" /> Degraded</span>
-            <span className="flex items-center gap-1.5 text-[10px] text-gray-500"><span className="w-2 h-2 rounded-full bg-red-500" /> Down</span>
           </div>
         </motion.div>
 
         {/* ─── Stat Cards ─── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard index={0} label="Active Users" value="12,847" change="+8.4%" Icon={Users} accent="#DEDBC8" />
-          <StatCard index={1} label="Total Requests" value="429K" change="+11%" Icon={Globe} accent="#A09878" />
-          <StatCard index={2} label="Avg Latency" value="42ms" change="-8%" Icon={Clock} accent="#DEDBC8" />
-          <StatCard index={3} label="Error Rate" value="0.03%" change="-15%" Icon={AlertTriangle} accent="#EF4444" />
-          <StatCard index={4} label="DB Size" value="2.4 TB" change="+5.1%" Icon={Database} accent="#DEDBC8" />
+          <StatCard index={0} label={t('overview.stats.activeUsers')} value="12,847" change="+8.4%" Icon={Users} accent="#DEDBC8" />
+          <StatCard index={1} label={t('overview.stats.totalRequests')} value="429K" change="+11%" Icon={Globe} accent="#A09878" />
+          <StatCard index={2} label={t('overview.stats.avgLatency')} value="42ms" change="-8%" Icon={Clock} accent="#DEDBC8" />
+          <StatCard index={3} label={t('overview.stats.errorRate')} value="0.03%" change="-15%" Icon={AlertTriangle} accent="#EF4444" />
+          <StatCard index={4} label={t('overview.stats.dbSize')} value="2.4 TB" change="+5.1%" Icon={Database} accent="#DEDBC8" />
         </div>
 
         {/* ─── Charts Row 1 ─── */}
@@ -144,13 +186,13 @@ export default function AdminOverview() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Globe size={14} className="text-[#DEDBC8]" /> Request Volume (24h)
+                  <Globe size={14} className="text-[#DEDBC8]" /> {t('overview.requestVolume')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">Requests & errors over the last 24 hours</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('overview.requestSubtitle')}</p>
               </div>
               <div className="flex items-center gap-3 text-[10px] text-gray-500">
-                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-[#DEDBC8]" /> Requests</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-red-400" /> Errors</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-[#DEDBC8]" /> {t('overview.requests')}</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-red-400" /> {t('overview.errors')}</span>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={220}>
@@ -181,16 +223,16 @@ export default function AdminOverview() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Server size={14} className="text-[#DEDBC8]" /> Resource Usage
+                  <Server size={14} className="text-[#DEDBC8]" /> {t('overview.resourceUsage')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">Current system resource allocation</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('overview.resourceSubtitle')}</p>
               </div>
             </div>
             <div className="space-y-4">
               {RESOURCE_USAGE.map((r) => (
                 <div key={r.name} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-gray-400">{r.name}</span>
+                    <span className="font-medium text-gray-400">{t(`overview.${r.name}`)}</span>
                     <span className="font-bold" style={{ color: r.value > 80 ? '#EF4444' : r.color }}>{r.value}%</span>
                   </div>
                   <div className="h-2 rounded-full bg-white/5 overflow-hidden">
@@ -220,13 +262,13 @@ export default function AdminOverview() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <TrendingUp size={14} className="text-[#DEDBC8]" /> Visitor Traffic
+                  <TrendingUp size={14} className="text-[#DEDBC8]" /> {t('overview.visitorTraffic')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">Today vs Yesterday comparison</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('overview.trafficSubtitle')}</p>
               </div>
               <div className="flex items-center gap-3 text-[10px] text-gray-500">
-                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-[#DEDBC8]" /> Today</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-gray-600" /> Yesterday</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-[#DEDBC8]" /> {tc('actions.today')}</span>
+                <span className="flex items-center gap-1"><span className="w-3 h-0.5 rounded bg-gray-600" /> {tc('actions.yesterday')}</span>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={200}>
@@ -257,9 +299,9 @@ export default function AdminOverview() {
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Zap size={14} className="text-[#DEDBC8]" /> Recent Events
+                  <Zap size={14} className="text-[#DEDBC8]" /> {t('overview.recentEvents')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">Latest system activity</p>
+                <p className="text-xs text-gray-500 mt-0.5">{t('overview.eventsSubtitle')}</p>
               </div>
             </div>
             <div className="space-y-1">

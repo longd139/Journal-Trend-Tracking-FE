@@ -5,18 +5,18 @@
   },
   "templates": {
     "trendAnalysis": {
-      "name": "Tóm tắt phân tích xu hướng",
-      "description": "Biểu đồ và số liệu trực quan về các lĩnh vực nghiên cứu chính.",
+      "name": "Báo cáo xu hướng từ khóa",
+      "description": "Phân tích xu hướng xuất bản và trích dẫn cho bất kỳ từ khóa nghiên cứu nào.",
       "quickPdf": "PDF nhanh →"
     },
     "readingList": {
-      "name": "Xuất danh sách đọc",
-      "description": "Xuất bài báo đã lưu với trích dẫn đầy đủ (định dạng APA/IEEE).",
+      "name": "Báo cáo chất lượng tạp chí",
+      "description": "Đánh giá chỉ số tạp chí, xếp hạng quartile và hệ số tác động.",
       "quickCsv": "CSV nhanh →"
     },
     "authorImpact": {
       "name": "Báo cáo tác động tác giả",
-      "description": "Số liệu chi tiết về chỉ số H và trích dẫn toàn cầu.",
+      "description": "Số liệu chi tiết về chỉ số H, trích dẫn và lịch sử xuất bản.",
       "quickPdf": "PDF nhanh →"
     },
     "courseworkRefs": {
@@ -38,27 +38,19 @@
       "action": "Thao tác"
     }
   },
-  "modal": {
-    "title": "Tùy chỉnh báo cáo",
-    "reportName": "Tên báo cáo",
-    "format": "Định dạng",
-    "dateRange": "Khoảng thời gian",
-    "includeDataColumns": "Bao gồm cột dữ liệu",
-    "citationCounts": "Số lượng & Số liệu trích dẫn",
-    "fullAbstracts": "Tóm tắt đầy đủ",
-    "formatOptions": {
-      "pdf": "Tài liệu PDF",
-      "csv": "CSV / Excel",
-      "zip": "Lưu trữ ZIP"
-    },
-    "dateOptions": {
-      "30days": "30 ngày qua",
-      "6months": "6 tháng qua",
-      "1year": "1 năm qua",
-      "all": "Tất cả"
+  "input": {
+    "placeholder": {
+      "keyword": "Nhập từ khóa (vd: machine learning)...",
+      "journal": "Nhập tên tạp chí (vd: Nature)...",
+      "author": "Nhập tên tác giả..."
     }
   },
+  "toast": {
+    "success": "Tạo báo cáo thành công!",
+    "error": "Tạo báo cáo thất bại"
+  },
   "button": {
+    "generate": "Tạo báo cáo",
     "customReport": "Báo cáo tùy chỉnh"
   }
 }

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   Search, RefreshCw, ChevronLeft, ChevronRight,
-  Calendar, User, Activity, Database, FileText,
+  Calendar, User, Activity, Database, FileText, Shield,
 } from 'lucide-react';
 import { adminAPI } from './api';
 
@@ -24,7 +24,8 @@ function ActionBadge({ action }) {
 }
 
 export default function AdminAuditLogPage() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('admin');
+  const { t: tc } = useTranslation('common');
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -53,23 +54,35 @@ export default function AdminAuditLogPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black text-white font-display">Audit Logs</h1>
-          <p className="text-xs text-gray-400 mt-1">Track all administrative actions across the system</p>
+      {/* Header banner */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+      >
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
+        <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+              <Shield size={15} />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-[#E1E0CC] font-display">{t('auditLogs.title')}</h2>
+              <p className="text-[11px] text-gray-500">{t('auditLogs.description')}</p>
+            </div>
+          </div>
+          <button onClick={fetchLogs} disabled={loading}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] transition-colors border border-[#DEDBC8]/8">
+            <RefreshCw size={11} className={loading ? 'animate-spin' : ''} /> {tc('actions.refresh')}
+          </button>
         </div>
-        <button onClick={fetchLogs} disabled={loading}
-          className="p-2.5 rounded-xl bg-white/[0.04] border border-[#DEDBC8]/10 text-gray-400 hover:text-white transition-colors">
-          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-        </button>
-      </div>
+      </motion.div>
 
       {/* Filters */}
       <div className="flex gap-3">
         <select value={actionFilter} onChange={(e) => { setActionFilter(e.target.value); setPage(0); }}
           className="px-3 py-2 rounded-lg border border-[#DEDBC8]/20 bg-[#151922] text-sm text-[#E1E0CC] outline-none">
-          <option value="">All Actions</option>
+          <option value="">{t('auditLogs.allActions')}</option>
           <option value="CREATE">CREATE</option>
           <option value="UPDATE">UPDATE</option>
           <option value="DELETE">DELETE</option>
@@ -83,21 +96,21 @@ export default function AdminAuditLogPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#DEDBC8]/10 text-left">
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Admin</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Action</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Target</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">IP Address</th>
-                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Date</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.admin')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.action')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.target')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.ipAddress')}</th>
+                <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">{t('auditLogs.table.date')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                  <RefreshCw size={20} className="animate-spin mx-auto mb-2" />Loading...
+                  <RefreshCw size={20} className="animate-spin mx-auto mb-2" />{tc('actions.loading')}
                 </td></tr>
               ) : logs.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-12 text-center text-gray-500">
-                  <Activity size={24} className="mx-auto mb-2 opacity-30" />No audit logs found
+                  <Activity size={24} className="mx-auto mb-2 opacity-30" />{t('auditLogs.noLogsFound')}
                 </td></tr>
               ) : (
                 logs.map((log) => (
@@ -107,7 +120,7 @@ export default function AdminAuditLogPage() {
                         <div className="w-7 h-7 rounded-lg bg-[#DEDBC8]/10 flex items-center justify-center">
                           <User size={12} className="text-[#DEDBC8]" />
                         </div>
-                        <span className="text-xs text-[#E1E0CC] font-medium">{log.adminEmail || 'System'}</span>
+                        <span className="text-xs text-[#E1E0CC] font-medium">{log.adminEmail || t('auditLogs.system')}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3"><ActionBadge action={log.action} /></td>
@@ -129,7 +142,7 @@ export default function AdminAuditLogPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-[#DEDBC8]/10">
-            <span className="text-xs text-gray-500">Page {page + 1} of {totalPages}</span>
+            <span className="text-xs text-gray-500">{t('auditLogs.pagination', { current: page + 1, total: totalPages })}</span>
             <div className="flex gap-1">
               <button onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors">

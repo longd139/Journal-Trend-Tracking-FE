@@ -1,0 +1,180 @@
+{
+  "title": "Hướng dẫn sử dụng",
+  "roleAdmin": "Admin",
+  "roleUser": "Researcher & Academic",
+  "tip": "Mẹo",
+  "admin": {
+    "sections": {
+      "overview": "Bảng điều khiển",
+      "users": "Quản lý người dùng",
+      "system-api": "Giám sát API",
+      "database": "Cơ sở dữ liệu",
+      "sync-data": "Đồng bộ dữ liệu",
+      "audit-logs": "Nhật ký hệ thống",
+      "configs": "Cấu hình",
+      "data-sources": "Nguồn dữ liệu",
+      "settings": "Cài đặt"
+    },
+    "descriptions": {
+      "overview": "Bảng điều khiển hệ thống và các chỉ số chính",
+      "users": "Quản lý tài khoản, vai trò và quyền hạn",
+      "system-api": "Giám sát mức sử dụng API, giới hạn và hiệu suất",
+      "database": "Xem và quản lý bảng và dữ liệu",
+      "sync-data": "Đồng bộ bài báo từ OpenAlex, Semantic Scholar, arXiv, CORE",
+      "audit-logs": "Theo dõi tất cả hoạt động và thay đổi trong hệ thống",
+      "configs": "Cấu hình tham số toàn hệ thống",
+      "data-sources": "Quản lý kết nối nguồn dữ liệu bên ngoài",
+      "settings": "Hồ sơ và tùy chọn tài khoản admin"
+    },
+    "content": {
+      "overview": {
+        "heading": "Bảng điều khiển hệ thống",
+        "description": "Bảng điều khiển cung cấp góc nhìn tổng quan toàn hệ thống. Theo dõi tổng số người dùng, nhà nghiên cứu đang hoạt động, bài báo đã đồng bộ, xu hướng sử dụng API và trạng thái hệ thống. Sử dụng thẻ truy cập nhanh để đến các tác vụ admin thường dùng.",
+        "steps": "Xem chỉ số hệ thống trên các thẻ dashboard|Theo dõi xu hướng gọi API qua biểu đồ|Kiểm tra người dùng mới đăng ký gần đây|Sử dụng nút truy cập nhanh cho các tác vụ phổ biến"
+      },
+      "users": {
+        "heading": "Quản lý người dùng",
+        "description": "Xem tất cả người dùng đã đăng ký, vai trò (Admin, Researcher, Academic), trạng thái xác minh và hoạt động tài khoản. Bạn có thể thay đổi vai trò, vô hiệu hóa tài khoản và xem thống kê từng người dùng.",
+        "steps": "Duyệt danh sách người dùng với tìm kiếm và bộ lọc|Nhấp vào một dòng để xem chi tiết đầy đủ|Thay đổi vai trò qua menu thả xuống|Vô hiệu hóa hoặc kích hoạt lại tài khoản|Xem thống kê hoạt động của từng người dùng"
+      },
+      "system-api": {
+        "heading": "Giám sát API",
+        "description": "Giám sát tất cả tích hợp API bên ngoài bao gồm OpenAlex, Semantic Scholar, arXiv và CORE. Theo dõi số lượng yêu cầu, tỷ lệ thành công, tỷ lệ lỗi và thời gian phản hồi. Đặt giới hạn tốc độ và xem mức sử dụng API key.",
+        "steps": "Xem chỉ số gọi API theo thời gian thực cho từng nguồn|Kiểm tra tỷ lệ lỗi và thời gian phản hồi|Giám sát mức tiêu thụ giới hạn tốc độ|Xem mức sử dụng API key trên toàn hệ thống"
+      },
+      "database": {
+        "heading": "Quản lý cơ sở dữ liệu",
+        "description": "Duyệt và kiểm tra các bảng cơ sở dữ liệu bao gồm bài báo, tác giả, tạp chí, từ khóa, người dùng và nhật ký đồng bộ. Xem số lượng bản ghi, kích thước bảng và chạy truy vấn tùy chỉnh để gỡ lỗi hoặc báo cáo.",
+        "steps": "Chọn bảng từ danh sách để duyệt bản ghi|Xem số lượng bản ghi và metadata của bảng|Tìm kiếm và lọc bản ghi|Xuất dữ liệu nếu cần để phân tích"
+      },
+      "sync-data": {
+        "heading": "Đồng bộ dữ liệu",
+        "description": "Kích hoạt đồng bộ thủ công từ OpenAlex, Semantic Scholar, arXiv và CORE. Sử dụng tính năng Deep Sync để đồng bộ hàng loạt theo từ khóa với API key OpenAlex của riêng bạn. Cấu hình lịch tự động đồng bộ nền.",
+        "steps": "Nhập truy vấn tìm kiếm và chọn nguồn dữ liệu|Đặt khoảng năm và giới hạn kết quả|Nhấp Sync để tải và nhập bài báo|Sử dụng Bulk Sync cho nhiều từ khóa cùng lúc|Sử dụng Deep Sync với API key OpenAlex để nhập quy mô lớn|Bật Auto Sync để đồng bộ nền theo lịch"
+      },
+      "audit-logs": {
+        "heading": "Nhật ký hệ thống",
+        "description": "Theo dõi mọi hành động quan trọng trong hệ thống: đăng nhập người dùng, thay đổi vai trò, đồng bộ dữ liệu, cập nhật cấu hình và hơn thế nữa. Mỗi mục nhật ký bao gồm thời gian, người thực hiện, loại hành động và chi tiết.",
+        "steps": "Duyệt nhật ký hệ thống sắp xếp theo thời gian mới nhất|Lọc theo loại hành động hoặc người dùng|Nhấp vào mục để xem chi tiết đầy đủ|Sử dụng khoảng thời gian để thu hẹp kết quả"
+      },
+      "configs": {
+        "heading": "Cấu hình hệ thống",
+        "description": "Quản lý cài đặt toàn hệ thống như giới hạn người dùng academic, khoảng thời gian đồng bộ, giới hạn tốc độ API và bật/tắt tính năng. Thay đổi có hiệu lực ngay lập tức trên toàn bộ nền tảng.",
+        "steps": "Duyệt các tham số có thể cấu hình theo danh mục|Chỉnh sửa giá trị và lưu để áp dụng ngay|Thêm khóa cấu hình mới nếu cần|Xem lịch sử thay đổi cho từng cài đặt"
+      },
+      "data-sources": {
+        "heading": "Nguồn dữ liệu",
+        "description": "Quản lý kết nối đến các nhà cung cấp dữ liệu học thuật bên ngoài (OpenAlex, Semantic Scholar, arXiv, CORE). Cấu hình endpoint API, xác thực và cài đặt ưu tiên cho từng nguồn.",
+        "steps": "Xem tất cả nguồn dữ liệu đã kết nối và trạng thái|Chỉnh sửa cấu hình nguồn (endpoint, xác thực)|Bật hoặc tắt nguồn khi cần|Kiểm tra kết nối để xác minh nguồn khả dụng"
+      },
+      "settings": {
+        "heading": "Cài đặt Admin",
+        "description": "Quản lý hồ sơ admin, cập nhật mật khẩu, cấu hình tùy chọn thông báo và đặt ngôn ngữ/giao diện mặc định. Các cài đặt này là riêng tư cho tài khoản admin của bạn.",
+        "steps": "Cập nhật thông tin hồ sơ (tên, ảnh đại diện)|Đổi mật khẩu|Cấu hình tùy chọn thông báo|Đặt ngôn ngữ và giao diện ưa thích"
+      }
+    },
+    "tips": {
+      "overview": "Kiểm tra bảng điều khiển thường xuyên để phát hiện sớm hoạt động bất thường hoặc sự cố hệ thống.",
+      "users": "Sử dụng thanh tìm kiếm để nhanh chóng tìm người dùng theo tên hoặc email.",
+      "system-api": "Thiết lập cảnh báo khi tỷ lệ lỗi API vượt ngưỡng.",
+      "database": "Cẩn thận khi chạy truy vấn trực tiếp — sử dụng chế độ chỉ đọc khi có thể.",
+      "sync-data": "Mỗi thành viên nên dùng API key OpenAlex riêng cho Deep Sync để tránh bị giới hạn tốc độ.",
+      "audit-logs": "Nhật ký hệ thống được lưu trong 90 ngày mặc định. Xuất nhật ký quan trọng trước khi hết hạn.",
+      "configs": "Ghi lại mọi thay đổi cấu hình vào nhật ký thay đổi của nhóm để dễ truy vết.",
+      "data-sources": "Kiểm tra kết nối sau khi thay đổi cấu hình nguồn để tránh lỗi đồng bộ.",
+      "settings": "Bật xác thực 2 yếu tố (2FA) cho tài khoản admin trong cài đặt bảo mật.",
+      "default": "Sử dụng thanh bên trái để điều hướng nhanh giữa các mục admin."
+    }
+  },
+  "user": {
+    "sections": {
+      "overview": "Tổng quan",
+      "search": "Tìm bài báo",
+      "journal-search": "Tìm tạp chí",
+      "search-author": "Tìm tác giả",
+      "analytics": "Phân tích",
+      "bookmarks": "Đã lưu",
+      "follows": "Theo dõi",
+      "notifications": "Thông báo",
+      "reports": "Báo cáo",
+      "settings": "Cài đặt"
+    },
+    "descriptions": {
+      "overview": "Bảng điều khiển và các chỉ số chính",
+      "search": "Tìm bài báo học thuật từ hàng triệu nguồn",
+      "journal-search": "Duyệt và khám phá tạp chí học thuật",
+      "search-author": "Tra cứu hồ sơ tác giả, thống kê và đồng tác giả",
+      "analytics": "Trực quan hóa hiệu suất và xu hướng nghiên cứu",
+      "bookmarks": "Lưu và sắp xếp bài báo để đọc sau",
+      "follows": "Theo dõi tạp chí, chủ đề và từ khóa",
+      "notifications": "Cập nhật bài báo mới trong lĩnh vực quan tâm",
+      "reports": "Tạo và xuất báo cáo tổng quan nghiên cứu",
+      "settings": "Hồ sơ và tùy chọn tài khoản"
+    },
+    "content": {
+      "overview": {
+        "heading": "Tổng quan bảng điều khiển",
+        "description": "Trang Tổng quan là trang chính của bạn. Nó hiển thị các chỉ số chính về hoạt động nghiên cứu, bài báo thịnh hành trong lĩnh vực, ấn phẩm gần đây từ các chủ đề đã theo dõi và thẻ truy cập nhanh đến các tính năng thường dùng.",
+        "steps": "Xem thống kê nghiên cứu trên các thẻ dashboard|Kiểm tra bài báo thịnh hành trong lĩnh vực|Xem ấn phẩm gần đây từ chủ đề đã theo dõi|Sử dụng thẻ truy cập nhanh đến Tìm kiếm, Phân tích hoặc Báo cáo"
+      },
+      "search": {
+        "heading": "Tìm kiếm bài báo",
+        "description": "Tìm kiếm hàng triệu bài báo học thuật từ OpenAlex, Semantic Scholar, arXiv và nhiều nguồn khác. Lọc theo khoảng năm, sắp xếp theo mức độ liên quan hoặc số trích dẫn, và xem thông tin chi tiết bao gồm tóm tắt, tác giả, trích dẫn và liên kết toàn văn.",
+        "steps": "Nhập từ khóa vào ô tìm kiếm và nhấn Enter|Sử dụng bộ lọc (năm, nguồn) để thu hẹp kết quả|Nhấp vào bài báo bất kỳ để xem chi tiết đầy đủ|Sử dụng nút Theo dõi để theo dõi tạp chí hoặc chủ đề liên quan|Lưu bài báo vào Bookmarks để đọc sau"
+      },
+      "journal-search": {
+        "heading": "Duyệt tạp chí",
+        "description": "Khám phá tạp chí học thuật theo tên, lĩnh vực hoặc nhà xuất bản. Mỗi thẻ tạp chí hiển thị ISSN, nhà xuất bản, chỉ số trích dẫn và các bài báo hàng đầu. Theo dõi tạp chí để nhận thông báo khi có bài báo mới.",
+        "steps": "Nhập tên tạp chí hoặc lĩnh vực vào ô tìm kiếm|Duyệt thẻ tạp chí với các chỉ số chính|Nhấp vào tạp chí để xem bài báo hàng đầu|Sử dụng Theo dõi để đăng ký nhận bài báo mới"
+      },
+      "search-author": {
+        "heading": "Tra cứu tác giả",
+        "description": "Tìm kiếm tác giả theo tên để xem lịch sử xuất bản, chỉ số trích dẫn (h-index, tổng số bài), lĩnh vực nghiên cứu qua biểu đồ tròn, dòng thời gian xuất bản và các đồng tác giả hàng đầu. Dữ liệu được lấy trực tiếp từ OpenAlex.",
+        "steps": "Nhập tên tác giả và nhấn Enter|Xem thống kê nhanh: h-index, tổng số bài, số trích dẫn|Khám phá biểu đồ dòng thời gian xuất bản qua các năm|Xem biểu đồ tròn phân bổ lĩnh vực nghiên cứu|Duyệt danh sách đồng tác giả để tìm cơ hội hợp tác"
+      },
+      "analytics": {
+        "heading": "Phân tích nghiên cứu",
+        "description": "Trang Phân tích cung cấp thông tin chi tiết về hoạt động nghiên cứu. Xem biểu đồ tương tác về xu hướng xuất bản, tác động trích dẫn theo thời gian, phân bổ chủ đề nghiên cứu và mạng lưới cộng tác. Dữ liệu dựa trên chủ đề đã theo dõi và bài báo đã lưu.",
+        "steps": "Chọn khoảng thời gian và chỉ số để xem|Khám phá biểu đồ xu hướng xuất bản|Kiểm tra phân tích tác động trích dẫn|Xem phân bổ chủ đề trong các lĩnh vực nghiên cứu"
+      },
+      "bookmarks": {
+        "heading": "Quản lý bài đã lưu",
+        "description": "Lưu bài báo bạn muốn đọc sau hoặc tham khảo trong công việc. Bookmarks là riêng tư và được sắp xếp theo ngày. Tìm kiếm, xóa những bài không còn cần thiết và xuất ra để dùng trong trình quản lý tài liệu tham khảo.",
+        "steps": "Nhấp biểu tượng bookmark trên bất kỳ bài báo nào để lưu ngay|Truy cập trang Bookmarks để xem tất cả bài đã lưu|Sử dụng thanh tìm kiếm để lọc bookmarks|Xóa bookmarks không còn cần thiết|Xuất bookmarks dưới dạng CSV từ trang Báo cáo"
+      },
+      "follows": {
+        "heading": "Theo dõi chủ đề & tạp chí",
+        "description": "Luôn cập nhật bằng cách theo dõi tạp chí, chủ đề nghiên cứu hoặc từ khóa. Khi có bài báo mới khớp với sở thích, bạn sẽ nhận được thông báo. Quản lý tất cả theo dõi từ trang này — lọc theo loại, bật/tắt thông báo hoặc bỏ theo dõi.",
+        "steps": "Nhấp Theo dõi trên bất kỳ bài báo, tạp chí hoặc kết quả tìm kiếm|Chọn đối tượng theo dõi: tạp chí, chủ đề hoặc từ khóa|Bật/tắt biểu tượng chuông để nhận thông báo cho từng mục|Truy cập trang Follows để quản lý tất cả ở một nơi|Sử dụng tab lọc (Tất cả, Tạp chí, Chủ đề, Từ khóa) để sắp xếp"
+      },
+      "notifications": {
+        "heading": "Thông báo",
+        "description": "Trang Thông báo hiển thị tất cả cảnh báo về bài báo mới trong các chủ đề, tạp chí và từ khóa bạn theo dõi. Thông báo được tự động đánh dấu đã đọc khi bạn xem. Luôn cập nhật nghiên cứu mới nhất mà không cần kiểm tra thủ công từng nguồn.",
+        "steps": "Xem tất cả thông báo sắp xếp theo thời gian mới nhất|Nhấp vào thông báo để xem bài báo liên quan|Thông báo tự động được đánh dấu đã đọc|Lọc theo loại thông báo nếu cần"
+      },
+      "reports": {
+        "heading": "Tạo báo cáo",
+        "description": "Tạo báo cáo tổng quan nghiên cứu dựa trên bài báo đã lưu và chủ đề đã theo dõi. Báo cáo bao gồm tóm tắt xuất bản, chỉ số trích dẫn và phân tích xu hướng. Xuất PDF để chia sẻ với đồng nghiệp hoặc lưu trữ cá nhân.",
+        "steps": "Chọn loại báo cáo và khoảng thời gian|Nhấp Tạo để tạo báo cáo|Xem thống kê tổng quan và biểu đồ|Xuất PDF hoặc chia sẻ qua liên kết|Sử dụng báo cáo cho tổng quan tài liệu hoặc đề xuất tài trợ"
+      },
+      "settings": {
+        "heading": "Cài đặt tài khoản",
+        "description": "Quản lý hồ sơ, cập nhật mật khẩu, cấu hình tùy chọn thông báo và đặt ngôn ngữ và giao diện ưa thích. Đối với người dùng academic, đây cũng là nơi bạn có thể xem giới hạn sử dụng và tùy chọn nâng cấp.",
+        "steps": "Cập nhật thông tin hồ sơ (tên, ảnh đại diện)|Đổi mật khẩu an toàn|Cấu hình tùy chọn thông báo|Đặt ngôn ngữ ưa thích (Tiếng Anh / Tiếng Việt)|Chuyển đổi giữa giao diện tối và sáng"
+      }
+    },
+    "tips": {
+      "overview": "Đánh dấu trang này (Ctrl+D) để truy cập nhanh vào bảng điều khiển nghiên cứu.",
+      "search": "Sử dụng dấu ngoặc kép để tìm chính xác cụm từ, ví dụ: \"deep learning\".",
+      "journal-search": "Theo dõi tạp chí có ảnh hưởng cao trong lĩnh vực để tự động cập nhật nghiên cứu mới.",
+      "search-author": "Nhấp vào liên kết ORCID trên hồ sơ tác giả để xem toàn bộ lịch sử xuất bản.",
+      "analytics": "Theo dõi nhiều chủ đề và tạp chí hơn để có dữ liệu phân tích phong phú hơn theo thời gian.",
+      "bookmarks": "Xuất bookmarks dưới dạng CSV từ trang Báo cáo để dùng trong trình quản lý tài liệu tham khảo.",
+      "follows": "Researcher được theo dõi không giới hạn. Academic có giới hạn theo tháng hiển thị trong Cài đặt.",
+      "notifications": "Tắt thông báo cho từng mục theo dõi để giảm nhiễu — chỉ giữ những mục quan trọng nhất.",
+      "reports": "Báo cáo dựa trên bài báo đã lưu và chủ đề đã theo dõi — hãy cập nhật chúng thường xuyên.",
+      "settings": "Người dùng Academic có thể xem giới hạn tìm kiếm và theo dõi hàng tháng trong trang Cài đặt.",
+      "default": "Sử dụng thanh bên trái để chuyển nhanh giữa các mục — bố cục giống nhau cho tất cả vai trò."
+    }
+  }
+}

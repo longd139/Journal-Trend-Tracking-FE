@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Clock, Trash2 } from 'lucide-react';
+import { Search, X, Clock, Trash2, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import WeeklyBreakout from './WeeklyBreakout';
 import KeywordQuickStats from './KeywordQuickStats';
 import KeywordGraphExplorer from './KeywordGraphExplorer';
 import TopPapers from './TopPapers';
+import { AdvancedFilter } from './AdvancedFilter';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Main Component
@@ -13,12 +21,24 @@ import TopPapers from './TopPapers';
 
 export default function SearchPapers() {
   const { t } = useTranslation('search');
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_papers_query') || '');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false });
+  const [sortBy, setSortBy] = useState('relevance');
   const searchInputRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
+
+  // Restore persisted search
+  useEffect(() => {
+    const saved = sessionStorage.getItem('scitrack_papers_query');
+    if (saved && saved.trim() && !query) {
+      setQuery(saved);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ─── Load search history ───
   useEffect(() => {
@@ -58,6 +78,7 @@ export default function SearchPapers() {
   const handleSearch = (kw) => {
     setQuery(kw);
     saveToSearchHistory(kw);
+    sessionStorage.setItem('scitrack_papers_query', kw);
     setShowSuggestions(false);
   };
 
@@ -90,7 +111,7 @@ export default function SearchPapers() {
             {query && (
               <button
                 type="button"
-                onClick={() => setQuery('')}
+                onClick={() => { setQuery(''); sessionStorage.removeItem('scitrack_papers_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
@@ -138,17 +159,60 @@ export default function SearchPapers() {
         {/* ─── Post-search: Quick Stats + Neo4j Graph ─── */}
         {query && query.trim() && (
           <>
-            <KeywordQuickStats keyword={query.trim()} />
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            >
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  showFilters
+                    ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
+                    : 'text-gray-500 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+                }`}
+              >
+                <SlidersHorizontal size={13} />
+                Filters
+                {Object.values(filters).some(v => v && (!Array.isArray(v) || v.length > 0) && v !== false) && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />
+                )}
+              </button>
+
+              {/* Sort Dropdown */}
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-[#DEDBC8]/10 bg-[#101010] text-gray-500 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20 focus:ring-0">
+                  <ArrowUpDown size={12} className="text-[#DEDBC8]/40" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+                  <SelectItem value="relevance" className="text-[11px] cursor-pointer">{t('sort.relevance')}</SelectItem>
+                  <SelectItem value="newest" className="text-[11px] cursor-pointer">{t('sort.newest')}</SelectItem>
+                  <SelectItem value="oldest" className="text-[11px] cursor-pointer">{t('sort.oldest')}</SelectItem>
+                  <SelectItem value="mostCited" className="text-[11px] cursor-pointer">{t('sort.mostCited')}</SelectItem>
+                  <SelectItem value="leastCited" className="text-[11px] cursor-pointer">{t('sort.leastCited')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={`grid gap-6 ${showFilters ? 'grid-cols-1 lg:grid-cols-[260px_1fr]' : 'grid-cols-1'}`}>
+              {showFilters && (
+                <AdvancedFilter
+                  filters={filters}
+                  setFilters={setFilters}
+                  clearFilters={() => setFilters({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false })}
+                />
+              )}
+              <div className="space-y-8">
+                <KeywordQuickStats keyword={query.trim()} />
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                >
               <div className="space-y-8">
                 <KeywordGraphExplorer keyword={query.trim()} onKeywordClick={handleSearch} />
-                <TopPapers keyword={query.trim()} />
+                <TopPapers keyword={query.trim()} sortBy={sortBy} />
               </div>
             </motion.div>
+              </div>
+            </div>
           </>
         )}
       </div>

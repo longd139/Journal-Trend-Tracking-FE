@@ -348,16 +348,25 @@ export default function SyncDataPage() {
 
  return (
  <div className="p-6 space-y-6 max-w-3xl mx-auto">
-  {/* -- Header -- */}
-  <div>
-  <h2 className="text-lg font-black text-[#E1E0CC] font-display flex items-center gap-2">
-   <RefreshCw size={18} className="text-emerald-500" />
-   Sync Data
-  </h2>
-  <p className="text-xs mt-0.5 text-gray-400">
-   Fetch and import academic papers from multiple sources into the system database.
-  </p>
-  </div>
+  {/* Header banner */}
+  <motion.div
+   initial={{ opacity: 0, y: -8 }}
+   animate={{ opacity: 1, y: 0 }}
+   className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+  >
+   <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
+   <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+    <div className="flex items-center gap-3">
+     <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
+      <RefreshCw size={15} />
+     </div>
+     <div>
+      <h2 className="text-sm font-bold text-[#E1E0CC] font-display">Sync Data</h2>
+      <p className="text-[11px] text-gray-500">Fetch and import academic papers from OpenAlex & external sources</p>
+     </div>
+    </div>
+   </div>
+  </motion.div>
 
   {/* -- Sync Form -- */}
   <motion.div
@@ -1280,6 +1289,52 @@ export default function SyncDataPage() {
      </div>
     )}
    </motion.div>
+
+   {/* API Key Help Dialog */}
+   <Dialog open={showApiKeyHelp} onOpenChange={setShowApiKeyHelp}>
+    <DialogContent className="sm:max-w-lg bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC]">
+     <DialogHeader>
+      <DialogTitle className="flex items-center gap-2 text-base">
+       <HelpCircle size={18} className="text-blue-400" />
+       How to get an OpenAlex API Key
+      </DialogTitle>
+      <DialogDescription className="text-xs text-gray-400 space-y-3 pt-2">
+       <p>OpenAlex requires an API key for all requests since February 2026. It's <strong className="text-[#E1E0CC]">free</strong> and takes less than a minute.</p>
+
+       <div className="space-y-2.5 mt-3">
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">1</span>
+         <p className="text-xs">Go to <a href="https://openalex.org/settings/api" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">openalex.org/settings/api</a> and sign up or log in.</p>
+        </div>
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">2</span>
+         <p className="text-xs">On the API settings page, you'll see your API key. Click <strong className="text-[#E1E0CC]">Copy</strong> to copy it.</p>
+        </div>
+        <div className="flex items-start gap-3">
+         <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold flex items-center justify-center">3</span>
+         <p className="text-xs">Paste the key into the input field above. Each team member should use their own key for fair usage.</p>
+        </div>
+       </div>
+
+       <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10 mt-3">
+        <p className="text-[11px] text-gray-400">
+         <strong className="text-[#E1E0CC]">Tip:</strong> The free tier allows up to 100,000 requests per day — more than enough for individual use. Keep your key private and never commit it to version control.
+        </p>
+       </div>
+      </DialogDescription>
+     </DialogHeader>
+     <DialogFooter>
+      <Button
+       type="button"
+       variant="outline"
+       onClick={() => setShowApiKeyHelp(false)}
+       className="text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:text-white"
+      >
+       Got it
+      </Button>
+     </DialogFooter>
+    </DialogContent>
+   </Dialog>
   </div>
 
 {/* -- Clear All Data -- */}

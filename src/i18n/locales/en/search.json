@@ -40,5 +40,13 @@
     "clearQuery": "Clear query",
     "noResults": "No author found.",
     "error": "Unable to load author data from the system."
+  },
+  "sort": {
+    "label": "Sort by",
+    "relevance": "Relevance",
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "mostCited": "Most Cited",
+    "leastCited": "Least Cited"
   }
 }

@@ -20,9 +20,11 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 const SearchPapers = lazy(() => import('../features/search/SearchPapers.jsx'));
 const SearchJournal = lazy(() => import('../features/search/SearchJournal.jsx'));
 const SearchAuthor = lazy(() => import('../features/search/SearchAuthor.jsx'));
+const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.jsx'));
 
 const BookmarksView = lazy(() => import('../features/bookmarks/BookmarksView.jsx'));
 const ReportsView = lazy(() => import('../features/reports/ReportsViewPage.jsx'));
+const AnalyticsPage = lazy(() => import('../features/analytics/AnalyticsPage.jsx'));
 const FollowsView = lazy(() => import('../features/follows/FollowsView.jsx'));
 const NotificationsPage = lazy(() => import('../features/notifications/NotificationsPage.jsx'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage.jsx'));
@@ -111,7 +113,7 @@ export const router = createBrowserRouter([
 
   // --- Nhóm Routes Dashboard (Cấu trúc Cha - Con) ---
   {
-    path: '/:roleName', // Bắt URL có dạng /admin, /researcher, /academic
+    path: '/:roleName', // Bắt URL có dạng /admin, /researcher, /academic_user
     element: (
       <ProtectedRoute>
         {/* Layout cha bọc ngoài. Thẻ Outlet sẽ được thay thế bằng nội dung trang con */}
@@ -204,11 +206,32 @@ export const router = createBrowserRouter([
       },
 
       {
+        path: 'papers/:paperId', // -> URL thực tế: /:roleName/papers/:paperId
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <PaperDetailPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+
+      {
         path: 'reports', // -> URL thực tế: /:roleName/reports
         element: (
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <ReportsView />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'analytics', // -> URL thực tế: /:roleName/analytics
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AnalyticsPage />
             </Suspense>
           </ProtectedRoute>
         ),

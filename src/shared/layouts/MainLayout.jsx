@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import {
+  BarChart3,
   Home,
   Search,
   BookOpen,
@@ -24,12 +25,14 @@ import {
   Cloud,
   Menu,
   X,
+  HelpCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../../features/user/api';
 import { useTheme } from '../../hooks/useTheme';
 import { useAuthStore } from '../../features/user/store';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
+import SupportDialog from '../../components/common/SupportDialog';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Sidebar
@@ -37,12 +40,14 @@ import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 
 function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const { t } = useTranslation('common');
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
+    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
@@ -54,6 +59,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
+    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
@@ -66,21 +72,14 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
-    { id: 'audit-logs', Icon: ShieldCheck, label: 'Audit Logs' },
-    { id: 'configs', Icon: Sliders, label: 'Configs' },
-    { id: 'data-sources', Icon: Cloud, label: 'Data Sources' },
+    { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
+    { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
+    { id: 'data-sources', Icon: Cloud, label: t('sidebar.dataSources') },
   ];
 
   let nav = academicNav;
   if (role === 'admin') nav = adminNav;
   if (role === 'researcher') nav = researcherNav;
-
-  const getInitials = (name) => {
-    if (!name) return '??';
-    const parts = name.trim().split(' ');
-    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  };
 
   return (
     <aside
@@ -134,35 +133,14 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
 
       {/* Bottom section */}
       <div className="p-4 border-t border-[#DEDBC8]/10 space-y-3">
-        {/* Language Switcher */}
-        <LanguageSwitcher variant="sidebar" />
-
-        {/* User card */}
-        <div className="flex items-center gap-3 p-2 rounded-lg bg-[#101010] border border-[#DEDBC8]/5">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black shrink-0 bg-[#DEDBC8]">
-            {getInitials(user?.fullName)}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-xs font-semibold text-[#E1E0CC] truncate">
-              {user ? user.fullName : t('sidebar.loading')}
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className="text-[10px] truncate text-gray-400">
-                {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
-              </div>
-              {user && user.isVerified === false && (
-                <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded">
-                  <AlertTriangle size={8} /> {t('status.unverified')}
-                </div>
-              )}
-            </div>
-          </div>
-          <Settings
-            size={14}
-            className="cursor-pointer text-gray-400 hover:text-[#E1E0CC] transition-colors hover:rotate-90 duration-300"
-            onClick={() => navigate(`/${role}/settings`)}
-          />
-        </div>
+        {/* Support */}
+        <button
+          onClick={() => setSupportOpen(true)}
+          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-[#DEDBC8]/5 text-gray-400 hover:bg-[#DEDBC8]/15 hover:text-[#E1E0CC]"
+        >
+          <HelpCircle size={14} />
+          {t('sidebar.support')}
+        </button>
 
         {/* Sign out */}
         <button
@@ -175,6 +153,13 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
           {t('sidebar.signOut')}
         </button>
       </div>
+
+      {/* Support Dialog */}
+      <SupportDialog
+        open={supportOpen}
+        onClose={() => setSupportOpen(false)}
+        role={role}
+      />
     </aside>
   );
 }
@@ -183,7 +168,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
    TopBar
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function TopBar({ title, subtitle, onMenuClick }) {
+function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
   const { t } = useTranslation('common');
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -191,8 +176,15 @@ function TopBar({ title, subtitle, onMenuClick }) {
     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   };
 
+  const getInitials = (name) => {
+    if (!name) return '??';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
   return (
-    <header className="flex items-center justify-between px-4 sm:px-6 py-4 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10">
+    <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10 relative z-50">
       <div className="flex items-center gap-3">
         {/* Hamburger — mobile only */}
         <button
@@ -212,7 +204,11 @@ function TopBar({ title, subtitle, onMenuClick }) {
           )}
         </div>
       </div>
-      <div className="flex items-center gap-4">
+
+      <div className="flex items-center gap-3">
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
@@ -224,6 +220,39 @@ function TopBar({ title, subtitle, onMenuClick }) {
           ) : (
             <Moon size={16} />
           )}
+        </button>
+
+        {/* User avatar + settings */}
+        <button
+          onClick={() => navigate(`/${role}/settings`)}
+          className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all bg-[#101010]/80 border-[#DEDBC8]/10 hover:border-[#DEDBC8]/25 hover:bg-[#101010] group"
+        >
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black shrink-0 bg-[#DEDBC8] overflow-hidden">
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+            ) : (
+              getInitials(user?.fullName)
+            )}
+          </div>
+          <div className="hidden sm:block text-left min-w-0 max-w-[120px]">
+            <div className="text-xs font-semibold text-[#E1E0CC] truncate">
+              {user ? user.fullName : t('sidebar.loading')}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="text-[10px] truncate text-gray-400">
+                {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
+              </div>
+              {user && user.isVerified === false && (
+                <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded">
+                  <AlertTriangle size={8} /> {t('status.unverified')}
+                </div>
+              )}
+            </div>
+          </div>
+          <Settings
+            size={14}
+            className="text-gray-500 group-hover:text-[#E1E0CC] transition-colors group-hover:rotate-90 duration-300 shrink-0"
+          />
         </button>
       </div>
     </header>
@@ -287,6 +316,7 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.searchAuthor'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
+    analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
@@ -313,6 +343,18 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.syncData'),
     },
     settings: { title: t('headings.settings'), sub: t('subtitles.settings') },
+    'audit-logs': {
+      title: t('headings.auditLogs'),
+      sub: t('subtitles.auditLogs'),
+    },
+    configs: {
+      title: t('headings.configs'),
+      sub: t('subtitles.configs'),
+    },
+    'data-sources': {
+      title: t('headings.dataSources'),
+      sub: t('subtitles.dataSources'),
+    },
   };
 
   const currentHeader = titles[activeTab] || {
@@ -338,28 +380,34 @@ export default function DashboardLayout({ children }) {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
           title={currentHeader.title}
           subtitle={currentHeader.sub}
           onMenuClick={() => setSidebarOpen(true)}
+          user={user}
+          role={role}
+          navigate={navigate}
         />
-        {/* Background video — stays fixed while content scrolls */}
-        <div className="absolute inset-0 top-0 pointer-events-none z-0">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
-            src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
-          <div className="noise-overlay absolute inset-0 opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
+        {/* Content area with fixed background video (below TopBar) */}
+        <div className="flex-1 relative overflow-hidden">
+          {/* Background video — stays fixed while content scrolls */}
+          <div className="absolute inset-0 pointer-events-none z-0">
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+              src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
+            <div className="noise-overlay absolute inset-0 opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
+          </div>
+          <main className="h-full overflow-y-auto overflow-x-hidden relative z-10">
+            {children}
+          </main>
         </div>
-        <main className="flex-1 overflow-y-auto overflow-x-hidden relative z-10">
-          {children}
-        </main>
         <SyncFloatingPanel />
       </div>
     </div>

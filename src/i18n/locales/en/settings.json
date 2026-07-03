@@ -35,5 +35,48 @@
     "button": "Save Changes",
     "saving": "Saving...",
     "success": "Profile updated successfully!"
+  },
+  "password": {
+    "title": "Change Password",
+    "description": "Update your account password. You'll stay logged in.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "submit": "Change Password",
+    "submitting": "Changing...",
+    "showForm": "Change Password",
+    "success": "Password changed successfully!",
+    "error": {
+      "mismatch": "Passwords do not match.",
+      "tooShort": "Password must be at least 6 characters.",
+      "wrongCurrent": "Current password is incorrect."
+    }
+  },
+  "notifications": {
+    "title": "Notification Preferences",
+    "description": "Choose what alerts you receive.",
+    "emailNotifications": "Email Notifications",
+    "pushNotifications": "Push Notifications",
+    "categories": {
+      "newPapers": "New Paper Alerts",
+      "citations": "Citation Alerts",
+      "journalUpdates": "Journal Updates",
+      "followActivity": "Follow Activity"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "description": "Customize how SCITRACK looks for you.",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "themeSystem": "System",
+    "fontSize": "Font Size",
+    "fontSmall": "Small",
+    "fontMedium": "Medium",
+    "fontLarge": "Large",
+    "density": "Layout Density",
+    "densityCompact": "Compact",
+    "densityComfortable": "Comfortable"
   }
 }

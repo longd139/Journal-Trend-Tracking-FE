@@ -203,6 +203,28 @@ export function PaperItemCard({
        )}
       </div>
 
+      {/* Follow button */}
+      <span onClick={(e) => e.stopPropagation()}>
+       <FollowButton
+        journalId={paper.journalId || null}
+        journalName={journal || null}
+        topicId={paper.topicId || null}
+        topicName={paper.topicName || field || null}
+        keywordId={
+         Array.isArray(paper.keywords) && paper.keywords[0]?.keywordId
+          ? paper.keywords[0].keywordId
+          : null
+        }
+        keywordText={
+         Array.isArray(paper.keywords)
+          ? typeof paper.keywords[0] === 'string'
+            ? paper.keywords[0]
+            : paper.keywords[0]?.keywordText || null
+          : null
+        }
+       />
+      </span>
+
       <div className="flex gap-2 sm:mt-1">
        {/* Bookmark */}
        <button
