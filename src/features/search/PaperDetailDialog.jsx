@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { BookOpen, ExternalLink, FileText, Download } from 'lucide-react';
+import { BookOpen, ExternalLink, FileText, Download, BrainCircuit, Cpu, RefreshCw, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import FollowButton from '../follows/FollowButton';
+import { aiAPI } from '../../lib/api/ai.api.js';
 
 /**
  * Normalize paper data from API response.
@@ -78,6 +80,31 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
       window.open(p.pdfUrl, '_blank');
     }
   };
+
+  // ── AI Summary ──
+  const { t } = useTranslation('search');
+  const [aiData, setAiData] = React.useState(null);
+  const [aiLoading, setAiLoading] = React.useState(false);
+  const [aiError, setAiError] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!p?.paperId || !open) return;
+    let cancelled = false;
+    async function fetchAI() {
+      setAiLoading(true);
+      setAiError(null);
+      try {
+        const data = await aiAPI.summarize(p.paperId);
+        if (!cancelled) setAiData(data);
+      } catch (err) {
+        if (!cancelled) setAiError(err?.message || 'Failed');
+      } finally {
+        if (!cancelled) setAiLoading(false);
+      }
+    }
+    fetchAI();
+    return () => { cancelled = true; };
+  }, [p?.paperId, open]);
 
   if (!p) return null;
 
@@ -165,6 +192,116 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
               {p.abstract}
             </p>
           </div>
+        )}
+
+        {/* ── AI Summary (compact) ── */}
+        {aiLoading && (
+          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4 animate-pulse">
+            <div className="flex items-center gap-1.5 mb-3">
+              <div className="w-4 h-4 rounded-md bg-[#4F8CFF]/20" />
+              <div className="h-3 w-16 rounded bg-[#DEDBC8]/8" />
+            </div>
+            <div className="space-y-2">
+              {[1, 2].map((i) => (
+                <div key={i} className="rounded-md bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 p-3">
+                  <div className="h-2.5 w-16 rounded bg-[#4F8CFF]/10 mb-2" />
+                  <div className="h-2.5 w-full rounded bg-[#DEDBC8]/5" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {!aiLoading && aiError && (
+          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-3">
+            <div className="flex items-center gap-2 text-[10px] text-amber-400/70">
+              <AlertCircle size={11} className="shrink-0" />
+              <span>{t('aiSummary.error')}</span>
+            </div>
+          </div>
+        )}
+
+        {!aiLoading && !aiError && aiData && (
+          (() => {
+            const sections = aiData.aiSummarySections?.length > 0
+              ? aiData.aiSummarySections
+              : aiData.aiSummary
+                ? aiData.aiSummary
+                    .split(/(?<=[.!?])\s+/)
+                    .filter((s) => s.trim().length > 0)
+                    .map((s) => ({ heading: null, content: s }))
+                : [];
+            const hasContent = sections.length > 0;
+            const hasMethodology = aiData.methodology;
+            const isStructured = aiData.aiSummarySections?.length > 0;
+
+            if (!hasContent && !hasMethodology) {
+              return (
+                <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-3">
+                  <div className="flex items-center gap-2 text-[10px] text-[#4F8CFF]/50">
+                    <BrainCircuit size={11} className="shrink-0" />
+                    <span>{t('aiSummary.unavailable')}</span>
+                  </div>
+                </div>
+              );
+            }
+
+            const DIALOG_COLORS = [
+              { bg: 'bg-[#4F8CFF]/8', text: 'text-[#4F8CFF]', border: 'border-[#4F8CFF]/12', dot: 'bg-[#4F8CFF]' },
+              { bg: 'bg-[#8B5CF6]/8', text: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]/12', dot: 'bg-[#8B5CF6]' },
+              { bg: 'bg-[#00D1B2]/8', text: 'text-[#00D1B2]', border: 'border-[#00D1B2]/12', dot: 'bg-[#00D1B2]' },
+            ];
+
+            return (
+              <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <div className="w-5 h-5 rounded-md bg-[#4F8CFF]/10 flex items-center justify-center">
+                    <BrainCircuit size={11} className="text-[#4F8CFF]" />
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#4F8CFF]">
+                    {t('aiSummary.title')}
+                  </span>
+                </div>
+                <div className={isStructured ? 'space-y-2' : 'pl-4 border-l-2 border-[#4F8CFF]/15 space-y-1.5'}>
+                  {sections.slice(0, 4).map((section, i) => {
+                    const c = DIALOG_COLORS[i % DIALOG_COLORS.length];
+                    return isStructured ? (
+                      <div key={i} className={`rounded-md ${c.bg} border ${c.border} p-2.5`}>
+                        {section.heading && (
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className={`w-1 h-1 rounded-full ${c.dot} shrink-0`} />
+                            <span className={`text-[9px] font-bold ${c.text} uppercase tracking-wide`}>
+                              {section.heading}
+                            </span>
+                          </div>
+                        )}
+                        <p className="text-[11px] text-gray-400 dark:text-slate-400 leading-relaxed">
+                          {section.content}
+                        </p>
+                      </div>
+                    ) : (
+                      <div key={i} className="flex gap-2">
+                        <span className="text-[9px] font-bold text-[#4F8CFF]/30 shrink-0 mt-0.5">
+                          {i + 1}
+                        </span>
+                        <p className="text-[11px] text-gray-400 dark:text-slate-400 leading-relaxed">
+                          {section.content}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+                {hasMethodology && (
+                  <div className="mt-2 ml-4 pl-4 border-l-2 border-[#DEDBC8]/5">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#00D1B2]/[0.06] border border-[#00D1B2]/12">
+                      <Cpu size={10} className="text-[#00D1B2] shrink-0" />
+                      <span className="text-[10px] font-semibold text-[#00D1B2]">{aiData.methodology}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()
         )}
 
         {/* ── Keywords ── */}

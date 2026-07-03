@@ -48,5 +48,17 @@
     "oldest": "Cũ nhất",
     "mostCited": "Trích dẫn nhiều",
     "leastCited": "Trích dẫn ít"
+  },
+  "aiSummary": {
+    "title": "Tóm tắt AI",
+    "methodologyTitle": "Phương pháp nghiên cứu",
+    "aiLabel": "Tạo bởi AI",
+    "poweredBy": "Được hỗ trợ bởi AI",
+    "loading": "Đang phân tích bài báo...",
+    "unavailable": "Tóm tắt AI hiện không khả dụng.",
+    "empty": "AI không thể tạo tóm tắt cho bài báo này.",
+    "error": "Không thể tải tóm tắt AI.",
+    "retry": "Thử lại",
+    "fetching": "Đang tạo thông tin AI..."
   }
 }

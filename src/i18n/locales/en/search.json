@@ -48,5 +48,17 @@
     "oldest": "Oldest First",
     "mostCited": "Most Cited",
     "leastCited": "Least Cited"
+  },
+  "aiSummary": {
+    "title": "AI Summary",
+    "methodologyTitle": "Methodology",
+    "aiLabel": "AI-Generated",
+    "poweredBy": "Powered by AI",
+    "loading": "Analyzing paper...",
+    "unavailable": "AI summary is currently unavailable.",
+    "empty": "AI summary could not be generated for this paper.",
+    "error": "Unable to load AI summary.",
+    "retry": "Retry",
+    "fetching": "Generating AI insights..."
   }
 }

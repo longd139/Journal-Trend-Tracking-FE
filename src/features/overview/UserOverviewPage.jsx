@@ -6,8 +6,8 @@ import {
   CartesianGrid, YAxis, PieChart, Pie, Cell,
 } from 'recharts';
 import {
-  FileText, TrendingUp, Star, Users, Bookmark, BookOpen,
-  Wifi, Cpu, ArrowUpRight, Sparkles, AlertCircle, Loader2,
+  FileText, TrendingUp, Star, Users,
+  ArrowUpRight, Sparkles, AlertCircle, Loader2,
 } from 'lucide-react';
 import { overviewAPI } from './api';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -103,6 +103,7 @@ export default function UserOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [publicData, setPublicData] = useState(null);
 
   const fetchOverview = useCallback(async () => {
     setLoading(true);
@@ -123,7 +124,17 @@ export default function UserOverviewPage() {
     }
   }, [isResearcher]);
 
-  useEffect(() => { fetchOverview(); }, [fetchOverview]);
+  // Fetch public overview for stat cards (separate from role-specific data)
+  const fetchPublicOverview = useCallback(async () => {
+    try {
+      const result = await overviewAPI.getPublicOverview();
+      setPublicData(result);
+    } catch {
+      // Silently fail — stat cards will show fallback values
+    }
+  }, []);
+
+  useEffect(() => { fetchOverview(); fetchPublicOverview(); }, [fetchOverview, fetchPublicOverview]);
 
   // ── Loading ──
   if (loading) return <OverviewSkeleton />;
@@ -152,20 +163,15 @@ export default function UserOverviewPage() {
   // ── Normalize data ──
   const d = data || {};
 
-  // Stat cards
-  const statCards = isResearcher
-    ? [
-      { label: t('user.totalCitations'), value: (d.totalCitations ?? d.citationCount ?? 0).toLocaleString(), change: d.citationGrowth, Icon: TrendingUp, accent: '#DEDBC8' },
-      { label: t('user.publishedPapers'), value: (d.publishedPapers ?? d.paperCount ?? 0).toLocaleString(), change: d.paperGrowth, Icon: FileText, accent: '#DEDBC8' },
-      { label: t('user.hIndex'), value: d.hIndex ?? d.hindex ?? '—', change: d.hIndexGrowth, Icon: Star, accent: '#E1E0CC' },
-      { label: 'Co-authors', value: (d.coAuthors ?? d.coauthorCount ?? 0).toLocaleString(), change: d.coauthorGrowth, Icon: Users, accent: '#A09878' },
-    ]
-    : [
-      { label: 'Saved Papers', value: (d.savedPapers ?? d.bookmarkCount ?? 0).toLocaleString(), change: d.savedGrowth, Icon: Bookmark, accent: '#DEDBC8' },
-      { label: 'Papers Read', value: (d.papersRead ?? d.readCount ?? 0).toLocaleString(), change: d.readGrowth, Icon: BookOpen, accent: '#DEDBC8' },
-      { label: 'Topics', value: (d.topicCount ?? d.topics ?? 0).toLocaleString(), change: d.topicGrowth, Icon: Wifi, accent: '#A09878' },
-      { label: 'Insights', value: (d.insightCount ?? d.insights ?? 0).toLocaleString(), change: d.insightGrowth, Icon: Cpu, accent: '#E1E0CC' },
-    ];
+  // Stat cards — sourced from public overview API (same for both roles)
+  const pd = publicData || {};
+
+  const statCards = [
+    { label: 'Total Citations', value: (pd.totalCitations ?? '—').toLocaleString(), Icon: TrendingUp, accent: '#DEDBC8' },
+    { label: 'Published Papers', value: (pd.papersTracked ?? '—').toLocaleString(), Icon: FileText, accent: '#DEDBC8' },
+    { label: 'h-index', value: '—', Icon: Star, accent: '#A09878' },
+    { label: 'Authors', value: (pd.totalAuthors ?? '—').toLocaleString(), Icon: Users, accent: '#E1E0CC' },
+  ];
 
   // Chart data
   const chartData = isResearcher
