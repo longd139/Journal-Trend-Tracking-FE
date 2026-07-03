@@ -1,4 +1,5 @@
-﻿import { useState, useEffect } from 'react';
+﻿import { toast } from 'sonner';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -170,6 +171,7 @@ export default function LoginPage() {
         setToken(response.accessToken);
         const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
+        toast.success(t('login.welcomeBack') + '!', { duration: 3000 });
         navigate(`/${userRole}/overview`);
       }
     } catch (error) {
@@ -208,6 +210,7 @@ export default function LoginPage() {
         setToken(response.accessToken);
         const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
+        toast.success(t('login.welcomeBack') + '!', { duration: 3000 });
         navigate(`/${userRole}/overview`);
       } catch (error) {
         const errorMessage =

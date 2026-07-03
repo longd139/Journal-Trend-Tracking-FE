@@ -149,6 +149,7 @@ export default function SettingsPage() {
   const [role, setRole] = useState('');
   const updateStoreUser = useAuthStore((s) => s.updateUser);
   const user = useAuthStore((s) => s.user);
+  const clearTokens = useAuthStore((s) => s.clearTokens);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   /* ── Language preview ────────────────────────────────────────────── */
@@ -839,6 +840,8 @@ export default function SettingsPage() {
               whileTap={{ scale: 0.97 }}
               onClick={() => {
                 sessionStorage.removeItem('userRole');
+                clearTokens();
+                toast.success('Signed out successfully', { duration: 3000 });
                 navigate('/login');
               }}
               className="px-5 py-2.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/35 transition-all flex items-center gap-2"
