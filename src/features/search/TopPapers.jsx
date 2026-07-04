@@ -139,6 +139,10 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
         return sorted.sort((a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0));
       case 'mostCited':
         return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+      case 'titleAZ':
+        return sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+      case 'titleZA':
+        return sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
       case 'relevance':
       default:
         return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
