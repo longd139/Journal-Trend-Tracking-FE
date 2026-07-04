@@ -1,14 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, ExternalLink, FileText, Download,
   Quote, Star, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
+  BrainCircuit, Cpu, RefreshCw,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
+import { aiAPI } from '../../lib/api/ai.api.js';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -115,6 +118,221 @@ function RequestPdfButton({ paperId, paperTitle }) {
       <FileText size={14} />
       {requesting ? 'Requesting...' : 'Request PDF'}
     </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI Summary Section (self-contained, pattern: SimilarPapers)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function AISummarySection({ paperId }) {
+  const { t } = useTranslation('search');
+  const [aiData, setAiData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchAI = useCallback(async () => {
+    if (!paperId) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await aiAPI.summarize(paperId);
+      setAiData(data);
+    } catch (err) {
+      setError(err?.message || 'Failed to load AI summary');
+    } finally {
+      setLoading(false);
+    }
+  }, [paperId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await aiAPI.summarize(paperId);
+        if (!cancelled) setAiData(data);
+      } catch (err) {
+        if (!cancelled) setError(err?.message || 'Failed to load AI summary');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    if (paperId) load();
+    return () => { cancelled = true; };
+  }, [paperId]);
+
+  // ── Resolve sections: prefer structured, fallback to sentence-split ──
+  const resolveSections = () => {
+    if (aiData?.aiSummarySections?.length > 0) {
+      return aiData.aiSummarySections;
+    }
+    // Fallback: split plain text into sentences
+    const text = aiData?.aiSummary;
+    if (!text) return [];
+    return text
+      .split(/(?<=[.!?])\s+/)
+      .filter((s) => s.trim().length > 0)
+      .map((s, i) => ({ heading: null, content: s }));
+  };
+
+  // ── Loading skeleton ──
+  if (loading) {
+    return (
+      <div className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 animate-pulse">
+        {/* Header */}
+        <div className="flex items-center gap-2 mb-5">
+          <div className="w-6 h-6 rounded-lg bg-[#4F8CFF]/20" />
+          <div className="h-3 w-20 rounded bg-[#DEDBC8]/8" />
+          <div className="h-4 w-16 rounded-md bg-[#4F8CFF]/10 ml-auto" />
+        </div>
+        {/* Section cards */}
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-lg bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 p-4">
+              <div className="h-3 w-24 rounded bg-[#4F8CFF]/10 mb-2.5" />
+              <div className="space-y-1.5">
+                <div className="h-3 w-full rounded bg-[#DEDBC8]/5" />
+                <div className="h-3 w-5/6 rounded bg-[#DEDBC8]/5" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error state ──
+  if (error) {
+    return (
+      <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+        <div className="flex items-center gap-2">
+          <AlertCircle size={13} className="text-amber-400/70 shrink-0" />
+          <span className="text-[11px] text-amber-400/70">{t('aiSummary.error')}</span>
+        </div>
+        <button
+          type="button"
+          onClick={fetchAI}
+          className="flex items-center gap-1 text-[11px] font-semibold text-amber-400/80 hover:text-amber-300 transition-colors"
+        >
+          <RefreshCw size={11} />
+          {t('aiSummary.retry')}
+        </button>
+      </div>
+    );
+  }
+
+  // ── Fallback: AI unavailable (response received but fields absent) ──
+  const sections = resolveSections();
+  const hasContent = sections.length > 0;
+  const hasMethodology = aiData?.methodology;
+  const isStructured = aiData?.aiSummarySections?.length > 0;
+
+  if (!hasContent && !hasMethodology) {
+    return (
+      <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#4F8CFF]/[0.03] border border-[#4F8CFF]/10">
+        <BrainCircuit size={13} className="text-[#4F8CFF]/50 shrink-0" />
+        <span className="text-[11px] text-[#4F8CFF]/50">{t('aiSummary.unavailable')}</span>
+      </div>
+    );
+  }
+
+  // ── Section accent colors ──
+  const SECTION_COLORS = [
+    { bg: 'bg-[#4F8CFF]/8', text: 'text-[#4F8CFF]', border: 'border-[#4F8CFF]/15', dot: 'bg-[#4F8CFF]' },
+    { bg: 'bg-[#8B5CF6]/8', text: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]/15', dot: 'bg-[#8B5CF6]' },
+    { bg: 'bg-[#00D1B2]/8', text: 'text-[#00D1B2]', border: 'border-[#00D1B2]/15', dot: 'bg-[#00D1B2]' },
+    { bg: 'bg-[#F59E0B]/8', text: 'text-[#F59E0B]', border: 'border-[#F59E0B]/15', dot: 'bg-[#F59E0B]' },
+  ];
+
+  // ── Success ──
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.14, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="rounded-xl border border-[#DEDBC8]/10 bg-gradient-to-br from-[#101010] via-[#101010] to-[#4F8CFF]/[0.02] p-5"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-5">
+        <div className="w-6 h-6 rounded-lg bg-[#4F8CFF]/10 flex items-center justify-center">
+          <BrainCircuit size={14} className="text-[#4F8CFF]" />
+        </div>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4F8CFF]">
+          {t('aiSummary.title')}
+        </h3>
+        <span className="ml-auto text-[9px] font-bold text-[#4F8CFF]/60 bg-[#4F8CFF]/8 px-2 py-0.5 rounded-md border border-[#4F8CFF]/15">
+          {t('aiSummary.aiLabel')}
+        </span>
+      </div>
+
+      {/* Section cards */}
+      <div className={`space-y-3 ${isStructured ? '' : 'pl-5 border-l-2 border-[#4F8CFF]/20'}`}>
+        {sections.map((section, i) => {
+          const color = SECTION_COLORS[i % SECTION_COLORS.length];
+          return (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.16 + i * 0.07, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className={isStructured
+                ? `rounded-lg ${color.bg} border ${color.border} p-4`
+                : 'flex gap-3 group'
+              }
+            >
+              {isStructured ? (
+                <>
+                  {/* Heading badge */}
+                  {section.heading && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`w-1.5 h-1.5 rounded-full ${color.dot} shrink-0`} />
+                      <span className={`text-[11px] font-bold ${color.text} uppercase tracking-wide`}>
+                        {section.heading}
+                      </span>
+                    </div>
+                  )}
+                  <p className="text-[13px] text-gray-300 leading-relaxed">
+                    {section.content}
+                  </p>
+                </>
+              ) : (
+                <>
+                  {/* Fallback: numbered sentence style */}
+                  <span className="text-[10px] font-bold text-[#4F8CFF]/30 bg-[#4F8CFF]/5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:text-[#4F8CFF]/60 group-hover:bg-[#4F8CFF]/10 transition-colors">
+                    {i + 1}
+                  </span>
+                  <p className="text-[13px] text-gray-300 leading-relaxed">
+                    {section.content}
+                  </p>
+                </>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Methodology chip */}
+      {hasMethodology && (
+        <motion.div
+          initial={{ opacity: 0, y: 4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.16 + sections.length * 0.07 + 0.05, duration: 0.3 }}
+          className="mt-5 ml-5 pl-5 border-l-2 border-[#DEDBC8]/5"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#00D1B2]/[0.06] border border-[#00D1B2]/15">
+            <Cpu size={13} className="text-[#00D1B2] shrink-0" />
+            <span className="text-[11px] font-semibold text-[#00D1B2]/70 mr-1">
+              {t('aiSummary.methodologyTitle')}
+            </span>
+            <span className="text-[11px] font-bold text-[#00D1B2]">
+              {aiData.methodology}
+            </span>
+          </div>
+        </motion.div>
+      )}
+    </motion.div>
   );
 }
 
@@ -463,12 +681,15 @@ export default function PaperDetailPage() {
           </motion.div>
         )}
 
+        {/* ── AI Summary ── */}
+        <AISummarySection paperId={paperId} />
+
         {/* ── Authors ── */}
         {authors.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.14 }}
+            transition={{ delay: 0.16 }}
             className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
@@ -540,7 +761,7 @@ export default function PaperDetailPage() {
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.16 }}
+            transition={{ delay: 0.18 }}
             className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3"
           >
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Keywords</h3>
@@ -571,7 +792,7 @@ export default function PaperDetailPage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.22 }}
           className="text-center pt-4 pb-8"
         >
           <p className="text-[11px] text-gray-600">

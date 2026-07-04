@@ -268,6 +268,278 @@ export const useSyncStore = create(
           }
         },
 
+        /**
+         * Start a CORE bulk sync. Handles POST → poll loop internally.
+         * Mirrors startBulkSync but calls adminAPI.syncCoreBulk.
+         * Reuses the same bulkTask state and progress endpoint for polling.
+         *
+         * @param {{ keywords?: string[], papersPerKeyword?: number, yearFrom?: number, yearTo?: number, apiKey?: string }} body
+         */
+        startCoreBulkSync: async (body) => {
+          stopBulkPolling();
+
+          set({
+            bulkTask: {
+              id: null,
+              status: 'running',
+              percent: 0,
+              totalKeywords: 0,
+              completedKeywords: 0,
+              currentKeyword: null,
+              totalFetched: 0,
+              totalInserted: 0,
+            },
+          });
+
+          try {
+            const unwrap = (res) => (res && res.data ? res.data : res);
+
+            // Step 1: POST to start CORE bulk
+            const startResponse = await adminAPI.syncCoreBulk(body);
+            const startPayload = unwrap(startResponse);
+            const taskId = startPayload.taskId;
+
+            if (!taskId) {
+              set((state) => ({
+                bulkTask: {
+                  ...state.bulkTask,
+                  id: null,
+                  status: 'done',
+                  percent: 100,
+                  totalKeywords: startPayload.totalKeywords ?? 0,
+                  completedKeywords: startPayload.totalKeywords ?? 0,
+                  totalFetched: startPayload.totalFetched ?? 0,
+                  totalInserted: startPayload.totalInserted ?? 0,
+                  result: startPayload,
+                },
+              }));
+              toast.success(startResponse.message || startPayload.message || 'CORE bulk sync completed', {
+                position: 'top-right',
+                duration: 4000,
+              });
+              return;
+            }
+
+            set((state) => ({
+              bulkTask: { ...state.bulkTask, id: taskId, totalKeywords: startPayload.totalKeywords ?? 0 },
+            }));
+
+            toast.success(startResponse.message || startPayload.message || 'CORE bulk sync started', {
+              position: 'top-right',
+              duration: 3000,
+            });
+
+            // Step 2: Start polling (shared progress endpoint)
+            const poll = async () => {
+              try {
+                const progressRaw = await adminAPI.getBulkSyncProgress(taskId);
+                const progress = unwrap(progressRaw);
+
+                const status = (progress.status || '').toUpperCase();
+
+                if (status === 'COMPLETED') {
+                  stopBulkPolling();
+                  set((state) => ({
+                    bulkTask: state.bulkTask
+                      ? {
+                          ...state.bulkTask,
+                          status: 'done',
+                          percent: 100,
+                          totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords,
+                          completedKeywords: progress.completedKeywords ?? progress.totalKeywords ?? state.bulkTask.completedKeywords,
+                          currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword,
+                          totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched,
+                          totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted,
+                          result: progress.result || progress,
+                          keywordStats: progress.keywordStats,
+                          keywordErrors: progress.keywordErrors,
+                          startedAt: progress.startedAt,
+                          completedAt: progress.completedAt,
+                        }
+                      : null,
+                  }));
+                  const inserted = progress.totalInserted || progress.result?.totalInserted || 0;
+                  toast.success(`CORE bulk sync completed: ${inserted} papers inserted`, {
+                    position: 'top-right',
+                    duration: 5000,
+                  });
+                  return;
+                }
+
+                if (status === 'FAILED' || status === 'ERROR') {
+                  stopBulkPolling();
+                  set((state) => ({
+                    bulkTask: state.bulkTask
+                      ? {
+                          ...state.bulkTask,
+                          status: 'error',
+                          percent: progress.percent ?? state.bulkTask.percent,
+                          error: progress.errorMessage || progress.error || 'CORE bulk sync failed',
+                          keywordStats: progress.keywordStats,
+                          keywordErrors: progress.keywordErrors,
+                          completedAt: progress.completedAt,
+                        }
+                      : null,
+                  }));
+                  toast.error(progress.errorMessage || progress.error || 'CORE bulk sync failed', {
+                    position: 'top-right',
+                    duration: 5000,
+                  });
+                  return;
+                }
+
+                // RUNNING — update progress
+                set((state) => ({
+                  bulkTask: state.bulkTask
+                    ? {
+                        ...state.bulkTask,
+                        status: 'running',
+                        percent: progress.percent ?? 0,
+                        totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords,
+                        completedKeywords: progress.completedKeywords ?? state.bulkTask.completedKeywords,
+                        currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword,
+                        totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched,
+                        totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted,
+                        keywordStats: progress.keywordStats,
+                        keywordErrors: progress.keywordErrors,
+                        startedAt: progress.startedAt,
+                      }
+                    : null,
+                }));
+              } catch (err) {
+                stopBulkPolling();
+                const msg = err.response?.data?.message || err.message || 'Failed to fetch progress';
+                set((state) => ({
+                  bulkTask: state.bulkTask
+                    ? { ...state.bulkTask, status: 'error', error: msg }
+                    : null,
+                }));
+                toast.error(msg, { position: 'top-right', duration: 5000 });
+              }
+            };
+
+            poll();
+            bulkPollTimer = setInterval(poll, POLL_INTERVAL_MS);
+          } catch (err) {
+            stopBulkPolling();
+            const msg = err.response?.data?.message || err.message || 'CORE bulk sync failed';
+            set((state) => ({
+              bulkTask: state.bulkTask
+                ? { ...state.bulkTask, status: 'error', error: msg }
+                : null,
+            }));
+            toast.error(msg, { position: 'top-right', duration: 5000 });
+          }
+        },
+
+        /**
+         * Start a Semantic Scholar bulk sync. Shares the same flow as startBulkSync.
+         */
+        startSemanticScholarBulkSync: async (body) => {
+          stopBulkPolling();
+          set({ bulkTask: { id: null, status: 'running', percent: 0, totalKeywords: 0, completedKeywords: 0, currentKeyword: null, totalFetched: 0, totalInserted: 0 } });
+          try {
+            const unwrap = (res) => (res && res.data ? res.data : res);
+            const startResponse = await adminAPI.syncSemanticScholarBulk(body);
+            const startPayload = unwrap(startResponse);
+            const taskId = startPayload.taskId;
+            if (!taskId) {
+              set((state) => ({ bulkTask: { ...state.bulkTask, id: null, status: 'done', percent: 100, totalKeywords: startPayload.totalKeywords ?? 0, completedKeywords: startPayload.totalKeywords ?? 0, totalFetched: startPayload.totalFetched ?? 0, totalInserted: startPayload.totalInserted ?? 0, result: startPayload } }));
+              toast.success(startResponse.message || startPayload.message || 'Semantic Scholar bulk sync completed', { position: 'top-right', duration: 4000 });
+              return;
+            }
+            set((state) => ({ bulkTask: { ...state.bulkTask, id: taskId, totalKeywords: startPayload.totalKeywords ?? 0 } }));
+            toast.success(startResponse.message || startPayload.message || 'Semantic Scholar bulk sync started', { position: 'top-right', duration: 3000 });
+            const poll = async () => {
+              try {
+                const progressRaw = await adminAPI.getBulkSyncProgress(taskId);
+                const progress = unwrap(progressRaw);
+                const status = (progress.status || '').toUpperCase();
+                if (status === 'COMPLETED') {
+                  stopBulkPolling();
+                  set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'done', percent: 100, totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords, completedKeywords: progress.completedKeywords ?? progress.totalKeywords ?? state.bulkTask.completedKeywords, currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword, totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched, totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted, result: progress.result || progress, keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, startedAt: progress.startedAt, completedAt: progress.completedAt } : null }));
+                  const inserted = progress.totalInserted || progress.result?.totalInserted || 0;
+                  toast.success(`Semantic Scholar bulk sync completed: ${inserted} papers inserted`, { position: 'top-right', duration: 5000 });
+                  return;
+                }
+                if (status === 'FAILED' || status === 'ERROR') {
+                  stopBulkPolling();
+                  set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', percent: progress.percent ?? state.bulkTask.percent, error: progress.errorMessage || progress.error || 'Semantic Scholar bulk sync failed', keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, completedAt: progress.completedAt } : null }));
+                  toast.error(progress.errorMessage || progress.error || 'Semantic Scholar bulk sync failed', { position: 'top-right', duration: 5000 });
+                  return;
+                }
+                set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'running', percent: progress.percent ?? 0, totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords, completedKeywords: progress.completedKeywords ?? state.bulkTask.completedKeywords, currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword, totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched, totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted, keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, startedAt: progress.startedAt } : null }));
+              } catch (err) {
+                stopBulkPolling();
+                const msg = err.response?.data?.message || err.message || 'Failed to fetch progress';
+                set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', error: msg } : null }));
+                toast.error(msg, { position: 'top-right', duration: 5000 });
+              }
+            };
+            poll();
+            bulkPollTimer = setInterval(poll, POLL_INTERVAL_MS);
+          } catch (err) {
+            stopBulkPolling();
+            const msg = err.response?.data?.message || err.message || 'Semantic Scholar bulk sync failed';
+            set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', error: msg } : null }));
+            toast.error(msg, { position: 'top-right', duration: 5000 });
+          }
+        },
+
+        /**
+         * Start an arXiv bulk sync. Shares the same flow as startBulkSync.
+         */
+        startArxivBulkSync: async (body) => {
+          stopBulkPolling();
+          set({ bulkTask: { id: null, status: 'running', percent: 0, totalKeywords: 0, completedKeywords: 0, currentKeyword: null, totalFetched: 0, totalInserted: 0 } });
+          try {
+            const unwrap = (res) => (res && res.data ? res.data : res);
+            const startResponse = await adminAPI.syncArxivBulk(body);
+            const startPayload = unwrap(startResponse);
+            const taskId = startPayload.taskId;
+            if (!taskId) {
+              set((state) => ({ bulkTask: { ...state.bulkTask, id: null, status: 'done', percent: 100, totalKeywords: startPayload.totalKeywords ?? 0, completedKeywords: startPayload.totalKeywords ?? 0, totalFetched: startPayload.totalFetched ?? 0, totalInserted: startPayload.totalInserted ?? 0, result: startPayload } }));
+              toast.success(startResponse.message || startPayload.message || 'arXiv bulk sync completed', { position: 'top-right', duration: 4000 });
+              return;
+            }
+            set((state) => ({ bulkTask: { ...state.bulkTask, id: taskId, totalKeywords: startPayload.totalKeywords ?? 0 } }));
+            toast.success(startResponse.message || startPayload.message || 'arXiv bulk sync started', { position: 'top-right', duration: 3000 });
+            const poll = async () => {
+              try {
+                const progressRaw = await adminAPI.getBulkSyncProgress(taskId);
+                const progress = unwrap(progressRaw);
+                const status = (progress.status || '').toUpperCase();
+                if (status === 'COMPLETED') {
+                  stopBulkPolling();
+                  set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'done', percent: 100, totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords, completedKeywords: progress.completedKeywords ?? progress.totalKeywords ?? state.bulkTask.completedKeywords, currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword, totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched, totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted, result: progress.result || progress, keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, startedAt: progress.startedAt, completedAt: progress.completedAt } : null }));
+                  const inserted = progress.totalInserted || progress.result?.totalInserted || 0;
+                  toast.success(`arXiv bulk sync completed: ${inserted} papers inserted`, { position: 'top-right', duration: 5000 });
+                  return;
+                }
+                if (status === 'FAILED' || status === 'ERROR') {
+                  stopBulkPolling();
+                  set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', percent: progress.percent ?? state.bulkTask.percent, error: progress.errorMessage || progress.error || 'arXiv bulk sync failed', keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, completedAt: progress.completedAt } : null }));
+                  toast.error(progress.errorMessage || progress.error || 'arXiv bulk sync failed', { position: 'top-right', duration: 5000 });
+                  return;
+                }
+                set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'running', percent: progress.percent ?? 0, totalKeywords: progress.totalKeywords ?? state.bulkTask.totalKeywords, completedKeywords: progress.completedKeywords ?? state.bulkTask.completedKeywords, currentKeyword: progress.currentKeyword ?? state.bulkTask.currentKeyword, totalFetched: progress.totalFetched ?? state.bulkTask.totalFetched, totalInserted: progress.totalInserted ?? state.bulkTask.totalInserted, keywordStats: progress.keywordStats, keywordErrors: progress.keywordErrors, startedAt: progress.startedAt } : null }));
+              } catch (err) {
+                stopBulkPolling();
+                const msg = err.response?.data?.message || err.message || 'Failed to fetch progress';
+                set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', error: msg } : null }));
+                toast.error(msg, { position: 'top-right', duration: 5000 });
+              }
+            };
+            poll();
+            bulkPollTimer = setInterval(poll, POLL_INTERVAL_MS);
+          } catch (err) {
+            stopBulkPolling();
+            const msg = err.response?.data?.message || err.message || 'arXiv bulk sync failed';
+            set((state) => ({ bulkTask: state.bulkTask ? { ...state.bulkTask, status: 'error', error: msg } : null }));
+            toast.error(msg, { position: 'top-right', duration: 5000 });
+          }
+        },
+
         dismissBulkTask: () => {
           stopBulkPolling();
           set({ bulkTask: null });
