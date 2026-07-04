@@ -8,7 +8,12 @@ export const paperAPI = {
    */
   async search(params = {}) {
     const { data } = await axiosClient.get('/api/v1/papers', {
-      params: { page: params.page, size: params.size },
+      params: {
+        page: params.page,
+        size: params.size,
+        sortBy: params.sortBy || 'date',
+        sortDirection: params.sortDirection || 'desc',
+      },
     });
     return data.data || data;
   },
@@ -25,6 +30,9 @@ export const paperAPI = {
         authorName: body.authorName || '',
         journalId: body.journalId || '',
         page: body.page ?? 0,
+        size: body.size ?? 10,
+        sortBy: body.sortBy || 'relevance',
+        sortDirection: body.sortDirection || 'desc',
       },
     });
     return data; // { status, message, data: { papers, totalElements, ... }, timestamp }
@@ -140,6 +148,8 @@ export const paperAPI = {
         openAccess: params.openAccess || false,
         page: params.page ?? 0,
         size: params.size ?? 20,
+        sortBy: params.sortBy || 'relevance',
+        sortDirection: params.sortDirection || 'desc',
       },
     });
     return data; // AppResponse<Page<Paper>>
@@ -155,6 +165,8 @@ export const paperAPI = {
         journalName: params.journalName || '',
         page: params.page ?? 0,
         size: params.size ?? 20,
+        sortBy: params.sortBy || 'relevance',
+        sortDirection: params.sortDirection || 'desc',
       },
     });
     return data; // AppResponse<Page<Paper>>
@@ -170,6 +182,8 @@ export const paperAPI = {
         authorName: params.authorName || '',
         page: params.page ?? 0,
         size: params.size ?? 20,
+        sortBy: params.sortBy || 'relevance',
+        sortDirection: params.sortDirection || 'desc',
       },
     });
     return data; // AppResponse<Page<Paper>>

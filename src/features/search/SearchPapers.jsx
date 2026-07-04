@@ -31,6 +31,17 @@ export default function SearchPapers() {
 
   const currentRole = sessionStorage.getItem('userRole');
 
+  // Map UI sort value → API sortBy + sortDirection
+  const SORT_MAP = {
+    relevance:  { sortBy: 'relevance',  sortDirection: 'desc' },
+    newest:     { sortBy: 'date',       sortDirection: 'desc' },
+    oldest:     { sortBy: 'date',       sortDirection: 'asc'  },
+    mostCited:  { sortBy: 'citations',  sortDirection: 'desc' },
+    leastCited: { sortBy: 'citations',  sortDirection: 'asc'  },
+    titleAZ:    { sortBy: 'title',      sortDirection: 'asc'  },
+    titleZA:    { sortBy: 'title',      sortDirection: 'desc' },
+  };
+
   // Restore persisted search
   useEffect(() => {
     const saved = sessionStorage.getItem('scitrack_papers_query');
@@ -187,6 +198,8 @@ export default function SearchPapers() {
                   <SelectItem value="oldest" className="text-[11px] cursor-pointer">{t('sort.oldest')}</SelectItem>
                   <SelectItem value="mostCited" className="text-[11px] cursor-pointer">{t('sort.mostCited')}</SelectItem>
                   <SelectItem value="leastCited" className="text-[11px] cursor-pointer">{t('sort.leastCited')}</SelectItem>
+                  <SelectItem value="titleAZ" className="text-[11px] cursor-pointer">{t('sort.titleAZ')}</SelectItem>
+                  <SelectItem value="titleZA" className="text-[11px] cursor-pointer">{t('sort.titleZA')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

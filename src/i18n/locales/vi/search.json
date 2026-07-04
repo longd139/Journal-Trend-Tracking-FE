@@ -47,6 +47,8 @@
     "newest": "Mới nhất",
     "oldest": "Cũ nhất",
     "mostCited": "Trích dẫn nhiều",
-    "leastCited": "Trích dẫn ít"
+    "leastCited": "Trích dẫn ít",
+    "titleAZ": "Tiêu đề (A-Z)",
+    "titleZA": "Tiêu đề (Z-A)"
   }
 }

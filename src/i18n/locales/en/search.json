@@ -47,6 +47,8 @@
     "newest": "Newest First",
     "oldest": "Oldest First",
     "mostCited": "Most Cited",
-    "leastCited": "Least Cited"
+    "leastCited": "Least Cited",
+    "titleAZ": "Title (A-Z)",
+    "titleZA": "Title (Z-A)"
   }
 }
