@@ -1,6 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Shared citation formatters — BibTeX, RIS, APA
+   Shared citation formatters — BibTeX, RIS, APA, MLA
    Used by CitationExport.jsx and batch export in BookmarksView
+   These are **fallback** generators when the server API is unavailable.
+   The primary citation source is GET/POST /api/v1/papers/.../citation
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function escapeLatex(text) {
@@ -42,6 +44,30 @@ function formatAuthorsRIS(authors) {
       return `AU  - ${name}`;
     })
     .join('\n');
+}
+
+function formatAuthorsMLA(authors) {
+  if (!authors || !authors.length) return '';
+  if (authors.length === 1) {
+    const name = typeof authors[0] === 'string' ? authors[0] : authors[0].fullName || authors[0].name || '';
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) return parts[0];
+    const last = parts.pop();
+    return `${last}, ${parts.join(' ')}`;
+  }
+  if (authors.length === 2) {
+    const first = typeof authors[0] === 'string' ? authors[0] : authors[0].fullName || authors[0].name || '';
+    const second = typeof authors[1] === 'string' ? authors[1] : authors[1].fullName || authors[1].name || '';
+    const fp = first.trim().split(' ');
+    const sp = second.trim().split(' ');
+    const fLast = fp.pop();
+    return `${fLast}, ${fp.join(' ')} and ${sp.join(' ')}`;
+  }
+  // 3+ authors: "Last, First, et al."
+  const first = typeof authors[0] === 'string' ? authors[0] : authors[0].fullName || authors[0].name || '';
+  const parts = first.trim().split(' ');
+  const last = parts.pop();
+  return `${last}, ${parts.join(' ')}, et al.`;
 }
 
 export function generateBibtex(paper) {
@@ -111,14 +137,55 @@ export function generateAPA(paper) {
   return citation;
 }
 
+export function generateMLA(paper) {
+  const authors = formatAuthorsMLA(paper.authors || []);
+  const title = paper.title || 'Untitled';
+  const journal = paper.journalName || paper.journal || '';
+  const year = paper.pubYear || paper.year || '';
+  const doi = paper.doi || '';
+  const volume = paper.volume || '';
+  const issue = paper.issue || '';
+  const pages = paper.pages || '';
+
+  let citation = authors ? `${authors}. ` : '';
+  citation += `"${title}." `;
+  if (journal) citation += `*${journal}*`;
+  if (volume) citation += `, vol. ${volume}`;
+  if (issue) citation += `, no. ${issue}`;
+  citation += ', ';
+  citation += year || 'n.d.';
+  if (pages) citation += `, pp. ${pages}`;
+  citation += '.';
+  if (doi) citation += ` doi:${doi}.`;
+
+  return citation;
+}
+
 export const FORMATS = [
-  { key: 'bibtex', label: 'BibTeX', ext: '.bib', mime: 'application/x-bibtex', generator: generateBibtex },
-  { key: 'ris', label: 'RIS', ext: '.ris', mime: 'application/x-research-info-systems', generator: generateRIS },
-  { key: 'apa', label: 'APA', ext: '.txt', mime: 'text/plain', generator: generateAPA },
+  { key: 'bibtex', label: 'BibTeX', ext: '.bib', generator: generateBibtex },
+  { key: 'ris',    label: 'RIS',    ext: '.ris', generator: generateRIS },
+  { key: 'apa',    label: 'APA',    ext: '.txt', generator: generateAPA },
+  { key: 'mla',    label: 'MLA',    ext: '.txt', generator: generateMLA },
 ];
 
 /**
- * Generate combined citations for multiple papers in a given format.
+ * Download a blob as a file in the browser.
+ * Shared utility used by both single and bulk citation export.
+ */
+export function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Generate combined citations for multiple papers in a given format
+ * (client-side fallback when the bulk API is unavailable).
  * Papers are separated by a delimiter comment.
  */
 export function generateBatchCitations(papers, formatKey) {
@@ -137,19 +204,12 @@ export function generateBatchCitations(papers, formatKey) {
 }
 
 /**
- * Download combined citations as a file.
+ * Download combined citations as a file (client-side fallback).
  */
 export function downloadBatchFile(content, formatKey) {
   const fmt = FORMATS.find((f) => f.key === formatKey);
   if (!fmt) return;
 
-  const blob = new Blob([content], { type: fmt.mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `batch_citations${fmt.ext}`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const blob = new Blob([content], { type: 'text/plain' });
+  downloadBlob(blob, `batch_citations${fmt.ext}`);
 }

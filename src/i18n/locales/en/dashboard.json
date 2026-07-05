@@ -124,5 +124,10 @@
     "removeSuccess": "{{count}} bookmark removed",
     "removeSuccess_plural": "{{count}} bookmarks removed",
     "removeError": "Failed to remove some bookmarks"
+  },
+  "toast": {
+    "removed": "Removed from bookmarks",
+    "loadError": "Failed to load bookmarks",
+    "removeError": "Failed to remove bookmark"
   }
 }

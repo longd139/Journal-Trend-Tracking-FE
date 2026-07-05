@@ -11,6 +11,7 @@ import {
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
+import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
 import { aiAPI } from '../../lib/api/ai.api.js';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -344,7 +345,12 @@ export default function PaperDetailPage() {
   const navigate = useNavigate();
 
   const goBack = () => {
-    if (window.history.length > 1) {
+    // Prefer saved referrer (set when navigating TO this page)
+    const referrer = sessionStorage.getItem('scitrack_referrer');
+    if (referrer) {
+      sessionStorage.removeItem('scitrack_referrer'); // one-time use
+      navigate(referrer);
+    } else if (window.history.length > 1) {
       navigate(-1);
     } else {
       const role = sessionStorage.getItem('userRole') || 'researcher';
@@ -377,53 +383,97 @@ export default function PaperDetailPage() {
     }
   }, [paperId]);
 
-  // Check bookmark status
+  // Check bookmark status — lightweight check first, fallback to full list
   const checkBookmark = useCallback(async () => {
+    let found = null;
+    let checked = false; // true when fast path completes (even if not bookmarked)
+
+    // Fast path: try single-paper endpoint
     try {
-      const response = await bookmarkAPI.getMyBookmarks();
-      let items = response?.data;
-      if (items && Array.isArray(items.data)) items = items.data;
-      if (Array.isArray(items)) {
-        const found = items.find(
-          (b) => (b.paperId || b.paper?.paperId) === paperId,
-        );
-        if (found) {
-          setIsBookmarked(true);
-          setBookmarkId(found.bookmarkId);
-        }
-      }
+      const single = await bookmarkAPI.isPaperBookmarked(paperId);
+      checked = true;
+      if (single) found = single;
+      // null = 404 = definitely not bookmarked
     } catch {
-      // silently fail
+      // Endpoint doesn't exist — need fallback
+    }
+
+    // Slow fallback: scan full bookmark list
+    if (!checked) {
+      try {
+        const response = await bookmarkAPI.getMyBookmarks();
+        let items = null;
+        if (Array.isArray(response)) {
+          items = response;
+        } else if (response && Array.isArray(response.data)) {
+          items = response.data;
+        } else if (response?.data && Array.isArray(response.data.data)) {
+          items = response.data.data;
+        } else if (response && typeof response === 'object') {
+          for (const val of Object.values(response)) {
+            if (Array.isArray(val)) { items = val; break; }
+          }
+        }
+        if (Array.isArray(items)) {
+          found = items.find(
+            (b) => (b.paperId || b.paper?.paperId) === paperId,
+          );
+        }
+      } catch (err) {
+        console.error('[PaperDetail] Failed to check bookmark:', err);
+      }
+    }
+
+    if (found) {
+      setIsBookmarked(true);
+      setBookmarkId(found.bookmarkId);
     }
   }, [paperId]);
 
   useEffect(() => {
-    fetchPaper();
-    checkBookmark();
+    // Run both fetches in parallel — no need to wait sequentially
+    Promise.all([fetchPaper(), checkBookmark()]);
   }, [fetchPaper, checkBookmark]);
 
   // Bookmark toggle
   const handleToggleBookmark = async () => {
-    if (isBookmarked) {
-      try {
+    const wasBookmarked = isBookmarked;
+
+    // Optimistic update — toggle instantly
+    setIsBookmarked(!wasBookmarked);
+
+    try {
+      if (wasBookmarked) {
         if (bookmarkId) {
           await bookmarkAPI.removeBookmark(bookmarkId);
         } else {
           await bookmarkAPI.removeBookmarkByPaper(paperId);
         }
-        setIsBookmarked(false);
+        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
         toast.success('Removed from bookmarks');
-      } catch (err) {
-        toast.error(err?.response?.data?.message || err?.message || 'Failed');
-      }
-    } else {
-      try {
+      } else {
         const res = await bookmarkAPI.addBookmark(paperId);
         const bm = res?.data?.data || res?.data || res;
-        setIsBookmarked(true);
         if (bm?.bookmarkId) setBookmarkId(bm.bookmarkId);
+        // Optimistic: add to cached list so bookmarks page shows it instantly
+        prependToCache('bookmarks-list', {
+          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
+          paperId,
+          paperTitle: paper.title || 'Untitled',
+          keywordId: null,
+          keywordText: null,
+          collectionId: null,
+          collectionName: null,
+          notes: null,
+          createdAt: new Date().toISOString(),
+        });
         toast.success('Saved to bookmarks');
-      } catch (err) {
+      }
+    } catch (err) {
+      // 409 = already bookmarked → state correct, ignore
+      if (err?.response?.status !== 409) {
+        // Revert on real error
+        setIsBookmarked(wasBookmarked);
         toast.error(err?.response?.data?.message || err?.message || 'Failed');
       }
     }

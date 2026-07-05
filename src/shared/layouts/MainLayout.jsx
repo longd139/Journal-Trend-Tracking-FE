@@ -148,6 +148,11 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
         <button
           onClick={() => {
             sessionStorage.removeItem('userRole');
+            // Clear persisted search queries so next user sees clean state
+            sessionStorage.removeItem('scitrack_papers_query');
+            sessionStorage.removeItem('scitrack_journal_query');
+            sessionStorage.removeItem('scitrack_author_query');
+            sessionStorage.removeItem('scitrack_referrer');
             clearTokens();
             toast.success('Signed out successfully', { duration: 3000 });
             navigate('/login');
