@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Clock, Trash2, UserSearch } from 'lucide-react';
 import AuthorQuickStats from './AuthorQuickStats';
+import { useAuthStore } from '../user/store.js';
 import AuthorTimeline from './AuthorTimeline';
 import AuthorResearchFocus from './AuthorResearchFocus';
 import AuthorCoAuthors from './AuthorCoAuthors';
@@ -21,6 +22,9 @@ export default function SearchAuthor() {
   const resultsRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id || user?.email || currentRole;
+  const historyKey = useMemo(() => `scitrack_author_search_history_${userId}`, [userId]);
 
   // Restore persisted search
   useEffect(() => {
@@ -33,37 +37,33 @@ export default function SearchAuthor() {
 
   // ─── Load search history ───
   useEffect(() => {
-    const key = `scitrack_author_search_history_${currentRole}`;
     try {
-      const data = localStorage.getItem(key);
+      const data = localStorage.getItem(historyKey);
       if (data) setSearchHistory(JSON.parse(data));
     } catch {
       setSearchHistory([]);
     }
-  }, [currentRole]);
+  }, [historyKey]);
 
   // ─── Helpers ───
   const saveToSearchHistory = (keyword) => {
     const trimmed = keyword.trim();
     if (!trimmed) return;
-    const key = `scitrack_author_search_history_${currentRole}`;
     const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const clearSearchHistory = () => {
-    const key = `scitrack_author_search_history_${currentRole}`;
     setSearchHistory([]);
-    localStorage.removeItem(key);
+    localStorage.removeItem(historyKey);
     setShowSuggestions(false);
   };
 
   const removeSearchHistoryItem = (keyword) => {
-    const key = `scitrack_author_search_history_${currentRole}`;
     const updated = searchHistory.filter((k) => k !== keyword);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const handleSearch = (kw) => {

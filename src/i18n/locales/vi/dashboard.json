@@ -124,5 +124,10 @@
     "removeSuccess": "Đã xóa {{count}} bookmark",
     "removeSuccess_plural": "Đã xóa {{count}} bookmark",
     "removeError": "Không thể xóa một số bookmark"
+  },
+  "toast": {
+    "removed": "Đã xóa khỏi bookmark",
+    "loadError": "Không thể tải bookmark",
+    "removeError": "Không thể xóa bookmark"
   }
 }

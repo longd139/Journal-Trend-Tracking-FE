@@ -210,4 +210,33 @@ export const paperAPI = {
     const { data } = await axiosClient.post(`/api/v1/papers/${paperId}/pdf-requests`);
     return data; // AppResponse<{ status, message }>
   },
+  // ─── Citation Export APIs ──────────────────────────────────────────────────
+
+  /**
+   * Export citation for a single paper (server-generated).
+   * GET /api/v1/papers/{paperId}/citation?format=bibtex
+   * Returns text/plain blob — caller reads as text or downloads as file.
+   * Supported formats: bibtex, ris, apa, mla
+   */
+  async getCitation(paperId, format = 'bibtex') {
+    const response = await axiosClient.get(`/api/v1/papers/${paperId}/citation`, {
+      params: { format },
+      responseType: 'blob',
+    });
+    return response.data; // Blob
+  },
+
+  /**
+   * Bulk export citations for multiple papers.
+   * POST /api/v1/papers/citations/export?format=bibtex
+   * Body: JSON array of paper UUID strings
+   * Returns text/plain blob with concatenated citations.
+   */
+  async exportCitations(paperIds, format = 'bibtex') {
+    const response = await axiosClient.post('/api/v1/papers/citations/export', paperIds, {
+      params: { format },
+      responseType: 'blob',
+    });
+    return response.data; // Blob
+  },
 };

@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookmarkMinus, BookOpen, AlertCircle, Download, Trash2, Copy, Check } from 'lucide-react';
+import { BookmarkMinus, BookOpen, AlertCircle, Download, Trash2, Copy, Check, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { bookmarkAPI } from './api';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -10,10 +11,12 @@ import { Checkbox } from '../../components/ui/checkbox';
 import BulkActionBar from './BulkActionBar';
 import CollectionsPanel from './CollectionsPanel';
 import {
-  generateBatchCitations,
-  downloadBatchFile,
   FORMATS,
+  downloadBlob,
+  generateBatchCitations,
 } from '../../utils/citationGenerators.js';
+import { paperAPI } from '../search/paper.api';
+import { useStaleWhileRevalidate } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Helpers
@@ -76,8 +79,51 @@ function BookmarkCardSkeleton() {
 function BatchExportPanel({ papers, onClose }) {
   const [formatKey, setFormatKey] = useState('bibtex');
   const [copied, setCopied] = useState(false);
+  const [combined, setCombined] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
 
-  const combined = generateBatchCitations(papers, formatKey);
+  // ── Fetch from bulk API (or fall back to client-side) ──
+  useEffect(() => {
+    if (!papers || papers.length === 0) {
+      setCombined('');
+      return;
+    }
+
+    const paperIds = papers
+      .map((p) => p.paperId)
+      .filter(Boolean);
+
+    if (paperIds.length === 0) {
+      // No valid IDs — use client-side fallback
+      setCombined(generateBatchCitations(papers, formatKey));
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+    setFetchError(false);
+
+    paperAPI.exportCitations(paperIds, formatKey)
+      .then((blob) => {
+        if (cancelled) return;
+        return blob.text().then((text) => {
+          if (cancelled) return;
+          // Server may include "% Paper not found" comments — still valid output
+          setCombined(text);
+          setLoading(false);
+        });
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Fall back to client-side generator
+        setCombined(generateBatchCitations(papers, formatKey));
+        setFetchError(true);
+        setLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [formatKey, papers]);
 
   const handleCopy = async () => {
     try {
@@ -91,7 +137,10 @@ function BatchExportPanel({ papers, onClose }) {
   };
 
   const handleDownload = () => {
-    downloadBatchFile(combined, formatKey);
+    const fmt = FORMATS.find((f) => f.key === formatKey);
+    if (!fmt || !combined) return;
+    const blob = new Blob([combined], { type: 'text/plain' });
+    downloadBlob(blob, `citations-${papers.length}papers${fmt.ext}`);
   };
 
   return (
@@ -133,23 +182,39 @@ function BatchExportPanel({ papers, onClose }) {
 
         {/* Preview */}
         <pre className="text-[10px] text-gray-400 bg-[#0A0D14] rounded-xl p-4 max-h-[200px] overflow-auto border border-[#DEDBC8]/5 font-mono leading-relaxed whitespace-pre-wrap">
-          {combined}
+          {loading ? (
+            <span className="flex items-center gap-2 text-gray-500">
+              <Loader2 size={11} className="animate-spin" />
+              Fetching citations...
+            </span>
+          ) : (
+            combined || 'No citation data available'
+          )}
         </pre>
+
+        {/* API fallback indicator */}
+        {fetchError && !loading && (
+          <p className="text-[9px] text-amber-400/60 italic">
+            Generated locally (server unavailable)
+          </p>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/15 hover:bg-[#DEDBC8]/20 transition-all"
+            disabled={loading || !combined}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/15 hover:bg-[#DEDBC8]/20 transition-all disabled:opacity-40"
           >
             {copied ? <Check size={11} /> : <Copy size={11} />}
             {copied ? 'Copied' : 'Copy All'}
           </button>
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 hover:bg-emerald-500/20 transition-all"
+            disabled={loading || !combined}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
           >
-            <Download size={11} />
+            {loading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
             Download All
           </button>
         </div>
@@ -163,44 +228,34 @@ function BatchExportPanel({ papers, onClose }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 export default function BookmarksView() {
   const { t } = useTranslation('dashboard');
-  const [bookmarks, setBookmarks] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+
+  // Cache-first data fetching — instant display on tab switch
+  const { data: bookmarks, loading, error, mutate: setBookmarks } = useStaleWhileRevalidate(
+    'bookmarks-list',
+    async () => {
+      const response = await bookmarkAPI.getMyBookmarks();
+      let items = null;
+      if (Array.isArray(response)) {
+        items = response;
+      } else if (response && Array.isArray(response.data)) {
+        items = response.data;
+      } else if (response?.data && Array.isArray(response.data.data)) {
+        items = response.data.data;
+      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
+        items = response.data.data.data;
+      }
+      return Array.isArray(items) ? items : [];
+    },
+    { ttl: 5 * 60 * 1000, defaultValue: [] },
+  );
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [removing, setRemoving] = useState(false);
   const [showBatchExport, setShowBatchExport] = useState(false);
   const [activeCollection, setActiveCollection] = useState(null);
-
-  const fetchBookmarks = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await bookmarkAPI.getMyBookmarks();
-      let items = response?.data;
-      if (items && Array.isArray(items.data)) {
-        items = items.data;
-      }
-      if (Array.isArray(items)) {
-        setBookmarks(items);
-      } else if (Array.isArray(response)) {
-        setBookmarks(response);
-      } else {
-        setBookmarks([]);
-      }
-    } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || t('toast.loadError');
-      setError(msg);
-      toast.error(t('toast.loadError'));
-    } finally {
-      setLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    fetchBookmarks();
-  }, [fetchBookmarks]);
 
   // Clear selection when bookmarks change
   useEffect(() => {
@@ -212,7 +267,7 @@ export default function BookmarksView() {
     try {
       await bookmarkAPI.removeBookmark(bookmark.bookmarkId);
       setBookmarks((prev) => prev.filter((b) => b.bookmarkId !== bookmark.bookmarkId));
-      toast.success(t('toast.removed') || 'Removed from bookmarks');
+      toast.success(t('toast.removed'));
     } catch (err) {
       toast.error(err?.response?.data?.message || err?.message || t('toast.removeError'));
     }
@@ -228,8 +283,7 @@ export default function BookmarksView() {
     }
   };
 
-  const toggleSelect = (bookmarkId, e) => {
-    if (e) e.stopPropagation();
+  const toggleSelect = (bookmarkId) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(bookmarkId)) next.delete(bookmarkId);
@@ -268,12 +322,37 @@ export default function BookmarksView() {
   const getSelectedPapers = () => {
     return bookmarks
       .filter((b) => selectedIds.has(b.bookmarkId))
-      .map((b) => b.paper || b)
+      .map((b) => {
+        const paper = b.paper || b;
+        // Ensure paperId is available (from paper object or bookmark itself)
+        return { ...paper, paperId: paper.paperId || b.paperId };
+      })
       .filter(Boolean);
   };
 
-  // Normalize paper data from bookmark response
-  const getPaper = (bookmark) => bookmark.paper || bookmark;
+  // Normalize paper data from bookmark response.
+  // API returns flat bookmark with paperTitle/paperId (no nested paper object).
+  const getPaper = (bookmark) => {
+    const paper = bookmark.paper || bookmark;
+    // Map bookmark-level fields to expected paper field names
+    return {
+      ...paper,
+      title: paper.title || bookmark.paperTitle || 'Untitled',
+      paperId: paper.paperId || bookmark.paperId,
+    };
+  };
+
+  // Navigate to paper detail page
+  const handlePaperClick = (bookmark) => {
+    const paper = getPaper(bookmark);
+    const id = paper.paperId || bookmark.paperId;
+    if (id) {
+      // Save referring page so PaperDetail "Back to results" returns here
+      sessionStorage.setItem('scitrack_referrer', window.location.pathname);
+      navigate(`/${currentRole}/papers/${id}`);
+    }
+  };
+
   const isAllSelected = bookmarks.length > 0 && selectedIds.size === bookmarks.length;
 
   /* ── Error State ── */
@@ -379,7 +458,8 @@ export default function BookmarksView() {
             const p = getPaper(bookmark);
             const field = p.fieldName || p.field || '';
             const year = p.pubYear || p.year || '';
-            const citations = p.citationCount ?? p.citations ?? 0;
+            const citations = p.citationCount ?? p.citations ?? null;
+            const hasCitations = citations != null;
             const badgeColor = hashFieldColor(field);
             const isSelected = selectedIds.has(bookmark.bookmarkId);
 
@@ -400,18 +480,21 @@ export default function BookmarksView() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ delay: i * 0.05 }}
-                className={`rounded-xl border p-5 transition-colors flex items-start gap-3 ${
+                onClick={() => handlePaperClick(bookmark)}
+                className={`rounded-xl border p-5 transition-colors flex items-start gap-3 cursor-pointer ${
                   isSelected
                     ? 'bg-[#DEDBC8]/[0.04] border-[#DEDBC8]/25'
                     : 'bg-[#101010] border-[#DEDBC8]/10 hover:border-gray-300 dark:hover:border-white/20'
                 }`}
               >
                 {/* Checkbox */}
-                <Checkbox
-                  checked={isSelected}
-                  onCheckedChange={(e) => toggleSelect(bookmark.bookmarkId)}
-                  className="mt-0.5 shrink-0 border-[#DEDBC8]/20 data-[state=checked]:bg-[#DEDBC8] data-[state=checked]:text-black"
-                />
+                <span onClick={(e) => e.stopPropagation()} className="shrink-0">
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleSelect(bookmark.bookmarkId)}
+                    className="mt-0.5 border-[#DEDBC8]/20 data-[state=checked]:bg-[#DEDBC8] data-[state=checked]:text-black"
+                  />
+                </span>
 
                 <div className="flex-1 flex items-start justify-between gap-4">
                   <div className="flex-1">
@@ -426,7 +509,7 @@ export default function BookmarksView() {
                   <div className="flex items-center gap-6 shrink-0">
                     <div className="text-right">
                       <div className="text-xl font-bold text-[#E1E0CC]">
-                        {citations.toLocaleString()}
+                        {hasCitations ? citations.toLocaleString() : '—'}
                       </div>
                       <div className="text-xs text-gray-400">{t('user.totalCitations')}</div>
                       {p.trend && (
@@ -437,7 +520,10 @@ export default function BookmarksView() {
                     </div>
 
                     <button
-                      onClick={() => removeBookmark(bookmark)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeBookmark(bookmark);
+                      }}
                       className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group"
                       title="Remove from bookmarks"
                     >

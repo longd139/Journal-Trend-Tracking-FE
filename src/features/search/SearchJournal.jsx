@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +8,7 @@ import {
   Clock, Trash2,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuthStore } from '../user/store.js';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -18,6 +19,7 @@ import { StatCard } from '../../components/SharedUI';
 import { PaperItemCard } from './PaperItemCard';
 import FollowButton from '../follows/FollowButton';
 import { bookmarkAPI } from '../bookmarks/api';
+import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -319,40 +321,39 @@ export default function SearchJournal() {
   const searchInputRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+  const user = useAuthStore((s) => s.user);
+  const userId = user?.id || user?.email || currentRole;
+  const historyKey = useMemo(() => `scitrack_journal_history_${userId}`, [userId]);
 
   // Load search history
   useEffect(() => {
-    const key = `scitrack_journal_history_${currentRole}`;
     try {
-      const data = localStorage.getItem(key);
+      const data = localStorage.getItem(historyKey);
       if (data) setSearchHistory(JSON.parse(data));
     } catch {
       setSearchHistory([]);
     }
-  }, [currentRole]);
+  }, [historyKey]);
 
   // Helpers
   const saveToHistory = (kw) => {
     const trimmed = kw.trim();
     if (!trimmed) return;
-    const key = `scitrack_journal_history_${currentRole}`;
     const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const clearHistory = () => {
-    const key = `scitrack_journal_history_${currentRole}`;
     setSearchHistory([]);
-    localStorage.removeItem(key);
+    localStorage.removeItem(historyKey);
     setShowSuggestions(false);
   };
 
   const removeHistoryItem = (kw) => {
-    const key = `scitrack_journal_history_${currentRole}`;
     const updated = searchHistory.filter((k) => k !== kw);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const filteredSuggestions = query.trim()
@@ -372,18 +373,34 @@ export default function SearchJournal() {
   const refreshBookmarks = useCallback(async () => {
     try {
       const response = await bookmarkAPI.getMyBookmarks();
-      let items = response?.data;
-      if (items && Array.isArray(items.data)) items = items.data;
+      let items = null;
+      if (Array.isArray(response)) {
+        items = response;
+      } else if (response && Array.isArray(response.data)) {
+        items = response.data;
+      } else if (response?.data && Array.isArray(response.data.data)) {
+        items = response.data.data;
+      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
+        items = response.data.data.data;
+      } else {
+        if (response && typeof response === 'object') {
+          for (const val of Object.values(response)) {
+            if (Array.isArray(val)) { items = val; break; }
+          }
+        }
+      }
       if (Array.isArray(items)) {
         const ids = new Set();
         items.forEach((b) => {
-          const paperId = b.paperId || b.paper?.paperId;
-          if (paperId) ids.add(paperId);
+          const pid = b.paperId || b.paper?.paperId;
+          if (pid) ids.add(pid);
         });
         setBookmarkedIds(ids);
+      } else {
+        console.warn('[SearchJournal] Could not extract bookmark list from response:', response);
       }
-    } catch {
-      // Silently fail — bookmark state just won't show as saved
+    } catch (err) {
+      console.error('[SearchJournal] Failed to fetch bookmarks:', err);
     }
   }, []);
 
@@ -393,23 +410,47 @@ export default function SearchJournal() {
     const paperId = paper.paperId;
     if (!paperId) return;
 
-    if (bookmarkedIds.has(paperId)) {
-      // Remove bookmark by paper ID
-      try {
+    const wasBookmarked = bookmarkedIds.has(paperId);
+
+    // Optimistic update — toggle instantly
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (wasBookmarked) next.delete(paperId);
+      else next.add(paperId);
+      return next;
+    });
+
+    try {
+      if (wasBookmarked) {
         await bookmarkAPI.removeBookmarkByPaper(paperId);
-        setBookmarkedIds((prev) => { const next = new Set(prev); next.delete(paperId); return next; });
+        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
         toast.success('Removed from bookmarks');
-      } catch (err) {
-        toast.error(err?.response?.data?.message || err?.message || 'Failed to remove bookmark');
-      }
-    } else {
-      // Add bookmark
-      try {
-        await bookmarkAPI.addBookmark(paperId);
-        setBookmarkedIds((prev) => new Set(prev).add(paperId));
+      } else {
+        const res = await bookmarkAPI.addBookmark(paperId);
+        const bm = res?.data?.data || res?.data || res;
+        prependToCache('bookmarks-list', {
+          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
+          paperId,
+          paperTitle: paper.title || 'Untitled',
+          keywordId: null,
+          keywordText: null,
+          collectionId: null,
+          collectionName: null,
+          notes: null,
+          createdAt: new Date().toISOString(),
+        });
         toast.success('Saved to bookmarks');
-      } catch (err) {
-        toast.error(err?.response?.data?.message || err?.message || 'Failed to save bookmark');
+      }
+    } catch (err) {
+      if (err?.response?.status !== 409) {
+        // Revert on real error
+        setBookmarkedIds((prev) => {
+          const next = new Set(prev);
+          if (wasBookmarked) next.add(paperId);
+          else next.delete(paperId);
+          return next;
+        });
+        toast.error(err?.response?.data?.message || err?.message || 'Failed');
       }
     }
   }, [bookmarkedIds]);
@@ -859,6 +900,7 @@ export default function SearchJournal() {
                         onToggleBookmark={handleToggleBookmark}
                         onClick={(p) => {
                           const role = sessionStorage.getItem('userRole') || 'researcher';
+                          sessionStorage.setItem('scitrack_referrer', window.location.pathname);
                           navigate(`/${role}/papers/${p.paperId}`);
                         }}
                       />

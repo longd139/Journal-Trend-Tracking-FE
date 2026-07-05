@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Clock, Trash2, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../components/ui/select';
+import { useAuthStore } from '../user/store.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Main Component
@@ -30,6 +31,11 @@ export default function SearchPapers() {
   const searchInputRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
+  const user = useAuthStore((s) => s.user);
+
+  // Use user-specific key for search history (per account, not per role)
+  const userId = user?.id || user?.email || currentRole;
+  const historyKey = useMemo(() => `scitrack_search_history_${userId}`, [userId]);
 
   // Map UI sort value → API sortBy + sortDirection
   const SORT_MAP = {
@@ -53,37 +59,33 @@ export default function SearchPapers() {
 
   // ─── Load search history ───
   useEffect(() => {
-    const key = `scitrack_search_history_${currentRole}`;
     try {
-      const data = localStorage.getItem(key);
+      const data = localStorage.getItem(historyKey);
       if (data) setSearchHistory(JSON.parse(data));
     } catch {
       setSearchHistory([]);
     }
-  }, [currentRole]);
+  }, [historyKey]);
 
   // ─── Helpers ───
   const saveToSearchHistory = (keyword) => {
     const trimmed = keyword.trim();
     if (!trimmed) return;
-    const key = `scitrack_search_history_${currentRole}`;
     const updated = [trimmed, ...searchHistory.filter((k) => k !== trimmed)].slice(0, 10);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const clearSearchHistory = () => {
-    const key = `scitrack_search_history_${currentRole}`;
     setSearchHistory([]);
-    localStorage.removeItem(key);
+    localStorage.removeItem(historyKey);
     setShowSuggestions(false);
   };
 
   const removeSearchHistoryItem = (keyword) => {
-    const key = `scitrack_search_history_${currentRole}`;
     const updated = searchHistory.filter((k) => k !== keyword);
     setSearchHistory(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
+    localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
   const handleSearch = (kw) => {

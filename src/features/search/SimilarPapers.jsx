@@ -147,6 +147,7 @@ export default function SimilarPapers({ paper }) {
               type="button"
               onClick={() => {
                 const role = sessionStorage.getItem('userRole') || 'researcher';
+                sessionStorage.setItem('scitrack_referrer', window.location.pathname);
                 navigate(`/${role}/papers/${p.paperId}`);
               }}
               initial={{ opacity: 0, x: -8 }}

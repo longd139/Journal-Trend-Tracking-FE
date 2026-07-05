@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { PaperItemCard } from './PaperItemCard';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
+import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Loading Skeleton
@@ -50,18 +51,36 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
   const refreshBookmarks = useCallback(async () => {
     try {
       const response = await bookmarkAPI.getMyBookmarks();
-      let items = response?.data;
-      if (items && Array.isArray(items.data)) items = items.data;
+      // Normalize every possible response shape into an array
+      let items = null;
+      if (Array.isArray(response)) {
+        items = response;
+      } else if (response && Array.isArray(response.data)) {
+        items = response.data;
+      } else if (response?.data && Array.isArray(response.data.data)) {
+        items = response.data.data;
+      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
+        items = response.data.data.data;
+      } else {
+        // Last resort: search for any array in the first level
+        if (response && typeof response === 'object') {
+          for (const val of Object.values(response)) {
+            if (Array.isArray(val)) { items = val; break; }
+          }
+        }
+      }
       if (Array.isArray(items)) {
         const ids = new Set();
         items.forEach((b) => {
-          const paperId = b.paperId || b.paper?.paperId;
-          if (paperId) ids.add(paperId);
+          const pid = b.paperId || b.paper?.paperId;
+          if (pid) ids.add(pid);
         });
         setBookmarkedIds(ids);
+      } else {
+        console.warn('[TopPapers] Could not extract bookmark list from response:', response);
       }
-    } catch {
-      // Silently fail — bookmark state just won't show as saved
+    } catch (err) {
+      console.error('[TopPapers] Failed to fetch bookmarks:', err);
     }
   }, []);
 
@@ -71,23 +90,50 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
     const paperId = paper.paperId;
     if (!paperId) return;
 
-    if (bookmarkedIds.has(paperId)) {
-      // Remove bookmark by paper ID
-      try {
+    const wasBookmarked = bookmarkedIds.has(paperId);
+
+    // Optimistic update — toggle instantly for smooth UX
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (wasBookmarked) next.delete(paperId);
+      else next.add(paperId);
+      return next;
+    });
+
+    try {
+      if (wasBookmarked) {
         await bookmarkAPI.removeBookmarkByPaper(paperId);
-        setBookmarkedIds((prev) => { const next = new Set(prev); next.delete(paperId); return next; });
+        // Optimistic: remove from cached bookmarks list
+        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
         toast.success('Removed from bookmarks');
-      } catch (err) {
-        toast.error(err?.response?.data?.message || err?.message || 'Failed to remove bookmark');
-      }
-    } else {
-      // Add bookmark
-      try {
-        await bookmarkAPI.addBookmark(paperId);
-        setBookmarkedIds((prev) => new Set(prev).add(paperId));
+      } else {
+        const res = await bookmarkAPI.addBookmark(paperId);
+        const bm = res?.data?.data || res?.data || res;
+        // Optimistic: add to cached bookmarks list so it shows instantly
+        prependToCache('bookmarks-list', {
+          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
+          paperId,
+          paperTitle: paper.title || 'Untitled',
+          keywordId: null,
+          keywordText: null,
+          collectionId: null,
+          collectionName: null,
+          notes: null,
+          createdAt: new Date().toISOString(),
+        });
         toast.success('Saved to bookmarks');
-      } catch (err) {
-        toast.error(err?.response?.data?.message || err?.message || 'Failed to save bookmark');
+      }
+    } catch (err) {
+      // 409 = already bookmarked → state is already correct, ignore
+      if (err?.response?.status !== 409) {
+        // Revert on real error
+        setBookmarkedIds((prev) => {
+          const next = new Set(prev);
+          if (wasBookmarked) next.add(paperId);
+          else next.delete(paperId);
+          return next;
+        });
+        toast.error(err?.response?.data?.message || err?.message || 'Failed');
       }
     }
   }, [bookmarkedIds]);
@@ -198,6 +244,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
               onToggleBookmark={handleToggleBookmark}
               onClick={(p) => {
                 const role = sessionStorage.getItem('userRole') || 'researcher';
+                sessionStorage.setItem('scitrack_referrer', window.location.pathname);
                 navigate(`/${role}/papers/${p.paperId}`);
               }}
             />

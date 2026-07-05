@@ -30,4 +30,21 @@ export const bookmarkAPI = {
     const { data } = await axiosClient.delete(`/api/v1/bookmarks/keyword/${keywordId}`);
     return data; // AppResponse<void>
   },
+
+  /**
+   * Check if a specific paper is bookmarked (lightweight).
+   * Tries GET /api/v1/bookmarks/paper/{paperId} first,
+   * falls back to the full list if the endpoint doesn't exist.
+   */
+  async isPaperBookmarked(paperId) {
+    try {
+      const { data } = await axiosClient.get(`/api/v1/bookmarks/paper/${paperId}`);
+      // If the endpoint exists, it returns the bookmark or throws 404
+      return data?.data || data || null;
+    } catch (err) {
+      // 404 = not bookmarked, other errors → fall back to full list
+      if (err?.response?.status === 404) return null;
+      throw err;
+    }
+  },
 };
