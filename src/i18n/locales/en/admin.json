@@ -9,6 +9,7 @@
     "deactivate": "Deactivate",
     "activate": "Activate",
     "loadingUsers": "Loading users...",
+    "searchPlaceholder": "Search by name, email, or institution...",
     "noUsersFound": "No users found",
     "filter": {
       "allRoles": "All Roles",

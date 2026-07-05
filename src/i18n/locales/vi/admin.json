@@ -9,6 +9,7 @@
     "deactivate": "Vô hiệu hóa",
     "activate": "Kích hoạt",
     "loadingUsers": "Đang tải người dùng...",
+    "searchPlaceholder": "Tìm theo tên, email, hoặc tổ chức...",
     "noUsersFound": "Không tìm thấy người dùng",
     "filter": {
       "allRoles": "Tất cả vai trò",

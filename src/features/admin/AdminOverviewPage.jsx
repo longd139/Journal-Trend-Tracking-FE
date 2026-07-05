@@ -3,16 +3,17 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
   Users, Server, Database,
-  AlertTriangle, Zap, Clock, Globe, HardDrive,
-  CheckCircle2, TrendingUp,
+  AlertTriangle, Zap, Clock, Globe, TrendingUp,
 } from 'lucide-react';
 import {
   ResponsiveContainer, AreaChart, Area,
   CartesianGrid, XAxis, YAxis, Tooltip,
 } from 'recharts';
+import { adminAPI } from './api.js';
+import { Skeleton } from '../../components/ui/skeleton';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Data — zeroed out until BE endpoint is ready
+   Data — fetched from GET /api/v1/admin/overview
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const NO_DATA = '—';
@@ -21,7 +22,7 @@ const NO_DATA = '—';
    Components
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function StatCard({ label, value, change, Icon, accent, index = 0 }) {
+function StatCard({ label, value, loading, Icon, accent, index = 0 }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -37,9 +38,29 @@ function StatCard({ label, value, change, Icon, accent, index = 0 }) {
       </div>
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
-        <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">{value}</p>
+        {loading ? (
+          <Skeleton className="h-6 w-20 mt-1 bg-[#DEDBC8]/10" />
+        ) : (
+          <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">{value}</p>
+        )}
       </div>
     </motion.div>
+  );
+}
+
+function BannerPill({ icon, value, loading, label, accent = 'text-[#E1E0CC]', borderClass = 'bg-[#DEDBC8]/5 border-[#DEDBC8]/8' }) {
+  return (
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${borderClass}`}>
+      {icon}
+      <div>
+        {loading ? (
+          <Skeleton className="h-4 w-14 bg-[#DEDBC8]/10" />
+        ) : (
+          <div className={`text-sm font-bold font-mono tabular-nums ${accent}`}>{value}</div>
+        )}
+        <div className="text-[9px] text-gray-500 uppercase">{label}</div>
+      </div>
+    </div>
   );
 }
 
@@ -60,7 +81,63 @@ export default function AdminOverview() {
   const { t } = useTranslation('admin');
   const { t: tc } = useTranslation('common');
   const [now, setNow] = useState(new Date());
-  useEffect(() => { const i = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(i); }, []);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    const i = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(i);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchOverview() {
+      try {
+        const res = await adminAPI.getOverview();
+        if (!cancelled && res?.data) {
+          setStats(res.data);
+          setError(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.warn('Failed to fetch admin overview:', err);
+          setError(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    fetchOverview();
+    // Refresh every 60 seconds
+    const interval = setInterval(fetchOverview, 60000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(false);
+    adminAPI.getOverview()
+      .then((res) => {
+        if (res?.data) setStats(res.data);
+      })
+      .catch((err) => {
+        console.warn('Retry failed:', err);
+        setError(true);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const fmt = (val) => (val != null ? val.toLocaleString() : NO_DATA);
+
+  const activeUsers    = stats?.activeUsers != null ? fmt(stats.activeUsers) : NO_DATA;
+  const totalRequests  = stats?.totalRequests != null ? fmt(stats.totalRequests) : NO_DATA;
+  const avgLatencyMs   = stats?.avgLatencyMs != null ? `${stats.avgLatencyMs} ms` : NO_DATA;
+  const errorRate      = stats?.errorRate != null ? `${stats.errorRate}%` : NO_DATA;
+  const dbSizeMb       = stats?.dbSizeMb != null ? `${fmt(stats.dbSizeMb)} MB` : NO_DATA;
+  const uptime         = stats?.uptime || NO_DATA;
+  const storage        = stats?.totalStorageMb != null ? `${fmt(stats.totalStorageMb)} MB` : NO_DATA;
+  const requestsPerHr  = stats?.requestsLastHour != null ? `${fmt(stats.requestsLastHour)}/h` : NO_DATA;
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -100,50 +177,72 @@ export default function AdminOverview() {
 
               {/* Right: Quick stat pills */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-                  <Users size={13} className="text-[#DEDBC8]" />
-                  <div>
-                    <div className="text-sm font-bold text-[#E1E0CC] font-mono tabular-nums">{NO_DATA}</div>
-                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.users')}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/5 border border-emerald-500/10">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-emerald-400 font-mono tabular-nums">{NO_DATA}</div>
-                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.uptime')}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-                  <Clock size={13} className="text-[#DEDBC8]" />
-                  <div>
-                    <div className="text-sm font-bold text-[#E1E0CC] font-mono tabular-nums">{NO_DATA}</div>
-                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.latency')}</div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-                  <Database size={13} className="text-[#DEDBC8]" />
-                  <div>
-                    <div className="text-sm font-bold text-[#E1E0CC] font-mono tabular-nums">{NO_DATA}</div>
-                    <div className="text-[9px] text-gray-500 uppercase">{t('overview.storage')}</div>
-                  </div>
-                </div>
+                <BannerPill
+                  icon={<Users size={13} className="text-[#DEDBC8]" />}
+                  value={activeUsers}
+                  loading={loading}
+                  label={t('overview.users')}
+                />
+                <BannerPill
+                  icon={(
+                    <div className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                    </div>
+                  )}
+                  value={uptime}
+                  loading={loading}
+                  label={t('overview.uptime')}
+                  accent="text-emerald-400"
+                  borderClass="bg-emerald-500/5 border-emerald-500/10"
+                />
+                <BannerPill
+                  icon={<Clock size={13} className="text-[#DEDBC8]" />}
+                  value={avgLatencyMs}
+                  loading={loading}
+                  label={t('overview.latency')}
+                />
+                <BannerPill
+                  icon={<Database size={13} className="text-[#DEDBC8]" />}
+                  value={storage}
+                  loading={loading}
+                  label={t('overview.storage')}
+                />
               </div>
             </div>
           </div>
         </motion.div>
 
+        {/* ─── Error Banner ─── */}
+        {error && !loading && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl border border-red-500/20 bg-red-500/5"
+          >
+            <div className="flex items-center gap-2.5">
+              <AlertTriangle size={15} className="text-red-400 shrink-0" />
+              <span className="text-xs text-gray-400">
+                {tc('errors.loadFailed')} — {tc('actions.retry')}?
+              </span>
+            </div>
+            <button
+              onClick={handleRetry}
+              className="px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-[#DEDBC8]/10 hover:bg-[#DEDBC8]/20 text-[#E1E0CC] transition-colors"
+            >
+              {tc('actions.retry')}
+            </button>
+          </motion.div>
+        )}
+
         {/* ─── Stat Cards ─── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard index={0} label={t('overview.stats.activeUsers')} value={NO_DATA} Icon={Users} accent="#DEDBC8" />
-          <StatCard index={1} label={t('overview.stats.totalRequests')} value={NO_DATA} Icon={Globe} accent="#A09878" />
-          <StatCard index={2} label={t('overview.stats.avgLatency')} value={NO_DATA} Icon={Clock} accent="#DEDBC8" />
-          <StatCard index={3} label={t('overview.stats.errorRate')} value={NO_DATA} Icon={AlertTriangle} accent="#EF4444" />
-          <StatCard index={4} label={t('overview.stats.dbSize')} value={NO_DATA} Icon={Database} accent="#DEDBC8" />
+          <StatCard index={0} label={t('overview.stats.activeUsers')} value={activeUsers} loading={loading} Icon={Users} accent="#DEDBC8" />
+          <StatCard index={1} label={t('overview.stats.totalRequests')} value={totalRequests} loading={loading} Icon={Globe} accent="#A09878" />
+          <StatCard index={2} label={t('overview.stats.avgLatency')} value={avgLatencyMs} loading={loading} Icon={Clock} accent="#DEDBC8" />
+          <StatCard index={3} label={t('overview.stats.errorRate')} value={errorRate} loading={loading} Icon={AlertTriangle} accent="#EF4444" />
+          <StatCard index={4} label={t('overview.stats.dbSize')} value={dbSizeMb} loading={loading} Icon={Database} accent="#DEDBC8" />
         </div>
 
         {/* ─── Charts Row 1 ─── */}

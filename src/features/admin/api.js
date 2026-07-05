@@ -6,11 +6,11 @@ import axiosClient from '../../lib/apiClient.js';
 
 export const adminAPI = {
   /* ──────────── Users (/api/admin/users) ──────────── */
-  async getUsers({ page = 0, size = 20, search } = {}) {
+  async getUsers({ search } = {}) {
     const { data } = await axiosClient.get('/api/admin/users', {
-      params: { page, size, search },
+      params: { search },
     });
-    return data; // AppResponse<Page<AdminUserResponse>>
+    return data; // AppResponse<List<AdminUserResponse>>
   },
 
   async updateUserStatus(userId, active) {
@@ -86,6 +86,18 @@ export const adminAPI = {
       params: { page, size, action, adminId },
     });
     return data; // AppResponse<Page<AuditLogResponse>>
+  },
+
+  /* ──────────── Overview Dashboard (/api/v1/admin/overview) ──────────── */
+
+  /**
+   * Get admin overview dashboard stats.
+   * GET /api/v1/admin/overview
+   * Response: { activeUsers, totalRequests, avgLatencyMs, errorRate, dbSizeMb, uptime, ... }
+   */
+  async getOverview() {
+    const { data } = await axiosClient.get('/api/v1/admin/overview');
+    return data; // AppResponse<AdminOverviewResponse>
   },
 
   /* ──────────── Keep legacy sync helpers for notification ──────────── */

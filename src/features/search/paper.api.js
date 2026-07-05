@@ -2,6 +2,17 @@ import axiosClient from '../../lib/apiClient.js';
 
 export const paperAPI = {
   /**
+   * Get reading history for current user.
+   * GET /api/v1/reading-history?limit=20
+   */
+  async getReadingHistory(limit = 20) {
+    const { data } = await axiosClient.get('/api/v1/reading-history', {
+      params: { limit },
+    });
+    return data; // AppResponse<List<ReadingHistoryResponse>>
+  },
+
+  /**
    * Lấy danh sách bài báo có sẵn (chỉ dùng để hiển thị dữ liệu ban đầu).
    * Chỉ yêu cầu 2 param: page, size.
    * GET /api/v1/papers?page=0&size=5

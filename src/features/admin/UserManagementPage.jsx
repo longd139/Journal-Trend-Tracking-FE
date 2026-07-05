@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Search, X, RefreshCw, Building2, Users, UserCheck, UserX,
-  Shield, Eye, AlertTriangle, ChevronLeft, ChevronRight,
+  Shield, Eye, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown,
   ArrowUpDown, CheckCircle2, SlidersHorizontal, Mail,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -63,28 +63,92 @@ function RoleBadge({ roleName }) {
   );
 }
 
-function StatCard({ label, value, icon: Icon, color, change }) {
+/* ═══════════════════════════════════════════════════════════════════════════
+   Filter Dropdown — replaces native <select>
+   ═══════════════════════════════════════════════════════════════════════════ */
+function FilterDropdown({ value, onChange, options }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const activeLabel = options.find((o) => o.value === value)?.label || value;
+
   return (
-    <motion.div
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 pl-3.5 pr-2.5 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] outline-none hover:border-[#DEDBC8]/20 focus:border-indigo-500/40 transition-all"
+      >
+        <span className="text-[13px] text-slate-200">{activeLabel}</span>
+        <ChevronDown size={13} className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -4 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="absolute left-0 top-full mt-1.5 z-50 min-w-full rounded-2xl border border-[#DEDBC8]/10 bg-[#151515] shadow-2xl backdrop-blur-xl p-1.5"
+          >
+            {options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+                className={`w-full text-left px-3 py-2 rounded-xl text-[13px] transition-all flex items-center justify-between gap-3 whitespace-nowrap
+                  ${opt.value === value
+                    ? 'text-white bg-[#DEDBC8]/8 font-semibold'
+                    : 'text-slate-400 hover:text-white hover:bg-[#DEDBC8]/5'}`}
+              >
+                {opt.label}
+                {opt.value === value && <CheckCircle2 size={12} className="text-indigo-400 shrink-0" />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function StatCard({ label, value, icon: Icon, color, isActive, onClick }) {
+  return (
+    <motion.button
       whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="relative overflow-hidden rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-5 group"
+      onClick={onClick}
+      className={`relative overflow-hidden rounded-2xl border bg-[#101010] p-5 group text-left w-full transition-all duration-300
+        ${isActive
+          ? 'border-[#DEDBC8]/30 shadow-lg shadow-[#DEDBC8]/5 ring-1 ring-[#DEDBC8]/10'
+          : 'border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 cursor-pointer'}`}
     >
       {/* hover gradient reveal */}
       <div
         className="absolute inset-0 opacity-0 group-hover:opacity-[0.04] transition-opacity duration-500"
         style={{ background: `radial-gradient(circle at top right, ${color}, transparent 70%)` }}
       />
+      {/* active indicator dot */}
+      {isActive && (
+        <div className="absolute top-3 right-3 w-2 h-2 rounded-full" style={{ background: color }} />
+      )}
       <div className="relative z-10 flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 mb-3">
             <div
-              className="p-2 rounded-xl transition-colors group-hover:bg-[#DEDBC8]/5"
-              style={{ color, opacity: 0.5 }}
+              className={`p-2 rounded-xl transition-all ${isActive ? 'bg-[#DEDBC8]/10' : 'group-hover:bg-[#DEDBC8]/5'}`}
+              style={{ color, opacity: isActive ? 1 : 0.6 }}
             >
               <Icon size={18} />
             </div>
-            <p className="text-[12px] font-medium text-slate-400 truncate">{label}</p>
+            <p className={`text-[12px] font-medium truncate transition-colors ${isActive ? 'text-[#E1E0CC]' : 'text-slate-400'}`}>{label}</p>
           </div>
           <div className="flex items-baseline gap-3">
             <motion.p
@@ -95,15 +159,10 @@ function StatCard({ label, value, icon: Icon, color, change }) {
             >
               {value}
             </motion.p>
-            {change !== undefined && (
-              <span className={`text-[12px] font-semibold ${change >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {change >= 0 ? '+' : ''}{change}%
-              </span>
-            )}
           </div>
         </div>
       </div>
-    </motion.div>
+    </motion.button>
   );
 }
 
@@ -344,6 +403,11 @@ export default function UserManagement() {
   useEffect(() => { setPage(1); }, [search, roleFilter, statusFilter]);
 
   /* ── Handlers ── */
+  const handleStatusFilter = (filter) => {
+    // Toggle: clicking the already-active filter resets to 'all'
+    setStatusFilter((prev) => (prev === filter ? 'all' : filter));
+  };
+
   const toggleSort = (col) => {
     if (sortBy === col) setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     else { setSortBy(col); setSortDir('asc'); }
@@ -381,9 +445,30 @@ export default function UserManagement() {
         transition={{ duration: 0.3 }}
         className="grid grid-cols-1 sm:grid-cols-3 gap-4"
       >
-        <StatCard label={t('userManagement.totalUsers')} value={stats.total} icon={Users} color="#818cf8" />
-        <StatCard label={tc('status.active')} value={stats.active} icon={UserCheck} color="#34d399" />
-        <StatCard label={tc('status.inactive')} value={stats.inactive} icon={UserX} color="#f87171" />
+        <StatCard
+          label={t('userManagement.totalUsers')}
+          value={stats.total}
+          icon={Users}
+          color="#818cf8"
+          isActive={statusFilter === 'all'}
+          onClick={() => handleStatusFilter('all')}
+        />
+        <StatCard
+          label={tc('status.active')}
+          value={stats.active}
+          icon={UserCheck}
+          color="#34d399"
+          isActive={statusFilter === 'active'}
+          onClick={() => handleStatusFilter('active')}
+        />
+        <StatCard
+          label={tc('status.inactive')}
+          value={stats.inactive}
+          icon={UserX}
+          color="#f87171"
+          isActive={statusFilter === 'inactive'}
+          onClick={() => handleStatusFilter('inactive')}
+        />
       </motion.div>
 
       {/* ─── Toolbar ─── */}
@@ -402,21 +487,25 @@ export default function UserManagement() {
         {/* Filters */}
         <div className="flex items-center gap-2">
           <SlidersHorizontal size={13} className="text-slate-400" />
-          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
-            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
-          >
-            <option value="all">{t('userManagement.filter.allRoles')}</option>
-            <option value="admin">{t('userManagement.filter.admin')}</option>
-            <option value="researcher">{t('userManagement.filter.researcher')}</option>
-            <option value="academic_user">{t('userManagement.filter.academic')}</option>
-          </select>
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-            className="pl-3 pr-8 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-slate-200 outline-none focus:border-indigo-500/40 transition-all appearance-none cursor-pointer"
-          >
-            <option value="all">{t('userManagement.filter.allStatus')}</option>
-            <option value="active">{t('userManagement.filter.active')}</option>
-            <option value="inactive">{t('userManagement.filter.inactive')}</option>
-          </select>
+          <FilterDropdown
+            value={roleFilter}
+            onChange={setRoleFilter}
+            options={[
+              { value: 'all', label: t('userManagement.filter.allRoles') },
+              { value: 'admin', label: t('userManagement.filter.admin') },
+              { value: 'researcher', label: t('userManagement.filter.researcher') },
+              { value: 'academic_user', label: t('userManagement.filter.academic') },
+            ]}
+          />
+          <FilterDropdown
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { value: 'all', label: t('userManagement.filter.allStatus') },
+              { value: 'active', label: t('userManagement.filter.active') },
+              { value: 'inactive', label: t('userManagement.filter.inactive') },
+            ]}
+          />
         </div>
         <div className="flex items-center gap-2 ml-auto">
           {actionLoading && <RefreshCw size={15} className="animate-spin text-indigo-400" />}

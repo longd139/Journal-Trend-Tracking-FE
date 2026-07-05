@@ -6,16 +6,15 @@ export const useUserStore = create((set, get) => ({
   users: [],
   isLoading: false,
   error: null,
-  totalPages: 0,
-  currentPage: 0,
 
   // ── Fetch from API ──
   fetchUsers: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
       const response = await adminAPI.getUsers(params);
-      const pageData = response?.data;
-      const users = (pageData?.content || []).map((u) => ({
+      // API returns data as a direct array (not paginated)
+      const userArray = Array.isArray(response?.data) ? response.data : [];
+      const users = userArray.map((u) => ({
         userId: u.userId,
         fullName: u.fullName || 'Unknown',
         email: u.email || '',
@@ -29,8 +28,6 @@ export const useUserStore = create((set, get) => ({
       set({
         users,
         isLoading: false,
-        totalPages: pageData?.totalPages || 0,
-        currentPage: pageData?.number || 0,
       });
     } catch (err) {
       console.error('Failed to fetch users:', err);

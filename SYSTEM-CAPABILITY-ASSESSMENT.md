@@ -1,226 +1,105 @@
-# SCITRACK — Đánh giá năng lực hệ thống
+# SCITRACK — Đánh giá năng lực hệ thống (CẬP NHẬT)
 
-> **Ngày:** 2026-07-02
-> **Phạm vi:** Kiểm tra toàn bộ (BE + FE) dựa trên 12 yêu cầu gốc và nhu cầu thực tế của researcher
-
----
-
-## 12 yêu cầu gốc của hệ thống
-
-1. User authentication and authorization
-2. Search research papers by keyword, author, or journal
-3. View paper details and publication information
-4. Track publication trends by keyword or topic
-5. Display charts and dashboard statistics
-6. View trending research topics
-7. Save bookmarks for papers or keywords
-8. Follow journals or research topics
-9. Receive notifications for newly published papers
-10. Generate simple analytical reports
-11. Synchronize data from external academic APIs
-12. Manage users and system configuration (Admin)
+> **Ngày gốc:** 2026-07-02 | **Ngày cập nhật:** 2026-07-05
+> **Phạm vi:** Kiểm tra toàn bộ (BE + FE) dựa trên 12 yêu cầu gốc và 34 mục thiếu sót đã xác định
 
 ---
 
-# BACKEND — Những gì ĐÃ làm được
+## 📊 Tổng quan tiến độ
 
-## ✅ Đã hoàn thiện và hoạt động
-
-| # | Yêu cầu | Trạng thái | Chi tiết |
-|---|---------|-----------|----------|
-| 1 | **Auth & authorization** | ✅ Xong | Register, login (email + Google OAuth), JWT có token blacklist, 3 role (ADMIN / RESEARCHER / ACADEMIC_USER), bảo vệ endpoint theo role bằng `@PreAuthorize` |
-| 2 | **Paper search** | ✅ Xong | Tìm theo keyword (Neo4j graph → SQL → OpenAlex fallback), theo author, theo journal. Async graph search cho deep exploration |
-| 3 | **Paper details** | ✅ Xong | Đầy đủ thông tin: title, abstract (tái tạo từ inverted index), authors, citations, DOI, OA status, publication date, journal |
-| 4 | **Trend tracking** | ✅ Xong | `KeywordQuickStatsService` — papers/citations/YoY growth theo keyword. `WeeklyBreakoutService` — top 5 breakout topics kèm sparkline |
-| 5 | **Dashboard statistics** | ✅ Xong | 3 tầng dashboard: Public (`/api/public/dashboard`), Authenticated (`/api/v1/overview/statistics`), User-role-specific (`/api/v1/overview/user`) |
-| 6 | **Trending topics** | ✅ Xong | Hot keywords (theo tần suất tìm kiếm), trending keywords (từ config), Google Trends sync |
-| 7 | **Bookmarks** | ✅ Xong | CRUD bookmark cho paper & keyword. Collections (thư mục) với CRUD đầy đủ |
-| 8 | **Follow system** | ✅ Xong | Follow journal/topic/keyword. Bật/tắt notification cho từng follow |
-| 9 | **Notifications** | ✅ Xong | `NotificationTriggerService` tạo notification NEW_PAPER khi paper mới khớp với follow của user. CRUD endpoints |
-| 10 | **Reports (backend)** | ⚠️ Một phần | 3 API reports: keyword trend, author impact, journal quality, insight bằng tiếng Việt theo template. Có cache |
-| 11 | **Data sync** | ✅ Xong | 4 nguồn: OpenAlex (chính, deep sync tối đa 40k papers/keyword), Semantic Scholar, arXiv, CORE. Bulk async sync có progress tracking. Scheduled auto-sync 2h sáng hàng ngày |
-| 12 | **Admin management** | ✅ Xong | User CRUD, system configs, data sources, audit logs, PDF request workflow, cache management |
-
-## 🔶 Điểm mạnh khác của BE (ngoài 12 yêu cầu)
-
-| Tính năng | Mô tả |
-|-----------|-------|
-| **Author analytics** | Quick stats (h-index, affiliation, timeline, research focus pie, co-author network) — lấy từ OpenAlex |
-| **Journal analytics** | Quartile, Impact Factor, CiteScore, editorial "taste" keywords, timeline, top papers/authors |
-| **Neo4j graph** | Keyword-paper graph, co-occurrence queries, niche topic discovery, paper-keyword network |
-| **Gemini AI** | Keyword expansion (6 từ khóa liên quan) với cache 1h + fallback map nội bộ |
-| **Advanced filtering** | API hỗ trợ lọc theo year range, research field, journal, OA status, min citations |
-| **PDF request workflow** | User gửi yêu cầu → admin tìm/duyệt/từ chối |
-| **Search history** | Lưu lịch sử tìm kiếm để xếp hạng "hot" keywords và hiển thị lại cho user |
-| **Bookmark collections** | Tổ chức bookmark theo thư mục (vượt ngoài bookmark đơn giản) |
-| **Health check** | Kiểm tra trạng thái hệ thống (SQL Server + Neo4j connectivity) |
+| Phạm vi | Tổng mục | ✅ Đã xong | ❌ Chưa làm | Tỷ lệ |
+|---------|----------|-----------|------------|-------|
+| BE P0-P2 | 12 | 11 | 1 | **92%** |
+| FE P0 | 5 | 5 | 0 | **100%** |
+| FE P1-P2 | 12 | 10 | 2 | **83%** |
+| **TỔNG** | **29** | **26** | **3** | **90%** |
 
 ---
 
-# BACKEND — Những gì CHƯA làm được
+# BACKEND — Những gì đã hoàn thành từ danh sách thiếu sót
 
-## 🔴 Thiếu sót nghiêm trọng — cần sửa trước khi production
+## ✅ Đã sửa xong
 
-| # | Thiếu sót | Ảnh hưởng | Ưu tiên |
-|---|-----------|----------|---------|
-| 1 | **Chưa có email delivery** | Password reset & email verification chỉ in ra terminal. User không thể reset password hay verify email trong production. Chưa cấu hình `JavaMailSender` | 🔴 P0 |
-| 2 | **Chưa có citation export** | Không có BibTeX, RIS, APA, MLA. Researcher phải copy-paste thủ công — đây là tính năng sống còn | 🔴 P0 |
-| 3 | **Chỉ có 1 loại notification** | Duy nhất trigger `NEW_PAPER`. Thiếu: trending topic bùng nổ, citation milestone, author đang follow có paper mới, bookmark collection được cập nhật | 🔴 P0 |
-| 4 | **Không có user-controlled sorting** | Kết quả tìm kiếm chỉ sắp xếp theo `createdAt DESC`. Không sắp xếp được theo citations, relevance, title, date | 🔴 P0 |
-| 5 | **Reports dùng template cứng** | 3 reports dùng chuỗi tiếng Việt cố định. Không có AI-generated insights. Gemini đã tích hợp sẵn nhưng không dùng cho report | 🟠 P1 |
+| # | Mục | Ưu tiên cũ | Chi tiết |
+|---|-----|-----------|----------|
+| 1 | **Email delivery** | 🔴 P0 | `EmailServiceImpl.java` — `JavaMailSender` + `MimeMessageHelper`, HTML email template, `@Async`. Gửi verification, password reset, simple email |
+| 2 | **Citation export** | 🔴 P0 | `CitationService.java` — BibTeX, RIS, APA (7th), MLA (9th). Single endpoint `GET /api/v1/papers/{paperId}/citation` + bulk `POST /api/v1/papers/citations/export` |
+| 3 | **Multiple notification types** | 🔴 P0 | Enum 4 loại đều đã trigger: NEW_PAPER (`NotificationTriggerService`), TREND_ALERT (`TrendingTopicSyncService` — top 5 trending, mỗi 12h), SYSTEM (trial notification), UPGRADE_PROMPT (`PaperSearchServiceImpl` — 80% & 100% limit). Tất cả push qua SSE |
+| 4 | **User-controlled sorting** | 🔴 P0 | `PaperSearchRequestDTO` — `sortBy` (relevance/citations/title/date) + `sortDirection` (asc/desc). Endpoint `GET /api/v1/papers/sorted` |
+| 6 | **AI summarization** | 🟠 P1 | `AISummarizationService.java` — DeepSeek-powered: `summarizeAbstract()`, `extractMethodology()`, `batchAnalyze()`. Cache 1h TTL |
+| 7 | **Personalized recommendations** | 🟠 P1 | `PaperRecommendationServiceImpl.java` — Hybrid: content-based (Neo4j) + collaborative filtering + cold-start fallback. Endpoint `GET /api/v1/papers/recommendations` |
+| 8 | **Similar papers endpoint** | 🟠 P1 | `PaperRecommendationServiceImpl.getSimilarPapers()` — 2 strategies (same field + Neo4j keyword overlap). Endpoint `GET /api/v1/papers/{paperId}/similar` |
+| 9 | **WebSocket/real-time push** | 🟠 P1 | `NotificationSseController.java` — SSE (Server-Sent Events). Endpoint `GET /api/v1/notifications/stream`. Per-user emitter registry, 5-min timeout + heartbeat |
+| 10 | **Bulk operations** | 🟡 P2 | `POST/DELETE /api/v1/bookmarks/bulk` + `DELETE /api/v1/notifications/bulk` |
+| 11 | **Refresh token** | 🟡 P2 | `POST /api/auth/refresh-token` — 64-byte random token, 7-day expiry, rotation, `UserSession` storage |
+| 12 | **Rate limiting** | 🟡 P2 | `RateLimitInterceptor.java` — Bucket4j token-bucket, 3 tiers (public 30rpm / authenticated 60rpm / admin 120rpm), `X-RateLimit-*` headers, `WebConfig.java` wired to `/api/**` |
 
-## 🟠 Thiếu sót quan trọng — nên sửa sớm
+## ❌ Vẫn chưa làm
 
-| # | Thiếu sót | Ảnh hưởng | Ưu tiên |
-|---|-----------|----------|---------|
-| 6 | **Chưa có AI summarization** | Gemini chỉ dùng để expand keyword. Không tóm tắt abstract, không phân tích batch papers, không trích xuất methodology | 🟠 P1 |
-| 7 | **Chưa có personalized recommendations** | Không có "papers you might like", không có content-based hoặc collaborative filtering. Đã có `UserSearchHistoryService` nhưng chưa dùng để gợi ý | 🟠 P1 |
-| 8 | **Chưa có "similar papers" endpoint** | Không tìm được paper tương tự từ một paper gốc — đây là quy trình nghiên cứu cơ bản | 🟠 P1 |
-| 9 | **Chưa có WebSocket / real-time push** | Notification chỉ dùng polling. Không có SSE, không có WebSocket | 🟠 P1 |
-| 10 | **Chưa có bulk operations** | Không batch bookmark, batch export, batch delete | 🟡 P2 |
-| 11 | **Chưa có refresh token** | JWT logout dùng token blacklist. Không có refresh token — user phải login lại khi token hết hạn | 🟡 P2 |
-| 12 | **Chưa có rate limiting** | Chỉ theo dõi số lượt search cho mỗi user. Không giới hạn theo IP hoặc theo endpoint | 🟡 P2 |
-
-## 🟡 Nice-to-have
-
-| # | Thiếu sót | Ưu tiên |
-|---|-----------|---------|
-| 13 | Chưa có keyword comparison endpoint (so sánh nhiều keyword trên cùng biểu đồ) | 🟡 P2 |
-| 14 | Chưa có research gap detection (tìm khu vực ít được nghiên cứu) | 🟡 P2 |
-| 15 | Chưa có journal matching (gợi ý venue để submit paper) | 🟡 P2 |
-| 16 | Chưa có automated PDF retrieval (admin phải xử lý PDF request thủ công) | 🟡 P2 |
-| 17 | Chưa có country/institution breakdown cho trends | 🟡 P2 |
-| 18 | Entity `PublicationTrend` và `ResearchTopic` đã tồn tại nhưng chưa có endpoint nào dùng đến | 🟡 P2 |
+| # | Mục | Ưu tiên | Chi tiết |
+|---|-----|---------|----------|
+| 5 | **Reports với AI** | 🟠 P1 | `ReportServiceImpl.java` vẫn hardcoded template tiếng Việt. AI services (DeepSeek, Gemini) đã có sẵn nhưng chưa tích hợp vào report pipeline |
 
 ---
 
-# FRONTEND — Những gì ĐÃ làm được
+# FRONTEND — Những gì đã hoàn thành từ danh sách thiếu sót
 
-## ✅ Đã hoàn thiện và kết nối API thật
+## ✅ P0: UI đã kết nối API
 
-| # | Tính năng | Trạng thái | Chi tiết |
-|---|-----------|-----------|----------|
-| 1 | **Auth pages** | ✅ Xong | Login (email + Google OAuth), Register, Reset Password. `AuthPage` có role selector. JWT lưu trong Zustand + sessionStorage |
-| 2 | **Search papers** | ✅ Xong | Tìm theo keyword với search history (localStorage), pre-search trending chips + weekly breakout sparkline cards, post-search Quick Stats từ API, Knowledge Graph (vis-network), Related Trends, Top Cited Papers |
-| 3 | **Search authors** | ✅ Xong | Author profile card (avatar, affiliation, ORCID), stat cards (papers, citations, h-index, i10-index), publication timeline ComposedChart, research focus pie chart, co-authors network. Tất cả từ API thật |
-| 4 | **Search journals** | ✅ Xong | Duyệt theo category tabs, journal cards với badge IF/quartile, detail view có timeline AreaChart, top papers, top authors. Có nút Follow. Tất cả từ API thật |
-| 5 | **Follows** | ✅ Xong | Danh sách follows theo loại (All/Journal/Topic/Keyword), bật/tắt notification cho từng follow, unfollow với confirmation dialog. API thật |
-| 6 | **Notifications** | ✅ Xong | NotificationBell với floating panel (tabs All/Unread, detail view, dismiss), full-page notification center, polling unread count mỗi 30s, mark-all-read. API thật |
-| 7 | **Database stats (admin)** | ✅ Xong | Papers, authors, keywords, journals, Neo4j stats, source breakdown, year distribution, orphan detection. API thật, có zero-data retry |
-| 8 | **Sync data (admin)** | ✅ Xong | Single sync, bulk sync (có live progress bar), deep sync OpenAlex, auto-sync toggle. API thật + Zustand store |
-| 9 | **User management (admin)** | ✅ Xong | Bảng phân trang, search, role filter, add/edit, status toggle. API thật |
-| 10 | **Audit logs (admin)** | ✅ Xong | Phân trang, lọc theo action. API thật |
-| 11 | **i18n** | ✅ Xong | 2 ngôn ngữ (en/vi), 10 translation namespaces, `Intl` formatting, LanguageSwitcher component. Độ phủ tốt |
-| 12 | **Settings — profile** | ✅ Xong | Name, institution (có autocomplete), language preference. API thật |
+| # | Mục | Đã làm |
+|---|-----|--------|
+| 1 | **Overview/Dashboard** | `UserOverviewPage.jsx` — gọi 3 API thật: `getUserOverview()`, `getRoleStatistics()`, `getPublicOverview()`. Có loading skeleton + error retry |
+| 2 | **Bookmarks** | `BookmarksView.jsx` — dùng `bookmarkAPI.getMyBookmarks()` + CRUD collections qua API. Không còn `sessionStorage` |
+| 3 | **Reports** | `ReportsViewPage.jsx` — gọi `reportAPI.getKeywordTrend/getJournalQuality/getAuthorImpact()`. Không còn `setTimeout()` |
+| 4 | **Advanced filters** | `AdvancedFilter.jsx` — không còn "Premium" overlay. `AcademicLimitAlert` là dead code, không được import |
+| 5 | **Admin overview** | `AdminOverviewPage.jsx` — gọi `adminAPI.getOverview()`, auto-refresh 60s, loading/error/retry state. 5 stat cards + status banner |
 
-## 🔶 Điểm mạnh khác của FE
+## ✅ P1: Tính năng mới đã có UI
 
-| Tính năng | Mô tả |
-|-----------|-------|
-| **Landing page** | Trang marketing đầy đủ: video background, feature bento-grid, horizontal-scroll trending papers carousel |
-| **Dark-only theme** | Design system nhất quán với CSS custom properties, Tailwind v4, 50+ shadcn/ui components |
-| **Framer Motion** | Animation mượt trên tất cả các trang |
-| **Responsive** | Giao diện thích ứng mobile |
-| **Role-based routing** | Dynamic `/:roleName` routes với `ProtectedRoute` guard |
+| # | Mục | Chi tiết |
+|---|-----|----------|
+| 6 | **Citation export UI** | `CitationExport.jsx` — tab BibTeX/RIS/APA, copy-to-clipboard, download. `citationGenerators.js` — `generateBibtex()`, `generateRIS()`, `generateAPA()`. Bulk export trong `BookmarksView.jsx` |
+| 7 | **Keyword comparison view** | `AnalyticsPage.jsx` — `KeywordComparison()` component với BarChart (recharts), multi-keyword input |
+| 8 | **User-facing analytics page** | Route `/analytics` protected với `allowedRoles={['researcher', 'academic_user']}`. Admin bị loại khỏi route này |
+| 9 | **Similar papers / recommendations** | `SimilarPapers.jsx` — hiển thị 4 paper liên quan dựa trên keyword overlap, filter current paper, clickable cards |
+| 10 | **Paper detail page** | `PaperDetailPage.jsx` — 800+ dòng: title, authors, field badges, stat chips, abstract, AI summary, methodology, keyword tags, citation export, similar papers, bookmark toggle, PDF request, follow button |
 
-## ⚠️ UI đã dựng nhưng dùng mock data (CHƯA kết nối API)
+## ✅ P2: Nice-to-have đã có
 
-| Tính năng | Đã có gì | Còn thiếu gì |
-|-----------|----------|-------------|
-| **User Overview/Dashboard** | UI đầy đủ: stat cards, area chart, pie chart, publication table, recommended papers | TOÀN BỘ data là hardcoded. Không gọi API. BE đã có `UserOverviewService` với endpoint sẵn |
-| **Admin Overview** | UI đầy đủ: stat cards, request volume chart, visitor traffic, resource usage bars, recent events | TOÀN BỘ hardcoded. Không gọi API |
-| **API Monitoring** | 6 endpoint cards, latency sparklines, expandable details | TOÀN BỘ mock data |
-| **Reports** | 3 quick templates, custom report modal (name, format PDF/CSV/ZIP, date range, include citations/abstracts), history table | Generate dùng `setTimeout()` giả lập. BE đã có 3 report endpoints sẵn |
-| **Bookmarks** | Danh sách paper kèm details, nút remove, empty state | Dùng `sessionStorage` — mất khi tắt tab. BE đã có Bookmark + Collection CRUD đầy đủ |
-| **Advanced search filters** | UI đã dựng: year range, research fields, min citations, OA toggle | Bị khóa sau màn hình "Premium". Researcher cũng không dùng được. BE đã có `GET /api/v1/papers/filter/advanced` sẵn |
-| **Settings — Notifications prefs** | Card hiển thị nhãn "active" | Click vào không có tác dụng — chưa có toggle cho từng loại notification |
-| **Settings — Appearance** | Card đã có | Gắn nhãn "SOON", bị disable |
-| **Settings — Privacy** | Card đã có | Gắn nhãn "SOON", bị disable |
+| # | Mục | Chi tiết |
+|---|-----|----------|
+| 11 | **Sort dropdown** | `SearchPapers.jsx` — 7 lựa chọn: relevance, newest, oldest, most/least cited, title A-Z/Z-A. Có i18n |
+| 12 | **Password change UI** | `ChangePasswordForm.jsx` — current/new/confirm password, show/hide toggle, validation, auto-close after success |
+| 14 | **Bulk actions** | `BulkActionBar.jsx` — floating bottom bar: deselect all, export selected, remove selected. Batch export panel trong bookmarks |
+| 15 | **i18n cho notifications** | Đã có trong `common.json`, `settings.json`, `follow.json` (en + vi). `NotificationsPage.jsx` + `NotificationBell.jsx` dùng `useTranslation()` |
+| 17 | **Profile photo upload** | `SettingsPage.jsx` — avatar upload với file input, base64 preview, hover Camera overlay, remove button |
+
+## ❌ Vẫn chưa làm
+
+| # | Mục | Ưu tiên | Chi tiết |
+|---|-----|---------|----------|
+| 13 | **Reading history UI** | 🟡 P2 | BE đã có đầy đủ: entity, repository, service, controller (`GET /api/v1/reading-history`). FE có API function `getReadingHistory()` trong `paper.api.js`. Nhưng chưa có React component nào hiển thị |
+| 16 | **react-dnd usage** | 🟡 P2 | Package vẫn trong `package.json` nhưng không import ở đâu trong `src/` |
 
 ---
 
-# FRONTEND — Những gì CHƯA làm được
+# 🔴 3 mục còn tồn đọng
 
-## 🔴 Thiếu sót nghiêm trọng — UI đã có nhưng chưa kết nối API
-
-| # | Thiếu sót | Ảnh hưởng | Ưu tiên |
-|---|-----------|----------|---------|
-| 1 | **Overview/Dashboard chưa kết nối** | Trang đầu tiên user thấy sau khi login hiển thị dữ liệu giả. BE đã có endpoint và hoạt động. Chỉ cần nối dây | 🔴 P0 |
-| 2 | **Bookmarks chưa được lưu trữ** | Dùng `sessionStorage` — mất khi tắt tab. BE đã có CRUD API đầy đủ | 🔴 P0 |
-| 3 | **Reports là giả** | `setTimeout()` mô phỏng việc tạo report. BE đã có 3 report endpoints sẵn | 🔴 P0 |
-| 4 | **Advanced filters bị khóa** | UI đã dựng nhưng bị chặn bởi màn hình "Premium". BE `/filter/advanced` đã hoạt động đầy đủ | 🔴 P0 |
-| 5 | **Admin overview toàn mock data** | Dashboard admin hoàn chỉnh về UI nhưng không có dữ liệu thật | 🔴 P0 |
-
-## 🟠 Thiếu sót quan trọng — chưa có UI
-
-| # | Thiếu sót | Ảnh hưởng | Ưu tiên |
-|---|-----------|----------|---------|
-| 6 | **Chưa có citation export UI** | Không có nút BibTeX/RIS/APA ở bất kỳ đâu. BE cũng chưa có endpoint, nhưng FE cần chuẩn bị UI khi BE bổ sung | 🟠 P1 |
-| 7 | **Chưa có keyword comparison view** | Không chọn được 2+ keyword để xem trên cùng biểu đồ. Đây là giá trị cốt lõi của "trend tracking" | 🟠 P1 |
-| 8 | **Chưa có user-facing analytics page** | Nav "Analytics" đi thẳng đến trang admin. File `analytics.json` đã có nhưng chưa có trang analytics cho user | 🟠 P1 |
-| 9 | **Chưa có "similar papers" / recommendations** | Không có discovery feed, không có "you might like", không có related papers sidebar | 🟠 P1 |
-| 10 | **Chưa có paper detail page** | Kết quả tìm kiếm hiển thị card nhưng click vào không ra trang chi tiết (abstract, tất cả authors, citations, related papers). BE đã có `GET /api/v1/papers/{paperId}` sẵn | 🟠 P1 |
-
-## 🟡 Nice-to-have
-
-| # | Thiếu sót | Ưu tiên |
-|---|-----------|---------|
-| 11 | Chưa có sort dropdown trên kết quả tìm kiếm (sort by citations, date, relevance) | 🟡 P2 |
-| 12 | Chưa có UI đổi password (BE đã có `PUT /api/users/me/password`) | 🟡 P2 |
-| 13 | Chưa có reading history tracking trên UI | 🟡 P2 |
-| 14 | Chưa có bulk actions (batch bookmark, batch export) | 🟡 P2 |
-| 15 | Chuỗi notification hardcoded tiếng Anh ("Just now", "Mark all read") — chưa đưa vào i18n | 🟡 P2 |
-| 16 | `react-dnd` + `react-dnd-html5-backend` đã cài nhưng không dùng | 🟡 P2 |
-| 17 | Chưa có profile photo upload (avatar chỉ là initials) | 🟡 P2 |
+| # | Mục | Bên | Ưu tiên | Công sức ước tính |
+|---|-----|-----|---------|------------------|
+| 1 | **Reports với AI** — thay hardcoded template bằng DeepSeek/Gemini (AI services đã có sẵn) | BE | 🟠 P1 | 2-3 ngày |
+| 2 | **Reading history UI** — tạo component hiển thị lịch sử đọc (BE + API function đã có sẵn) | FE | 🟡 P2 | 1-2 ngày |
+| 3 | **react-dnd usage** — dùng hoặc gỡ khỏi package.json | FE | 🟡 P2 | 1 ngày |
 
 ---
 
-# Lộ trình bổ sung
+# 📈 So sánh các lần kiểm tra
 
-## Phase 1: Nối những thứ đã có sẵn (P0 — 2-3 tuần)
-
-| # | Công việc | Bên | Công sức |
-|---|-----------|-----|----------|
-| 1 | **Kết nối Bookmarks FE ↔ BE API** — thay sessionStorage bằng API calls | FE | 1-2 ngày |
-| 2 | **Kết nối Reports FE ↔ BE API** — thay `setTimeout()` bằng API thật | FE | 1-2 ngày |
-| 3 | **Kết nối Dashboard/Overview FE ↔ BE API** — thay mock data bằng `UserOverviewService` | FE | 2-3 ngày |
-| 4 | **Kết nối Admin Overview FE ↔ BE API** — thay mock data bằng API thật | FE | 1-2 ngày |
-| 5 | **Mở khóa Advanced Filters** cho researcher — gỡ bỏ "Premium" overlay | FE | 1 ngày |
-| 6 | **Thêm Paper Detail page** — trang xem chi tiết paper khi click vào card | FE | 2-3 ngày |
-| 7 | **Cấu hình email (SMTP)** cho password reset & email verification | BE | 1-2 ngày |
-
-## Phase 2: Tính năng cốt lõi cho researcher (P1 — 3-4 tuần)
-
-| # | Công việc | Bên | Công sức |
-|---|-----------|-----|----------|
-| 8 | **Citation export** — endpoint BibTeX, RIS, APA + nút export trên UI | BE + FE | 3-4 ngày |
-| 9 | **Keyword comparison chart** — chọn nhiều keyword, hiển thị trên cùng biểu đồ | BE + FE | 3-4 ngày |
-| 10 | **User-facing Analytics page** — trang phân tích riêng cho researcher | FE | 2-3 ngày |
-| 11 | **AI paper summarization** — dùng Gemini tóm tắt abstract, trích xuất key findings | BE | 3-5 ngày |
-| 12 | **"Similar papers" endpoint** — gợi ý paper tương tự dựa trên Neo4j graph | BE + FE | 3-4 ngày |
-| 13 | **User-controlled sorting** trên kết quả tìm kiếm | BE + FE | 1-2 ngày |
-| 14 | **Thêm notification types** — trending topic surge, citation milestone | BE | 2-3 ngày |
-
-## Phase 3: Tính năng tạo khác biệt (P2 — 4-6 tuần)
-
-| # | Công việc | Bên | Công sức |
-|---|-----------|-----|----------|
-| 15 | **Personalized recommendations** — gợi ý dựa trên bookmark, search history, follows | BE + FE | 5-7 ngày |
-| 16 | **Research gap detection** — dùng Neo4j query tìm khu vực ít paper | BE + FE | 4-5 ngày |
-| 17 | **WebSocket/SSE** cho real-time notifications | BE + FE | 3-4 ngày |
-| 18 | **Journal matching** — gợi ý venue phù hợp để submit paper | BE | 3-4 ngày |
-| 19 | **Bulk operations** — batch bookmark, batch export | BE + FE | 2-3 ngày |
-| 20 | **Refresh token mechanism** | BE | 2-3 ngày |
-| 21 | **API Monitoring page** — kết nối dữ liệu thật (Prometheus/Actuator) | BE + FE | 3-4 ngày |
-| 22 | **Settings pages** — Appearance, Privacy, Notification preferences | FE | 2-3 ngày |
-
----
-
-# Tổng kết
-
-| | Backend | Frontend |
-|---|---------|----------|
-| **Đã hoàn thiện** | ~80% trong 12 yêu cầu | ~60% trong 12 yêu cầu |
-| **BE có API, FE chưa kết nối** | — | 5 tính năng lớn (bookmarks, reports, dashboard, advanced filters, admin overview) |
-| **Cả 2 bên đều thiếu** | Citation export, AI summarization, keyword comparison, personalized recommendations, paper detail page | Tương tự + chưa có sort, chưa có analytics page |
-| **Thắng nhanh nhất** | Nối FE UI có sẵn với BE API có sẵn (Phase 1) — hệ thống đạt ~90% của 12 yêu cầu gốc | |
+| | 2026-07-02 (gốc) | 2026-07-05 (lần 1) | 2026-07-05 (lần 2) |
+|---|-----------------|--------------------|---------------------|
+| **BE hoàn thiện** | ~80% của 12 yêu cầu | 71% (8/12) | **92% (11/12)** |
+| **FE P0 kết nối API** | 0/5 | 80% (4/5) | **100% (5/5)** |
+| **FE P1 chưa có UI** | 0/5 | 100% (5/5) | **100% (5/5)** |
+| **FE P2 nice-to-have** | 0/7 | 71% (5/7) | **71% (5/7)** |
+| **Tổng mục đã xong** | — | 22/29 (78%) | **26/29 (90%)** |
+| **Còn tồn đọng** | 29 | 6 | **3** |
