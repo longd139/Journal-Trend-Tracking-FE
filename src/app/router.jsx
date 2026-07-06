@@ -23,6 +23,7 @@ const SearchAuthor = lazy(() => import('../features/search/SearchAuthor.jsx'));
 const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.jsx'));
 
 const BookmarksView = lazy(() => import('../features/bookmarks/BookmarksView.jsx'));
+const ReadingHistoryPage = lazy(() => import('../features/history/ReadingHistoryPage.jsx'));
 const ReportsView = lazy(() => import('../features/reports/ReportsViewPage.jsx'));
 const AnalyticsPage = lazy(() => import('../features/analytics/AnalyticsPage.jsx'));
 const FollowsView = lazy(() => import('../features/follows/FollowsView.jsx'));
@@ -211,6 +212,17 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <PaperDetailPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+
+      {
+        path: 'reading-history',
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <ReadingHistoryPage />
             </Suspense>
           </ProtectedRoute>
         ),
