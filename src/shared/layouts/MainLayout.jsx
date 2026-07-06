@@ -15,6 +15,7 @@ import {
   Database,
   Settings,
   Bookmark,
+  History,
   Bell,
   BellRing,
   AlertTriangle,
@@ -51,6 +52,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
@@ -63,6 +65,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
+    { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
@@ -329,6 +332,10 @@ export default function DashboardLayout({ children }) {
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
+    },
+    'reading-history': {
+      title: t('headings.readingHistory'),
+      sub: t('subtitles.readingHistory'),
     },
     follows: {
       title: t('headings.follows'),
