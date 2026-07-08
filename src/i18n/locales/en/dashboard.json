@@ -86,7 +86,9 @@
     "researchImpact": "Research Impact",
     "recentPublications": "Recent Publications",
     "trendingTopics": "Trending Topics",
-    "fieldDistribution": "Field Distribution"
+    "fieldDistribution": "Field Distribution",
+    "selectAuthor": "Select Author",
+    "noFollowedAuthors": "Follow authors to see your research impact"
   },
   "userManagement": {
     "searchPlaceholder": "Search by username, email, or organization…",

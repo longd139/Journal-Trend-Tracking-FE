@@ -20,8 +20,15 @@ export const overviewAPI = {
   },
 
   /** GET /api/v1/overview/user — Thống kê cá nhân (researcher) */
-  async getUserOverview() {
-    const { data } = await axiosClient.get('/api/v1/overview/user');
+  async getUserOverview(authorId) {
+    const params = authorId ? { authorId } : {};
+    const { data } = await axiosClient.get('/api/v1/overview/user', { params });
+    return data.data || data;
+  },
+
+  /** GET /api/v1/overview/followed-authors — Danh sách author đang follow */
+  async getFollowedAuthors() {
+    const { data } = await axiosClient.get('/api/v1/overview/followed-authors');
     return data.data || data;
   },
 };

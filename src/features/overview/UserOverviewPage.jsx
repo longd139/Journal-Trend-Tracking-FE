@@ -7,10 +7,17 @@ import {
 } from 'recharts';
 import {
   FileText, TrendingUp, Star, Users,
-  ArrowUpRight, Sparkles, AlertCircle, Loader2,
+  ArrowUpRight, AlertCircle, Loader2, User,
 } from 'lucide-react';
 import { overviewAPI } from './api';
 import { Skeleton } from '../../components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Chart Colors
@@ -63,12 +70,6 @@ function OverviewSkeleton() {
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 animate-pulse">
-        {/* Hero skeleton */}
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-20 rounded bg-white/5" />
-          <Skeleton className="h-8 w-64 rounded bg-white/5" />
-          <Skeleton className="h-4 w-96 rounded bg-white/5" />
-        </div>
         {/* Stat cards skeleton */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
@@ -105,13 +106,18 @@ export default function UserOverviewPage() {
   const [data, setData] = useState(null);
   const [publicData, setPublicData] = useState(null);
 
-  const fetchOverview = useCallback(async () => {
+  // Author selection (researcher only)
+  const [selectedAuthorId, setSelectedAuthorId] = useState(null);
+  const [followedAuthors, setFollowedAuthors] = useState([]);
+  const [authorsLoading, setAuthorsLoading] = useState(false);
+
+  const fetchOverview = useCallback(async (authorId) => {
     setLoading(true);
     setError(null);
     try {
       let result;
       if (isResearcher) {
-        result = await overviewAPI.getUserOverview();
+        result = await overviewAPI.getUserOverview(authorId);
       } else {
         result = await overviewAPI.getRoleStatistics();
       }
@@ -134,7 +140,35 @@ export default function UserOverviewPage() {
     }
   }, []);
 
-  useEffect(() => { fetchOverview(); fetchPublicOverview(); }, [fetchOverview, fetchPublicOverview]);
+  // Fetch followed authors (researcher only)
+  const fetchFollowedAuthors = useCallback(async () => {
+    setAuthorsLoading(true);
+    try {
+      const authors = await overviewAPI.getFollowedAuthors();
+      setFollowedAuthors(Array.isArray(authors) ? authors : []);
+      return Array.isArray(authors) ? authors : [];
+    } catch {
+      setFollowedAuthors([]);
+      return [];
+    } finally {
+      setAuthorsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const init = async () => {
+      if (isResearcher) {
+        const authors = await fetchFollowedAuthors();
+        const firstAuthorId = authors.length > 0 ? authors[0].authorId : null;
+        setSelectedAuthorId(firstAuthorId);
+        await fetchOverview(firstAuthorId);
+      } else {
+        await fetchOverview();
+      }
+      fetchPublicOverview();
+    };
+    init();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Loading ──
   if (loading) return <OverviewSkeleton />;
@@ -151,7 +185,7 @@ export default function UserOverviewPage() {
           <p className="text-sm text-gray-400">Unable to load dashboard data.</p>
         </div>
         <button
-          onClick={fetchOverview}
+          onClick={() => fetchOverview(selectedAuthorId)}
           className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
         >
           Retry
@@ -169,7 +203,7 @@ export default function UserOverviewPage() {
   const statCards = [
     { label: 'Total Citations', value: (pd.totalCitations ?? '—').toLocaleString(), Icon: TrendingUp, accent: '#DEDBC8' },
     { label: 'Published Papers', value: (pd.papersTracked ?? '—').toLocaleString(), Icon: FileText, accent: '#DEDBC8' },
-    { label: 'h-index', value: '—', Icon: Star, accent: '#A09878' },
+    { label: 'h-index', value: (d.hIndex ?? '—').toLocaleString(), Icon: Star, accent: '#A09878' },
     { label: 'Authors', value: (pd.totalAuthors ?? '—').toLocaleString(), Icon: Users, accent: '#E1E0CC' },
   ];
 
@@ -205,52 +239,66 @@ export default function UserOverviewPage() {
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
-        {/* ─── Stats Banner ─── */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
-        >
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#DEDBC8]/50 to-transparent" />
-          <div className="px-5 sm:px-7 py-5">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Sparkles size={14} className="text-[#DEDBC8]" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#DEDBC8]/70">
-                    {isResearcher ? 'Researcher Dashboard' : 'Academic Dashboard'}
-                  </span>
-                </div>
-                <h1 className="text-lg sm:text-xl font-black text-[#E1E0CC] font-display tracking-tight">
-                  {isResearcher ? 'Your Research Impact' : 'Research Explorer'}
-                </h1>
-                <p className="text-xs text-gray-500 mt-1 max-w-md">
-                  {isResearcher
-                    ? 'Publication metrics, citations, and global academic reach.'
-                    : 'Discover trending topics and organize your academic journey.'}
-                </p>
-              </div>
-              {/* Quick stats pills */}
-              <div className="flex flex-wrap items-center gap-2">
-                {statCards.slice(0, 4).map((stat, i) => (
-                  <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-                    <stat.Icon size={13} style={{ color: stat.accent }} />
-                    <div>
-                      <div className="text-sm font-bold text-[#E1E0CC]">{stat.value}</div>
-                      <div className="text-[9px] text-gray-500 uppercase">{stat.label}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* ─── Stat Cards ─── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {statCards.map((stat, i) => <StatCard key={i} index={i} {...stat} />)}
         </div>
+
+        {/* ─── Author Selector (researcher only) ─── */}
+        {isResearcher && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 px-5 py-4 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10"
+          >
+            <div className="p-2 rounded-xl bg-[#DEDBC8]/10">
+              <User size={18} className="text-[#DEDBC8]/60" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-[#E1E0CC]">
+                {followedAuthors.length > 0
+                  ? 'Select an author to view research impact'
+                  : 'Follow authors to see your research impact'}
+              </p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {followedAuthors.length > 0
+                  ? 'Choose an author you follow to see their citation history, research fields, and publications.'
+                  : 'Search for authors and follow them to view citation history, research fields, and publications here.'}
+              </p>
+            </div>
+            <Select
+              value={selectedAuthorId || ''}
+              onValueChange={(authorId) => {
+                setSelectedAuthorId(authorId);
+                fetchOverview(authorId);
+              }}
+              disabled={authorsLoading || followedAuthors.length === 0}
+            >
+              <SelectTrigger className="w-[220px] bg-[#DEDBC8]/5 border-[#DEDBC8]/15 text-[#E1E0CC] h-9 text-xs">
+                <SelectValue placeholder={
+                  authorsLoading ? 'Loading...' : 'Select Author'
+                } />
+              </SelectTrigger>
+              <SelectContent className="bg-[#1a1a1a] border-[#DEDBC8]/15 text-[#E1E0CC]">
+                {followedAuthors.length === 0 ? (
+                  <div className="px-2 py-3 text-xs text-gray-500 text-center">
+                    No authors followed
+                  </div>
+                ) : (
+                  followedAuthors.map((author) => (
+                    <SelectItem
+                      key={author.authorId}
+                      value={author.authorId}
+                      className="text-xs hover:bg-[#DEDBC8]/10 focus:bg-[#DEDBC8]/10 cursor-pointer"
+                    >
+                      {author.authorName}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
+          </motion.div>
+        )}
 
         {/* ─── Charts Row ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">

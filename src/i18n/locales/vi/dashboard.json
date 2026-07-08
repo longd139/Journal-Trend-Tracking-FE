@@ -86,7 +86,9 @@
     "researchImpact": "Tác động nghiên cứu",
     "recentPublications": "Công bố gần đây",
     "trendingTopics": "Chủ đề thịnh hành",
-    "fieldDistribution": "Phân bố lĩnh vực"
+    "fieldDistribution": "Phân bố lĩnh vực",
+    "selectAuthor": "Chọn tác giả",
+    "noFollowedAuthors": "Theo dõi tác giả để xem tác động nghiên cứu"
   },
   "userManagement": {
     "searchPlaceholder": "Tìm kiếm theo tên, email hoặc tổ chức…",

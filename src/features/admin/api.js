@@ -316,4 +316,20 @@ export const adminAPI = {
     const { data } = await axiosClient.get('/api/v1/admin/sync/bulk/tasks');
     return data;
   },
+
+  /* ──────────── Backfill Author Metrics (/api/v1/admin/sync/backfill-author-metrics) ──────────── */
+
+  /**
+   * Backfill h-index and citation metrics for authors via OpenAlex.
+   * POST /api/v1/admin/sync/backfill-author-metrics?limit=100
+   *
+   * @param {{ limit?: number }} params
+   * @returns {{ status, message, data: { totalProcessed, updated, skipped, errors } }}
+   */
+  async backfillAuthorMetrics({ limit = 100 } = {}) {
+    const { data } = await axiosClient.post('/api/v1/admin/sync/backfill-author-metrics', null, {
+      params: { limit },
+    });
+    return data;
+  },
 };

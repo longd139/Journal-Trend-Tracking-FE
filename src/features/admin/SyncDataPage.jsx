@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
  ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle,
- Info, ExternalLink,
+ Info, ExternalLink, Users,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -153,6 +153,12 @@ export default function SyncDataPage() {
  const [showClearDialog, setShowClearDialog] = useState(false);
  const [clearResult, setClearResult] = useState(null);
  const [clearError, setClearError] = useState(null);
+
+ // Backfill Author Metrics
+ const [backfillLimit, setBackfillLimit] = useState(100);
+ const [backfillLoading, setBackfillLoading] = useState(false);
+ const [backfillResult, setBackfillResult] = useState(null);
+ const [backfillError, setBackfillError] = useState(null);
 
  const [autoSyncEnabled, setAutoSyncEnabled] = useState(null); // null = loading
  const [autoSyncStats, setAutoSyncStats] = useState(null);
@@ -346,7 +352,27 @@ export default function SyncDataPage() {
  }
  };
 
- const allSelected = selectedSources.length === SOURCES.length;
+ const handleBackfillAuthorMetrics = async () => {
+    setBackfillLoading(true);
+    setBackfillError(null);
+    setBackfillResult(null);
+    try {
+      const response = await adminAPI.backfillAuthorMetrics({ limit: backfillLimit });
+      setBackfillResult(response.data || response);
+      toast.success(
+        `Backfill complete: ${response.data?.updated ?? 0} updated, ${response.data?.skipped ?? 0} skipped`,
+        { position: 'top-right', duration: 5000 },
+      );
+    } catch (err) {
+      const msg = err.response?.data?.message || err.message || 'Backfill failed';
+      setBackfillError(msg);
+      toast.error(msg, { position: 'top-right', duration: 5000 });
+    } finally {
+      setBackfillLoading(false);
+    }
+  };
+
+  const allSelected = selectedSources.length === SOURCES.length;
 
  const toggleAll = () => {
  setSelectedSources(allSelected ? [] : SOURCES.map((s) => s.key));
@@ -1223,7 +1249,102 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* -- Clear Confirmation Dialog -- */}
+  {/* -- Backfill Author Metrics -- */}
+	<div className={`border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
+	<motion.div
+	 initial={{ opacity: 0 }}
+	 animate={{ opacity: 1 }}
+	 className={`${card} p-5 border-[#DEDBC8]/20`}
+	 style={{ borderLeft: '3px solid #4F8CFF' }}
+	>
+	 <div className="flex items-start gap-3 mb-4">
+	  <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: '#4F8CFF15', color: '#4F8CFF' }}>
+	   <Users size={18} />
+	  </div>
+	  <div>
+	   <h4 className="text-sm font-bold text-[#E1E0CC]">Backfill Author Metrics</h4>
+	   <p className="text-xs text-gray-500 mt-0.5">
+	    Fetch h-index and citation metrics from OpenAlex for authors missing metrics data.
+	    Only processes authors with externalAuthorId and hIndex=0.
+	   </p>
+	  </div>
+	 </div>
+
+	 <div className="flex flex-col sm:flex-row gap-3 mb-4">
+	  <div className="w-full sm:w-36 space-y-1.5">
+	   <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+	    Limit
+	   </label>
+	   <Input
+	    type="number"
+	    min={1}
+	    max={1000}
+	    value={backfillLimit}
+	    onChange={(e) => setBackfillLimit(parseInt(e.target.value, 10) || 100)}
+	    disabled={backfillLoading}
+	    className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-[#DEDBC8]/10 text-slate-200"
+	   />
+	  </div>
+	  <div className="flex items-end">
+	   <Button
+	    type="button"
+	    onClick={handleBackfillAuthorMetrics}
+	    disabled={backfillLoading || isRunning || isBulkSyncing || isClearing}
+	    className="flex items-center gap-2 text-white text-sm font-semibold py-2.5 px-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+	    style={{ backgroundColor: '#4F8CFF' }}
+	   >
+	    <RefreshCw size={15} className={backfillLoading ? 'animate-spin' : ''} />
+	    {backfillLoading ? 'Processing...' : `Backfill Author Metrics`}
+	   </Button>
+	  </div>
+	 </div>
+
+	 <p className="text-[10px] text-gray-500 mb-4">
+	  Rate: ~3 req/s (polite pool). Set limit=0 to process all authors.
+	 </p>
+
+	 {/* Backfill result */}
+	 {backfillResult && (
+	  <div className="space-y-2 border-t border-[#DEDBC8]/5 pt-4">
+	   <div className="flex items-center gap-2">
+	    <CheckCircle2 size={14} className="text-emerald-500" />
+	    <span className="text-xs font-bold text-[#E1E0CC]">
+	     {backfillResult.totalProcessed} processed — {backfillResult.updated} updated — {backfillResult.skipped} skipped
+	     {backfillResult.errors > 0 && ` — ${backfillResult.errors} errors`}
+	    </span>
+	   </div>
+	   <div className="grid grid-cols-4 gap-3">
+	    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+	     <div className="text-lg font-bold text-[#E1E0CC] font-display">{backfillResult.totalProcessed}</div>
+	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Processed</div>
+	    </div>
+	    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+	     <div className="text-lg font-bold text-emerald-400 font-display">{backfillResult.updated}</div>
+	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Updated</div>
+	    </div>
+	    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+	     <div className="text-lg font-bold text-[#DEDBC8] font-display">{backfillResult.skipped}</div>
+	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Skipped</div>
+	    </div>
+	    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+	     <div className="text-lg font-bold text-red-400 font-display">{backfillResult.errors ?? 0}</div>
+	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Errors</div>
+	    </div>
+	   </div>
+	  </div>
+	 )}
+
+	 {/* Backfill error */}
+	 {backfillError && (
+	  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/5 border border-red-500/10 mt-4">
+	   <AlertCircle size={14} className="text-red-500" />
+	   <span className="text-xs text-red-400">{backfillError}</span>
+	  </div>
+	 )}
+	</motion.div>
+	</div>
+
+	{/* -- Clear Confirmation Dialog -- */}
   <Dialog open={showClearDialog} onOpenChange={setShowClearDialog}>
   <DialogContent className="sm:max-w-md bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC]">
    <DialogHeader>
