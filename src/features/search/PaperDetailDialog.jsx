@@ -173,7 +173,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                 type="button"
                 variant="outline"
                 onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')}
-                className="flex items-center gap-2 text-xs bg-white dark:bg-white/[0.02] border-[#DEDBC8]/10 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
               >
                 <ExternalLink size={13} />
                 View Source
@@ -329,7 +329,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
             <Button
               type="button"
               onClick={handleDownloadPdf}
-              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg shadow-lg shadow-white/20 active:scale-[0.97] transition-all"
             >
               <Download size={14} />
               Download PDF

@@ -120,7 +120,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className={`${wrapperBtn} border-[#DEDBC8]/10 text-[#DEDBC8]/70 bg-transparent hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8] hover:border-[#DEDBC8]/20`}
+          className={`${wrapperBtn} border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white`}
         >
           <Quote size={12} />
           Cite

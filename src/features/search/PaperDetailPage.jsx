@@ -104,7 +104,7 @@ function RequestPdfButton({ paperId, paperTitle }) {
 
   if (requested) {
     return (
-      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/15">
+      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-900 bg-white px-3 py-2 rounded-lg border border-white shadow-md shadow-white/10">
         <CheckCircle2 size={13} /> PDF Requested
       </span>
     );
@@ -114,7 +114,7 @@ function RequestPdfButton({ paperId, paperTitle }) {
     <button
       onClick={handleRequest}
       disabled={requesting}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20 hover:border-amber-500/35 disabled:opacity-60"
+      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white disabled:opacity-60 active:scale-[0.97]"
     >
       <FileText size={14} />
       {requesting ? 'Requesting...' : 'Request PDF'}
@@ -495,7 +495,7 @@ export default function PaperDetailPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => goBack}
+            onClick={goBack}
             className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
           >
             Go Back
@@ -520,7 +520,7 @@ export default function PaperDetailPage() {
         </div>
         <h3 className="text-lg font-bold text-[#E1E0CC]">Paper not found</h3>
         <button
-          onClick={() => goBack}
+          onClick={goBack}
           className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
         >
           Go Back
@@ -549,7 +549,7 @@ export default function PaperDetailPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         {/* ── Back button ── */}
         <button
-          onClick={() => goBack}
+          onClick={goBack}
           className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#E1E0CC] transition-colors"
         >
           <ArrowLeft size={14} />
@@ -619,7 +619,7 @@ export default function PaperDetailPage() {
             <>
               <Button
                 onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg"
+                className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg shadow-lg shadow-white/20 active:scale-[0.97] transition-all"
               >
                 <Download size={14} />
                 Download PDF
@@ -627,7 +627,7 @@ export default function PaperDetailPage() {
               <Button
                 variant="outline"
                 onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:bg-white/5"
+                className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
               >
                 <Eye size={14} />
                 Preview PDF
@@ -643,7 +643,7 @@ export default function PaperDetailPage() {
             <Button
               variant="outline"
               onClick={() => window.open(`https://doi.org/${doi}`, '_blank')}
-              className="flex items-center gap-2 text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:bg-white/5"
+              className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
             >
               <ExternalLink size={14} />
               View Source (DOI)
@@ -652,17 +652,17 @@ export default function PaperDetailPage() {
           <Button
             variant="outline"
             onClick={() => window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`, '_blank')}
-            className="flex items-center gap-2 text-xs bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:bg-white/5"
+            className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
           >
             <Globe size={14} />
             Google Scholar
           </Button>
           <button
             onClick={handleToggleBookmark}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all active:scale-[0.97] ${
               isBookmarked
-                ? 'bg-[#DEDBC8]/10 border-[#DEDBC8]/30 text-[#DEDBC8]'
-                : 'bg-white/[0.02] border-[#DEDBC8]/10 text-gray-300 hover:bg-white/5'
+                ? 'bg-white border-white text-gray-900 shadow-md shadow-white/10'
+                : 'border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white'
             }`}
           >
             <Bookmark size={14} fill={isBookmarked ? 'currentColor' : 'none'} />
