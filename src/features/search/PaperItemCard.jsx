@@ -8,6 +8,7 @@ import {
  ChevronDown,
  ChevronUp,
  FileText,
+ Lock,
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -19,6 +20,7 @@ export function PaperItemCard({
   index = 0,
   badgeColor = '#DEDBC8',
   isSaved = false,
+  isLocked = false,
   onToggleBookmark,
   onClick,
 }) {
@@ -92,8 +94,19 @@ export function PaperItemCard({
   >
    <Card
     onClick={handleCardClick}
-    className="bg-[#101010] border-[#DEDBC8]/5 p-5 transition-all duration-300 hover:border-[#DEDBC8]/20 cursor-pointer"
+    className={`bg-[#101010] border-[#DEDBC8]/5 p-5 transition-all duration-300 hover:border-[#DEDBC8]/20 cursor-pointer relative overflow-hidden ${
+      isLocked ? 'opacity-70' : ''
+    }`}
    >
+    {/* Lock overlay for academic users */}
+    {isLocked && (
+      <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 backdrop-blur-[1px] rounded-xl">
+        <div className="flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/70 border border-[#DEDBC8]/15">
+          <Lock size={22} className="text-[#DEDBC8]/50" />
+          <span className="text-[10px] font-bold text-[#DEDBC8]/60 uppercase tracking-wider">Researcher Only</span>
+        </div>
+      </div>
+    )}
     <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
      {/* ── LEFT CONTENT ── */}
      <div className="flex-1 space-y-2.5 w-full">

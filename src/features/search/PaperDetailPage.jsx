@@ -6,7 +6,7 @@ import {
   ArrowLeft, BookOpen, ExternalLink, FileText, Download,
   Quote, Star, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
-  BrainCircuit, Cpu, RefreshCw,
+  BrainCircuit, Cpu, RefreshCw, Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
@@ -363,6 +363,28 @@ export default function PaperDetailPage() {
   const [error, setError] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkId, setBookmarkId] = useState(null);
+
+  // Role check for academic restrictions
+  const role = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = role === 'academic_user' || role === 'academic';
+
+  // ── Upgrade banner for academic users ──
+  const UpgradeBanner = ({ feature }) => (
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-[#4F8CFF]/5 to-[#A78BFA]/5 border border-[#4F8CFF]/15">
+      <div className="flex items-center gap-2">
+        <Lock size={13} className="text-[#4F8CFF]/70 shrink-0" />
+        <span className="text-[11px] text-[#4F8CFF]/80">
+          {feature} is available for <strong>Researcher</strong> accounts.{' '}
+          <button
+            onClick={() => navigate(`/${role}/settings`)}
+            className="underline hover:text-[#4F8CFF] transition-colors font-semibold"
+          >
+            Upgrade now
+          </button>
+        </span>
+      </div>
+    </div>
+  );
 
   // Fetch paper detail
   const fetchPaper = useCallback(async () => {
@@ -727,12 +749,34 @@ export default function PaperDetailPage() {
             className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3"
           >
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Abstract</h3>
-            <p className="text-sm text-gray-300 leading-relaxed">{abstract}</p>
+            {isAcademic ? (
+              <div className="space-y-3">
+                <p className="text-sm text-gray-300 leading-relaxed line-clamp-3">
+                  {abstract}
+                </p>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#101010] -top-8 h-12 pointer-events-none" />
+                </div>
+                <UpgradeBanner feature="Full abstract reading" />
+              </div>
+            ) : (
+              <p className="text-sm text-gray-300 leading-relaxed">{abstract}</p>
+            )}
           </motion.div>
         )}
 
         {/* ── AI Summary ── */}
-        <AISummarySection paperId={paperId} />
+        {isAcademic ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.14 }}
+          >
+            <UpgradeBanner feature="AI-powered paper summary" />
+          </motion.div>
+        ) : (
+          <AISummarySection paperId={paperId} />
+        )}
 
         {/* ── Authors ── */}
         {authors.length > 0 && (
@@ -836,7 +880,17 @@ export default function PaperDetailPage() {
         )}
 
         {/* ── Similar Papers ── */}
-        <SimilarPapers paper={paper} />
+        {isAcademic ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <UpgradeBanner feature="Similar papers recommendations" />
+          </motion.div>
+        ) : (
+          <SimilarPapers paper={paper} />
+        )}
 
         {/* ── Meta footer ── */}
         <motion.div

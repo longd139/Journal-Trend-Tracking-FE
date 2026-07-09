@@ -18,6 +18,7 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
     { key: 'journal', label: t('tabs.journals'), countKey: 'journals' },
     { key: 'topic', label: t('tabs.topics'), countKey: 'topics' },
     { key: 'keyword', label: t('tabs.keywords'), countKey: 'keywords' },
+    { key: 'author', label: t('tabs.authors'), countKey: 'authors' },
   ];
 
   return (
@@ -113,12 +114,14 @@ export default function FollowsView() {
     const journals = follows.filter((f) => f.journalId);
     const topics = follows.filter((f) => f.topicId);
     const keywords = follows.filter((f) => f.keywordId);
+    const authors = follows.filter((f) => f.authorId);
 
     const counts = {
       all: follows.length,
       journals: journals.length,
       topics: topics.length,
       keywords: keywords.length,
+      authors: authors.length,
     };
 
     let filtered;
@@ -131,6 +134,9 @@ export default function FollowsView() {
         break;
       case 'keyword':
         filtered = keywords;
+        break;
+      case 'author':
+        filtered = authors;
         break;
       default:
         filtered = follows;
@@ -214,11 +220,12 @@ export default function FollowsView() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Journals', count: counts.journals, color: '#4F8CFF' },
           { label: 'Topics', count: counts.topics, color: '#F59E0B' },
           { label: 'Keywords', count: counts.keywords, color: '#A78BFA' },
+          { label: 'Authors', count: counts.authors, color: '#34D399' },
         ].map((stat) => (
           <motion.div
             key={stat.label}

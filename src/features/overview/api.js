@@ -1,25 +1,20 @@
 import axiosClient from '../../lib/apiClient.js';
 
 export const overviewAPI = {
-  /** GET /api/public/dashboard/papers — Tổng số papers */
-  async getTotalPapers() {
-    const { data } = await axiosClient.get('/api/public/dashboard/papers');
+  /** GET /api/public/dashboard/overview — 4 stat cards (public, no auth)
+   *  Không có authorId → system-wide: papersTracked, totalCitations, paperGrowth, totalAuthors
+   *  Có authorId → author-specific: authorTotalPapers, authorTotalCitations, authorHIndex, authorCoAuthors
+   */
+  async getPublicOverview(authorId) {
+    const params = authorId ? { authorId } : {};
+    const { data } = await axiosClient.get('/api/public/dashboard/overview', { params });
     return data.data || data;
   },
 
-  /** GET /api/public/dashboard/overview — Thống kê tổng quan (public) */
-  async getPublicOverview() {
-    const { data } = await axiosClient.get('/api/public/dashboard/overview');
-    return data.data || data;
-  },
-
-  /** GET /api/v1/overview/statistics — Thống kê theo role */
-  async getRoleStatistics() {
-    const { data } = await axiosClient.get('/api/v1/overview/statistics');
-    return data.data || data;
-  },
-
-  /** GET /api/v1/overview/user — Thống kê cá nhân (researcher) */
+  /** GET /api/v1/overview/user — Personal stats + author detail (auth required)
+   *  Không có authorId → totalPapers, papersViewed, searchesRemaining, totalKeywords
+   *  Có authorId → thêm hIndex, citationHistory[], researchFields[], recentPublications[]
+   */
   async getUserOverview(authorId) {
     const params = authorId ? { authorId } : {};
     const { data } = await axiosClient.get('/api/v1/overview/user', { params });

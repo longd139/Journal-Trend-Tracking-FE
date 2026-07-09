@@ -7,6 +7,7 @@ import {
   Hash,
   Loader2,
   Trash2,
+  User,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
@@ -27,18 +28,21 @@ const typeIcons = {
   journal: Building2,
   topic: Bookmark,
   keyword: Hash,
+  author: User,
 };
 
 const typeColors = {
   journal: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20' },
   topic: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
   keyword: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20' },
+  author: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
 };
 
 function getFollowType(follow) {
   if (follow.journalId) return 'journal';
   if (follow.topicId) return 'topic';
   if (follow.keywordId) return 'keyword';
+  if (follow.authorId) return 'author';
   return 'keyword';
 }
 
@@ -46,6 +50,7 @@ function getFollowName(follow) {
   if (follow.journalId) return follow.journalName || follow.journalId;
   if (follow.topicId) return follow.topicName || follow.topicId;
   if (follow.keywordId) return follow.keywordText || follow.keywordId;
+  if (follow.authorId) return follow.authorName || follow.authorId;
   return 'Unknown';
 }
 

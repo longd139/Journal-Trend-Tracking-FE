@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { StatCard } from '../../components/SharedUI';
 import { authorAPI } from './author.api';
+import FollowButton from '../follows/FollowButton';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Loading Skeleton
@@ -195,6 +196,12 @@ export default function AuthorQuickStats({ keyword }) {
                     View on OpenAlex
                   </a>
                 )}
+                {stats.authorId && (
+                  <FollowButton
+                    authorId={stats.authorId}
+                    authorName={stats.fullName}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -224,7 +231,7 @@ export default function AuthorQuickStats({ keyword }) {
         {/* h-Index */}
         <StatCard
           label="h-Index"
-          value={stats.hIndex != null ? stats.hIndex.toLocaleString() : '—'}
+          value={((stats.hIndex ?? stats.hindex) != null) ? (stats.hIndex ?? stats.hindex).toLocaleString() : '—'}
           change=""
           Icon={Hash}
           accent="#00D1B2"

@@ -18,9 +18,11 @@ export default function FollowButton({
   journalId = null,
   topicId = null,
   keywordId = null,
+  authorId = null,
   journalName = null,
   topicName = null,
   keywordText = null,
+  authorName = null,
   onFollowed,
 }) {
   const { t } = useTranslation('follow');
@@ -40,8 +42,11 @@ export default function FollowButton({
     if (keywordId) {
       list.push({ type: 'keyword', id: keywordId, name: keywordText || keywordId });
     }
+    if (authorId) {
+      list.push({ type: 'author', id: authorId, name: authorName || authorId });
+    }
     return list;
-  }, [journalId, topicId, keywordId, journalName, topicName, keywordText]);
+  }, [journalId, topicId, keywordId, authorId, journalName, topicName, keywordText, authorName]);
 
   // Hide button if no targets available
   if (options.length === 0) return null;
@@ -64,6 +69,7 @@ export default function FollowButton({
           if (journalId && f.journalId === journalId) return true;
           if (topicId && f.topicId === topicId) return true;
           if (keywordId && f.keywordId === keywordId) return true;
+          if (authorId && f.authorId === authorId) return true;
           return false;
         });
 
@@ -73,6 +79,7 @@ export default function FollowButton({
             if (journalId && f.journalId === journalId) return true;
             if (topicId && f.topicId === topicId) return true;
             if (keywordId && f.keywordId === keywordId) return true;
+            if (authorId && f.authorId === authorId) return true;
             return false;
           });
           if (matched) followIdRef.current = matched.followId;
@@ -85,17 +92,18 @@ export default function FollowButton({
 
     checkExisting();
     return () => { cancelled = true; };
-  }, [journalId, topicId, keywordId]);
+  }, [journalId, topicId, keywordId, authorId]);
 
   const doFollow = async (target, notifyEnabled = true) => {
     setStatus('loading');
     setDialogOpen(false);
 
-    // Backend FollowRequest: exactly one of journalId/topicId/keywordId must be non-null
+    // Backend FollowRequest: exactly one of journalId/topicId/keywordId/authorId must be non-null
     const body = {
       journalId: target.type === 'journal' ? target.id : null,
       topicId: target.type === 'topic' ? target.id : null,
       keywordId: target.type === 'keyword' ? target.id : null,
+      authorId: target.type === 'author' ? target.id : null,
       notifyEnabled,
     };
 

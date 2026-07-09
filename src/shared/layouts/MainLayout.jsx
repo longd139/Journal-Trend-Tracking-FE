@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import {
-  BarChart3,
   Home,
   Search,
   BookOpen,
@@ -50,7 +49,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
-    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -63,7 +61,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
     { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
     { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
-    { id: 'analytics', Icon: BarChart3, label: t('sidebar.analytics') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -328,7 +325,6 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.searchAuthor'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
-    analytics: { title: t('headings.analytics'), sub: t('subtitles.analytics') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),

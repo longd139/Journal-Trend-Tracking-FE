@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Star, AlertCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, AlertCircle, Lock, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaperItemCard } from './PaperItemCard';
 import { paperAPI } from './paper.api';
@@ -46,6 +46,11 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  // Academic restriction
+  const role = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = role === 'academic_user' || role === 'academic';
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Fetch user's bookmarks to know which papers are saved
   const refreshBookmarks = useCallback(async () => {
@@ -241,9 +246,13 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
               index={i}
               badgeColor="#F59E0B"
               isSaved={bookmarkedIds.has(paper.paperId)}
+              isLocked={isAcademic}
               onToggleBookmark={handleToggleBookmark}
               onClick={(p) => {
-                const role = sessionStorage.getItem('userRole') || 'researcher';
+                if (isAcademic) {
+                  setUpgradeOpen(true);
+                  return;
+                }
                 sessionStorage.setItem('scitrack_referrer', window.location.pathname);
                 navigate(`/${role}/papers/${p.paperId}`);
               }}
@@ -251,6 +260,85 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
           </motion.div>
         ))}
       </div>
+
+      {/* Upgrade to Researcher Dialog */}
+      <AnimatePresence>
+        {upgradeOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setUpgradeOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm rounded-2xl bg-[#1a1a1a] border border-[#DEDBC8]/15 p-6 shadow-2xl"
+            >
+              <button
+                onClick={() => setUpgradeOpen(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+              >
+                <X size={16} />
+              </button>
+
+              <div className="text-center space-y-4">
+                <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4F8CFF]/20 to-[#A78BFA]/20 border border-[#4F8CFF]/20 flex items-center justify-center">
+                  <Lock size={24} className="text-[#4F8CFF]" />
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-bold text-[#E1E0CC]">Upgrade to Researcher</h3>
+                  <p className="text-sm text-gray-400 mt-1.5">
+                    Unlock full paper details, AI summaries, citation exports, and unlimited searches.
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-[#101010] border border-[#DEDBC8]/10 p-4 space-y-2">
+                  {[
+                    'Full abstract & paper details',
+                    'AI-powered paper summaries',
+                    'Similar paper recommendations',
+                    'Citation export (BibTeX, RIS, APA)',
+                    'Unlimited searches & bookmarks',
+                  ].map((f, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#00D1B2] shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-center">
+                  <span className="text-3xl font-black text-[#E1E0CC]">$999</span>
+                  <span className="text-sm text-gray-500"> /year</span>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setUpgradeOpen(false);
+                    navigate(`/${role}/settings`);
+                  }}
+                  className="w-full py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#4F8CFF] to-[#8B5CF6] hover:from-[#4F8CFF]/90 hover:to-[#8B5CF6]/90 shadow-lg shadow-[#4F8CFF]/20 active:scale-[0.98] transition-all"
+                >
+                  Upgrade Now — $999/year
+                </button>
+
+                <button
+                  onClick={() => setUpgradeOpen(false)}
+                  className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors"
+                >
+                  Maybe later
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

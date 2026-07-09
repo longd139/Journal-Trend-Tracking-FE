@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Building2, Bookmark, Hash } from 'lucide-react';
+import { Building2, Bookmark, Hash, User } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -19,12 +19,14 @@ const targetIcons = {
   journal: Building2,
   topic: Bookmark,
   keyword: Hash,
+  author: User,
 };
 
 const targetLabelKeys = {
   journal: 'label.journal',
   topic: 'label.topic',
   keyword: 'label.keyword',
+  author: 'label.author',
 };
 
 export default function FollowDialog({
