@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FileText, TrendingUp, Users, Star, Search } from 'lucide-react';
 import Neo4jGraphCard from '../search/Neo4jGraphCard.jsx';
 import { graphAPI } from '../search/graph.api.js';
+import SearchWithHistory from '../../components/SearchWithHistory';
 
 const StatCard = ({ label, value, change, Icon, accent }) => (
  <motion.div
@@ -62,39 +63,43 @@ export default function AnalyticsView() {
  return () => { cancelled = true; };
  }, [t]);
 
- const handleSearch = (e) => {
+ const commitSearch = (term) => {
+    const trimmed = (term || '').trim();
+    if (!trimmed) return;
+    setSearchKeyword(trimmed);
+  };
+
+  const handleSearch = (e) => {
  e.preventDefault();
  const trimmed = searchInput.trim();
  if (!trimmed) return;
- setSearchKeyword(trimmed);
+ commitSearch(trimmed);
  };
 
  return (
  <div className="space-y-6 p-8 min-h-screen bg-transparent">
   {/* Search bar */}
   <form onSubmit={handleSearch} className="flex justify-center">
-  <div className="relative w-full max-w-xl">
-   <Search
-   size={16}
-   className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-gray-400"
-   />
-   <input
-   type="text"
-   placeholder={t('searchPlaceholder')}
-   value={searchInput}
-   onChange={(e) => setSearchInput(e.target.value)}
-   className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-[#101010] border-[#DEDBC8]/5 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#DEDBC8] "
-   />
-   <motion.button
-   whileHover={{ scale: 1.02 }}
-   whileTap={{ scale: 0.98 }}
-   type="submit"
-   disabled={!searchInput.trim()}
-   className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8] "
-   >
-   {t('searchButton')}
-   </motion.button>
-  </div>
+  <SearchWithHistory
+    storageKey="admin-analytics"
+    value={searchInput}
+    onChange={setSearchInput}
+    onSearch={commitSearch}
+    placeholder={t('searchPlaceholder')}
+    className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-[#101010] border-[#DEDBC8]/5 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#DEDBC8]"
+    wrapperClassName="relative w-full max-w-xl"
+    icon={<Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400" />}
+  >
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      type="submit"
+      disabled={!searchInput.trim()}
+      className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8]"
+    >
+      {t('searchButton')}
+    </motion.button>
+  </SearchWithHistory>
   </form>
 
   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

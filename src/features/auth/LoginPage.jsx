@@ -373,7 +373,7 @@ export default function LoginPage() {
                         type={showPassword ? 'text' : 'password'}
                         placeholder={t('login.passwordPlaceholder')}
                         value={form.password}
-                        onChange={(e) => handleChange('password', e.target.value)}
+                        onChange={(e) => handleChange('password', e.target.value.trim())}
                         className={`${inputBase} pr-12 ${
                           errors.password ? inputError : inputDefault
                         }`}

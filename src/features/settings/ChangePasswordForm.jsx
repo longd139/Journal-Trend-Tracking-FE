@@ -153,7 +153,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <input
                       type={show.current ? 'text' : 'password'}
                       value={form.currentPassword}
-                      onChange={(e) => handleChange('currentPassword', e.target.value)}
+                      onChange={(e) => handleChange('currentPassword', e.target.value.trim())}
                       placeholder="••••••••"
                       className={inputClass(errors.currentPassword)}
                     />
@@ -187,7 +187,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <input
                       type={show.new ? 'text' : 'password'}
                       value={form.newPassword}
-                      onChange={(e) => handleChange('newPassword', e.target.value)}
+                      onChange={(e) => handleChange('newPassword', e.target.value.trim())}
                       placeholder={t('password.error.tooShort')}
                       className={inputClass(errors.newPassword)}
                     />
@@ -221,7 +221,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <input
                       type={show.confirm ? 'text' : 'password'}
                       value={form.confirmPassword}
-                      onChange={(e) => handleChange('confirmPassword', e.target.value)}
+                      onChange={(e) => handleChange('confirmPassword', e.target.value.trim())}
                       placeholder="••••••••"
                       className={inputClass(errors.confirmPassword)}
                     />

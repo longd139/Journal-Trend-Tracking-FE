@@ -382,7 +382,7 @@ export default function RegisterPage() {
     type={showPassword ? 'text' : 'password'}
     placeholder={t('register.passwordPlaceholder')}
     value={form.password}
-    onChange={(e) => handleChange('password', e.target.value)}
+    onChange={(e) => handleChange('password', e.target.value.trim())}
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.password
      ? 'border-red-500/50 bg-red-500/[0.08]'
@@ -419,7 +419,7 @@ export default function RegisterPage() {
     type={showConfirmPassword ? 'text' : 'password'}
     placeholder={t('register.confirmPasswordPlaceholder')}
     value={form.confirmPassword}
-    onChange={(e) => handleChange('confirmPassword', e.target.value)}
+    onChange={(e) => handleChange('confirmPassword', e.target.value.trim())}
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.confirmPassword
      ? 'border-red-500/50 bg-red-500/[0.08]'

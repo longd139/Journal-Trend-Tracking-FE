@@ -2,7 +2,7 @@
   "headings": {
     "systemDashboard": "Bảng điều khiển hệ thống",
     "researchOverview": "Tổng quan nghiên cứu",
-    "searchPapers": "Tìm kiếm bài báo",
+    "searchPapers": "Tìm kiếm từ khóa",
     "searchJournals": "Tìm kiếm tạp chí",
     "searchAuthor": "Tìm kiếm tác giả",
     "analytics": "Phân tích",
@@ -19,6 +19,7 @@
     "auditLogs": "Nhật ký hệ thống",
     "configs": "Cấu hình",
     "dataSources": "Nguồn dữ liệu",
+    "paperDetails": "Chi tiết bài báo",
     "dashboard": "Bảng điều khiển"
   },
   "subtitles": {
@@ -41,6 +42,7 @@
     "auditLogs": "Theo dõi hoạt động hệ thống và sự kiện bảo mật",
     "configs": "Quản lý tham số cấu hình hệ thống",
     "dataSources": "Quản lý tích hợp dữ liệu bên ngoài",
+    "paperDetails": "Xem chi tiết bài báo và thông tin trích dẫn",
     "welcomeBack": "Chào mừng trở lại"
   },
   "admin": {
