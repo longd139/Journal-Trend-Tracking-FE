@@ -6,6 +6,7 @@ import {
   CheckCircle2, Clock, Sliders, ChevronDown,
 } from 'lucide-react';
 import { adminAPI } from './api';
+import SearchWithHistory from '../../components/SearchWithHistory';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Types
@@ -305,17 +306,17 @@ export default function AdminConfigPage() {
       {/* ═══ SEARCH + TABS ═══ */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         {/* Search */}
-        <div className="relative flex-1 max-w-xs w-full">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search configs..."
-            className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-white/[0.03] text-gray-300 placeholder:text-gray-600 border border-white/5 focus:border-[#DEDBC8]/30"
-            style={{ boxShadow: search ? '0 0 20px rgba(222,219,200,0.04)' : 'none' }}
-          />
-        </div>
+        <SearchWithHistory
+          storageKey="admin-configs"
+          value={search}
+          onChange={setSearch}
+          onSearch={setSearch}
+          placeholder="Search configs..."
+          className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-white/[0.03] text-gray-300 placeholder:text-gray-600 border border-white/5 focus:border-[#DEDBC8]/30"
+          wrapperClassName="relative flex-1 max-w-xs w-full"
+          icon={<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-gray-500" />}
+          inputStyle={{ boxShadow: search ? '0 0 20px rgba(222,219,200,0.04)' : 'none' }}
+        />
 
         {/* Tabs */}
         <div className="flex items-center gap-1 flex-wrap">

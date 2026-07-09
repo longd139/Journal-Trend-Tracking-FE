@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
 import {
   Search, X, RefreshCw, Building2, Users, UserCheck, UserX,
   Shield, Eye, AlertTriangle, ChevronLeft, ChevronRight, ChevronDown,
@@ -7,6 +8,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore } from './userStore';
+import SearchWithHistory from '../../components/SearchWithHistory';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -294,7 +296,7 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
 /* ═══════════════════════════════════════════════════════════════════════════
    Role Popover
    ═══════════════════════════════════════════════════════════════════════════ */
-function RolePopover({ user, onClose, onPromoteAdmin }) {
+function RolePopover({ user, onClose, onPromoteAdmin, anchorRect }) {
   const { t } = useTranslation('admin');
   const { updateUserRole } = useUserStore();
   const [loading, setLoading] = useState(false);
@@ -319,14 +321,18 @@ function RolePopover({ user, onClose, onPromoteAdmin }) {
 
   const options = CHANGEABLE_ROLES.filter((r) => r !== user.roleName);
 
-  return (
+  const style = anchorRect
+    ? { position: 'fixed', top: anchorRect.bottom + 8, left: anchorRect.right - 160, zIndex: 9999 }
+    : {};
+
+  const popover = (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, scale: 0.9, y: -4 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9, y: -4 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-      className="absolute right-0 top-full mt-2 z-40 w-40 rounded-2xl border border-white/[0.06] bg-[#151515] shadow-2xl p-1.5 backdrop-blur-xl"
+      style={style}
+      className="w-40 rounded-2xl border border-white/[0.06] bg-[#151515] shadow-2xl p-1.5 backdrop-blur-xl"
     >
       <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2.5 pt-1 pb-2">{t('userManagement.changeRole')}</p>
       {loading ? (
@@ -348,6 +354,8 @@ function RolePopover({ user, onClose, onPromoteAdmin }) {
       )}
     </motion.div>
   );
+
+  return createPortal(popover, document.body);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -368,6 +376,7 @@ export default function UserManagement() {
   const [togglingId, setTogglingId] = useState(null);
   const [viewUser, setViewUser] = useState(null);
   const [rolePopoverUserId, setRolePopoverUserId] = useState(null);
+  const [rolePopoverAnchor, setRolePopoverAnchor] = useState(null);
   const [promoteAdminUser, setPromoteAdminUser] = useState(null);
   const [promoteLoading, setPromoteLoading] = useState(false);
 
@@ -474,16 +483,16 @@ export default function UserManagement() {
       {/* ─── Toolbar ─── */}
       <div className="flex items-center gap-3 flex-wrap">
         {/* Search */}
-        <div className="relative flex-1 min-w-[220px] max-w-xs">
-          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder={t('userManagement.searchPlaceholder') || 'Search users...'}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 transition-all"
-          />
-        </div>
+        <SearchWithHistory
+          storageKey="admin-users"
+          value={search}
+          onChange={setSearch}
+          onSearch={setSearch}
+          placeholder={t('userManagement.searchPlaceholder') || 'Search users...'}
+          className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 transition-all"
+          wrapperClassName="relative flex-1 min-w-[220px] max-w-xs"
+          icon={<Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-slate-400" />}
+        />
         {/* Filters */}
         <div className="flex items-center gap-2">
           <SlidersHorizontal size={13} className="text-slate-400" />
@@ -523,7 +532,7 @@ export default function UserManagement() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.05 }}
-        className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] overflow-hidden"
+        className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010]"
       >
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -615,17 +624,19 @@ export default function UserManagement() {
                           {/* Role */}
                           <div className="relative">
                             <button
-                              onClick={() => setRolePopoverUserId(rolePopoverUserId === u.userId ? null : u.userId)}
+                              onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setRolePopoverAnchor(rect);
+                                setRolePopoverUserId(rolePopoverUserId === u.userId ? null : u.userId);
+                              }}
                               className="p-2 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all active:scale-90"
                               title={t('userManagement.changeRole')}
                             >
                               <Shield size={14} />
                             </button>
-                            <AnimatePresence>
-                              {rolePopoverUserId === u.userId && (
-                                <RolePopover user={u} onClose={() => setRolePopoverUserId(null)} onPromoteAdmin={handlePromoteAdmin} />
+                            {rolePopoverUserId === u.userId && (
+                                <RolePopover user={u} onClose={() => setRolePopoverUserId(null)} onPromoteAdmin={handlePromoteAdmin} anchorRect={rolePopoverAnchor} />
                               )}
-                            </AnimatePresence>
                           </div>
                           {/* Toggle status */}
                           <button

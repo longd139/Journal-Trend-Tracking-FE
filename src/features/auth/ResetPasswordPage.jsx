@@ -154,7 +154,7 @@ export default function ResetPasswordPage() {
       type="password"
       placeholder="At least 6 characters"
       value={form.password}
-      onChange={(e) => handleChange('password', e.target.value)}
+      onChange={(e) => handleChange('password', e.target.value.trim())}
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.password
        ? 'border-red-500/30 bg-red-500/[0.04]'
@@ -175,7 +175,7 @@ export default function ResetPasswordPage() {
       type="password"
       placeholder="Confirm your new password"
       value={form.confirmPassword}
-      onChange={(e) => handleChange('confirmPassword', e.target.value)}
+      onChange={(e) => handleChange('confirmPassword', e.target.value.trim())}
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.confirmPassword
        ? 'border-red-500/30 bg-red-500/[0.04]'

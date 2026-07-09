@@ -2,7 +2,7 @@
   "headings": {
     "systemDashboard": "System Dashboard",
     "researchOverview": "Research Overview",
-    "searchPapers": "Search Papers",
+    "searchPapers": "Search Keyword",
     "searchJournals": "Search Journals",
     "searchAuthor": "Search Author",
     "analytics": "Analytics",
@@ -19,6 +19,7 @@
     "auditLogs": "Audit Logs",
     "configs": "Configs",
     "dataSources": "Data Sources",
+    "paperDetails": "Paper Details",
     "dashboard": "Dashboard"
   },
   "subtitles": {
@@ -41,6 +42,7 @@
     "auditLogs": "Track system activity and security events",
     "configs": "Manage system configuration parameters",
     "dataSources": "Manage external data integrations",
+    "paperDetails": "Viewing paper details and citation information",
     "welcomeBack": "Welcome back"
   },
   "admin": {

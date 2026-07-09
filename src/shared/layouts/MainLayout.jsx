@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
+import KeepAlive from '../../components/KeepAlive';
 import {
   BarChart3,
   Home,
@@ -285,8 +286,10 @@ export default function DashboardLayout({ children }) {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const pathParts = location.pathname.split('/');
-  const activeTab = pathParts[pathParts.length - 1] || 'overview';
+  const pathParts = location.pathname.split('/').filter(Boolean);
+  // Use the second segment as activeTab (first is roleName)
+  // e.g. /academic/search → 'search', /academic/papers/123 → 'papers'
+  const activeTab = pathParts[1] || 'overview';
   const role = sessionStorage.getItem('userRole') || 'academic';
 
   // Close sidebar on route change
@@ -371,7 +374,14 @@ export default function DashboardLayout({ children }) {
       title: t('headings.dataSources'),
       sub: t('subtitles.dataSources'),
     },
+    papers: {
+      title: t('headings.paperDetails'),
+      sub: t('subtitles.paperDetails'),
+    },
   };
+
+  // Map route segments to sidebar highlights (e.g. papers → search)
+  const sidebarActiveTab = activeTab === 'papers' ? 'search' : activeTab;
 
   const currentHeader = titles[activeTab] || {
     title: t('headings.dashboard'),
@@ -390,7 +400,7 @@ export default function DashboardLayout({ children }) {
 
       <Sidebar
         role={role}
-        activeTab={activeTab}
+        activeTab={sidebarActiveTab}
         navigate={navigate}
         user={user}
         open={sidebarOpen}
@@ -421,7 +431,7 @@ export default function DashboardLayout({ children }) {
             <div className="noise-overlay absolute inset-0 opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
           </div>
           <main className="h-full overflow-y-auto overflow-x-hidden relative z-10">
-            {children}
+            <KeepAlive />
           </main>
         </div>
         <SyncFloatingPanel />
