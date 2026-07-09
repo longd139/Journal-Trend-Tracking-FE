@@ -617,21 +617,20 @@ export default function PaperDetailPage() {
         >
           {paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl) && (
             <>
-              <Button
+              <button
                 onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg shadow-lg shadow-white/20 active:scale-[0.97] transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
               >
                 <Download size={14} />
                 Download PDF
-              </Button>
-              <Button
-                variant="outline"
+              </button>
+              <button
                 onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
               >
                 <Eye size={14} />
                 Preview PDF
-              </Button>
+              </button>
             </>
           )}
 
@@ -640,23 +639,21 @@ export default function PaperDetailPage() {
             <RequestPdfButton paperId={paper.paperId} paperTitle={paper.title} />
           )}
           {doi && (
-            <Button
-              variant="outline"
+            <button
               onClick={() => window.open(`https://doi.org/${doi}`, '_blank')}
-              className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
             >
               <ExternalLink size={14} />
               View Source (DOI)
-            </Button>
+            </button>
           )}
-          <Button
-            variant="outline"
+          <button
             onClick={() => window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`, '_blank')}
-            className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
           >
             <Globe size={14} />
             Google Scholar
-          </Button>
+          </button>
           <button
             onClick={handleToggleBookmark}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all active:scale-[0.97] ${
