@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle } from 'lucide-react';
+import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2 } from 'lucide-react';
 import { StatCard } from '../../components/SharedUI';
 import { paperAPI } from './paper.api';
 
@@ -123,6 +124,8 @@ function QuickStatsSkeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function KeywordQuickStats({ keyword }) {
+  const navigate = useNavigate();
+  const role = sessionStorage.getItem('userRole') || 'academic';
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -208,6 +211,14 @@ export default function KeywordQuickStats({ keyword }) {
             for "{stats.keyword || keyword}"
           </span>
         </span>
+        {/* Generate Report button */}
+        <button
+          onClick={() => navigate(`/${role}/reports?type=keyword-trend&q=${encodeURIComponent(stats.keyword || keyword)}`)}
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6]/20 transition-all"
+        >
+          <BarChart2 size={12} />
+          Generate Report
+        </button>
       </div>
 
       {/* 4 stat cards */}

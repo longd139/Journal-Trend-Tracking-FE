@@ -1,183 +1,92 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  BarChart2, BookOpen, User, Loader2, AlertCircle,
-  CheckCircle2, Clock, Download, TrendingUp, FileText,
-} from 'lucide-react';
+import { AlertCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { reportAPI } from './api';
-import { Skeleton } from '../../components/ui/skeleton';
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Report Generator Card
-   ═══════════════════════════════════════════════════════════════════════════ */
-function GeneratorCard({ icon: Icon, iconColor, title, description, placeholder, onGenerate, loading }) {
-  const [input, setInput] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    onGenerate(trimmed);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSubmit(e);
-  };
-
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2 }}
-      className="p-5 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 flex flex-col"
-    >
-      {/* Icon */}
-      <div
-        className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-        style={{ background: `${iconColor}1A`, color: iconColor }}
-      >
-        <Icon size={20} />
-      </div>
-
-      {/* Title + Description */}
-      <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{title}</h3>
-      <p className="text-xs text-gray-400 mb-4 line-clamp-2">{description}</p>
-
-      {/* Input + Button */}
-      <form onSubmit={handleSubmit} className="mt-auto space-y-2.5">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          disabled={loading}
-          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-[#0A0A0A] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 transition-colors disabled:opacity-50"
-        />
-        <button
-          type="submit"
-          disabled={loading || !input.trim()}
-          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-[#DEDBC8] text-black hover:opacity-90"
-        >
-          {loading ? (
-            <><Loader2 size={14} className="animate-spin" /> Generating...</>
-          ) : (
-            'Generate Report'
-          )}
-        </button>
-      </form>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Report Type Config
-   ═══════════════════════════════════════════════════════════════════════════ */
-const REPORT_TYPES = {
-  'keyword-trend': { icon: BarChart2, color: '#3B82F6', label: 'Keyword Trend' },
-  'journal-quality': { icon: BookOpen, color: '#DEDBC8', label: 'Journal Quality' },
-  'author-impact': { icon: User, color: '#A09878', label: 'Author Impact' },
-};
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Result Panel
-   ═══════════════════════════════════════════════════════════════════════════ */
-function ResultPanel({ result, onClose }) {
-  const { t } = useTranslation('reports');
-
-  if (!result) return null;
-
-  const typeConfig = REPORT_TYPES[result.type] || {};
-  const TypeIcon = typeConfig.icon || FileText;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden"
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-lg flex items-center justify-center"
-            style={{ background: `${typeConfig.color || '#DEDBC8'}1A`, color: typeConfig.color || '#DEDBC8' }}
-          >
-            <TypeIcon size={18} />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-[#E1E0CC]">
-              {typeConfig.label} Report
-            </h3>
-            <p className="text-[11px] text-gray-500">
-              &quot;{result.query}&quot; — {new Date(result.timestamp).toLocaleString()}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* Content */}
-      <div className="p-5 max-h-[500px] overflow-y-auto">
-        <pre className="text-xs text-gray-300 font-mono whitespace-pre-wrap break-words bg-[#0A0A0A] rounded-xl p-4 border border-[#DEDBC8]/5">
-          {JSON.stringify(result.data, null, 2)}
-        </pre>
-      </div>
-
-      {/* Actions */}
-      <div className="flex items-center gap-3 p-4 border-t border-[#DEDBC8]/5 bg-[#0A0A0A]/50">
-        <button
-          onClick={() => {
-            const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `${result.type}_${result.query.replace(/\s+/g, '_')}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-          }}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
-        >
-          <Download size={14} />
-          Download JSON
-        </button>
-      </div>
-    </motion.div>
-  );
-}
+import REPORT_TYPES from './config';
+import GeneratorCard from './components/GeneratorCard';
+import KeywordTrendResult from './components/KeywordTrendResult';
+import AuthorImpactResult from './components/AuthorImpactResult';
+import JournalQualityResult from './components/JournalQualityResult';
+import ReportHistoryTable from './components/ReportHistoryTable';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 export default function ReportsViewPage() {
   const { t } = useTranslation('reports');
-  const [loading, setLoading] = useState(null); // string: report type đang load, hoặc null
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const [loading, setLoading] = useState(null);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
   const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const autoGeneratedRef = useRef(false);
 
+  /* ── Load history from BE on mount (fallback to empty if unavailable) ── */
+  useEffect(() => {
+    let cancelled = false;
+    async function loadHistory() {
+      try {
+        const data = await reportAPI.getHistory(0, 20);
+        if (!cancelled && data?.content) {
+          // Map BE format to FE entry format
+          const mapped = data.content.map((item) => ({
+            _id: item.reportId,
+            type: (item.reportType || '').toLowerCase().replace(/_/g, '-'),
+            query: item.queryText,
+            timestamp: new Date(item.createdAt).getTime(),
+            status: item.status || 'ready',
+            reportName: item.reportName,
+            // data not included in list — fetched on-demand via regenerate
+            data: null,
+          }));
+          setHistory(mapped);
+        }
+      } catch {
+        // BE endpoint not available yet — start with empty history, no error shown
+      } finally {
+        if (!cancelled) setHistoryLoading(false);
+      }
+    }
+    loadHistory();
+    return () => { cancelled = true; };
+  }, []);
+
+  /* ── Generate report ── */
   const generateReport = useCallback(async (type, query, apiFn) => {
     setLoading(type);
     setError(null);
     setResult(null);
     try {
       const data = await apiFn(query);
+      const reportData = data?.data || data;
       const entry = {
         type,
         query,
         timestamp: Date.now(),
         status: 'ready',
-        data: data?.data || data,
+        data: reportData,
       };
       setResult(entry);
-      setHistory((prev) => [entry, ...prev].slice(0, 20)); // keep last 20
+
+      // Try to persist to BE; fall back to local-only
+      try {
+        const saved = await reportAPI.saveReport({
+          reportType: type.toUpperCase().replace(/-/g, '_'),
+          queryText: query,
+          reportName: reportData.reportTitle || `${type} report: ${query}`,
+        });
+        entry._id = saved.reportId;
+      } catch {
+        // BE not available — keep local-only
+      }
+
+      setHistory((prev) => [entry, ...prev].slice(0, 50));
       toast.success(t('toast.success') || 'Report generated successfully');
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to generate report';
@@ -187,6 +96,103 @@ export default function ReportsViewPage() {
       setLoading(null);
     }
   }, [t]);
+
+  /* ── Auto-generate from query params (integration from Search pages) ── */
+  useEffect(() => {
+    // Parse search params from location to ensure fresh values on every navigation
+    const params = new URLSearchParams(location.search);
+    const type = params.get('type');
+    const q = params.get('q');
+
+    if (type && q && REPORT_TYPES[type] && !autoGeneratedRef.current) {
+      autoGeneratedRef.current = true;
+      const apiFn = reportAPI[REPORT_TYPES[type].apiFn];
+      if (apiFn) {
+        // Small delay to ensure component is fully mounted
+        const timer = setTimeout(() => {
+          generateReport(type, q, apiFn);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.search, generateReport]);
+
+  /* ── Save report (from result panel) ── */
+  const handleSave = useCallback(async (reportData) => {
+    setSaving(true);
+    try {
+      // Try BE save
+      const type = result?.type || 'keyword-trend';
+      const query = result?.query || '';
+      const saved = await reportAPI.saveReport({
+        reportType: type.toUpperCase().replace(/-/g, '_'),
+        queryText: query,
+        reportName: reportData.reportTitle || `${type} report: ${query}`,
+      });
+      // Update entry in history with BE id
+      setHistory((prev) => prev.map((entry) => {
+        if (entry.timestamp === result?.timestamp && !entry._id) {
+          return { ...entry, _id: saved.reportId };
+        }
+        return entry;
+      }));
+      toast.success('Report saved to history');
+    } catch {
+      // BE not available — already in local history
+      toast.success('Report saved locally');
+    } finally {
+      setSaving(false);
+    }
+  }, [result]);
+
+  /* ── Delete from history ── */
+  const handleDelete = useCallback(async (index) => {
+    const entry = history[index];
+    // Try BE delete first
+    if (entry?._id) {
+      try {
+        await reportAPI.deleteReport(entry._id);
+      } catch {
+        // BE not available — continue with local delete
+      }
+    }
+    setHistory((prev) => prev.filter((_, i) => i !== index));
+    toast.success('Report removed from history');
+  }, [history]);
+
+  /* ── View from history ── */
+  const handleView = useCallback(async (entry) => {
+    // If we have cached data, show immediately
+    if (entry.data) {
+      setResult(entry);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    // Otherwise try to regenerate from BE
+    if (entry._id) {
+      try {
+        setLoading(entry.type);
+        const regenerated = await reportAPI.regenerateReport(entry._id);
+        const fullEntry = {
+          ...entry,
+          data: regenerated,
+          timestamp: entry.timestamp || Date.now(),
+        };
+        setResult(fullEntry);
+        // Update cache in history
+        setHistory((prev) => prev.map((h) => (h._id === entry._id ? fullEntry : h)));
+      } catch {
+        toast.error('Failed to load report data');
+      } finally {
+        setLoading(null);
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    // Fallback: show entry as-is (may have no data)
+    setResult(entry);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   /* ── Error Banner ── */
   const ErrorBanner = error && (
@@ -222,8 +228,8 @@ export default function ReportsViewPage() {
       {/* 3 REPORT GENERATOR CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <GeneratorCard
-          icon={BarChart2}
-          iconColor="#3B82F6"
+          icon={REPORT_TYPES['keyword-trend'].icon}
+          iconColor={REPORT_TYPES['keyword-trend'].color}
           title={t('templates.trendAnalysis.name')}
           description={t('templates.trendAnalysis.description')}
           placeholder={t('input.placeholder.keyword') || 'Enter keyword...'}
@@ -233,8 +239,8 @@ export default function ReportsViewPage() {
           }
         />
         <GeneratorCard
-          icon={BookOpen}
-          iconColor="#DEDBC8"
+          icon={REPORT_TYPES['journal-quality'].icon}
+          iconColor={REPORT_TYPES['journal-quality'].color}
           title={t('templates.readingList.name')}
           description={t('templates.readingList.description')}
           placeholder={t('input.placeholder.journal') || 'Enter journal name...'}
@@ -244,8 +250,8 @@ export default function ReportsViewPage() {
           }
         />
         <GeneratorCard
-          icon={User}
-          iconColor="#A09878"
+          icon={REPORT_TYPES['author-impact'].icon}
+          iconColor={REPORT_TYPES['author-impact'].color}
           title={t('templates.authorImpact.name')}
           description={t('templates.authorImpact.description')}
           placeholder={t('input.placeholder.author') || 'Enter author name...'}
@@ -256,88 +262,43 @@ export default function ReportsViewPage() {
         />
       </div>
 
-      {/* RESULT PANEL */}
+      {/* RESULT PANEL — formatted report per type */}
       <AnimatePresence mode="wait">
-        {result && (
-          <ResultPanel
-            result={result}
+        {result && result.type === 'keyword-trend' && (
+          <KeywordTrendResult
+            key={`kw-${result.timestamp}`}
+            data={result.data}
             onClose={() => setResult(null)}
+            onSave={handleSave}
+            saving={saving}
+          />
+        )}
+        {result && result.type === 'author-impact' && (
+          <AuthorImpactResult
+            key={`au-${result.timestamp}`}
+            data={result.data}
+            onClose={() => setResult(null)}
+            onSave={handleSave}
+            saving={saving}
+          />
+        )}
+        {result && result.type === 'journal-quality' && (
+          <JournalQualityResult
+            key={`jn-${result.timestamp}`}
+            data={result.data}
+            onClose={() => setResult(null)}
+            onSave={handleSave}
+            saving={saving}
           />
         )}
       </AnimatePresence>
 
       {/* REPORT HISTORY */}
-      {history.length > 0 && (
-        <div className="rounded-xl border overflow-hidden bg-[#101010] border-[#DEDBC8]/5">
-          <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
-            <h3 className="text-sm font-bold text-[#E1E0CC]">{t('history.title')}</h3>
-            <span className="text-xs text-gray-400">
-              {history.length} report{history.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[#DEDBC8]/5">
-                  {['Type', 'Query', 'Generated', 'Status', ''].map((h) => (
-                    <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-400">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {history.map((entry, i) => {
-                  const typeConfig = REPORT_TYPES[entry.type] || {};
-                  const TypeIcon = typeConfig.icon || FileText;
-                  const typeColor = typeConfig.color || '#DEDBC8';
-
-                  return (
-                    <tr
-                      key={`${entry.type}-${entry.timestamp}-${i}`}
-                      className="border-b border-[#DEDBC8]/5 hover:bg-white/[0.02] transition-colors"
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-2">
-                          <TypeIcon size={15} style={{ color: typeColor }} />
-                          <span className="text-xs font-semibold text-[#E1E0CC]">
-                            {typeConfig.label || entry.type}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="text-xs text-gray-400 font-mono">&quot;{entry.query}&quot;</span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                          <Clock size={11} />
-                          {new Date(entry.timestamp).toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md">
-                          <CheckCircle2 size={12} />
-                          Ready
-                        </span>
-                      </td>
-                      <td className="px-5 py-4">
-                        <button
-                          onClick={() => setResult(entry)}
-                          className="flex items-center gap-1.5 text-xs font-semibold text-[#DEDBC8] hover:text-white transition-colors"
-                        >
-                          <TrendingUp size={13} />
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <ReportHistoryTable
+        history={history}
+        onView={handleView}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

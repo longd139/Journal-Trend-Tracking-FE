@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
-  Clock, Trash2,
+  Clock, Trash2, BarChart2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
@@ -32,6 +32,8 @@ const Q_COLORS = { Q1: '#34D399', Q2: '#F59E0B', Q3: '#FB923C', Q4: '#EF4444' };
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function JournalHeader({ journal }) {
+  const navigate = useNavigate();
+  const role = sessionStorage.getItem('userRole') || 'academic';
   if (!journal) return null;
   const qColor = Q_COLORS[journal.quartile] || '#6B7280';
 
@@ -89,6 +91,14 @@ function JournalHeader({ journal }) {
               {journal.quartile}
             </span>
           )}
+          {/* Generate Report */}
+          <button
+            onClick={() => navigate(`/${role}/reports?type=journal-quality&q=${encodeURIComponent(journal.journalName)}`)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          >
+            <BarChart2 size={12} />
+            Report
+          </button>
         </div>
       </div>
     </motion.div>

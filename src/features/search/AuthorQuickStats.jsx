@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   FileText,
@@ -57,6 +58,8 @@ function StatsSkeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AuthorQuickStats({ keyword }) {
+  const navigate = useNavigate();
+  const role = sessionStorage.getItem('userRole') || 'academic';
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -133,6 +136,14 @@ export default function AuthorQuickStats({ keyword }) {
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Author Profile
         </span>
+        {/* Generate Report button */}
+        <button
+          onClick={() => navigate(`/${role}/reports?type=author-impact&q=${encodeURIComponent(stats.fullName || keyword)}`)}
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#A09878]/10 text-[#A09878] border border-[#A09878]/20 hover:bg-[#A09878]/20 transition-all"
+        >
+          <BarChart3 size={12} />
+          Generate Report
+        </button>
       </div>
 
       {/* ─── Author Profile Card ─── */}
