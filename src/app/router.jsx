@@ -31,12 +31,10 @@ const SettingsPage = lazy(() => import('../features/settings/SettingsPage.jsx'))
 
 // Trang Admin
 const UserManagement = lazy(() => import('../features/admin/UserManagementPage.jsx'));
-const APIMonitoring = lazy(() => import('../features/admin/APIMonitoringPage.jsx'));
 const DatabaseView = lazy(() => import('../features/admin/DatabaseViewPage.jsx'));
 const SyncData = lazy(() => import('../features/admin/SyncDataPage.jsx'));
 const AdminAuditLog = lazy(() => import('../features/admin/AdminAuditLogPage.jsx'));
 const AdminConfig = lazy(() => import('../features/admin/AdminConfigPage.jsx'));
-const AdminDataSources = lazy(() => import('../features/admin/AdminDataSourcePage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -249,16 +247,6 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'system-api',
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <APIMonitoring />
-            </Suspense>
-          </ProtectedRoute>
-        ),
-      },
-      {
         path: 'database',
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
@@ -294,16 +282,6 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <AdminConfig />
-            </Suspense>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'data-sources',
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <AdminDataSources />
             </Suspense>
           </ProtectedRoute>
         ),

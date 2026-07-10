@@ -11,7 +11,6 @@ import {
   UserSearch,
   FileText,
   Users,
-  Globe,
   Database,
   Settings,
   Bookmark,
@@ -19,19 +18,15 @@ import {
   Bell,
   BellRing,
   AlertTriangle,
-  Sun,
-  Moon,
   RefreshCw,
   ShieldCheck,
   Sliders,
-  Cloud,
   Menu,
   X,
   HelpCircle,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { userAPI } from '../../features/user/api';
-import { useTheme } from '../../hooks/useTheme';
 import { useAuthStore } from '../../features/user/store';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 import SupportDialog from '../../components/common/SupportDialog';
@@ -72,12 +67,10 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
   const adminNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.dashboard') },
     { id: 'users', Icon: Users, label: t('sidebar.userManagement') },
-    { id: 'system-api', Icon: Globe, label: t('sidebar.apiMonitoring') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
-    { id: 'data-sources', Icon: Cloud, label: t('sidebar.dataSources') },
   ];
 
   let nav = academicNav;
@@ -180,11 +173,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
 
 function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
   const { t } = useTranslation('common');
-  const { resolvedTheme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
-  };
 
   const getInitials = (name) => {
     if (!name) return '??';
@@ -218,19 +206,6 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
       <div className="flex items-center gap-3">
         {/* Language Switcher */}
         <LanguageSwitcher />
-
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-all hover:scale-105 bg-[#DEDBC8]/10 text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/20"
-          title={resolvedTheme === 'dark' ? t('topbar.switchToLight') : t('topbar.switchToDark')}
-        >
-          {resolvedTheme === 'dark' ? (
-            <Sun size={16} />
-          ) : (
-            <Moon size={16} />
-          )}
-        </button>
 
         {/* User avatar + settings */}
         <button
@@ -346,10 +321,6 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.notifications'),
     },
     users: { title: t('headings.userManagement'), sub: t('subtitles.userManagement') },
-    'system-api': {
-      title: t('headings.apiMonitoring'),
-      sub: t('subtitles.apiMonitoring'),
-    },
     database: {
       title: t('headings.database'),
       sub: t('subtitles.database'),
@@ -366,10 +337,6 @@ export default function DashboardLayout({ children }) {
     configs: {
       title: t('headings.configs'),
       sub: t('subtitles.configs'),
-    },
-    'data-sources': {
-      title: t('headings.dataSources'),
-      sub: t('subtitles.dataSources'),
     },
     papers: {
       title: t('headings.paperDetails'),

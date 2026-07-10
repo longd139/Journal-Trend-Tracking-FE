@@ -300,8 +300,8 @@ export default function AdminConfigPage() {
         </div>
       </motion.div>
 
-      {/* ═══ MAIN CONTENT WRAPPER (max 960px, centered) ═══ */}
-      <div className="max-w-[960px] mx-auto space-y-5">
+      {/* ═══ MAIN CONTENT ═══ */}
+      <div className="space-y-5">
 
       {/* ═══ SEARCH + TABS ═══ */}
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
@@ -423,24 +423,24 @@ export default function AdminConfigPage() {
                 {/* Accordion header */}
                 <button
                   onClick={() => toggleGroup(cat.id)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all duration-200 group active:scale-[0.99]"
+                  className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-200 group active:scale-[0.99]"
                   style={{ background: isExpanded ? 'rgba(222,219,200,0.03)' : 'transparent' }}
                 >
                   <motion.div
                     animate={{ rotate: isExpanded ? 0 : -90 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronDown size={13} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+                    <ChevronDown size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
                   </motion.div>
                   <div
-                    className="w-[3px] h-[14px] rounded-full shrink-0 transition-all duration-200"
+                    className="w-[3px] h-[16px] rounded-full shrink-0 transition-all duration-200"
                     style={{
                       background: cat.accent,
                       opacity: isExpanded ? 1 : 0.35,
                       boxShadow: isExpanded ? `0 0 8px ${cat.accent}40` : 'none',
                     }}
                   />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-gray-300">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-300">
                     {cat.label}
                   </span>
                   <span className="text-[10px] text-gray-600 font-mono">({items.length})</span>
@@ -469,15 +469,13 @@ export default function AdminConfigPage() {
                       className="overflow-hidden rounded-xl"
                       style={{ border: '1px solid rgba(222,219,200,0.06)' }}
                     >
-                      <div className="grid grid-cols-2" style={{ borderBottom: '1px solid rgba(222,219,200,0.04)' }}>
+                      <div className="divide-y divide-[rgba(222,219,200,0.04)]">
                         {items.map((cfg, idx) => {
                           const isEdited = editing[cfg.configKey] !== undefined;
                           const inputType = detectInputType(cfg.configKey, cfg.configValue);
                           const displayValue = isEdited ? editing[cfg.configKey] : cfg.configValue;
                           const isBoolean = inputType === 'boolean';
                           const isChecked = isBoolean && (isEdited ? editing[cfg.configKey] === 'true' : cfg.configValue === 'true');
-                          const isLastRow = idx >= items.length - 2;
-                          const isLeftCol = idx % 2 === 0;
 
                           return (
                             <motion.div
@@ -486,16 +484,14 @@ export default function AdminConfigPage() {
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
                               transition={{ delay: idx * 0.02 }}
-                              className={`grid grid-cols-[1fr_auto] gap-3 px-3 items-center h-[56px] overflow-hidden ${
-                                isLeftCol ? 'border-r border-[rgba(222,219,200,0.04)]' : ''
-                              } ${!isLastRow ? 'border-b border-[rgba(222,219,200,0.04)]' : ''}`}
+                              className="flex items-center justify-between gap-6 px-5 h-[52px]"
                               style={{
                                 background: isEdited ? 'rgba(222,219,200,0.03)' : 'rgba(13,13,26,0.3)',
                               }}
                               title={`${friendlyLabel(cfg.configKey)} (${cfg.configKey})${cfg.description ? ': ' + cfg.description : ''}`}
                             >
-                              {/* Left: name + desc — single line, no wrap */}
-                              <div className="min-w-0 truncate">
+                              {/* Left: name + desc */}
+                              <div className="min-w-0 flex-1">
                                 <span className="text-[13px] font-bold text-white font-mono tracking-tight truncate block">
                                   {friendlyLabel(cfg.configKey)}
                                 </span>
@@ -506,8 +502,8 @@ export default function AdminConfigPage() {
                                 )}
                               </div>
 
-                              {/* Right: input + timestamp */}
-                              <div className="flex items-center gap-2 shrink-0">
+                              {/* Right: input + indicators — fixed width for symmetry */}
+                              <div className="flex items-center gap-2.5 shrink-0 w-[220px] justify-end">
                                 {isBoolean ? (
                                   <ConfigToggle
                                     checked={isChecked}
@@ -518,7 +514,7 @@ export default function AdminConfigPage() {
                                     type="number"
                                     value={displayValue ?? ''}
                                     onChange={(e) => handleEdit(cfg.configKey, e.target.value)}
-                                    className="w-24 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono text-right"
+                                    className="w-36 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono text-right"
                                     style={{
                                       background: isEdited ? 'rgba(222,219,200,0.05)' : 'rgba(255,255,255,0.02)',
                                       color: '#E1E0CC',
@@ -545,7 +541,7 @@ export default function AdminConfigPage() {
                                     type="text"
                                     value={displayValue ?? ''}
                                     onChange={(e) => handleEdit(cfg.configKey, e.target.value)}
-                                    className="w-32 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono"
+                                    className="w-36 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono"
                                     style={{
                                       background: isEdited ? 'rgba(222,219,200,0.05)' : 'rgba(255,255,255,0.02)',
                                       color: '#E1E0CC',
