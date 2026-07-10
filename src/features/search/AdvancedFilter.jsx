@@ -1,7 +1,6 @@
-﻿import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import * as React from "react";
-import { Filter, Calendar, Layers, Quote, X } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import { Calendar, Layers, Quote, X } from "lucide-react";
 import { Checkbox } from "../../components/ui/checkbox";
 import {
   Select,
@@ -11,7 +10,6 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 
-// Generate year range — from 1950 to current year
 const currentYear = new Date().getFullYear();
 const START_YEAR = 1950;
 const YEARS = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) =>
@@ -19,147 +17,164 @@ const YEARS = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) =>
 );
 
 export function AdvancedFilter({
- filters,
- setFilters,
- clearFilters,
- fieldData = []
+  filters,
+  setFilters,
+  clearFilters,
+  fieldData = []
 }) {
- const { t } = useTranslation('search');
+  const { t } = useTranslation('search');
 
- const handleFieldToggle = (fieldName) => {
- setFilters((prev) => {
-  const currentFields = prev.fields || [];
-  const nextFields = currentFields.includes(fieldName)
-  ? currentFields.filter((f) => f !== fieldName)
-  : [...currentFields, fieldName];
-  return { ...prev, fields: nextFields };
- });
- };
+  const handleFieldToggle = (fieldName) => {
+    setFilters((prev) => {
+      const currentFields = prev.fields || [];
+      const nextFields = currentFields.includes(fieldName)
+        ? currentFields.filter((f) => f !== fieldName)
+        : [...currentFields, fieldName];
+      return { ...prev, fields: nextFields };
+    });
+  };
 
- return (
- <Card className="bg-[#101010] border-[#DEDBC8]/5 relative overflow-hidden h-fit rounded-xl shadow-sm ">
-  <CardHeader className="pb-3 border-b border-gray-200 border-[#DEDBC8]/5 ">
-  <div className="flex items-center justify-between">
-   <CardTitle className="text-xs text-[#E1E0CC] flex items-center gap-2 uppercase tracking-wider font-bold">
-   <Filter size={13} className="text-[#DEDBC8] dark:text-blue-400" /> {t('filters.title')}
-   </CardTitle>
-   <button
-   type="button"
-   onClick={clearFilters}
-   className="text-[11px] text-gray-500 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-   >
-   {t('filters.clearAll')}
-   </button>
-  </div>
-  </CardHeader>
+  const hasActiveFilters = Object.values(filters).some(
+    v => v && (!Array.isArray(v) || v.length > 0) && v !== false
+  );
 
-  <CardContent className="space-y-5 pt-4">
-  {/* ── Year Range ── */}
-  <div className="space-y-2">
-   <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
-   <Calendar size={13} /> {t('filters.yearRange')}
-   </label>
-   <div className="grid grid-cols-2 gap-2">
-   {/* Start Year */}
-   <div className="relative">
-    <Select
-     value={filters.startYear || ""}
-     onValueChange={(v) => setFilters((p) => ({ ...p, startYear: v }))}
-    >
-     <SelectTrigger className="w-full h-[34px] px-2.5 py-0 text-xs bg-[#121824]/60 border-[#DEDBC8]/5 text-slate-200 hover:border-[#DEDBC8]/20 focus:ring-0 rounded-md [&>svg]:hidden">
-      <SelectValue placeholder={t('filters.startYear')} />
-     </SelectTrigger>
-     <SelectContent className="max-h-[200px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
-      {YEARS.map((year) => (
-       <SelectItem key={year} value={year} className="text-xs cursor-pointer">
-        {year}
-       </SelectItem>
-      ))}
-     </SelectContent>
-    </Select>
-    {filters.startYear && (
-     <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); setFilters((p) => ({ ...p, startYear: '' })); }}
-      className="absolute right-7 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-     >
-      <X size={11} />
-     </button>
-    )}
-   </div>
+  return (
+    <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+      <div className="rounded-[calc(1rem-1.5px)] relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+        <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-[#DEDBC8]/[0.02] blur-3xl pointer-events-none" />
 
-   {/* End Year */}
-   <div className="relative">
-    <Select
-     value={filters.endYear || ""}
-     onValueChange={(v) => setFilters((p) => ({ ...p, endYear: v }))}
-    >
-     <SelectTrigger className="w-full h-[34px] px-2.5 py-0 text-xs bg-[#121824]/60 border-[#DEDBC8]/5 text-slate-200 hover:border-[#DEDBC8]/20 focus:ring-0 rounded-md [&>svg]:hidden">
-      <SelectValue placeholder={t('filters.endYear')} />
-     </SelectTrigger>
-     <SelectContent className="max-h-[200px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
-      {YEARS.map((year) => (
-       <SelectItem key={year} value={year} className="text-xs cursor-pointer">
-        {year}
-       </SelectItem>
-      ))}
-     </SelectContent>
-    </Select>
-    {filters.endYear && (
-     <button
-      type="button"
-      onClick={(e) => { e.stopPropagation(); setFilters((p) => ({ ...p, endYear: '' })); }}
-      className="absolute right-7 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
-     >
-      <X size={11} />
-     </button>
-    )}
-   </div>
-   </div>
-  </div>
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05] relative z-10">
+          <span className="text-[11px] font-bold uppercase tracking-[0.08em] text-gray-400">
+            {t('filters.title')}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              className="text-[10px] font-semibold text-gray-500 hover:text-red-400 transition-colors duration-300 flex items-center gap-1"
+            >
+              <X size={11} strokeWidth={1.5} />
+              {t('filters.clearAll')}
+            </button>
+          )}
+        </div>
 
-  <div className="space-y-2">
-   <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
-   <Layers size={13} /> {t('filters.researchField')}
-   </label>
-   <div className="space-y-2.5 pt-1">
-   {fieldData.map((f) => (
-    <div key={f.n} className="flex items-center space-x-2.5">
-    <Checkbox
-     id={`field-${f.n}`}
-     checked={(filters.fields || []).includes(f.n)}
-     onCheckedChange={() => handleFieldToggle(f.n)}
-    />
-    <label htmlFor={`field-${f.n}`} className="text-xs font-medium text-gray-700 dark:text-slate-300 cursor-pointer select-none">
-     {f.n}
-    </label>
+        {/* Body */}
+        <div className="p-5 space-y-5 relative z-10">
+          {/* ── Year Range ── */}
+          <div className="space-y-2.5">
+            <label className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-500 flex items-center gap-1.5">
+              <Calendar size={12} strokeWidth={1.5} />
+              {t('filters.yearRange')}
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <Select
+                value={filters.startYear || ""}
+                onValueChange={(v) => setFilters((p) => ({ ...p, startYear: v }))}
+              >
+                <SelectTrigger className="w-full h-[34px] px-3 py-0 text-xs rounded-xl
+                  !bg-[#0F1219] !border !border-white/[0.06] !text-[#E1E0CC]
+                  hover:!border-white/[0.12] focus:ring-1 focus:ring-[#DEDBC8]/10
+                  transition-all duration-300 data-[placeholder]:!text-gray-500
+                  [&>svg:last-child]:hidden">
+                  <SelectValue placeholder={t('filters.startYear')} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px] !bg-[#131721] !border !border-white/[0.08] !text-[#E1E0CC] rounded-xl shadow-2xl shadow-black/40">
+                  {YEARS.map((year) => (
+                    <SelectItem key={year} value={year} className="text-xs cursor-pointer data-[highlighted]:!bg-white/[0.06] data-[highlighted]:!text-[#E1E0CC]">
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={filters.endYear || ""}
+                onValueChange={(v) => setFilters((p) => ({ ...p, endYear: v }))}
+              >
+                <SelectTrigger className="w-full h-[34px] px-3 py-0 text-xs rounded-xl
+                  !bg-[#0F1219] !border !border-white/[0.06] !text-[#E1E0CC]
+                  hover:!border-white/[0.12] focus:ring-1 focus:ring-[#DEDBC8]/10
+                  transition-all duration-300 data-[placeholder]:!text-gray-500
+                  [&>svg:last-child]:hidden">
+                  <SelectValue placeholder={t('filters.endYear')} />
+                </SelectTrigger>
+                <SelectContent className="max-h-[200px] !bg-[#131721] !border !border-white/[0.08] !text-[#E1E0CC] rounded-xl shadow-2xl shadow-black/40">
+                  {YEARS.map((year) => (
+                    <SelectItem key={year} value={year} className="text-xs cursor-pointer data-[highlighted]:!bg-white/[0.06] data-[highlighted]:!text-[#E1E0CC]">
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* ── Research Fields ── */}
+          {fieldData.length > 0 && (
+            <div className="space-y-2.5">
+              <label className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-500 flex items-center gap-1.5">
+                <Layers size={12} strokeWidth={1.5} />
+                {t('filters.researchField')}
+              </label>
+              <div className="space-y-2">
+                {fieldData.map((f) => (
+                  <div key={f.n} className="flex items-center space-x-3 px-3 py-2 rounded-xl
+                    hover:bg-white/[0.02] transition-colors duration-200">
+                    <Checkbox
+                      id={`field-${f.n}`}
+                      checked={(filters.fields || []).includes(f.n)}
+                      onCheckedChange={() => handleFieldToggle(f.n)}
+                    />
+                    <label
+                      htmlFor={`field-${f.n}`}
+                      className="text-[12px] font-medium text-[#E1E0CC]/80 cursor-pointer select-none flex-1"
+                    >
+                      {f.n}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* ── Min Citations ── */}
+          <div className="space-y-2.5">
+            <label className="text-[10px] font-bold uppercase tracking-[0.06em] text-gray-500 flex items-center gap-1.5">
+              <Quote size={12} strokeWidth={1.5} />
+              {t('filters.minCitations')}
+            </label>
+            <input
+              type="number"
+              placeholder="e.g., 500"
+              value={filters.minCitations || ""}
+              onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
+              className="w-full px-3.5 py-2 rounded-xl text-xs
+                bg-[#0F1219] border border-white/[0.06] text-[#E1E0CC]
+                placeholder:text-gray-500 outline-none
+                focus:border-[#DEDBC8]/20 focus:ring-1 focus:ring-[#DEDBC8]/10
+                transition-all duration-300"
+            />
+          </div>
+
+          {/* ── Open Access Toggle ── */}
+          <div className="flex items-center justify-between pt-3 border-t border-white/[0.05]">
+            <label
+              htmlFor="filter-oa"
+              className="text-[12px] font-medium text-[#E1E0CC]/70 cursor-pointer"
+            >
+              {t('filters.openAccessOnly')}
+            </label>
+            <Checkbox
+              id="filter-oa"
+              checked={!!filters.openAccess}
+              onCheckedChange={(checked) => setFilters(p => ({ ...p, openAccess: !!checked }))}
+            />
+          </div>
+        </div>
+      </div>
     </div>
-   ))}
-   </div>
-  </div>
-
-  <div className="space-y-2">
-   <label className="text-xs font-medium text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
-   <Quote size={13} /> {t('filters.minCitations')}
-   </label>
-   <input
-   type="number"
-   placeholder="e.g., 500"
-   value={filters.minCitations || ""}
-   onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
-   className="w-full px-2.5 py-1.5 bg-gray-50 dark:bg-[#121824]/60 border border-gray-200 border-[#DEDBC8]/5 rounded-md text-xs text-gray-900 dark:text-slate-200 outline-none focus:border-blue-500/50"
-   />
-  </div>
-
-  <div className="flex items-center justify-between pt-2 border-t border-gray-200 border-[#DEDBC8]/5">
-   <label htmlFor="filter-oa" className="text-xs font-medium text-gray-600 dark:text-slate-400 cursor-pointer">{t('filters.openAccessOnly')}</label>
-   <Checkbox
-   id="filter-oa"
-   checked={!!filters.openAccess}
-   onCheckedChange={(checked) => setFilters(p => ({ ...p, openAccess: !!checked }))}
-   />
-  </div>
-  </CardContent>
- </Card>
- );
+  );
 }

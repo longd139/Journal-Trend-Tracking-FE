@@ -78,5 +78,11 @@
     "density": "Layout Density",
     "densityCompact": "Compact",
     "densityComfortable": "Comfortable"
+  },
+  "background": {
+    "videoLabel": "Video Background",
+    "videoDescription": "Use the default ambient video instead of a custom image",
+    "switchedToVideo": "Switched to video background",
+    "switchedToCustom": "Switched to custom background"
   }
 }

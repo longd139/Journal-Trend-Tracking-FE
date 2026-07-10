@@ -11,6 +11,7 @@ export const useAuthStore = create(
         preferredLanguage: null,
         user: null,
         backgroundUrl: null,
+        useVideoBackground: false,
 
         // Actions
         setTokens: (access) => set({ accessToken: access }),
@@ -23,6 +24,8 @@ export const useAuthStore = create(
           set((state) => ({ user: { ...state.user, ...partial } })),
 
         setBackground: (url) => set({ backgroundUrl: url }),
+
+        setUseVideoBackground: (useVideo) => set({ useVideoBackground: useVideo }),
 
         clearTokens: () => set({ accessToken: null }),
       }),
@@ -37,6 +40,7 @@ export const useAuthStore = create(
           refreshToken: state.refreshToken,
           preferredLanguage: state.preferredLanguage,
           backgroundUrl: state.backgroundUrl,
+          useVideoBackground: state.useVideoBackground,
         }),
       },
     ),

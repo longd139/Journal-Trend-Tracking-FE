@@ -10,12 +10,11 @@ import {
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
+  AreaChart, Area, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
 } from 'recharts';
 import { paperAPI } from './paper.api';
 import { journalAPI } from './journal.api';
-import { StatCard } from '../../components/SharedUI';
 import { PaperItemCard } from './PaperItemCard';
 import FollowButton from '../follows/FollowButton';
 import { bookmarkAPI } from '../bookmarks/api';
@@ -28,7 +27,39 @@ import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevali
 const Q_COLORS = { Q1: '#34D399', Q2: '#F59E0B', Q3: '#FB923C', Q4: '#EF4444' };
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Journal Header
+   JournalStatCard — Double-Bezel local variant
+   ═══════════════════════════════════════════════════════════════════════════ */
+function JournalStatCard({ label, value, Icon, accent, index = 0 }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ delay: 0.15 + index * 0.06, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+      whileHover={{ y: -3, transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] } }}
+      className="group"
+    >
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+        <div className="p-5 rounded-[calc(1rem-1.5px)] flex flex-col gap-3 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,16,0.98))' }}>
+          <div className="absolute -top-6 -right-6 w-16 h-16 rounded-full blur-2xl pointer-events-none opacity-[0.06]" style={{ background: accent }} />
+          <div className="flex items-start justify-between relative z-10">
+            <div className="p-2.5 rounded-xl border transition-all duration-500 group-hover:scale-105"
+              style={{ background: `${accent}14`, color: accent, borderColor: `${accent}22`, boxShadow: `0 0 20px ${accent}08` }}>
+              <Icon size={18} strokeWidth={1.5} />
+            </div>
+          </div>
+          <div className="relative z-10">
+            <p className="text-[1.65rem] font-bold text-[#E1E0CC] font-display leading-none tracking-tight">{value}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500 mt-1.5">{label}</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Journal Header — Double-Bezel
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function JournalHeader({ journal }) {
@@ -37,58 +68,57 @@ function JournalHeader({ journal }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
     >
-      {/* Journal name */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-2">
-            <Library size={18} className="text-[#DEDBC8]/40" />
-            <h2 className="text-lg font-bold text-[#E1E0CC] font-display">
-              {journal.journalName}
-            </h2>
-          </div>
-          <div className="flex items-center gap-3 text-xs text-gray-500">
-            {journal.publisher && (
-              <span className="flex items-center gap-1">
-                <Globe size={11} />
-                {journal.publisher}
-              </span>
-            )}
-            {journal.issn && (
-              <span className="flex items-center gap-1">
-                <Hash size={11} />
-                ISSN {journal.issn}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Follow */}
-          <FollowButton
-            journalId={journal.journalId}
-            journalName={journal.journalName}
-          />
-          {/* Impact Factor */}
-          {journal.impactFactor != null && (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-              <TrendingUp size={12} className="text-amber-400" />
-              <span className="text-xs font-bold text-amber-400">IF {journal.impactFactor}</span>
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] ring-1 ring-white/[0.05]">
+        <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-4 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(14,14,22,0.98))' }}>
+          <div className="absolute -top-10 -left-10 w-28 h-28 rounded-full bg-[#DEDBC8]/[0.03] blur-3xl pointer-events-none" />
+          <div className="flex items-start justify-between gap-4 relative z-10">
+            <div className="space-y-1.5 min-w-0">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 rounded-lg bg-[#DEDBC8]/8 border border-[#DEDBC8]/10"
+                  style={{ boxShadow: '0 0 16px rgba(222,219,200,0.04)' }}>
+                  <Library size={16} strokeWidth={1.5} className="text-[#DEDBC8]/60" />
+                </div>
+                <h2 className="text-lg font-bold text-[#E1E0CC] font-display truncate">
+                  {journal.journalName}
+                </h2>
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-gray-500 ml-9">
+                {journal.publisher && (
+                  <span className="flex items-center gap-1">
+                    <Globe size={10} />
+                    {journal.publisher}
+                  </span>
+                )}
+                {journal.issn && (
+                  <span className="flex items-center gap-1">
+                    <Hash size={10} />
+                    ISSN {journal.issn}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
-          {/* Quartile */}
-          {journal.quartile && (
-            <span
-              className="px-3 py-1.5 rounded-lg text-xs font-bold"
-              style={{ background: `${qColor}18`, color: qColor, border: `1px solid ${qColor}30` }}
-            >
-              {journal.quartile}
-            </span>
-          )}
+            <div className="flex items-center gap-2 shrink-0">
+              <FollowButton journalId={journal.journalId} journalName={journal.journalName} />
+              {journal.impactFactor != null && (
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/8 border border-amber-500/15"
+                  style={{ boxShadow: '0 0 12px rgba(245,158,11,0.06)' }}>
+                  <TrendingUp size={11} strokeWidth={1.5} className="text-amber-400" />
+                  <span className="text-[11px] font-bold text-amber-400">IF {journal.impactFactor}</span>
+                </div>
+              )}
+              {journal.quartile && (
+                <span className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                  style={{ background: `${qColor}14`, color: qColor, border: `1px solid ${qColor}28` }}>
+                  {journal.quartile}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -96,7 +126,7 @@ function JournalHeader({ journal }) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Timeline Chart
+   Timeline Chart — Double-Bezel
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function TimelineChart({ timeline }) {
@@ -106,89 +136,60 @@ function TimelineChart({ timeline }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.5, delay: 0.15, ease: [0.32, 0.72, 0, 1] }}
     >
-      <div className="flex items-center gap-2">
-        <TrendingUp size={14} className="text-[#DEDBC8]/40" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-          Publication Timeline
-        </span>
-      </div>
-
-      <div className="h-64">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={sorted} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
-            <defs>
-              <linearGradient id="paperGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4F8CFF" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#4F8CFF" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="citationGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00D1B2" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#00D1B2" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.05)" />
-            <XAxis
-              dataKey="year"
-              tick={{ fill: '#6B7280', fontSize: 11 }}
-              axisLine={{ stroke: 'rgba(222,219,200,0.08)' }}
-              tickLine={false}
-            />
-            <YAxis
-              tick={{ fill: '#6B7280', fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Tooltip
-              contentStyle={{
-                background: '#1B2235',
-                border: '1px solid rgba(222,219,200,0.1)',
-                borderRadius: 12,
-                fontSize: 12,
-              }}
-              labelStyle={{ color: '#E1E0CC', fontWeight: 600 }}
-            />
-            <Area
-              type="monotone"
-              dataKey="paperCount"
-              stroke="#4F8CFF"
-              strokeWidth={2}
-              fill="url(#paperGradient)"
-              name="Papers"
-            />
-            <Area
-              type="monotone"
-              dataKey="citationCount"
-              stroke="#00D1B2"
-              strokeWidth={2}
-              fill="url(#citationGradient)"
-              name="Citations"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Legend */}
-      <div className="flex items-center justify-center gap-6 text-[11px] text-gray-500">
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#4F8CFF]" />
-          Papers
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00D1B2]" />
-          Citations
-        </span>
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+        <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-4 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+          <div className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-blue-500/[0.03] blur-3xl pointer-events-none" />
+          <div className="flex items-center gap-2.5 relative z-10">
+            <div className="p-1.5 rounded-lg bg-[#DEDBC8]/8 border border-[#DEDBC8]/10"
+              style={{ boxShadow: '0 0 12px rgba(222,219,200,0.03)' }}>
+              <TrendingUp size={13} strokeWidth={1.5} className="text-[#DEDBC8]/50" />
+            </div>
+            <span className="text-[10px] uppercase tracking-[0.08em] font-bold text-gray-500">
+              Publication Timeline
+            </span>
+          </div>
+          <div className="h-64 relative z-10">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={sorted} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="paperGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#4F8CFF" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#4F8CFF" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="citationGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#00D1B2" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#00D1B2" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.04)" />
+                <XAxis dataKey="year" tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={{ stroke: 'rgba(222,219,200,0.06)' }} tickLine={false} />
+                <YAxis tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ background: '#1B2235', border: '1px solid rgba(222,219,200,0.1)', borderRadius: 12, fontSize: 12 }}
+                  labelStyle={{ color: '#E1E0CC', fontWeight: 600 }}
+                />
+                <Area type="monotone" dataKey="paperCount" stroke="#4F8CFF" strokeWidth={2} fill="url(#paperGradient)" name="Papers" />
+                <Area type="monotone" dataKey="citationCount" stroke="#00D1B2" strokeWidth={2} fill="url(#citationGradient)" name="Citations" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="flex items-center justify-center gap-6 text-[10px] text-gray-500 relative z-10">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#4F8CFF]" />Papers</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#00D1B2]" />Citations</span>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Top Authors
+   Top Authors — Double-Bezel
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function TopAuthors({ authors }) {
@@ -196,53 +197,55 @@ function TopAuthors({ authors }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.5, delay: 0.25, ease: [0.32, 0.72, 0, 1] }}
     >
-      <div className="flex items-center gap-2">
-        <User size={14} className="text-[#DEDBC8]/40" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-          Top Authors
-        </span>
-        <span className="text-[10px] text-gray-500 ml-auto">By total citations</span>
-      </div>
-
-      <div className="space-y-2">
-        {authors.map((author, i) => (
-          <motion.div
-            key={author.authorName || i}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-            className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5"
-          >
-            {/* Rank */}
-            <span className="w-5 text-xs font-bold text-gray-500 text-center">#{i + 1}</span>
-
-            {/* Author name */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#E1E0CC] truncate">{author.authorName}</p>
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+        <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-4 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-purple-500/[0.03] blur-3xl pointer-events-none" />
+          <div className="flex items-center gap-2.5 relative z-10">
+            <div className="p-1.5 rounded-lg bg-[#DEDBC8]/8 border border-[#DEDBC8]/10"
+              style={{ boxShadow: '0 0 12px rgba(222,219,200,0.03)' }}>
+              <User size={13} strokeWidth={1.5} className="text-[#DEDBC8]/50" />
             </div>
-
-            {/* Stats */}
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#E1E0CC]">{author.paperCount}</p>
-                <p className="text-[10px] text-gray-500">Papers</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#E1E0CC]">{author.totalCitations?.toLocaleString()}</p>
-                <p className="text-[10px] text-gray-500">Citations</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#00D1B2]">{author.avgCitationsPerPaper?.toFixed(1)}</p>
-                <p className="text-[10px] text-gray-500">Avg</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            <span className="text-[10px] uppercase tracking-[0.08em] font-bold text-gray-500">Top Authors</span>
+            <span className="text-[10px] text-gray-600 ml-auto">By total citations</span>
+          </div>
+          <div className="space-y-1.5 relative z-10">
+            {authors.map((author, i) => (
+              <motion.div
+                key={author.authorName || i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + i * 0.05, duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
+                className="flex items-center gap-4 px-4 py-3 rounded-xl border border-white/[0.03]
+                  bg-white/[0.015] hover:bg-white/[0.03] hover:border-white/[0.06] transition-all duration-400"
+                style={{ transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}
+              >
+                <span className="w-5 text-[10px] font-bold text-gray-500 text-center">#{i + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-medium text-[#E1E0CC] truncate">{author.authorName}</p>
+                </div>
+                <div className="flex items-center gap-5 shrink-0">
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-[#E1E0CC] font-mono tabular-nums">{author.paperCount}</p>
+                    <p className="text-[9px] text-gray-500">Papers</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-[#E1E0CC] font-mono tabular-nums">{author.totalCitations?.toLocaleString()}</p>
+                    <p className="text-[9px] text-gray-500">Citations</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-bold text-[#00D1B2] font-mono tabular-nums">{author.avgCitationsPerPaper?.toFixed(1)}</p>
+                    <p className="text-[9px] text-gray-500">Avg</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
     </motion.div>
   );
@@ -256,17 +259,30 @@ function TopKeywords({ keywords }) {
   if (!keywords || keywords.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-2 flex-wrap">
-      <Hash size={12} className="text-[#DEDBC8]/30" />
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.08, ease: [0.32, 0.72, 0, 1] }}
+      className="flex items-center gap-2 flex-wrap"
+    >
+      <div className="p-1 rounded-md bg-[#4F8CFF]/8 border border-[#4F8CFF]/12 shrink-0">
+        <Hash size={11} strokeWidth={1.5} className="text-[#4F8CFF]/60" />
+      </div>
       {keywords.map((kw) => (
-        <span
+        <motion.span
           key={kw}
-          className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, ease: [0.32, 0.72, 0, 1] }}
+          whileHover={{ scale: 1.04, y: -1 }}
+          className="px-3 py-1 rounded-full text-[11px] font-medium
+            bg-[#4F8CFF]/6 border border-[#4F8CFF]/12 text-[#4F8CFF]
+            hover:bg-[#4F8CFF]/12 hover:border-[#4F8CFF]/25 transition-all duration-300"
         >
           {kw}
-        </span>
+        </motion.span>
       ))}
-    </div>
+    </motion.div>
   );
 }
 
@@ -277,25 +293,28 @@ function TopKeywords({ keywords }) {
 function JournalSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
-      {/* Header skeleton */}
-      <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-6 space-y-3">
-        <div className="h-5 w-64 bg-[#DEDBC8]/8 rounded" />
-        <div className="h-3 w-48 bg-[#DEDBC8]/5 rounded" />
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.03] to-white/[0.01]">
+        <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-3" style={{ background: 'rgba(16,16,16,0.95)' }}>
+          <div className="h-5 w-64 bg-white/[0.04] rounded-lg" />
+          <div className="h-3 w-48 bg-white/[0.03] rounded" />
+        </div>
       </div>
-      {/* Stat cards skeleton */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] space-y-3">
-            <div className="h-3 w-14 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-6 w-20 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-3 w-10 bg-[#DEDBC8]/5 rounded" />
+          <div key={i} className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.03] to-white/[0.01]">
+            <div className="p-5 rounded-[calc(1rem-1.5px)] space-y-3" style={{ background: 'rgba(16,16,16,0.95)' }}>
+              <div className="h-3 w-14 bg-white/[0.04] rounded" />
+              <div className="h-6 w-20 bg-white/[0.04] rounded" />
+              <div className="h-3 w-10 bg-white/[0.03] rounded" />
+            </div>
           </div>
         ))}
       </div>
-      {/* Timeline skeleton */}
-      <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-6">
-        <div className="h-3 w-32 bg-[#DEDBC8]/8 rounded mb-4" />
-        <div className="h-48 bg-[#DEDBC8]/3 rounded-lg" />
+      <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.03] to-white/[0.01]">
+        <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-4" style={{ background: 'rgba(16,16,16,0.95)' }}>
+          <div className="h-3 w-32 bg-white/[0.04] rounded" />
+          <div className="h-48 bg-white/[0.02] rounded-lg" />
+        </div>
       </div>
     </div>
   );
@@ -582,56 +601,61 @@ export default function SearchJournal() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         {/* ─── Journal Search Bar ─── */}
         <div className="relative">
-          <div className="relative">
-            <BookOpen size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Search by journal name or ID..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={handleKeyDown}
-              onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
-            />
-            {query && (
-              <button
-                type="button"
-                onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
-              >
-                <X size={14} />
-              </button>
-            )}
+          <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.02] ring-1 ring-white/[0.05]">
+            <div className="relative rounded-[calc(1rem-1.5px)] overflow-hidden"
+              style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+              <BookOpen size={17} strokeWidth={1.5} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/30 z-10" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search by journal name or ID..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                className="w-full pl-12 pr-14 py-4 text-sm bg-transparent text-[#E1E0CC] placeholder:text-gray-500
+                  focus:outline-none transition-all"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-gray-500 hover:text-[#E1E0CC] transition-all duration-300"
+                >
+                  <X size={14} strokeWidth={1.5} />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Search suggestions */}
           <AnimatePresence>
             {showSuggestions && filteredSuggestions.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                initial={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -8, filter: 'blur(4px)' }}
+                transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border border-[#DEDBC8]/8 bg-[#131721] shadow-2xl shadow-black/40 backdrop-blur-xl overflow-hidden"
               >
                 {filteredSuggestions.slice(0, 8).map((kw) => (
                   <button key={kw} type="button"
                     onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
+                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/[0.04] transition-colors text-[#E1E0CC]"
                   >
-                    <Clock size={12} className="text-gray-500 shrink-0" />
+                    <Clock size={12} strokeWidth={1.5} className="text-gray-500 shrink-0" />
                     <span className="flex-1 truncate">{kw}</span>
                     <button type="button"
                       onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeHistoryItem(kw); }}
-                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
-                    ><X size={11} /></button>
+                      className="p-1 rounded hover:bg-white/8 text-gray-500 hover:text-red-400 shrink-0 transition-colors"
+                    ><X size={11} strokeWidth={1.5} /></button>
                   </button>
                 ))}
-                <div className="border-t border-[#DEDBC8]/5">
+                <div className="border-t border-white/[0.04]">
                   <button type="button" onMouseDown={(e) => { e.preventDefault(); clearHistory(); }}
-                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                  ><Trash2 size={11} /> Clear search history</button>
+                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[10px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/[0.03] transition-colors"
+                  ><Trash2 size={11} strokeWidth={1.5} /> Clear search history</button>
                 </div>
               </motion.div>
             )}
@@ -663,37 +687,40 @@ export default function SearchJournal() {
 
             {/* Categories loaded */}
             {!loadingCategories && categories.length > 0 && (
-              <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#0A0A0A]/80 p-5 space-y-4">
-                {/* ── Category Tabs ── */}
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-1.5 flex-wrap"
-                >
-                  {categories.map((cat) => {
-                    const active = cat.fieldId === selectedFieldId;
-                    return (
-                      <button
-                        key={cat.fieldId}
-                        type="button"
-                        onClick={() => handleFieldClick(cat.fieldId)}
-                        disabled={loadingField}
-                        className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
-                          active
-                            ? 'bg-[#DEDBC8]/15 text-[#DEDBC8] border-[#DEDBC8]/30'
-                            : 'text-gray-400 border-[#DEDBC8]/8 hover:bg-[#DEDBC8]/5 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/15'
-                        }`}
-                      >
-                        {cat.fieldName}
-                        {cat.journalCount > 0 && (
-                          <span className={`ml-1.5 text-[10px] ${active ? 'text-[#DEDBC8]/60' : 'text-gray-600'}`}>
-                            {cat.journalCount}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </motion.div>
+              <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+                <div className="p-5 rounded-[calc(1rem-1.5px)] space-y-4 relative overflow-hidden"
+                  style={{ background: 'linear-gradient(135deg, rgba(10,10,10,0.95), rgba(8,8,16,0.98))' }}>
+                  <div className="absolute -top-8 -right-8 w-20 h-20 rounded-full bg-[#DEDBC8]/[0.02] blur-3xl pointer-events-none" />
+                  {/* ── Category Tabs ── */}
+                  <motion.div
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-1.5 flex-wrap relative z-10"
+                  >
+                    {categories.map((cat) => {
+                      const active = cat.fieldId === selectedFieldId;
+                      return (
+                        <button
+                          key={cat.fieldId}
+                          type="button"
+                          onClick={() => handleFieldClick(cat.fieldId)}
+                          disabled={loadingField}
+                          className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all duration-300 border whitespace-nowrap ${
+                            active
+                              ? 'bg-[#DEDBC8]/12 text-[#DEDBC8] border-[#DEDBC8]/25 shadow-[0_0_16px_rgba(222,219,200,0.04)]'
+                              : 'text-gray-500 border-white/[0.05] hover:bg-white/[0.03] hover:text-[#E1E0CC] hover:border-white/[0.08]'
+                          }`}
+                        >
+                          {cat.fieldName}
+                          {cat.journalCount > 0 && (
+                            <span className={`ml-1.5 text-[10px] ${active ? 'text-[#DEDBC8]/50' : 'text-gray-600'}`}>
+                              {cat.journalCount}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
 
                 {/* ── Journal Cards Grid ── */}
                 {loadingField ? (
@@ -701,81 +728,75 @@ export default function SearchJournal() {
                 ) : fieldData && fieldData.topJournals && fieldData.topJournals.length > 0 ? (
                   <motion.div
                     key={selectedFieldId}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                    className="space-y-3"
+                    initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                    className="space-y-3 relative z-10"
                   >
-                    {/* Field description */}
                     {fieldData.description && (
-                      <p className="text-xs text-gray-500 px-1">
-                        {fieldData.description}
-                      </p>
+                      <p className="text-[11px] text-gray-500 px-1">{fieldData.description}</p>
                     )}
-
-                    {/* Journal cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {fieldData.topJournals.map((journal, i) => (
                         <motion.div
                           key={journal.journalId || i}
-                          initial={{ opacity: 0, y: 12 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.06, duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                          initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }}
+                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                          transition={{ delay: i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                          whileHover={{ y: -3, transition: { duration: 0.3, ease: [0.32, 0.72, 0, 1] } }}
                           onClick={() => {
                             setQuery(journal.journalName);
                             handleSearch(journal.journalName);
                           }}
-                          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3 hover:border-[#DEDBC8]/20 transition-all cursor-pointer"
+                          className="group cursor-pointer"
                         >
-                          {/* Journal name + quartile */}
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="space-y-1 min-w-0">
-                              <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate">
-                                {journal.journalName}
-                              </h3>
-                              {journal.publisher && (
-                                <span className="text-[11px] text-gray-500 flex items-center gap-1">
-                                  <Globe size={10} />
-                                  {journal.publisher}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {/* Follow — stopPropagation so clicking doesn't trigger the card */}
-                              <span onClick={(e) => e.stopPropagation()}>
-                                <FollowButton
-                                  journalId={journal.journalId}
-                                  journalName={journal.journalName}
-                                />
-                              </span>
-                              {journal.impactFactor != null && (
-                                <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                  IF {journal.impactFactor}
-                                </span>
-                              )}
-                              {journal.quartile && (
-                                <span
-                                  className="px-2 py-1 rounded-md text-[10px] font-bold"
-                                  style={{
-                                    background: `${Q_COLORS[journal.quartile] || '#6B7280'}18`,
-                                    color: Q_COLORS[journal.quartile] || '#6B7280',
-                                    border: `1px solid ${Q_COLORS[journal.quartile] || '#6B7280'}30`,
-                                  }}
-                                >
-                                  {journal.quartile}
-                                </span>
+                          <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] ring-1 ring-white/[0.03]
+                            group-hover:ring-[#DEDBC8]/10 transition-all duration-400"
+                            style={{ transitionTimingFunction: 'cubic-bezier(0.32, 0.72, 0, 1)' }}>
+                            <div className="p-5 rounded-[calc(1rem-1.5px)] space-y-3 relative overflow-hidden"
+                              style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+                              <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-[#DEDBC8]/[0.02] blur-xl pointer-events-none
+                                group-hover:bg-[#DEDBC8]/[0.04] transition-all duration-500" />
+                              <div className="flex items-start justify-between gap-3 relative z-10">
+                                <div className="space-y-1 min-w-0">
+                                  <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate
+                                    group-hover:text-[#4F8CFF] transition-colors duration-400">
+                                    {journal.journalName}
+                                  </h3>
+                                  {journal.publisher && (
+                                    <span className="text-[10px] text-gray-500 flex items-center gap-1">
+                                      <Globe size={9} strokeWidth={1.5} />{journal.publisher}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <span onClick={(e) => e.stopPropagation()}>
+                                    <FollowButton journalId={journal.journalId} journalName={journal.journalName} />
+                                  </span>
+                                  {journal.impactFactor != null && (
+                                    <span className="px-2 py-1 rounded-md text-[10px] font-bold bg-amber-500/8 text-amber-400 border border-amber-500/12">
+                                      IF {journal.impactFactor}
+                                    </span>
+                                  )}
+                                  {journal.quartile && (
+                                    <span className="px-2 py-1 rounded-md text-[10px] font-bold"
+                                      style={{
+                                        background: `${Q_COLORS[journal.quartile] || '#6B7280'}14`,
+                                        color: Q_COLORS[journal.quartile] || '#6B7280',
+                                        border: `1px solid ${Q_COLORS[journal.quartile] || '#6B7280'}28`,
+                                      }}>
+                                      {journal.quartile}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {journal.issn && (
+                                <div className="flex items-center gap-1 text-[10px] text-gray-600 relative z-10">
+                                  <Hash size={9} strokeWidth={1.5} />ISSN {journal.issn}
+                                </div>
                               )}
                             </div>
                           </div>
-
-                          {/* ISSN */}
-                          {journal.issn && (
-                            <div className="flex items-center gap-1 text-[10px] text-gray-600">
-                              <Hash size={10} />
-                              ISSN {journal.issn}
-                            </div>
-                          )}
                         </motion.div>
                       ))}
                     </div>
@@ -784,32 +805,39 @@ export default function SearchJournal() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="flex flex-col items-center justify-center py-12 text-center"
+                    className="flex flex-col items-center justify-center py-12 text-center relative z-10"
                   >
-                    <div className="p-3 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-3">
-                      <Newspaper size={24} className="text-[#DEDBC8]/20" />
+                    <div className="p-3 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8 mb-3"
+                      style={{ boxShadow: '0 0 20px rgba(222,219,200,0.03)' }}>
+                      <Newspaper size={22} strokeWidth={1.5} className="text-[#DEDBC8]/15" />
                     </div>
-                    <p className="text-xs text-gray-500">
-                      No journals found in this category yet.
-                    </p>
+                    <p className="text-xs text-gray-500">No journals found in this category yet.</p>
                   </motion.div>
                 ) : null}
+                </div>
               </div>
             )}
 
             {/* Categories empty (no error, no data, not loading) */}
             {!loadingCategories && !browseError && categories.length === 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center justify-center py-16 text-center"
+                initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
               >
-                <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
-                  <Newspaper size={32} className="text-[#DEDBC8]/30" />
+                <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] ring-1 ring-white/[0.04]">
+                  <div className="flex flex-col items-center justify-center py-16 text-center rounded-[calc(1rem-1.5px)] relative overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, rgba(10,10,10,0.95), rgba(8,8,16,0.98))' }}>
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(222,219,200,0.015),transparent_60%)] pointer-events-none" />
+                    <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/8 mb-4 relative z-10"
+                      style={{ boxShadow: '0 0 24px rgba(222,219,200,0.03)' }}>
+                      <Newspaper size={28} strokeWidth={1.5} className="text-[#DEDBC8]/20" />
+                    </div>
+                    <p className="text-sm text-gray-500 max-w-sm relative z-10">
+                      Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-sm text-gray-500 max-w-sm">
-                  Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
-                </p>
               </motion.div>
             )}
           </div>
@@ -820,10 +848,17 @@ export default function SearchJournal() {
 
         {/* ─── Error ─── */}
         {error && !isLoading && (
-          <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
-            <AlertCircle size={13} className="shrink-0" />
-            <span>Unable to load journal data. Please check the journal name and try again.</span>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-[1.5px] rounded-2xl bg-gradient-to-b from-amber-500/8 to-amber-500/4 ring-1 ring-amber-500/10"
+          >
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-[calc(1rem-1.5px)]"
+              style={{ background: 'rgba(16,16,16,0.95)' }}>
+              <AlertCircle size={13} strokeWidth={1.5} className="text-amber-400 shrink-0" />
+              <span className="text-[11px] text-amber-400/70">Unable to load journal data. Please check the journal name and try again.</span>
+            </div>
+          </motion.div>
         )}
 
         {/* ─── Results ─── */}
@@ -838,34 +873,29 @@ export default function SearchJournal() {
             )}
 
             {/* Stat Cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="grid grid-cols-2 lg:grid-cols-3 gap-3"
-            >
-              <StatCard
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <JournalStatCard
                 label="Total Papers"
                 value={(journalStats.totalPapers ?? 0).toLocaleString()}
-                change=""
                 Icon={FileText}
                 accent="#4F8CFF"
+                index={0}
               />
-              <StatCard
+              <JournalStatCard
                 label="Total Citations"
                 value={(journalStats.totalCitations ?? 0).toLocaleString()}
-                change=""
                 Icon={Star}
                 accent="#A78BFA"
+                index={1}
               />
-              <StatCard
+              <JournalStatCard
                 label="Avg Citations/Paper"
                 value={journalStats.avgCitationsPerPaper != null ? journalStats.avgCitationsPerPaper.toFixed(2) : '—'}
-                change=""
                 Icon={TrendingUp}
                 accent="#00D1B2"
+                index={2}
               />
-            </motion.div>
+            </div>
 
             {/* Timeline Chart */}
             {timeline && timeline.length > 0 && <TimelineChart timeline={timeline} />}
@@ -873,39 +903,47 @@ export default function SearchJournal() {
             {/* Top Papers */}
             {topPapers.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-3"
+                initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                transition={{ duration: 0.5, delay: 0.2, ease: [0.32, 0.72, 0, 1] }}
               >
-                <div className="flex items-center gap-2">
-                  <FileText size={14} className="text-[#DEDBC8]/40" />
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-                    Top Cited Papers
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  {topPapers.map((paper, i) => (
-                    <motion.div
-                      key={paper.paperId || i}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 + i * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <PaperItemCard
-                        paper={paper}
-                        index={i}
-                        badgeColor="#F59E0B"
-                        isSaved={bookmarkedIds.has(paper.paperId)}
-                        onToggleBookmark={handleToggleBookmark}
-                        onClick={(p) => {
-                          const role = sessionStorage.getItem('userRole') || 'researcher';
-                          sessionStorage.setItem('scitrack_referrer', window.location.pathname);
-                          navigate(`/${role}/papers/${p.paperId}`);
-                        }}
-                      />
-                    </motion.div>
-                  ))}
+                <div className="p-[1.5px] rounded-2xl bg-gradient-to-b from-white/[0.05] to-white/[0.02] ring-1 ring-white/[0.04]">
+                  <div className="p-6 rounded-[calc(1rem-1.5px)] space-y-4 relative overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, rgba(16,16,16,0.95), rgba(12,12,20,0.98))' }}>
+                    <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-amber-500/[0.03] blur-3xl pointer-events-none" />
+                    <div className="flex items-center gap-2.5 relative z-10">
+                      <div className="p-1.5 rounded-lg bg-amber-400/10 border border-amber-400/15"
+                        style={{ boxShadow: '0 0 14px rgba(251,191,36,0.05)' }}>
+                        <FileText size={13} strokeWidth={1.5} className="text-amber-400/60" />
+                      </div>
+                      <span className="text-[10px] uppercase tracking-[0.08em] font-bold text-gray-500">
+                        Top Cited Papers
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4 relative z-10">
+                      {topPapers.map((paper, i) => (
+                        <motion.div
+                          key={paper.paperId || i}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.3 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                        >
+                          <PaperItemCard
+                            paper={paper}
+                            index={i}
+                            badgeColor="#F59E0B"
+                            isSaved={bookmarkedIds.has(paper.paperId)}
+                            onToggleBookmark={handleToggleBookmark}
+                            onClick={(p) => {
+                              const role = sessionStorage.getItem('userRole') || 'researcher';
+                              sessionStorage.setItem('scitrack_referrer', window.location.pathname);
+                              navigate(`/${role}/papers/${p.paperId}`);
+                            }}
+                          />
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}

@@ -19,6 +19,7 @@ import {
   LogOut,
   Palette,
   Camera,
+  Film,
   X,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -150,6 +151,8 @@ export default function SettingsPage() {
   const updateStoreUser = useAuthStore((s) => s.updateUser);
   const user = useAuthStore((s) => s.user);
   const clearTokens = useAuthStore((s) => s.clearTokens);
+  const useVideoBackground = useAuthStore((s) => s.useVideoBackground);
+  const setUseVideoBackground = useAuthStore((s) => s.setUseVideoBackground);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   /* ── Language preview ────────────────────────────────────────────── */
@@ -890,6 +893,46 @@ export default function SettingsPage() {
                 style={{ background: color }}
               />
             ))}
+          </div>
+        </div>
+
+        {/* Video background toggle */}
+        <div className="mt-4 pt-4 border-t border-[#DEDBC8]/6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-[#DEDBC8]/8 flex items-center justify-center shrink-0">
+                <Film size={16} className="text-[#DEDBC8]" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-[#E1E0CC]">{t('background.videoLabel')}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5 leading-relaxed">
+                  {t('background.videoDescription')}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setUseVideoBackground(!useVideoBackground);
+                toast.success(
+                  useVideoBackground
+                    ? t('background.switchedToCustom')
+                    : t('background.switchedToVideo'),
+                  { duration: 2000 }
+                );
+              }}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 shrink-0 ${
+                useVideoBackground
+                  ? 'bg-[#4F8CFF]'
+                  : 'bg-[#DEDBC8]/15'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-300 ${
+                  useVideoBackground ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
           </div>
         </div>
       </SectionCard>

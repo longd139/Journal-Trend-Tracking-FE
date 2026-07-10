@@ -47,7 +47,9 @@
     "newest": "Mới nhất",
     "oldest": "Cũ nhất",
     "mostCited": "Trích dẫn nhiều",
-    "leastCited": "Trích dẫn ít"
+    "leastCited": "Trích dẫn ít",
+    "titleAZ": "Tên A-Z",
+    "titleZA": "Tên Z-A"
   },
   "aiSummary": {
     "title": "Tóm tắt AI",
@@ -60,5 +62,9 @@
     "error": "Không thể tải tóm tắt AI.",
     "retry": "Thử lại",
     "fetching": "Đang tạo thông tin AI..."
+  },
+  "relatedTrends": {
+    "title": "Xu hướng liên quan",
+    "subtitle": "Từ khóa vệ tinh từ các bài báo gần đây"
   }
 }

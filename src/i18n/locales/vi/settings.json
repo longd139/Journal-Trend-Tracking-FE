@@ -78,5 +78,11 @@
     "density": "Mật độ bố cục",
     "densityCompact": "Thu gọn",
     "densityComfortable": "Thoải mái"
+  },
+  "background": {
+    "videoLabel": "Nền video",
+    "videoDescription": "Sử dụng video nền mặc định thay vì ảnh tùy chỉnh",
+    "switchedToVideo": "Đã chuyển sang nền video",
+    "switchedToCustom": "Đã chuyển sang nền tùy chỉnh"
   }
 }
