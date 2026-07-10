@@ -239,4 +239,32 @@ export const paperAPI = {
     });
     return response.data; // Blob
   },
+
+  // ─── Recommendations ──────────────────────────────────────────────────────
+
+  /**
+   * Get personalized paper recommendations based on search history + bookmarks.
+   * GET /api/v1/papers/recommendations?page=0&size=10
+   * Auth: JWT required
+   * Response: { recommendations: [{ paper, reason, reasonDetail }], totalElements, ... }
+   */
+  async getRecommendations({ page = 0, size = 10 } = {}) {
+    const { data } = await axiosClient.get('/api/v1/papers/recommendations', {
+      params: { page, size },
+    });
+    return data.data || data;
+  },
+
+  // ─── Field Distribution ───────────────────────────────────────────────────
+
+  /**
+   * Get system-wide research field distribution with paper counts.
+   * GET /api/search/fields/distribution
+   * Auth: JWT required
+   * Response: [{ keywordText, normalizedText, paperCount }]
+   */
+  async getFieldDistribution() {
+    const { data } = await axiosClient.get('/api/search/fields/distribution');
+    return data.data || data;
+  },
 };

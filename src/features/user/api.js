@@ -29,4 +29,14 @@ export const userAPI = {
     });
     return data;
   },
+
+  /** POST /api/v1/users/me/background — Upload background image (max 5MB, image/*) */
+  async uploadBackground(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await axiosClient.post('/api/v1/users/me/background', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return data.data || data;
+  },
 };

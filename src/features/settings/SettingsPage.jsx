@@ -213,6 +213,13 @@ export default function SettingsPage() {
         if (userData.avatarUrl) {
           setAvatarPreview(userData.avatarUrl);
         }
+        if (userData.backgroundUrl) {
+          setBackgroundPreview(userData.backgroundUrl);
+          // Sync to store on initial load
+          if (!useAuthStore.getState().backgroundUrl) {
+            useAuthStore.getState().setBackground(userData.backgroundUrl);
+          }
+        }
       } catch (err) {
         console.error('Error fetching user info:', err);
         setError(t('errors.loadFailed', { ns: 'common' }));
@@ -300,6 +307,97 @@ export default function SettingsPage() {
   const handleRemoveAvatar = () => {
     setAvatarPreview(null);
     setAvatarChanged(true);
+  };
+
+  /* ── Background handlers ──────────────────────────────────────────── */
+  const [backgroundPreview, setBackgroundPreview] = useState(null);
+  const [backgroundFile, setBackgroundFile] = useState(null);
+  const [backgroundChanged, setBackgroundChanged] = useState(false);
+  const [backgroundUploading, setBackgroundUploading] = useState(false);
+  const bgFileInputRef = useRef(null);
+
+  const handleBackgroundClick = () => {
+    bgFileInputRef.current?.click();
+  };
+
+  const handleBackgroundFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBackgroundPreview(reader.result);
+      setBackgroundFile(file);
+      setBackgroundChanged(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleRemoveBackground = () => {
+    setBackgroundPreview(null);
+    setBackgroundFile(null);
+    setBackgroundChanged(true);
+  };
+
+  const handlePresetColor = async (color) => {
+    // Generate a solid-color PNG blob via canvas
+    const canvas = document.createElement('canvas');
+    canvas.width = 1440;
+    canvas.height = 320;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1440, 320);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    const file = new File([blob], `bg-${color.replace('#', '')}.png`, { type: 'image/png' });
+    const reader = new FileReader();
+    reader.onload = () => {
+      setBackgroundPreview(reader.result);
+      setBackgroundFile(file);
+      setBackgroundChanged(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const PRESET_COLORS = [
+    { color: '#0B1020', label: 'Deep Navy' },
+    { color: '#1a1a2e', label: 'Midnight' },
+    { color: '#0f2027', label: 'Dark Teal' },
+    { color: '#1a1124', label: 'Aubergine' },
+    { color: '#1B2235', label: 'Steel Blue' },
+    { color: '#0d1117', label: 'GitHub Dark' },
+    { color: '#1c1c1c', label: 'Charcoal' },
+    { color: '#2d1b2e', label: 'Plum' },
+    { color: '#0a1628', label: 'Ocean' },
+    { color: '#1a0a0a', label: 'Deep Red' },
+  ];
+
+  const handleSaveBackground = async () => {
+    if (!backgroundFile) return;
+    setBackgroundUploading(true);
+    try {
+      const result = await userAPI.uploadBackground(backgroundFile);
+      setBackgroundPreview(result.url);
+      setFormData((prev) => ({ ...prev, backgroundUrl: result.url }));
+      setBackgroundFile(null);
+      setBackgroundChanged(false);
+      // Sync to Zustand so MainLayout picks it up immediately
+      useAuthStore.getState().setBackground(result.url);
+      toast.success('Background updated');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to upload background');
+    } finally {
+      setBackgroundUploading(false);
+    }
   };
 
   /* ── Handlers ─────────────────────────────────────────────────────── */
@@ -692,6 +790,108 @@ export default function SettingsPage() {
             </motion.button>
           </div>
         </form>
+      </SectionCard>
+
+      {/* ═════════════════════════════════════════════════════════════════
+         SECTION 1.5 — Background
+         ═════════════════════════════════════════════════════════════════ */}
+      <SectionCard
+        icon={Sparkles}
+        title="App Background"
+        description="Customize the background of your dashboard"
+        delay={0.1}
+      >
+        <input
+          ref={bgFileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleBackgroundFileChange}
+        />
+
+        {/* Background preview */}
+        <div className="relative rounded-xl overflow-hidden border border-[#DEDBC8]/10 mb-5">
+          {backgroundPreview ? (
+            <img
+              src={backgroundPreview}
+              alt="Background"
+              className="w-full h-40 object-cover"
+            />
+          ) : (
+            <div className="w-full h-40 bg-gradient-to-br from-[#1B2235] via-[#0F1219] to-[#1B2235] flex items-center justify-center">
+              <span className="text-xs text-gray-600">No background set</span>
+            </div>
+          )}
+          {/* Click overlay */}
+          <button
+            type="button"
+            onClick={handleBackgroundClick}
+            className="absolute inset-0 bg-black/0 hover:bg-black/40 transition-colors flex items-center justify-center group"
+          >
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 px-4 py-2 rounded-xl bg-black/60 text-white text-xs font-medium">
+              <Camera size={14} /> Change Background
+            </span>
+          </button>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBackgroundClick}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
+              bg-[#DEDBC8]/8 border border-[#DEDBC8]/15 text-[#E1E0CC]
+              hover:bg-[#DEDBC8]/15 transition-all"
+          >
+            <Camera size={13} /> Choose Image
+          </button>
+          {backgroundPreview && (
+            <button
+              type="button"
+              onClick={handleRemoveBackground}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
+                text-gray-500 hover:text-red-400 transition-colors"
+            >
+              <X size={13} /> Remove
+            </button>
+          )}
+          {backgroundChanged && backgroundFile && (
+            <button
+              type="button"
+              onClick={handleSaveBackground}
+              disabled={backgroundUploading}
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold
+                bg-[#4F8CFF] text-white hover:bg-[#3B6FDB] disabled:opacity-50 transition-all"
+            >
+              {backgroundUploading ? (
+                <RefreshCw size={13} className="animate-spin" />
+              ) : (
+                <Save size={13} />
+              )}
+              {backgroundUploading ? 'Uploading...' : 'Save Background'}
+            </button>
+          )}
+        </div>
+        <p className="text-[10px] text-gray-500 mt-3">
+          Recommended size: 1440×320px. JPG, PNG or WebP. Max 5MB.
+        </p>
+
+        {/* Preset colors */}
+        <div className="mt-4 pt-4 border-t border-[#DEDBC8]/6">
+          <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2.5">Or pick a solid color</p>
+          <div className="flex flex-wrap gap-2">
+            {PRESET_COLORS.map(({ color, label }) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => handlePresetColor(color)}
+                title={label}
+                className="w-8 h-8 rounded-lg border-2 border-[#DEDBC8]/10 hover:border-[#DEDBC8]/40 hover:scale-110 transition-all shadow-sm"
+                style={{ background: color }}
+              />
+            ))}
+          </div>
+        </div>
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════

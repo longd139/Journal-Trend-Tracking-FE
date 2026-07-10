@@ -10,6 +10,7 @@ export const useAuthStore = create(
         refreshToken: null,
         preferredLanguage: null,
         user: null,
+        backgroundUrl: null,
 
         // Actions
         setTokens: (access) => set({ accessToken: access }),
@@ -20,6 +21,8 @@ export const useAuthStore = create(
 
         updateUser: (partial) =>
           set((state) => ({ user: { ...state.user, ...partial } })),
+
+        setBackground: (url) => set({ backgroundUrl: url }),
 
         clearTokens: () => set({ accessToken: null }),
       }),
@@ -33,6 +36,7 @@ export const useAuthStore = create(
           accessToken: state.accessToken,
           refreshToken: state.refreshToken,
           preferredLanguage: state.preferredLanguage,
+          backgroundUrl: state.backgroundUrl,
         }),
       },
     ),

@@ -100,6 +100,32 @@ export const adminAPI = {
     return data; // AppResponse<AdminOverviewResponse>
   },
 
+  /* ──────────── Admin Overview Charts ──────────── */
+
+  /** GET /api/v1/admin/overview/charts/request-volume */
+  async getRequestVolumeChart() {
+    const { data } = await axiosClient.get('/api/v1/admin/overview/charts/request-volume');
+    return data; // AppResponse<RequestVolumeResponse>
+  },
+
+  /** GET /api/v1/admin/overview/charts/resource-usage */
+  async getResourceUsageChart() {
+    const { data } = await axiosClient.get('/api/v1/admin/overview/charts/resource-usage');
+    return data; // AppResponse<ResourceUsageResponse>
+  },
+
+  /** GET /api/v1/admin/overview/charts/visitor-traffic */
+  async getVisitorTrafficChart() {
+    const { data } = await axiosClient.get('/api/v1/admin/overview/charts/visitor-traffic');
+    return data; // AppResponse<VisitorTrafficResponse>
+  },
+
+  /** GET /api/v1/admin/overview/charts/recent-events */
+  async getRecentEvents() {
+    const { data } = await axiosClient.get('/api/v1/admin/overview/charts/recent-events');
+    return data; // AppResponse<RecentEventsResponse>
+  },
+
   /* ──────────── Keep legacy sync helpers for notification ──────────── */
   async getSyncNotifications() {
     const { data } = await axiosClient.get('/api/admin/sync/history', {

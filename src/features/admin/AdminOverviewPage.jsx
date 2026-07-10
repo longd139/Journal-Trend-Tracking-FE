@@ -85,6 +85,12 @@ export default function AdminOverview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  // Chart data states
+  const [requestVolume, setRequestVolume] = useState(null);
+  const [resourceUsage, setResourceUsage] = useState(null);
+  const [visitorTraffic, setVisitorTraffic] = useState(null);
+  const [recentEvents, setRecentEvents] = useState(null);
+
   useEffect(() => {
     const i = setInterval(() => setNow(new Date()), 30000);
     return () => clearInterval(i);
@@ -114,18 +120,51 @@ export default function AdminOverview() {
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
+  // Fetch chart data independently
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchCharts() {
+      try {
+        const [volRes, resRes, visRes, evtRes] = await Promise.allSettled([
+          adminAPI.getRequestVolumeChart(),
+          adminAPI.getResourceUsageChart(),
+          adminAPI.getVisitorTrafficChart(),
+          adminAPI.getRecentEvents(),
+        ]);
+        if (!cancelled) {
+          if (volRes.status === 'fulfilled' && volRes.value?.data) setRequestVolume(volRes.value.data);
+          if (resRes.status === 'fulfilled' && resRes.value?.data) setResourceUsage(resRes.value.data);
+          if (visRes.status === 'fulfilled' && visRes.value?.data) setVisitorTraffic(visRes.value.data);
+          if (evtRes.status === 'fulfilled' && evtRes.value?.data) setRecentEvents(evtRes.value.data);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch chart data:', err);
+      }
+    }
+    fetchCharts();
+    const chartInterval = setInterval(fetchCharts, 60000);
+    return () => { cancelled = true; clearInterval(chartInterval); };
+  }, []);
+
   const handleRetry = () => {
     setLoading(true);
     setError(false);
-    adminAPI.getOverview()
-      .then((res) => {
-        if (res?.data) setStats(res.data);
-      })
-      .catch((err) => {
-        console.warn('Retry failed:', err);
-        setError(true);
-      })
-      .finally(() => setLoading(false));
+    Promise.allSettled([
+      adminAPI.getOverview(),
+      adminAPI.getRequestVolumeChart(),
+      adminAPI.getResourceUsageChart(),
+      adminAPI.getVisitorTrafficChart(),
+      adminAPI.getRecentEvents(),
+    ]).then(([overRes, volRes, resRes, visRes, evtRes]) => {
+      if (overRes.status === 'fulfilled' && overRes.value?.data) setStats(overRes.value.data);
+      if (volRes.status === 'fulfilled' && volRes.value?.data) setRequestVolume(volRes.value.data);
+      if (resRes.status === 'fulfilled' && resRes.value?.data) setResourceUsage(resRes.value.data);
+      if (visRes.status === 'fulfilled' && visRes.value?.data) setVisitorTraffic(visRes.value.data);
+      if (evtRes.status === 'fulfilled' && evtRes.value?.data) setRecentEvents(evtRes.value.data);
+    }).catch((err) => {
+      console.warn('Retry failed:', err);
+      setError(true);
+    }).finally(() => setLoading(false));
   };
 
   const fmt = (val) => (val != null ? val.toLocaleString() : NO_DATA);
@@ -261,10 +300,54 @@ export default function AdminOverview() {
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.requestSubtitle')}</p>
               </div>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('overview.requests')}</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500" />{t('overview.errors')}</span>
+              </div>
             </div>
-            <div className="flex items-center justify-center h-[220px] text-gray-600 text-xs">
-              {t('overview.noData') || 'No data available'}
-            </div>
+            {requestVolume?.points?.length > 0 ? (
+              <ResponsiveContainer width="100%" height={260}>
+                <AreaChart data={requestVolume.points} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="requestsGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#34D399" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#34D399" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="errorsGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.04} vertical={false} />
+                  <XAxis
+                    dataKey="time"
+                    tick={{ fontSize: 10, fill: '#6B7280' }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval="preserveStartEnd"
+                    minTickGap={40}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: '#6B7280' }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickCount={4}
+                    allowDecimals={false}
+                    width={45}
+                  />
+                  <Tooltip
+                    contentStyle={{ background: '#1A1A1A', border: '1px solid #DEDBC820', borderRadius: 10, fontSize: 12 }}
+                    labelStyle={{ color: '#E1E0CC' }}
+                  />
+                  <Area type="monotone" dataKey="requests" stroke="#34D399" fill="url(#requestsGrad)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="errors" stroke="#EF4444" fill="url(#errorsGrad)" strokeWidth={1.5} dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[260px] text-gray-600 text-xs">
+                {t('overview.noData') || 'No data available'}
+              </div>
+            )}
           </motion.div>
 
           {/* Resource Usage */}
@@ -282,9 +365,47 @@ export default function AdminOverview() {
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.resourceSubtitle')}</p>
               </div>
             </div>
-            <div className="flex items-center justify-center h-[220px] text-gray-600 text-xs">
-              {t('overview.noData') || 'No data available'}
-            </div>
+            {resourceUsage ? (
+              <div className="space-y-5 h-[220px] flex flex-col justify-center">
+                {/* CPU */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-gray-400">{t('overview.cpu')}</span>
+                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.cpuPercent}%</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-700"
+                         style={{ width: `${Math.min(resourceUsage.cpuPercent, 100)}%` }} />
+                  </div>
+                </div>
+                {/* Memory */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-gray-400">{t('overview.memory')}</span>
+                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.heapUsedMb} / {resourceUsage.heapMaxMb} MB</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-700"
+                         style={{ width: `${resourceUsage.heapMaxMb > 0 ? Math.min((resourceUsage.heapUsedMb / resourceUsage.heapMaxMb) * 100, 100) : 0}%` }} />
+                  </div>
+                </div>
+                {/* Disk */}
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-gray-400">{t('overview.disk')}</span>
+                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.diskUsedGb} / {resourceUsage.diskTotalGb} GB</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                    <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-700"
+                         style={{ width: `${resourceUsage.diskTotalGb > 0 ? Math.min((resourceUsage.diskUsedGb / resourceUsage.diskTotalGb) * 100, 100) : 0}%` }} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[220px] text-gray-600 text-xs">
+                {t('overview.noData') || 'No data available'}
+              </div>
+            )}
           </motion.div>
         </div>
 
@@ -304,10 +425,40 @@ export default function AdminOverview() {
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.trafficSubtitle')}</p>
               </div>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400" />Today</span>
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-gray-500" />Yesterday</span>
+              </div>
             </div>
-            <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
-              {t('overview.noData') || 'No data available'}
-            </div>
+            {visitorTraffic?.points?.length > 0 ? (
+              <ResponsiveContainer width="100%" height={200}>
+                <AreaChart data={visitorTraffic.points} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="todayGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#60A5FA" stopOpacity={0.35} />
+                      <stop offset="95%" stopColor="#60A5FA" stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="yesterdayGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#9CA3AF" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#9CA3AF" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.06} />
+                  <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#9CA3AF' }} interval={3} />
+                  <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ background: '#1A1A1A', border: '1px solid #DEDBC820', borderRadius: 10, fontSize: 12 }}
+                    labelStyle={{ color: '#E1E0CC' }}
+                  />
+                  <Area type="monotone" dataKey="todayVisitors" stroke="#60A5FA" fill="url(#todayGrad)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="yesterdayVisitors" stroke="#9CA3AF" fill="url(#yesterdayGrad)" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
+                {t('overview.noData') || 'No data available'}
+              </div>
+            )}
           </motion.div>
 
           {/* Recent Events */}
@@ -325,9 +476,26 @@ export default function AdminOverview() {
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.eventsSubtitle')}</p>
               </div>
             </div>
-            <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
-              {t('overview.noData') || 'No recent events'}
-            </div>
+            {recentEvents?.events?.length > 0 ? (
+              <div className="space-y-3 h-[200px] overflow-y-auto pr-1 custom-scrollbar">
+                {recentEvents.events.map((evt, i) => (
+                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl border border-[#DEDBC8]/6 hover:border-[#DEDBC8]/12 transition-colors">
+                    <div className={`p-1.5 rounded-lg mt-0.5 ${evt.type === 'audit' ? 'bg-amber-500/10 text-amber-400' : evt.type === 'sync' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
+                      {evt.type === 'audit' ? <AlertTriangle size={12} /> : evt.type === 'sync' ? <Server size={12} /> : <Zap size={12} />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-[#E1E0CC] truncate">{evt.title}</p>
+                      <p className="text-[10px] text-gray-500 truncate mt-0.5">{evt.description}</p>
+                      <p className="text-[9px] text-gray-600 mt-1">{evt.timestamp ? new Date(evt.timestamp).toLocaleString() : ''}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
+                {t('overview.noData') || 'No recent events'}
+              </div>
+            )}
           </motion.div>
         </div>
       </div>

@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
-import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
+import { prependToCache, removeFromCache, clearCache } from '../../hooks/useStaleWhileRevalidate.js';
 import { aiAPI } from '../../lib/api/ai.api.js';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -394,6 +394,7 @@ export default function PaperDetailPage() {
       const data = await paperAPI.getPaperById(paperId);
       if (data) {
         setPaper(data);
+        clearCache('reading-history-list'); // invalidate so history page shows fresh data
       } else {
         setError('Paper not found');
       }

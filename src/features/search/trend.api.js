@@ -1,14 +1,4 @@
-import axios from 'axios';
-
-/**
- * Public trend endpoints — no authentication required.
- * Uses a plain axios instance (not axiosClient) to avoid
- * attaching the Authorization header for public endpoints.
- */
-const publicAxios = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  headers: { 'Content-Type': 'application/json' },
-});
+import axiosClient from '../../lib/apiClient.js';
 
 export const trendAPI = {
   /**
@@ -28,7 +18,7 @@ export const trendAPI = {
    * }
    */
   async getWeeklyBreakout() {
-    const { data } = await publicAxios.get('/api/public/trends/weekly-breakout');
+    const { data } = await axiosClient.get('/api/public/trends/weekly-breakout');
     return data.data || data;
   },
 
@@ -48,7 +38,7 @@ export const trendAPI = {
    * }
    */
   async getTrendingKeywords(limit = 10) {
-    const { data } = await publicAxios.get('/api/public/keywords/trending', {
+    const { data } = await axiosClient.get('/api/public/keywords/trending', {
       params: { limit },
     });
     return data.data || data;

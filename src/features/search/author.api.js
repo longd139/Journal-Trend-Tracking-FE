@@ -54,4 +54,16 @@ export const authorAPI = {
     const { data } = await axiosClient.get('/api/search/author/suggested');
     return data.data || data;
   },
+
+  /**
+   * Top 5 bài báo được trích dẫn nhiều nhất của tác giả.
+   * GET /api/search/author/top-papers?keyword={authorName}
+   * Auth: Public (không cần auth)
+   */
+  async topPapers(keyword) {
+    const { data } = await axiosClient.get('/api/search/author/top-papers', {
+      params: { keyword },
+    });
+    return data.data || data;
+  },
 };

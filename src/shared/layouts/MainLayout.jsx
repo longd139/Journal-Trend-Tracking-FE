@@ -280,6 +280,7 @@ export default function DashboardLayout({ children }) {
 
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
+  const backgroundUrl = useAuthStore((s) => s.backgroundUrl);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -413,16 +414,24 @@ export default function DashboardLayout({ children }) {
         />
         {/* Content area with fixed background video (below TopBar) */}
         <div className="flex-1 relative overflow-hidden">
-          {/* Background video — stays fixed while content scrolls */}
+          {/* Background — image if user set one, otherwise default video */}
           <div className="absolute inset-0 pointer-events-none z-0">
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
-              src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
-            />
+            {backgroundUrl ? (
+              <img
+                src={backgroundUrl}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover opacity-[0.15]"
+              />
+            ) : (
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-[0.12]"
+                src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
             <div className="noise-overlay absolute inset-0 opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
           </div>
