@@ -169,26 +169,12 @@ export default function SearchPapers() {
           <WeeklyBreakout onKeywordClick={handleSearch} />
         )}
 
-        {/* ─── Post-search: Quick Stats + Neo4j Graph ─── */}
+        {/* ─── Post-search: Quick Stats + Graph ─── */}
         {query && query.trim() && (
           <>
+            {/* Toolbar: Sort + Filters */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                  showFilters
-                    ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
-                    : 'text-gray-500 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
-                }`}
-              >
-                <SlidersHorizontal size={13} />
-                Filters
-                {Object.values(filters).some(v => v && (!Array.isArray(v) || v.length > 0) && v !== false) && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />
-                )}
-              </button>
-
-              {/* Sort Dropdown */}
+              {/* Sort Dropdown — moved first */}
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-[#DEDBC8]/10 bg-[#101010] text-gray-500 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20 focus:ring-0">
                   <ArrowUpDown size={12} className="text-[#DEDBC8]/40" />
@@ -204,29 +190,58 @@ export default function SearchPapers() {
                   <SelectItem value="titleZA" className="text-[11px] cursor-pointer">{t('sort.titleZA')}</SelectItem>
                 </SelectContent>
               </Select>
+
+              {/* Filters Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                  showFilters
+                    ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
+                    : 'text-gray-500 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+                }`}
+              >
+                <SlidersHorizontal size={13} />
+                Filters
+                {Object.values(filters).some(v => v && (!Array.isArray(v) || v.length > 0) && v !== false) && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />
+                )}
+              </button>
             </div>
 
-            <div className={`grid gap-6 ${showFilters ? 'grid-cols-1 lg:grid-cols-[260px_1fr]' : 'grid-cols-1'}`}>
+            {/* Filters Dropdown Panel */}
+            <AnimatePresence>
               {showFilters && (
-                <AdvancedFilter
-                  filters={filters}
-                  setFilters={setFilters}
-                  clearFilters={() => setFilters({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false })}
-                />
-              )}
-              <div className="space-y-8">
-                <KeywordQuickStats keyword={query.trim()} />
                 <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
                 >
-              <div className="space-y-8">
-                <KeywordGraphExplorer keyword={query.trim()} onKeywordClick={handleSearch} />
-                <TopPapers keyword={query.trim()} sortBy={sortBy} />
-              </div>
-            </motion.div>
-              </div>
+                  <div className="pt-1">
+                    <AdvancedFilter
+                      filters={filters}
+                      setFilters={setFilters}
+                      clearFilters={() => setFilters({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false })}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Content */}
+            <div className="space-y-8">
+              <KeywordQuickStats keyword={query.trim()} />
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="space-y-8">
+                  <KeywordGraphExplorer keyword={query.trim()} onKeywordClick={handleSearch} />
+                  <TopPapers keyword={query.trim()} sortBy={sortBy} />
+                </div>
+              </motion.div>
             </div>
           </>
         )}

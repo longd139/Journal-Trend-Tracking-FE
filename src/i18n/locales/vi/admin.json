@@ -132,6 +132,27 @@
     "noLogsFound": "Không tìm thấy nhật ký",
     "system": "Hệ thống",
     "pagination": "Trang {{current}} / {{total}}",
+    "stats": {
+      "total": "Tổng số",
+      "created": "Đã tạo",
+      "updated": "Đã sửa",
+      "deleted": "Đã xóa",
+      "logins": "Đăng nhập"
+    },
+    "searchPlaceholder": "Tìm kiếm theo email admin...",
+    "detail": {
+      "title": "Chi tiết nhật ký",
+      "auditId": "ID Nhật ký",
+      "admin": "Admin",
+      "action": "Hành động",
+      "target": "Mục tiêu",
+      "targetTable": "Bảng",
+      "targetId": "ID Mục tiêu",
+      "ipAddress": "Địa chỉ IP",
+      "timestamp": "Thời gian"
+    },
+    "emptyTitle": "Không tìm thấy nhật ký",
+    "emptyDesc": "Thử thay đổi bộ lọc hoặc kiểm tra lại sau.",
     "table": {
       "admin": "Admin",
       "action": "Hành động",

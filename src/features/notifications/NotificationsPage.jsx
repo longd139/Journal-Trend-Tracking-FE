@@ -118,7 +118,7 @@ function NotificationCard({ notif, onClick, onDismiss }) {
       }`}
     >
       {!notif.read && (
-        <div className="absolute top-5 right-5 w-2.5 h-2.5 rounded-full bg-[#DEDBC8] shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
+        <div className="absolute top-3.5 left-5 w-2.5 h-2.5 rounded-full bg-[#DEDBC8] shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
       )}
 
       <div className="flex items-start gap-4">

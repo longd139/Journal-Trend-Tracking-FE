@@ -132,6 +132,27 @@
     "noLogsFound": "No audit logs found",
     "system": "System",
     "pagination": "Page {{current}} of {{total}}",
+    "stats": {
+      "total": "Total Logs",
+      "created": "Created",
+      "updated": "Updated",
+      "deleted": "Deleted",
+      "logins": "Logins"
+    },
+    "searchPlaceholder": "Search by admin email...",
+    "detail": {
+      "title": "Log Details",
+      "auditId": "Audit ID",
+      "admin": "Admin",
+      "action": "Action",
+      "target": "Target",
+      "targetTable": "Target Table",
+      "targetId": "Target ID",
+      "ipAddress": "IP Address",
+      "timestamp": "Timestamp"
+    },
+    "emptyTitle": "No audit logs found",
+    "emptyDesc": "Try changing your filters or check back later.",
     "table": {
       "admin": "Admin",
       "action": "Action",

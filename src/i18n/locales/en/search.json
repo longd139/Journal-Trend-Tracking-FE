@@ -47,7 +47,9 @@
     "newest": "Newest First",
     "oldest": "Oldest First",
     "mostCited": "Most Cited",
-    "leastCited": "Least Cited"
+    "leastCited": "Least Cited",
+    "titleAZ": "A-Z",
+    "titleZA": "Z-A"
   },
   "aiSummary": {
     "title": "AI Summary",

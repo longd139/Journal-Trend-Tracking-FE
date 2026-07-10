@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, TrendingDown, Minus, Hash, AlertCircle } from 'lucide-react';
+import { Hash, AlertCircle } from 'lucide-react';
 import { paperAPI } from './paper.api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -101,11 +101,16 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
 
       {/* Horizontal scrollable cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {trends.map((trend, i) => {
-          const direction = trend.growthDirection || 'neutral';
-          const isUp = direction === 'up';
-          const isDown = direction === 'down';
-          const accent = isUp ? '#34D399' : isDown ? '#EF4444' : '#6B7280';
+        {trends
+          .slice()
+          .sort((a, b) => (b.thisYearCount ?? 0) - (a.thisYearCount ?? 0))
+          .map((trend, i) => {
+          const rank = i + 1;
+          const medalColor =
+            rank === 1 ? '#F59E0B' :
+            rank === 2 ? '#9CA3AF' :
+            rank === 3 ? '#D97706' :
+            '#DEDBC8';
 
           return (
             <motion.button
@@ -114,11 +119,19 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-              whileHover={{ y: -3, borderColor: `${accent}30` }}
+              whileHover={{ y: -3 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onKeywordClick?.(trend.keyword)}
-              className="bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-[#141414]"
+              className="relative bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-[#141414] hover:border-[#DEDBC8]/15"
             >
+              {/* Rank badge */}
+              <span
+                className="absolute -top-2 -left-2 min-w-[24px] h-6 rounded-full text-[10px] font-bold flex items-center justify-center px-1.5 shadow-md"
+                style={{ background: medalColor, color: rank <= 3 ? '#000' : '#000' }}
+              >
+                #{rank}
+              </span>
+
               {/* Keyword name */}
               <h4 className="text-[13px] font-semibold text-[#E1E0CC] mb-2.5 truncate group-hover:text-white transition-colors">
                 {trend.keyword}
@@ -132,17 +145,10 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
                 </span>
               </div>
 
-              {/* Growth row */}
-              <div className="flex items-center justify-between">
+              {/* This year / Last year */}
+              <div className="flex items-center">
                 <span className="text-[10px] text-gray-500">
                   {trend.thisYearCount ?? 0} this yr / {trend.lastYearCount ?? 0} last yr
-                </span>
-                <span
-                  className="text-[11px] font-bold flex items-center gap-0.5"
-                  style={{ color: accent }}
-                >
-                  {isUp ? <TrendingUp size={11} /> : isDown ? <TrendingDown size={11} /> : <Minus size={11} />}
-                  {trend.growthRate != null ? `${isUp ? '+' : ''}${trend.growthRate.toFixed(1)}%` : '—'}
                 </span>
               </div>
             </motion.button>
