@@ -49,7 +49,7 @@ export const authAPI = {
   // GOOGLE LOGIN
   // ==========================================
   async googleLogin(credential) {
-    const { data } = await axiosClient.post('/api/auth/google-login', {
+    const { data } = await axiosClient.post('/api/auth/google-v2', {
       credential,
     });
     return {

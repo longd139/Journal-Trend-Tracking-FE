@@ -200,12 +200,18 @@ export default function LoginPage() {
 
   // Google OAuth — custom button with useGoogleLogin hook
   const googleLogin = useGoogleLogin({
+    // Request id_token alongside access_token (required for BE credential validation)
+    scope: 'openid email profile',
     onSuccess: async (tokenResponse) => {
       setLoading(true);
       setErrors((prev) => ({ ...prev, apiError: '', successMsg: '' }));
       try {
-        // id_token may be present alongside access_token (implicit flow + openid scope)
+        // Google ID token (JWT) — the credential BE needs to validate
+        // id_token is present when scope includes 'openid'
         const credential = tokenResponse.id_token || tokenResponse.access_token;
+        console.log('[GoogleLogin] tokenResponse keys:', Object.keys(tokenResponse));
+        console.log('[GoogleLogin] id_token present:', !!tokenResponse.id_token);
+        console.log('[GoogleLogin] credential length:', credential?.length);
         const response = await authAPI.googleLogin(credential);
         setToken(response.accessToken);
         const userRole = response.role;

@@ -9,7 +9,7 @@ import { router } from './app/router.jsx';
 import { Toaster } from 'sonner';
 import HealthCheckToast from './features/overview/HealthCheckToast.jsx';
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <GoogleOAuthProvider clientId={googleClientId}>
