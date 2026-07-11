@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   BarChart, Bar, XAxis, Tooltip, ResponsiveContainer,
@@ -8,10 +8,10 @@ import {
   ComposedChart, Line, Legend,
 } from 'recharts';
 import {
-  FileText, TrendingUp, Star, Users, UserPlus,
-  AlertCircle, User, ArrowUpRight, Flame, Clock,
-  Bookmark, Search, BookOpen, ArrowRight, Zap,
-  Network, Trophy, Calendar, Sparkles, Activity,
+  FileText, TrendingUp, Award, Users, UserPlus,
+  AlertCircle, User, ArrowUpRight, TrendingUp as TrendingUpIcon, Clock,
+  Bookmark, Search, BookOpen, ArrowRight, Gauge,
+  Network, Trophy, Calendar, Lightbulb, Activity,
   ChartPie, MessageSquareText, UserSearch,
 } from 'lucide-react';
 import { overviewAPI } from './api';
@@ -31,30 +31,65 @@ import {
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
    ═══════════════════════════════════════════════════════════════════════════ */
-const CHART_COLORS = ['#DEDBC8', '#4F8CFF', '#00D1B2', '#F59E0B', '#A78BFA', '#EF4444', '#FB923C', '#34D399'];
+const CHART_COLORS = ['#DEDBC8', '#C5BFA0', '#A09878', '#8A8468', '#6B6550'];
+
+const spring = { type: 'spring', stiffness: 300, damping: 30 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   StatCard
+   StatCard — Tier 1 elevated surface with spotlight effect
    ═══════════════════════════════════════════════════════════════════════════ */
 function StatCard({ label, value, sub, Icon, accent, index = 0 }) {
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    cardRef.current.style.setProperty('--mouse-x', `${x}%`);
+    cardRef.current.style.setProperty('--mouse-y', `${y}%`);
+  };
+
+  const handleMouseLeave = () => {
+    if (cardRef.current) {
+      cardRef.current.style.setProperty('--mouse-x', '50%');
+      cardRef.current.style.setProperty('--mouse-y', '50%');
+    }
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      ref={cardRef}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -4 }}
-      className="group p-5 rounded-2xl border flex flex-col gap-3 bg-[#101010] border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-colors duration-300"
+      transition={{ delay: index * 0.06, ...spring }}
+      whileHover={{ y: -6 }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="group relative p-5 rounded-2xl border flex flex-col gap-3
+        bg-card-elevated border-card-elevated-border
+        hover:border-[#DEDBC8]/20 transition-colors duration-300
+        shadow-[inset_0_1px_0_0_rgba(222,219,200,0.04)]
+        overflow-hidden"
+      style={{ '--mouse-x': '50%', '--mouse-y': '50%' }}
     >
-      <div className="flex items-start justify-between">
+      {/* Spotlight glow */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+        style={{
+          background: `radial-gradient(circle 300px at var(--mouse-x) var(--mouse-y), ${accent}08, transparent 60%)`,
+        }}
+      />
+      <div className="flex items-start justify-between relative z-10">
         <div className="p-2.5 rounded-xl" style={{ background: `${accent}18`, color: accent }}>
           <Icon size={20} />
         </div>
       </div>
-      <div>
-        <p className="text-2xl font-bold text-[#E1E0CC] font-display leading-tight">{value}</p>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 mt-0.5">{label}</p>
+      <div className="relative z-10">
+        <p className="text-2xl font-bold text-[#E1E0CC] font-display leading-tight tracking-[-0.03em]">{value}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mt-0.5">{label}</p>
       </div>
-      {sub && <p className="text-[11px] text-gray-600">{sub}</p>}
+      {sub && <p className="text-[11px] text-gray-500 relative z-10">{sub}</p>}
     </motion.div>
   );
 }
@@ -80,7 +115,7 @@ function OverviewSkeleton() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 animate-pulse">
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="p-5 rounded-2xl border bg-[#101010] border-[#DEDBC8]/5 space-y-3">
+            <div key={i} className="p-5 rounded-2xl border bg-card-elevated border-card-elevated-border space-y-3">
               <Skeleton className="h-10 w-10 rounded-xl bg-white/5" />
               <Skeleton className="h-8 w-20 rounded bg-white/5" />
               <Skeleton className="h-3 w-28 rounded bg-white/5" />
@@ -98,14 +133,15 @@ function OverviewSkeleton() {
 export default function UserOverviewPage() {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
+  const location = useLocation();
   const role = sessionStorage.getItem('userRole') || 'academic';
   const isResearcher = role === 'researcher';
   const isAcademic = role === 'academic_user' || role === 'academic';
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [publicData, setPublicData] = useState(null);  // from /api/public/dashboard/overview
-  const [userData, setUserData] = useState(null);       // from /api/v1/overview/user
+  const [publicData, setPublicData] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   // Author selection
   const [selectedAuthorId, setSelectedAuthorId] = useState('__system__');
@@ -132,7 +168,6 @@ export default function UserOverviewPage() {
     setError(null);
     const effectiveId = authorId && authorId !== '__system__' ? authorId : null;
     try {
-      // Call both APIs in parallel
       const [pubResult, userResult] = await Promise.all([
         overviewAPI.getPublicOverview(effectiveId),
         overviewAPI.getUserOverview(effectiveId),
@@ -159,7 +194,6 @@ export default function UserOverviewPage() {
     }
   }, []);
 
-  // ── Fetch dashboard extras for "My Dashboard" mode ──
   const fetchExtras = useCallback(async () => {
     setExtrasLoading(true);
     try {
@@ -189,7 +223,6 @@ export default function UserOverviewPage() {
     }
   }, []);
 
-  // ── Fetch author detail enrichment ──
   const fetchAuthorDetail = useCallback(async (authorName) => {
     if (!authorName) {
       setAuthorTimeline(null);
@@ -225,6 +258,14 @@ export default function UserOverviewPage() {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Re-fetch followed authors when navigating back to overview
+  // (KeepAlive keeps the component mounted, so we need to watch pathname changes)
+  useEffect(() => {
+    if (isResearcher && location.pathname.endsWith('/overview')) {
+      fetchFollowedAuthors();
+    }
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // ── Loading ──
   if (loading) return <OverviewSkeleton />;
 
@@ -255,24 +296,17 @@ export default function UserOverviewPage() {
   const hasFollowedAuthors = followedAuthors.length > 0;
   const currentAuthor = followedAuthors.find((a) => a.authorId === selectedAuthorId);
 
-  // ── 4 Stat Cards — from /api/public/dashboard/overview ──
+  // ── 4 Stat Cards — consolidated palette: blue for data, cream for key, teal for growth ──
   const isAuthorCards = isAuthorView && pd.authorName;
-
-  const systemCards = [
-    { label: 'Papers Tracked', value: (pd.papersTracked ?? '—').toLocaleString(), sub: 'Total papers indexed in the system', Icon: FileText, accent: '#4F8CFF' },
-    { label: 'Total Citations', value: (pd.totalCitations ?? '—').toLocaleString(), sub: 'Cumulative citations across all papers', Icon: TrendingUp, accent: '#DEDBC8' },
-    { label: 'Paper Growth', value: (pd.paperGrowth ?? '—').toLocaleString(), sub: 'New papers added this month', Icon: Star, accent: '#00D1B2' },
-    { label: 'Total Authors', value: (pd.totalAuthors ?? '—').toLocaleString(), sub: 'Unique authors in the system', Icon: Users, accent: '#A78BFA' },
-  ];
 
   const authorCards = [
     { label: 'Published Papers', value: (pd.authorTotalPapers ?? '—').toLocaleString(), sub: `Works by ${pd.authorName || currentAuthor?.authorName || 'author'}`, Icon: FileText, accent: '#4F8CFF' },
     { label: 'Total Citations', value: (pd.authorTotalCitations ?? '—').toLocaleString(), sub: 'Citations across all works', Icon: TrendingUp, accent: '#DEDBC8' },
-    { label: 'h-Index', value: (pd.authorHIndex ?? '—').toLocaleString(), sub: `${pd.authorHIndex ?? 'N'} papers with ≥ ${pd.authorHIndex ?? 'N'} citations each`, Icon: Star, accent: '#00D1B2' },
-    { label: 'Co-Authors', value: (pd.authorCoAuthors ?? '—').toLocaleString(), sub: 'Unique collaborators', Icon: UserPlus, accent: '#F59E0B' },
+    { label: 'h-Index', value: (pd.authorHIndex ?? '—').toLocaleString(), sub: `${pd.authorHIndex ?? 'N'} papers with ≥ ${pd.authorHIndex ?? 'N'} citations each`, Icon: Award, accent: '#00D1B2' },
+    { label: 'Co-Authors', value: (pd.authorCoAuthors ?? '—').toLocaleString(), sub: 'Unique collaborators', Icon: UserPlus, accent: '#DEDBC8' },
   ];
 
-  const statCards = isAuthorCards ? authorCards : systemCards;
+  const statCards = isAuthorCards ? authorCards : [];
 
   // ── Author detail — from /api/v1/overview/user ──
   const citationHistory = ud.citationHistory || [];
@@ -280,113 +314,142 @@ export default function UserOverviewPage() {
   const recentPublications = ud.recentPublications || [];
   const hIndex = ud.hIndex;
 
-  // ── Search quota sub text (academic users only) ──
+  // ── Search quota (academic users only) ──
   const searchesLeft = ud.searchesRemaining;
   const searchLimit = ud.monthlySearchLimit;
 
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8">
-        {/* ─── Header + Author Selector ─── */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <h2 className="text-lg font-bold text-[#E1E0CC] font-display">
-              {t('headings.researchOverview') || 'Research Overview'}
-            </h2>
-            <p className="text-xs text-gray-500 mt-1">
-              {t('subtitles.userOverview') || 'Your personalized academic research dashboard'}
-            </p>
-          </div>
+        {/* ─── Header Row: Author Selector + Quick Actions ─── */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div className="flex-1" />
 
-          {isResearcher && (
-            <Select
-              value={selectedAuthorId}
-              onValueChange={(authorId) => {
-                setSelectedAuthorId(authorId);
-                fetchOverview(authorId);
-                if (authorId !== '__system__') {
-                  const author = followedAuthors.find((a) => a.authorId === authorId);
-                  if (author) fetchAuthorDetail(author.authorName);
-                } else {
-                  setAuthorTimeline(null);
-                  setAuthorCoAuthors(null);
-                  setAuthorTopPapers([]);
-                }
-              }}
-              disabled={authorsLoading}
-            >
-              <SelectTrigger className="w-[220px] shrink-0 bg-[#DEDBC8]/5 border-[#DEDBC8]/15 text-[#E1E0CC] h-9 text-xs">
-                <SelectValue placeholder={authorsLoading ? 'Loading...' : 'My Dashboard'} />
-              </SelectTrigger>
-              <SelectContent className="bg-[#1a1a1a] border-[#DEDBC8]/15 text-[#E1E0CC]">
-                <SelectItem
-                  value="__system__"
-                  className="text-xs hover:bg-[#DEDBC8]/10 focus:bg-[#DEDBC8]/10 cursor-pointer"
-                >
-                  My Dashboard
-                </SelectItem>
-                {!hasFollowedAuthors && (
-                  <div className="px-2 py-3 text-xs text-gray-500 text-center">
-                    No authors followed yet
-                  </div>
-                )}
-                {followedAuthors.map((author) => (
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Quick Actions — integrated beside header on desktop */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => navigate(`/${role}/search`)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
+                  bg-[#DEDBC8] text-[#000000] hover:bg-[#E1E0CC] transition-all duration-200"
+              >
+                <Search size={12} /> New Search
+              </button>
+              <button
+                onClick={() => navigate(`/${role}/search-author`)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
+                  bg-[#4F8CFF] text-white hover:bg-[#5B99FF] transition-all duration-200"
+              >
+                <UserSearch size={12} /> Find Authors
+              </button>
+              <span className="w-px h-5 bg-[#DEDBC8]/10 mx-1" />
+              <button
+                onClick={() => navigate(`/${role}/bookmarks`)}
+                className="flex items-center gap-1 text-[11px] font-medium text-[#DEDBC8]/50 hover:text-[#DEDBC8] transition-colors"
+              >
+                <Bookmark size={12} /> Bookmarks
+              </button>
+              <button
+                onClick={() => navigate(`/${role}/search?q=`)}
+                className="flex items-center gap-1 text-[11px] font-medium text-[#DEDBC8]/50 hover:text-[#DEDBC8] transition-colors"
+              >
+                <TrendingUpIcon size={12} /> Trending
+              </button>
+            </div>
+
+            {isResearcher && (
+              <Select
+                value={selectedAuthorId}
+                onValueChange={(authorId) => {
+                  setSelectedAuthorId(authorId);
+                  fetchOverview(authorId);
+                  if (authorId !== '__system__') {
+                    const author = followedAuthors.find((a) => a.authorId === authorId);
+                    if (author) fetchAuthorDetail(author.authorName);
+                  } else {
+                    setAuthorTimeline(null);
+                    setAuthorCoAuthors(null);
+                    setAuthorTopPapers([]);
+                  }
+                }}
+                disabled={authorsLoading}
+              >
+                <SelectTrigger className="w-[200px] shrink-0 bg-[#0F0F0F] border-[#DEDBC8]/10 text-[#E1E0CC] h-9 text-xs rounded-xl">
+                  <SelectValue placeholder={authorsLoading ? 'Loading...' : 'My Dashboard'} />
+                </SelectTrigger>
+                <SelectContent className="bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] shadow-lg shadow-black/40">
                   <SelectItem
-                    key={author.authorId}
-                    value={author.authorId}
-                    className="text-xs hover:bg-[#DEDBC8]/10 focus:bg-[#DEDBC8]/10 cursor-pointer"
+                    value="__system__"
+                    className="text-xs data-[highlighted]:bg-[#DEDBC8]/10 data-[highlighted]:text-[#E1E0CC] focus:bg-[#DEDBC8]/10 focus:text-[#E1E0CC] cursor-pointer rounded-lg mx-1 my-0.5"
                   >
-                    {author.authorName}
+                    My Dashboard
                   </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
-        {/* ─── Quick Actions ─── */}
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => navigate(`/${role}/search`)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-medium
-              bg-[#4F8CFF]/10 border border-[#4F8CFF]/20 text-[#4F8CFF]
-              hover:bg-[#4F8CFF]/20 hover:border-[#4F8CFF]/35 transition-all"
-          >
-            <Search size={12} /> New Search
-          </button>
-          <button
-            onClick={() => navigate(`/${role}/search-author`)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-medium
-              bg-[#A78BFA]/10 border border-[#A78BFA]/20 text-[#A78BFA]
-              hover:bg-[#A78BFA]/20 hover:border-[#A78BFA]/35 transition-all"
-          >
-            <UserSearch size={12} /> Find Authors
-          </button>
-          <button
-            onClick={() => navigate(`/${role}/bookmarks`)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-medium
-              bg-[#00D1B2]/10 border border-[#00D1B2]/20 text-[#00D1B2]
-              hover:bg-[#00D1B2]/20 hover:border-[#00D1B2]/35 transition-all"
-          >
-            <Bookmark size={12} /> My Bookmarks
-          </button>
-          <button
-            onClick={() => navigate(`/${role}/search?q=`)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-medium
-              bg-[#F59E0B]/10 border border-[#F59E0B]/20 text-[#F59E0B]
-              hover:bg-[#F59E0B]/20 hover:border-[#F59E0B]/35 transition-all"
-          >
-            <Flame size={12} /> Trending Now
-          </button>
-        </div>
-
-        {/* ─── Stat Cards — only shown in author view ─── */}
-        {isAuthorCards && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {statCards.map((card, i) => (
-              <StatCard key={i} index={i} {...card} />
-            ))}
+                  {!hasFollowedAuthors && (
+                    <div className="px-2 py-3 text-xs text-gray-500 text-center">
+                      No authors followed yet
+                    </div>
+                  )}
+                  {followedAuthors.map((author) => (
+                    <SelectItem
+                      key={author.authorId}
+                      value={author.authorId}
+                      className="text-xs data-[highlighted]:bg-[#DEDBC8]/10 data-[highlighted]:text-[#E1E0CC] focus:bg-[#DEDBC8]/10 focus:text-[#E1E0CC] cursor-pointer rounded-lg mx-1 my-0.5"
+                    >
+                      {author.authorName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
+        </div>
+
+        {/* ─── Author Banner + Stat Cards ─── */}
+        {isAuthorView && currentAuthor && (
+          <>
+            {/* Author name banner — Tier 1 elevated */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 rounded-2xl border bg-card-elevated border-card-elevated-border shadow-[inset_0_1px_0_0_rgba(222,219,200,0.04)]">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-[#DEDBC8]/10">
+                  <User size={18} className="text-[#DEDBC8]" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-[#E1E0CC]">{currentAuthor.authorName}</p>
+                  <p className="text-xs text-gray-500">
+                    h-Index: {authorTimeline?.hIndex ?? hIndex ?? '—'}
+                    {' · '}
+                    {recentPublications.length} publications listed
+                  </p>
+                </div>
+              </div>
+              {authorTimeline && (
+                <div className="flex items-center gap-4 text-xs">
+                  <div className="text-center">
+                    <p className="font-bold text-[#E1E0CC] font-mono tabular-nums">{authorTimeline.totalPapers?.toLocaleString() || '—'}</p>
+                    <p className="text-[10px] text-gray-500">Papers</p>
+                  </div>
+                  <div className="w-px h-6 bg-[#DEDBC8]/10" />
+                  <div className="text-center">
+                    <p className="font-bold text-[#4F8CFF] font-mono tabular-nums">{authorTimeline.totalCitations?.toLocaleString() || '—'}</p>
+                    <p className="text-[10px] text-gray-500">Citations</p>
+                  </div>
+                  <div className="w-px h-6 bg-[#DEDBC8]/10" />
+                  <div className="text-center">
+                    <p className="font-bold text-[#00D1B2] font-mono tabular-nums">{authorCoAuthors?.coAuthors?.length ?? '—'}</p>
+                    <p className="text-[10px] text-gray-500">Co-Authors</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {isAuthorCards && (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                {statCards.map((card, i) => (
+                  <StatCard key={i} index={i} {...card} />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {/* ═══════════════════════════════════════════════════════════════════
@@ -399,13 +462,13 @@ export default function UserOverviewPage() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.4 }}
-                className="rounded-2xl border p-5 bg-[#101010] border-[#DEDBC8]/5"
+                transition={{ delay: 0.25, ...spring }}
+                className="rounded-2xl border p-5 bg-card-recessed border-card-recessed-border"
               >
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-amber-500/10">
-                      <Zap size={14} className="text-amber-400" />
+                    <div className="p-1.5 rounded-lg bg-[#DEDBC8]/10">
+                      <Gauge size={14} className="text-[#DEDBC8]" />
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-[#E1E0CC]">Search Quota</h4>
@@ -418,16 +481,16 @@ export default function UserOverviewPage() {
                 </div>
                 <div className="w-full h-2 rounded-full bg-[#DEDBC8]/8 overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500"
+                    className="h-full rounded-full bg-gradient-to-r from-[#DEDBC8] to-[#C5BFA0]"
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.max(0, Math.min(100, ((searchLimit - searchesLeft) / searchLimit) * 100))}%` }}
-                    transition={{ delay: 0.6, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ delay: 0.5, ...spring }}
                   />
                 </div>
-                <p className="text-[10px] text-gray-600 mt-2">
+                <p className="text-[10px] text-gray-500 mt-2">
                   Used {searchLimit - searchesLeft} of {searchLimit} searches this month
                   {searchesLeft <= 3 && searchesLeft > 0 && (
-                    <span className="text-amber-400 ml-1">— Running low!</span>
+                    <span className="text-[#DEDBC8] ml-1">— Running low</span>
                   )}
                   {searchesLeft === 0 && (
                     <span className="text-red-400 ml-1">— Limit reached. Resets next month.</span>
@@ -441,8 +504,8 @@ export default function UserOverviewPage() {
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.32, duration: 0.4 }}
-                className="rounded-2xl border p-5 bg-[#101010] border-[#DEDBC8]/5"
+                transition={{ delay: 0.28, ...spring }}
+                className="rounded-2xl border p-5 bg-card-recessed border-card-recessed-border"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Activity size={14} className="text-[#DEDBC8]" />
@@ -471,21 +534,21 @@ export default function UserOverviewPage() {
               </motion.div>
             )}
 
-            {/* ── Row: Trending Keywords + Field Distribution ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* ── Row: Trending Keywords (3 cols) + Research Fields (2 cols) ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
               {/* ── Trending Keywords ── */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.4 }}
-                className="lg:col-span-2 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+                transition={{ delay: 0.3, ...spring }}
+                className="lg:col-span-3 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border"
               >
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                      <Flame size={14} className="text-orange-400" /> Trending Topics
+                    <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                      <TrendingUpIcon size={15} className="text-[#00D1B2]" /> Trending Topics
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Hot research keywords right now</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Hot research keywords right now</p>
                   </div>
                 </div>
                 {extrasLoading ? (
@@ -501,8 +564,9 @@ export default function UserOverviewPage() {
                         key={kw.keywordText || i}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.45 + i * 0.04 }}
+                        transition={{ delay: 0.4 + i * 0.04, ...spring }}
                         whileHover={{ scale: 1.05, y: -1 }}
+                        whileTap={{ scale: 0.97 }}
                         onClick={() => navigate(`/${role}/search?q=${encodeURIComponent(kw.keywordText)}`)}
                         className="px-3.5 py-1.5 rounded-xl text-xs font-medium border transition-all duration-200
                           bg-[#DEDBC8]/5 border-[#DEDBC8]/10 text-[#DEDBC8]
@@ -526,11 +590,11 @@ export default function UserOverviewPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.4 }}
-                className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5 flex flex-col"
+                transition={{ delay: 0.35, ...spring }}
+                className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
               >
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2 mb-3">
-                  <ChartPie size={14} className="text-[#A78BFA]" /> Research Fields
+                <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2 mb-3">
+                  <ChartPie size={15} className="text-[#DEDBC8]" /> Research Fields
                 </h3>
                 {extrasLoading ? (
                   <div className="flex-1 flex items-center justify-center">
@@ -579,21 +643,21 @@ export default function UserOverviewPage() {
               </motion.div>
             </div>
 
-            {/* ── Row: Recommendations + Bookmarks ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            {/* ── Row: Recommendations (4 cols) + Bookmarks (1 col) ── */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
               {/* ── Research Recommendations ── */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.42, duration: 0.4 }}
-                className="lg:col-span-2 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+                transition={{ delay: 0.38, ...spring }}
+                className="lg:col-span-4 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border"
               >
                 <div className="flex items-center justify-between mb-5">
                   <div>
-                    <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                      <Sparkles size={14} className="text-amber-400" /> For You
+                    <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                      <Lightbulb size={15} className="text-[#DEDBC8]" /> For You
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Recommended based on your interests</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Recommended based on your interests</p>
                   </div>
                 </div>
                 {extrasLoading ? (
@@ -611,7 +675,8 @@ export default function UserOverviewPage() {
                           key={p.paperId || i}
                           initial={{ opacity: 0, x: -8 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.5 + i * 0.05 }}
+                          transition={{ delay: 0.45 + i * 0.05, ...spring }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => {
                             if (p.paperId) navigate(`/${role}/search/paper/${p.paperId}`);
                           }}
@@ -619,8 +684,8 @@ export default function UserOverviewPage() {
                             bg-transparent hover:bg-[#DEDBC8]/3 transition-all duration-200 group"
                         >
                           <div className="flex items-start gap-3">
-                            <div className="p-1.5 rounded-lg bg-amber-500/10 shrink-0 mt-0.5">
-                              <Sparkles size={12} className="text-amber-400" />
+                            <div className="p-1.5 rounded-lg bg-[#DEDBC8]/10 shrink-0 mt-0.5">
+                              <Lightbulb size={12} className="text-[#DEDBC8]" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-semibold text-[#E1E0CC] line-clamp-1 group-hover:text-[#4F8CFF] transition-colors">
@@ -630,7 +695,7 @@ export default function UserOverviewPage() {
                                 {p.journal && <span className="truncate">{p.journal}</span>}
                                 {p.pubYear && <span>{p.pubYear}</span>}
                                 {(p.citationCount != null) && (
-                                  <span className="flex items-center gap-0.5"><Star size={9} /> {p.citationCount}</span>
+                                  <span className="flex items-center gap-0.5"><Award size={9} /> {p.citationCount}</span>
                                 )}
                               </div>
                               {rec.reasonDetail && (
@@ -646,26 +711,23 @@ export default function UserOverviewPage() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
-                    <Sparkles size={20} className="text-gray-700" />
+                    <Lightbulb size={20} className="text-gray-700" />
                     <p className="text-xs text-gray-500">Search for papers to get recommendations</p>
                   </div>
                 )}
               </motion.div>
 
-              {/* ── Bookmarks Summary ── */}
+              {/* ── Bookmarks Summary (compact sidebar) ── */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45, duration: 0.4 }}
-                className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5 flex flex-col"
+                transition={{ delay: 0.42, ...spring }}
+                className="lg:col-span-1 rounded-2xl border p-5 bg-transparent border-dashed border-[#DEDBC8]/5 flex flex-col"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                      <Bookmark size={14} className="text-[#4F8CFF]" /> Bookmarks
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Recently saved</p>
-                  </div>
+                <div className="mb-4">
+                  <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                    <Bookmark size={15} className="text-[#4F8CFF]" /> Bookmarks
+                  </h3>
                 </div>
                 {extrasLoading ? (
                   <div className="space-y-3 flex-1">
@@ -680,7 +742,8 @@ export default function UserOverviewPage() {
                         key={bm.bookmarkId || i}
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.5 + i * 0.06 }}
+                        transition={{ delay: 0.48 + i * 0.06, ...spring }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => {
                           if (bm.paperId) navigate(`/${role}/search/paper/${bm.paperId}`);
                         }}
@@ -701,12 +764,6 @@ export default function UserOverviewPage() {
                   <div className="flex-1 flex flex-col items-center justify-center text-center gap-2">
                     <Bookmark size={20} className="text-gray-700" />
                     <p className="text-xs text-gray-500">No bookmarks yet</p>
-                    <button
-                      onClick={() => navigate(`/${role}/search`)}
-                      className="text-[10px] text-[#4F8CFF] hover:underline"
-                    >
-                      Start exploring papers
-                    </button>
                   </div>
                 )}
                 {recentBookmarks.length > 0 && (
@@ -715,7 +772,7 @@ export default function UserOverviewPage() {
                     className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-medium
                       text-[#DEDBC8]/60 hover:text-[#DEDBC8] bg-[#DEDBC8]/5 hover:bg-[#DEDBC8]/10 transition-all"
                   >
-                    View all bookmarks <ArrowRight size={12} />
+                    View all <ArrowRight size={12} />
                   </button>
                 )}
               </motion.div>
@@ -725,15 +782,15 @@ export default function UserOverviewPage() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.4 }}
-              className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+              transition={{ delay: 0.44, ...spring }}
+              className="rounded-2xl border p-6 bg-transparent border-dashed border-[#DEDBC8]/5"
             >
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                    <Clock size={14} className="text-[#00D1B2]" /> Recently Viewed
+                  <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                    <Clock size={15} className="text-[#00D1B2]" /> Recently Viewed
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Pick up where you left off</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Pick up where you left off</p>
                 </div>
                 <button
                   onClick={() => navigate(`/${role}/reading-history`)}
@@ -759,7 +816,8 @@ export default function UserOverviewPage() {
                       key={p.paperId || i}
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.55 + i * 0.06 }}
+                      transition={{ delay: 0.5 + i * 0.06, ...spring }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => navigate(`/${role}/search/paper/${p.paperId}`)}
                       className="shrink-0 w-[240px] p-4 rounded-xl border border-[#DEDBC8]/6 hover:border-[#DEDBC8]/15
                         bg-transparent hover:bg-[#DEDBC8]/3 transition-all duration-200 text-left group"
@@ -777,7 +835,7 @@ export default function UserOverviewPage() {
                         {p.pubYear && <span>{p.pubYear}</span>}
                         {p.citationCount != null && (
                           <span className="flex items-center gap-0.5">
-                            <Star size={9} /> {p.citationCount}
+                            <Award size={9} /> {p.citationCount}
                           </span>
                         )}
                       </div>
@@ -813,59 +871,24 @@ export default function UserOverviewPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.35, ...spring }}
               className="space-y-6"
             >
-              {/* Author name banner — enriched with timeline stats */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-[#DEDBC8]/10">
-                    <User size={18} className="text-[#DEDBC8]/60" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#E1E0CC]">{currentAuthor.authorName}</p>
-                    <p className="text-xs text-gray-500">
-                      h-Index: {authorTimeline?.hIndex ?? hIndex ?? '—'}
-                      {' · '}
-                      {recentPublications.length} publications listed
-                    </p>
-                  </div>
-                </div>
-                {authorTimeline && (
-                  <div className="flex items-center gap-4 text-xs">
-                    <div className="text-center">
-                      <p className="font-bold text-[#E1E0CC] font-mono tabular-nums">{authorTimeline.totalPapers?.toLocaleString() || '—'}</p>
-                      <p className="text-[10px] text-gray-500">Papers</p>
-                    </div>
-                    <div className="w-px h-6 bg-[#DEDBC8]/10" />
-                    <div className="text-center">
-                      <p className="font-bold text-[#4F8CFF] font-mono tabular-nums">{authorTimeline.totalCitations?.toLocaleString() || '—'}</p>
-                      <p className="text-[10px] text-gray-500">Citations</p>
-                    </div>
-                    <div className="w-px h-6 bg-[#DEDBC8]/10" />
-                    <div className="text-center">
-                      <p className="font-bold text-[#00D1B2] font-mono tabular-nums">{authorCoAuthors?.coAuthors?.length ?? '—'}</p>
-                      <p className="text-[10px] text-gray-500">Co-Authors</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* ── Charts Row 1: Publication Timeline + Research Fields ── */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                {/* Publication Timeline — ComposedChart (Bars: papers/year + Line: citations/year) */}
+                {/* Publication Timeline — Tier 2 recessed */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="lg:col-span-2 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+                  transition={{ delay: 0.08, ...spring }}
+                  className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border"
                 >
                   <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                        <Calendar size={14} className="text-[#DEDBC8]" /> Publication Timeline
+                      <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                        <Calendar size={15} className="text-[#DEDBC8]" /> Publication Timeline
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">Research output & impact per year</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">Research output & impact per year</p>
                     </div>
                     <div className="flex items-center gap-3 text-[10px]">
                       <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-[#DEDBC8]" />Papers</span>
@@ -877,29 +900,7 @@ export default function UserOverviewPage() {
                       <Skeleton className="w-full h-full rounded-xl bg-white/5" />
                     </div>
                   ) : authorTimeline?.timeline?.length > 0 ? (
-                    <>
-                      {/* Summary stats */}
-                      <div className="flex items-center gap-6 mb-5">
-                        <div>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Papers</p>
-                          <p className="text-lg font-bold text-[#E1E0CC] font-mono tabular-nums">
-                            {authorTimeline.totalPapers?.toLocaleString() || '—'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Total Citations</p>
-                          <p className="text-lg font-bold text-[#4F8CFF] font-mono tabular-nums">
-                            {authorTimeline.totalCitations?.toLocaleString() || '—'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-wider">h-Index</p>
-                          <p className="text-lg font-bold text-[#00D1B2] font-mono tabular-nums">
-                            {authorTimeline.hIndex ?? '—'}
-                          </p>
-                        </div>
-                      </div>
-                      <ResponsiveContainer width="100%" height={220}>
+                    <ResponsiveContainer width="100%" height={220}>
                         <ComposedChart data={authorTimeline.timeline} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.06} vertical={false} />
                           <XAxis dataKey="year" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} />
@@ -913,20 +914,19 @@ export default function UserOverviewPage() {
                           <Line yAxisId="right" type="monotone" dataKey="citedByCount" name="Citations" stroke="#4F8CFF" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: '#4F8CFF', strokeWidth: 0 }} />
                         </ComposedChart>
                       </ResponsiveContainer>
-                    </>
                   ) : (
                     <div className="flex items-center justify-center h-[260px] text-gray-500 text-sm">No timeline data available</div>
                   )}
                 </motion.div>
 
-                {/* Research Fields — Pie Chart (keep existing) */}
+                {/* Research Fields — Pie Chart — Tier 2 recessed */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5 flex flex-col"
+                  transition={{ delay: 0.15, ...spring }}
+                  className="rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
                 >
-                  <h3 className="text-sm font-bold text-[#E1E0CC] mb-4">
+                  <h3 className="text-base font-semibold text-[#E1E0CC] mb-4">
                     {t('user.researchFields') || 'Research Fields'}
                   </h3>
                   {researchFields.length > 0 ? (
@@ -981,19 +981,19 @@ export default function UserOverviewPage() {
 
               {/* ── Charts Row 2: Collaboration Network + Top Cited Papers ── */}
               <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-                {/* Collaboration Network — Co-author cards */}
+                {/* Co-Authors — Tier 2 recessed */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25 }}
-                  className="lg:col-span-3 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+                  transition={{ delay: 0.2, ...spring }}
+                  className="lg:col-span-3 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border"
                 >
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                        <Network size={14} className="text-[#A78BFA]" /> Co-Authors
+                      <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                        <Network size={15} className="text-[#DEDBC8]" /> Co-Authors
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">Frequent collaborators</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">Frequent collaborators</p>
                     </div>
                     {authorCoAuthors && (
                       <span className="text-[10px] text-gray-500">
@@ -1014,10 +1014,10 @@ export default function UserOverviewPage() {
                           key={ca.name || i}
                           initial={{ opacity: 0, scale: 0.9 }}
                           animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.35 + i * 0.04 }}
+                          transition={{ delay: 0.3 + i * 0.04, ...spring }}
                           whileHover={{ y: -2 }}
                           className="px-4 py-3 rounded-xl border transition-all duration-200
-                            bg-[#DEDBC8]/3 border-[#DEDBC8]/8 hover:border-[#A78BFA]/25 hover:bg-[#A78BFA]/5"
+                            bg-[#DEDBC8]/3 border-[#DEDBC8]/8 hover:border-[#DEDBC8]/25 hover:bg-[#DEDBC8]/6"
                         >
                           <p className="text-xs font-semibold text-[#E1E0CC]">{ca.name}</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -1038,19 +1038,19 @@ export default function UserOverviewPage() {
                   )}
                 </motion.div>
 
-                {/* Top Cited Papers */}
+                {/* Top Cited Papers — Tier 2 recessed */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="lg:col-span-2 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5 flex flex-col"
+                  transition={{ delay: 0.25, ...spring }}
+                  className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
                 >
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                        <Trophy size={14} className="text-amber-400" /> Top Cited Papers
+                      <h3 className="text-base font-semibold text-[#E1E0CC] flex items-center gap-2">
+                        <Trophy size={15} className="text-[#DEDBC8]" /> Top Cited Papers
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">Most influential works</p>
+                      <p className="text-[11px] text-gray-400 mt-0.5">Most influential works</p>
                     </div>
                   </div>
                   {authorDetailLoading ? (
@@ -1066,7 +1066,8 @@ export default function UserOverviewPage() {
                           key={p.paperId || i}
                           initial={{ opacity: 0, x: -8 }}
                           animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.4 + i * 0.05 }}
+                          transition={{ delay: 0.35 + i * 0.05, ...spring }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => {
                             if (p.paperId) navigate(`/${role}/search/paper/${p.paperId}`);
                           }}
@@ -1077,7 +1078,7 @@ export default function UserOverviewPage() {
                             <p className="text-xs font-medium text-[#E1E0CC] line-clamp-1 group-hover:text-[#4F8CFF] transition-colors flex-1">
                               {p.title || 'Untitled'}
                             </p>
-                            <span className="text-xs font-bold text-amber-400 font-mono tabular-nums shrink-0">
+                            <span className="text-xs font-bold text-[#DEDBC8] font-mono tabular-nums shrink-0">
                               {(p.citationCount ?? p.citations ?? 0).toLocaleString()}
                             </span>
                           </div>
@@ -1100,15 +1101,15 @@ export default function UserOverviewPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="rounded-2xl border overflow-hidden bg-[#101010] border-[#DEDBC8]/5"
+                transition={{ delay: 0.28, ...spring }}
+                className="rounded-2xl border overflow-hidden bg-card-recessed border-card-recessed-border"
               >
                 <div className="flex items-center justify-between px-6 py-5 border-b border-[#DEDBC8]/5">
                   <div>
-                    <h3 className="text-sm font-bold text-[#E1E0CC]">
+                    <h3 className="text-base font-semibold text-[#E1E0CC]">
                       {t('user.recentPublications') || 'Recent Publications'}
                     </h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Latest published research</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Latest published research</p>
                   </div>
                 </div>
                 {recentPublications.length > 0 ? (
@@ -1129,7 +1130,7 @@ export default function UserOverviewPage() {
                             key={p.paperId || i}
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 + i * 0.05 }}
+                            transition={{ delay: 0.35 + i * 0.05, ...spring }}
                             className="border-b border-[#DEDBC8]/5 hover:bg-white/[0.02] transition-colors"
                           >
                             <td className="px-6 py-4">
@@ -1175,7 +1176,8 @@ export default function UserOverviewPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-3 px-5 py-12 rounded-2xl border border-dashed bg-[#101010]/50 border-[#DEDBC8]/10 text-center"
+            transition={spring}
+            className="flex flex-col items-center gap-3 px-5 py-12 rounded-2xl border border-dashed bg-transparent border-[#DEDBC8]/10 text-center"
           >
             <div className="p-3 rounded-xl bg-[#DEDBC8]/5">
               <UserPlus size={24} className="text-gray-500" />

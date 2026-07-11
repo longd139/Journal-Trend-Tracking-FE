@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
@@ -42,7 +42,7 @@ function JournalHeader({ journal }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
     >
       {/* Journal name */}
       <div className="flex items-start justify-between gap-4">
@@ -119,7 +119,7 @@ function TimelineChart({ timeline }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
     >
       <div className="flex items-center gap-2">
         <TrendingUp size={14} className="text-[#DEDBC8]/40" />
@@ -209,7 +209,7 @@ function TopAuthors({ authors }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-4"
+      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
     >
       <div className="flex items-center gap-2">
         <User size={14} className="text-[#DEDBC8]/40" />
@@ -226,7 +226,7 @@ function TopAuthors({ authors }) {
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-            className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5"
+            className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.03] border border-[#DEDBC8]/5 hover:bg-[#DEDBC8]/[0.06] transition-colors"
           >
             {/* Rank */}
             <span className="w-5 text-xs font-bold text-gray-500 text-center">#{i + 1}</span>
@@ -603,7 +603,7 @@ export default function SearchJournal() {
               onKeyDown={handleKeyDown}
               onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
+              className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#0F0F0F] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
             />
             {query && (
               <button
@@ -623,7 +623,7 @@ export default function SearchJournal() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-[#DEDBC8]/10 shadow-xl shadow-black/40 overflow-hidden"
               >
                 {filteredSuggestions.slice(0, 8).map((kw) => (
                   <button key={kw} type="button"
@@ -673,37 +673,68 @@ export default function SearchJournal() {
 
             {/* Categories loaded */}
             {!loadingCategories && categories.length > 0 && (
-              <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#0A0A0A]/80 p-5 space-y-4">
-                {/* ── Category Tabs ── */}
+              <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#0F0F0F] p-5 space-y-5">
+                {/* ── Section Header ── */}
+                <div>
+                  <h3 className="text-base font-semibold text-[#E1E0CC]">Browse by Research Field</h3>
+                  <p className="text-[11px] text-gray-400 mt-0.5">Explore top journals across {categories.length} academic disciplines</p>
+                </div>
+
+                {/* ── Category Tabs with Rank Badges ── */}
                 <motion.div
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex items-center gap-1.5 flex-wrap"
                 >
-                  {categories.map((cat) => {
+                  {categories.map((cat, i) => {
                     const active = cat.fieldId === selectedFieldId;
+                    const rank = i + 1;
+                    const showRank = rank <= 5;
+                    const medalColor =
+                      rank === 1 ? '#F59E0B' :
+                      rank === 2 ? '#9CA3AF' :
+                      rank === 3 ? '#D97706' :
+                      '#DEDBC8';
+
                     return (
                       <button
                         key={cat.fieldId}
                         type="button"
                         onClick={() => handleFieldClick(cat.fieldId)}
                         disabled={loadingField}
-                        className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all border whitespace-nowrap ${
+                        className={`relative shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border whitespace-nowrap ${
                           active
-                            ? 'bg-[#DEDBC8]/15 text-[#DEDBC8] border-[#DEDBC8]/30'
+                            ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/25 shadow-[inset_0_1px_0_0_rgba(222,219,200,0.06)]'
                             : 'text-gray-400 border-[#DEDBC8]/8 hover:bg-[#DEDBC8]/5 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/15'
                         }`}
                       >
-                        {cat.fieldName}
-                        {cat.journalCount > 0 && (
-                          <span className={`ml-1.5 text-[10px] ${active ? 'text-[#DEDBC8]/60' : 'text-gray-600'}`}>
-                            {cat.journalCount}
+                        {/* Rank badge — top 5 only, positioned on top border */}
+                        {showRank && (
+                          <span
+                            className="absolute -top-2.5 -left-2 min-w-[20px] h-5 rounded-full text-[9px] font-bold flex items-center justify-center px-1 shadow-md"
+                            style={{ background: medalColor, color: '#000' }}
+                          >
+                            #{rank}
                           </span>
                         )}
+                        {cat.fieldName}
                       </button>
                     );
                   })}
                 </motion.div>
+
+                {/* ── Field Description ── */}
+                {fieldData?.description && (
+                  <motion.p
+                    key={selectedFieldId}
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="text-[11px] text-gray-400 leading-relaxed px-1 border-l-2 border-[#DEDBC8]/20 pl-3"
+                  >
+                    {fieldData.description}
+                  </motion.p>
+                )}
 
                 {/* ── Journal Cards Grid ── */}
                 {loadingField ? (
@@ -716,13 +747,6 @@ export default function SearchJournal() {
                     transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                     className="space-y-3"
                   >
-                    {/* Field description */}
-                    {fieldData.description && (
-                      <p className="text-xs text-gray-500 px-1">
-                        {fieldData.description}
-                      </p>
-                    )}
-
                     {/* Journal cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {fieldData.topJournals.map((journal, i) => (
@@ -735,12 +759,12 @@ export default function SearchJournal() {
                             setQuery(journal.journalName);
                             handleSearch(journal.journalName);
                           }}
-                          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3 hover:border-[#DEDBC8]/20 transition-all cursor-pointer"
+                          className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-5 space-y-3 hover:border-[#DEDBC8]/15 hover:bg-[#0F0F0F] transition-all duration-200 cursor-pointer group shadow-sm"
                         >
                           {/* Journal name + quartile */}
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-1 min-w-0">
-                              <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate">
+                              <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate group-hover:text-[#DEDBC8] transition-colors">
                                 {journal.journalName}
                               </h3>
                               {journal.publisher && (
