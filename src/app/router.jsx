@@ -35,6 +35,7 @@ const DatabaseView = lazy(() => import('../features/admin/DatabaseViewPage.jsx')
 const SyncData = lazy(() => import('../features/admin/SyncDataPage.jsx'));
 const AdminAuditLog = lazy(() => import('../features/admin/AdminAuditLogPage.jsx'));
 const AdminConfig = lazy(() => import('../features/admin/AdminConfigPage.jsx'));
+const PdfRequestsPage = lazy(() => import('../features/admin/PdfRequestsPage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -282,6 +283,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <AdminConfig />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'pdf-requests',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <PdfRequestsPage />
             </Suspense>
           </ProtectedRoute>
         ),

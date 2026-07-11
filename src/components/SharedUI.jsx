@@ -44,34 +44,36 @@ export function StatCard({ label, value, change, Icon, accent }) {
  return (
  <motion.div
   whileHover={{ y: -4 }}
-  transition={{ duration: 0.18 }}
+  transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
   className="rounded-xl p-5 border relative overflow-hidden cursor-default group"
-  style={{ background: '#101010', borderColor: 'rgba(222,219,200,0.05)' }}
+  style={{ background: '#101010', borderColor: 'rgba(222,219,200,0.06)' }}
  >
   <div
-  className="absolute -top-8 -right-8 w-28 h-28 rounded-full blur-2xl opacity-10"
-  style={{ background: accent }}
+   className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-[0.06] group-hover:opacity-[0.10] transition-opacity duration-700"
+   style={{ background: accent }}
   />
   <div className="flex items-start justify-between mb-4">
-  <div className="p-2.5 rounded-lg" style={{ background: `${accent}1A`, color: accent }}>
-   <Icon size={16} />
+   <div className="p-2.5 rounded-lg" style={{ background: `${accent}12`, color: accent }}>
+    <Icon size={16} />
+   </div>
+   {change && (
+    <span
+     className="text-xs font-semibold flex items-center gap-0.5"
+     style={{ color: up ? '#34D399' : '#EF4444' }}
+    >
+     <ArrowUpRight
+      size={11}
+      style={{ transform: up ? 'none' : 'scaleY(-1)' }}
+     />
+     {change}
+    </span>
+   )}
   </div>
-  <span
-   className="text-xs font-semibold flex items-center gap-0.5"
-   style={{ color: up ? '#34D399' : '#EF4444' }}
-  >
-   <ArrowUpRight
-   size={11}
-   style={{ transform: up ? 'none' : 'scaleY(-1)' }}
-   />
-   {change}
-  </span>
+  <div className="text-2xl font-bold text-[#E1E0CC] mb-0.5 font-display tracking-[-0.02em]">
+   {value}
   </div>
-  <div className="text-2xl font-bold text-[#E1E0CC] mb-0.5 font-display">
-  {value}
-  </div>
-  <div className="text-xs text-gray-400">
-  {label}
+  <div className="text-[11px] text-gray-500 font-medium uppercase tracking-wider">
+   {label}
   </div>
  </motion.div>
  );

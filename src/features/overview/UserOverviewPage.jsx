@@ -35,6 +35,18 @@ const CHART_COLORS = ['#DEDBC8', '#C5BFA0', '#A09878', '#8A8468', '#6B6550'];
 
 const spring = { type: 'spring', stiffness: 300, damping: 30 };
 
+/* Custom Tooltip — white text on dark bg */
+function CustomTooltip({ active, payload }) {
+  if (!active || !payload?.length) return null;
+  const { name, value } = payload[0];
+  return (
+    <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, padding: '8px 12px' }}>
+      <p style={{ color: '#E1E0CC', fontWeight: 600, fontSize: 11, margin: 0 }}>{name}</p>
+      <p style={{ color: '#E1E0CC', fontSize: 11, margin: '2px 0 0' }}>{value}%</p>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    StatCard — Tier 1 elevated surface with spotlight effect
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -618,10 +630,7 @@ export default function UserOverviewPage() {
                               <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip
-                            contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, fontSize: 11, color: '#E1E0CC' }}
-                            formatter={(value) => [`${value}%`, '']}
-                          />
+                          <Tooltip content={<CustomTooltip />} />
                         </PieChart>
                       </ResponsiveContainer>
                     </div>
@@ -907,7 +916,9 @@ export default function UserOverviewPage() {
                           <YAxis yAxisId="left" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
                           <YAxis yAxisId="right" orientation="right" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
                           <Tooltip
-                            contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 12, fontSize: 12, color: '#E1E0CC' }}
+                            contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 12, fontSize: 12 }}
+                            labelStyle={{ color: '#E1E0CC', fontWeight: 600 }}
+                            itemStyle={{ color: '#E1E0CC' }}
                           />
                           <Legend content={() => null} />
                           <Bar yAxisId="left" dataKey="worksCount" name="Papers" fill="#DEDBC8" radius={[4, 4, 0, 0]} maxBarSize={36} opacity={0.8} />
@@ -946,10 +957,7 @@ export default function UserOverviewPage() {
                                 <Cell key={i} fill={f.color || CHART_COLORS[i % CHART_COLORS.length]} />
                               ))}
                             </Pie>
-                            <Tooltip
-                              contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 12, fontSize: 12, color: '#E1E0CC' }}
-                              formatter={(value) => [`${value}%`, '']}
-                            />
+                            <Tooltip content={<CustomTooltip />} />
                           </PieChart>
                         </ResponsiveContainer>
                       </div>

@@ -272,6 +272,51 @@ export const adminAPI = {
     return data;
   },
 
+  /* ──────────── PDF Requests (/api/admin/pdf-requests) ──────────── */
+
+  /**
+   * Get paginated list of PDF requests (admin only).
+   * GET /api/admin/pdf-requests?status=pending&page=0&size=20
+   */
+  async getPdfRequests({ status, page = 0, size = 20 } = {}) {
+    const { data } = await axiosClient.get('/api/admin/pdf-requests', {
+      params: { status, page, size },
+    });
+    return data; // AppResponse<Page<PdfRequestResponse>>
+  },
+
+  /**
+   * Find PDF candidates from OpenAlex for a request.
+   * POST /api/admin/pdf-requests/{requestId}/find-candidates
+   */
+  async findPdfCandidates(requestId) {
+    const { data } = await axiosClient.post(`/api/admin/pdf-requests/${requestId}/find-candidates`);
+    return data; // AppResponse<{ candidates: PdfCandidate[] }>
+  },
+
+  /**
+   * Fulfill a PDF request by providing a PDF URL.
+   * PUT /api/admin/pdf-requests/{requestId}/fulfill
+   */
+  async fulfillPdfRequest(requestId, { pdfUrl, adminNote } = {}) {
+    const { data } = await axiosClient.put(`/api/admin/pdf-requests/${requestId}/fulfill`, {
+      pdfUrl,
+      adminNote,
+    });
+    return data;
+  },
+
+  /**
+   * Reject a PDF request with a reason.
+   * PUT /api/admin/pdf-requests/{requestId}/reject
+   */
+  async rejectPdfRequest(requestId, { adminNote } = {}) {
+    const { data } = await axiosClient.put(`/api/admin/pdf-requests/${requestId}/reject`, {
+      adminNote,
+    });
+    return data;
+  },
+
   /* ──────────── Bulk Sync (/api/v1/admin/sync/bulk) ──────────── */
 
   /**

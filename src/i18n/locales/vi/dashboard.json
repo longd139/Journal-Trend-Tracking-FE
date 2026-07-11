@@ -18,6 +18,7 @@
     "settings": "Cài đặt",
     "auditLogs": "Nhật ký hệ thống",
     "configs": "Cấu hình",
+    "pdfRequests": "Yêu cầu PDF",
     "dataSources": "Nguồn dữ liệu",
     "paperDetails": "Chi tiết bài báo",
     "dashboard": "Bảng điều khiển"
@@ -41,6 +42,7 @@
     "settings": "Quản lý hồ sơ tài khoản",
     "auditLogs": "Theo dõi hoạt động hệ thống và sự kiện bảo mật",
     "configs": "Quản lý tham số cấu hình hệ thống",
+    "pdfRequests": "Quản lý yêu cầu truy cập PDF",
     "dataSources": "Quản lý tích hợp dữ liệu bên ngoài",
     "paperDetails": "Xem chi tiết bài báo và thông tin trích dẫn",
     "welcomeBack": "Chào mừng trở lại"

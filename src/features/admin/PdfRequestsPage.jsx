@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, RefreshCw, Search, X, ExternalLink,
-  CheckCircle, XCircle, Clock, Loader2, Eye,
+  CheckCircle, XCircle, Clock, Loader2,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminAPI } from './api';
@@ -16,6 +17,13 @@ const STATUS_STYLES = {
   fulfilled: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   rejected: 'bg-red-500/10 text-red-400 border-red-500/20',
 };
+
+const FILTER_TABS = [
+  { key: undefined, label: 'All' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'fulfilled', label: 'Fulfilled' },
+  { key: 'rejected', label: 'Rejected' },
+];
 
 function StatusBadge({ status }) {
   const cls = STATUS_STYLES[status] || 'bg-gray-500/10 text-gray-400 border-gray-500/20';
@@ -54,15 +62,15 @@ function Modal({ open, onClose, title, children }) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] shadow-2xl"
+            className="w-full max-w-lg rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] shadow-2xl max-h-[85vh] flex flex-col"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#DEDBC8]/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#DEDBC8]/10 shrink-0">
               <h2 className="text-sm font-bold text-[#E1E0CC]">{title}</h2>
               <button onClick={onClose} className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
                 <X size={16} />
               </button>
             </div>
-            <div className="p-6">{children}</div>
+            <div className="p-6 overflow-y-auto">{children}</div>
           </motion.div>
         </motion.div>
       )}
@@ -77,7 +85,11 @@ function Modal({ open, onClose, title, children }) {
 export default function PdfRequestsPage() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(null); // requestId of currently processing row
+  const [actionLoading, setActionLoading] = useState(null);
+  const [filter, setFilter] = useState(undefined); // undefined = all
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
 
   // Fulfill modal
   const [fulfillModal, setFulfillModal] = useState({ open: false, request: null });
@@ -88,26 +100,44 @@ export default function PdfRequestsPage() {
   const [rejectModal, setRejectModal] = useState({ open: false, request: null });
   const [rejectNote, setRejectNote] = useState('');
 
-  const fetchRequests = async () => {
+  // Find-candidates modal
+  const [candidatesModal, setCandidatesModal] = useState({ open: false, request: null });
+  const [candidates, setCandidates] = useState([]);
+  const [candidatesLoading, setCandidatesLoading] = useState(false);
+
+  const fetchRequests = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await adminAPI.getPdfRequests();
-      setRequests(res?.data || []);
+      const res = await adminAPI.getPdfRequests({ status: filter, page, size: 20 });
+      const payload = res?.data;
+      // Backend may return Spring Page { content, totalPages, ... } or a flat array
+      if (Array.isArray(payload)) {
+        setRequests(payload);
+        setTotalPages(1);
+        setTotalElements(payload.length);
+      } else {
+        setRequests(payload?.content || []);
+        setTotalPages(payload?.totalPages || 0);
+        setTotalElements(payload?.totalElements || 0);
+      }
     } catch {
       toast.error('Failed to load PDF requests');
       setRequests([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter, page]);
 
-  useEffect(() => { fetchRequests(); }, []);
+  useEffect(() => { fetchRequests(); }, [fetchRequests]);
+
+  // Reset page when filter changes
+  useEffect(() => { setPage(0); }, [filter]);
 
   /* ───────── Actions ───────── */
 
   const openFulfill = (req) => {
     setFulfillModal({ open: true, request: req });
-    setFulfillUrl(req.pdfUrl || '');
+    setFulfillUrl('');
     setFulfillNote('');
   };
 
@@ -123,11 +153,11 @@ export default function PdfRequestsPage() {
         pdfUrl: fulfillUrl.trim(),
         adminNote: fulfillNote.trim() || undefined,
       });
-      toast.success('PDF request fulfilled');
+      toast.success('PDF request fulfilled — user notified');
       setFulfillModal({ open: false, request: null });
       fetchRequests();
-    } catch {
-      toast.error('Failed to fulfill request');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to fulfill request');
     } finally {
       setActionLoading(null);
     }
@@ -149,36 +179,47 @@ export default function PdfRequestsPage() {
       await adminAPI.rejectPdfRequest(req.requestId, {
         adminNote: rejectNote.trim(),
       });
-      toast.success('PDF request rejected');
+      toast.success('PDF request rejected — user notified');
       setRejectModal({ open: false, request: null });
       fetchRequests();
-    } catch {
-      toast.error('Failed to reject request');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to reject request');
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleFindCandidates = async (req) => {
-    setActionLoading(req.requestId);
+    setCandidatesModal({ open: true, request: req });
+    setCandidates([]);
+    setCandidatesLoading(true);
     try {
       const res = await adminAPI.findPdfCandidates(req.requestId);
-      const count = res?.data?.candidates?.length || 0;
-      if (count > 0) {
-        toast.success(`Found ${count} PDF candidate(s)`);
-      } else {
+      setCandidates(res?.data?.candidates || res?.data || []);
+      if (!res?.data?.candidates?.length && (!Array.isArray(res?.data) || res?.data?.length === 0)) {
         toast.info('No PDF candidates found');
       }
-    } catch {
-      toast.error('Failed to find PDF candidates');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to find candidates');
     } finally {
-      setActionLoading(null);
+      setCandidatesLoading(false);
+    }
+  };
+
+  const quickFulfill = (candidateUrl) => {
+    setFulfillUrl(candidateUrl);
+    setCandidatesModal({ open: false, request: null });
+    // Open fulfill modal with the same request and pre-filled URL
+    const req = candidatesModal.request;
+    if (req) {
+      setFulfillModal({ open: true, request: req });
     }
   };
 
   /* ───────── Render ───────── */
 
   const pendingCount = requests.filter((r) => r.status === 'pending').length;
+  const size = 20;
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -204,17 +245,20 @@ export default function PdfRequestsPage() {
         </button>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Total', value: requests.length, color: 'text-[#DEDBC8]' },
-          { label: 'Fulfilled', value: requests.filter((r) => r.status === 'fulfilled').length, color: 'text-emerald-400' },
-          { label: 'Rejected', value: requests.filter((r) => r.status === 'rejected').length, color: 'text-red-400' },
-        ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border border-[#DEDBC8]/10 bg-[#151922] p-4">
-            <div className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">{stat.label}</div>
-            <div className={`text-lg font-black mt-1 font-mono tabular-nums ${stat.color}`}>{stat.value}</div>
-          </div>
+      {/* Filter tabs */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {FILTER_TABS.map((tab) => (
+          <button
+            key={tab.key ?? 'all'}
+            onClick={() => setFilter(tab.key)}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+              filter === tab.key
+                ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
+                : 'text-gray-400 border-transparent hover:text-white hover:bg-white/5'
+            }`}
+          >
+            {tab.label}
+          </button>
         ))}
       </div>
 
@@ -245,7 +289,7 @@ export default function PdfRequestsPage() {
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-gray-500">
                     <FileText size={28} className="mx-auto mb-2 opacity-30" />
-                    No PDF requests yet
+                    No PDF requests found
                   </td>
                 </tr>
               ) : (
@@ -258,25 +302,18 @@ export default function PdfRequestsPage() {
                     >
                       {/* Requestor */}
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-[#DEDBC8]/10 flex items-center justify-center">
-                            <FileText size={12} className="text-[#DEDBC8]" />
-                          </div>
-                          <div>
-                            <span className="text-xs text-[#E1E0CC] font-medium">
-                              {req.requestedByEmail || 'Unknown'}
-                            </span>
-                            {req.resolvedByAdminEmail && (
-                              <div className="text-[9px] text-gray-500">
-                                resolved by: {req.resolvedByAdminEmail}
-                              </div>
-                            )}
-                          </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-[#E1E0CC] font-medium">
+                            {req.requestedByName || req.requestedByEmail || 'Unknown'}
+                          </span>
+                          {req.requestedByName && (
+                            <span className="text-[10px] text-gray-500">{req.requestedByEmail}</span>
+                          )}
                         </div>
                       </td>
 
                       {/* Paper */}
-                      <td className="px-4 py-3 max-w-[250px]">
+                      <td className="px-4 py-3 max-w-[220px]">
                         <div className="text-xs text-[#E1E0CC] font-medium leading-relaxed line-clamp-2">
                           {req.paperTitle || '—'}
                         </div>
@@ -288,7 +325,7 @@ export default function PdfRequestsPage() {
                       </td>
 
                       {/* Journal */}
-                      <td className="px-4 py-3 text-xs text-gray-400">
+                      <td className="px-4 py-3 text-xs text-gray-400 max-w-[140px] truncate">
                         {req.journalName || '—'}
                       </td>
 
@@ -303,7 +340,7 @@ export default function PdfRequestsPage() {
                       </td>
 
                       {/* Admin Note */}
-                      <td className="px-4 py-3 max-w-[180px]">
+                      <td className="px-4 py-3 max-w-[160px]">
                         <span className="text-xs text-gray-400 line-clamp-2">
                           {req.adminNote || '—'}
                         </span>
@@ -316,7 +353,7 @@ export default function PdfRequestsPage() {
                             <button
                               onClick={() => handleFindCandidates(req)}
                               disabled={isProcessing}
-                              title="Find PDF candidates"
+                              title="Find PDF candidates from OpenAlex"
                               className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 active:scale-[0.90] transition-all duration-150"
                             >
                               {isProcessing ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
@@ -359,7 +396,109 @@ export default function PdfRequestsPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-[#DEDBC8]/10">
+            <span className="text-xs text-gray-500">
+              Page {page + 1} of {totalPages} ({totalElements} total)
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 disabled:opacity-30 transition-colors"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* ════════ Find Candidates Modal ════════ */}
+      <Modal
+        open={candidatesModal.open}
+        onClose={() => setCandidatesModal({ open: false, request: null })}
+        title="PDF Candidates from OpenAlex"
+      >
+        <div className="space-y-4">
+          {candidatesModal.request && (
+            <div className="p-3 rounded-xl bg-black/30 border border-[#DEDBC8]/10">
+              <p className="text-xs text-[#E1E0CC] font-medium line-clamp-2">
+                {candidatesModal.request.paperTitle}
+              </p>
+              {candidatesModal.request.doi && (
+                <p className="text-[10px] text-gray-500 mt-1 font-mono">DOI: {candidatesModal.request.doi}</p>
+              )}
+            </div>
+          )}
+
+          {candidatesLoading ? (
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <Loader2 size={20} className="animate-spin mr-2" />
+              Searching OpenAlex...
+            </div>
+          ) : candidates.length === 0 ? (
+            <div className="text-center py-6 text-gray-500 text-xs">
+              <Search size={24} className="mx-auto mb-2 opacity-30" />
+              No PDF candidates found. Try fulfilling manually with a known URL.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                Found {candidates.length} candidate(s)
+              </p>
+              {candidates.map((c, i) => {
+                const url = typeof c === 'string' ? c : c?.url || c?.pdfUrl || c?.link;
+                const source = typeof c === 'string' ? null : c?.source || c?.repository;
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-[#DEDBC8]/10 bg-black/20"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-[#DEDBC8] hover:underline break-all line-clamp-1"
+                      >
+                        {url}
+                      </a>
+                      {source && (
+                        <div className="text-[9px] text-gray-500 mt-0.5">Source: {source}</div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => quickFulfill(url)}
+                      className="shrink-0 px-3 py-1.5 rounded-lg text-[10px] font-bold text-black bg-emerald-400 hover:bg-emerald-300 transition-colors"
+                    >
+                      Use this
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="flex justify-end pt-2">
+            <button
+              onClick={() => setCandidatesModal({ open: false, request: null })}
+              className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* ════════ Fulfill Modal ════════ */}
       <Modal
@@ -374,7 +513,7 @@ export default function PdfRequestsPage() {
                 {fulfillModal.request.paperTitle}
               </p>
               <p className="text-[10px] text-gray-500 mt-1">
-                by {fulfillModal.request.requestedByEmail}
+                by {fulfillModal.request.requestedByName || fulfillModal.request.requestedByEmail}
               </p>
             </div>
           )}
@@ -433,7 +572,7 @@ export default function PdfRequestsPage() {
                 {rejectModal.request.paperTitle}
               </p>
               <p className="text-[10px] text-gray-500 mt-1">
-                by {rejectModal.request.requestedByEmail}
+                by {rejectModal.request.requestedByName || rejectModal.request.requestedByEmail}
               </p>
             </div>
           )}

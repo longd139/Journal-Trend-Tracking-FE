@@ -149,12 +149,12 @@ export default function AuthorQuickStats({ keyword }) {
       {/* ─── Author Profile Card ─── */}
       <div className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden">
         {/* Top accent line */}
-        <div className="h-0.5 bg-gradient-to-r from-[#4F8CFF] via-[#00D1B2] to-[#A78BFA]" />
+        <div className="h-0.5 bg-[#DEDBC8]/30" />
 
         <div className="p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Avatar */}
-            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-gradient-to-br from-[#4F8CFF]/20 to-[#A78BFA]/20 border border-[#DEDBC8]/10 text-[#DEDBC8] shrink-0">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-[#DEDBC8]/[0.08] border border-[#DEDBC8]/10 text-[#DEDBC8] shrink-0">
               <User size={24} />
             </div>
 
@@ -166,13 +166,13 @@ export default function AuthorQuickStats({ keyword }) {
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5">
                 {stats.academicTitle && (
                   <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
-                    <GraduationCap size={12} className="text-[#4F8CFF]/70" />
+                    <GraduationCap size={12} className="text-[#DEDBC8]/50" />
                     {stats.academicTitle}
                   </span>
                 )}
                 {stats.currentAffiliation && (
                   <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
-                    <Building2 size={12} className="text-[#00D1B2]/70" />
+                    <Building2 size={12} className="text-[#DEDBC8]/50" />
                     {stats.currentAffiliation}
                   </span>
                 )}
@@ -200,8 +200,8 @@ export default function AuthorQuickStats({ keyword }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium
-                               bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20
-                               hover:bg-[#4F8CFF]/15 hover:border-[#4F8CFF]/30 transition-all"
+                               bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20
+                               hover:bg-[#DEDBC8]/15 hover:border-[#DEDBC8]/30 transition-all"
                   >
                     <ExternalLink size={12} />
                     View on OpenAlex
@@ -227,7 +227,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={(stats.totalPapers ?? 0).toLocaleString()}
           change=""
           Icon={FileText}
-          accent="#4F8CFF"
+          accent="#DEDBC8"
         />
 
         {/* Total Citations */}
@@ -236,7 +236,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={(stats.totalCitations ?? 0).toLocaleString()}
           change=""
           Icon={Star}
-          accent="#A78BFA"
+          accent="#C5BFA0"
         />
 
         {/* h-Index */}
@@ -245,7 +245,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={((stats.hIndex ?? stats.hindex) != null) ? (stats.hIndex ?? stats.hindex).toLocaleString() : '—'}
           change=""
           Icon={Hash}
-          accent="#00D1B2"
+          accent="#A09878"
         />
 
         {/* i10-Index */}
@@ -254,14 +254,14 @@ export default function AuthorQuickStats({ keyword }) {
           value={stats.i10Index != null ? stats.i10Index.toLocaleString() : '—'}
           change=""
           Icon={BarChart3}
-          accent="#F59E0B"
+          accent="#8A8468"
         />
       </div>
 
       {/* Two-year mean citedness */}
       {stats.twoYearMeanCitedness != null && (
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#DEDBC8]/3 border border-[#DEDBC8]/5 text-[11px] text-gray-400">
-          <TrendingUp size={12} className="text-[#00D1B2]" />
+          <TrendingUp size={12} className="text-[#DEDBC8]/50" />
           <span>2-Year Mean Citedness:</span>
           <span className="font-semibold text-[#E1E0CC]">{stats.twoYearMeanCitedness.toFixed(1)}</span>
         </div>

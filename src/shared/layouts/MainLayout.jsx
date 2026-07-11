@@ -69,6 +69,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
     { id: 'users', Icon: Users, label: t('sidebar.userManagement') },
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
+    { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
   ];
@@ -337,6 +338,10 @@ export default function DashboardLayout({ children }) {
     configs: {
       title: t('headings.configs'),
       sub: t('subtitles.configs'),
+    },
+    'pdf-requests': {
+      title: t('headings.pdfRequests'),
+      sub: t('subtitles.pdfRequests'),
     },
     papers: {
       title: t('headings.paperDetails'),

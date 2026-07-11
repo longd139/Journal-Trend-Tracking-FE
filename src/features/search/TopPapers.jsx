@@ -233,7 +233,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
       </div>
 
       {/* Paper cards */}
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 gap-6">
         {sortedPapers.map((paper, i) => (
           <motion.div
             key={paper.paperId || i}
@@ -261,44 +261,67 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
         ))}
       </div>
 
-      {/* Upgrade to Researcher Dialog */}
+      {/* Upgrade to Researcher — High-end modal */}
       <AnimatePresence>
         {upgradeOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
             onClick={() => setUpgradeOpen(false)}
           >
+            {/* ── Modal Card ── */}
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.96, opacity: 0, y: 24 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 20 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              exit={{ scale: 0.96, opacity: 0, y: 24 }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm rounded-2xl bg-[#1a1a1a] border border-[#DEDBC8]/15 p-6 shadow-2xl"
+              className="relative w-full max-w-sm rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
             >
+              {/* Close button */}
               <button
                 onClick={() => setUpgradeOpen(false)}
-                className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#DEDBC8]/5 text-gray-500 hover:bg-[#DEDBC8]/10 hover:text-[#E1E0CC] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
               >
-                <X size={16} />
+                <X size={14} />
               </button>
 
-              <div className="text-center space-y-4">
-                <div className="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-[#4F8CFF]/20 to-[#A78BFA]/20 border border-[#4F8CFF]/20 flex items-center justify-center">
-                  <Lock size={24} className="text-[#4F8CFF]" />
-                </div>
+              <div className="text-center space-y-6">
+                {/* Icon — clean flat accent */}
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="mx-auto w-14 h-14 rounded-2xl bg-[#DEDBC8]/[0.06] border border-[#DEDBC8]/10 flex items-center justify-center"
+                >
+                  <Lock size={22} className="text-[#DEDBC8]" />
+                </motion.div>
 
-                <div>
-                  <h3 className="text-lg font-bold text-[#E1E0CC]">Upgrade to Researcher</h3>
-                  <p className="text-sm text-gray-400 mt-1.5">
+                {/* Title + subtitle */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="space-y-2"
+                >
+                  <h3 className="text-xl font-black text-[#E1E0CC] font-display tracking-[-0.02em]">
+                    Upgrade to Researcher
+                  </h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed max-w-[260px] mx-auto">
                     Unlock full paper details, AI summaries, citation exports, and unlimited searches.
                   </p>
-                </div>
+                </motion.div>
 
-                <div className="rounded-xl bg-[#101010] border border-[#DEDBC8]/10 p-4 space-y-2">
+                {/* Feature list — staggered entry */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="rounded-xl bg-[#0F0F0F] border border-[#DEDBC8]/5 p-4 space-y-0"
+                >
                   {[
                     'Full abstract & paper details',
                     'AI-powered paper summaries',
@@ -306,34 +329,60 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
                     'Citation export (BibTeX, RIS, APA)',
                     'Unlimited searches & bookmarks',
                   ].map((f, i) => (
-                    <div key={i} className="flex items-center gap-2 text-xs text-gray-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#00D1B2] shrink-0" />
-                      {f}
-                    </div>
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                      className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-[#DEDBC8]/5 last:border-0"
+                    >
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]/50 shrink-0" />
+                      <span className="text-xs text-gray-300">{f}</span>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
 
-                <div className="text-center">
-                  <span className="text-3xl font-black text-[#E1E0CC]">$999</span>
-                  <span className="text-sm text-gray-500"> /year</span>
-                </div>
+                {/* Price */}
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  className="text-center"
+                >
+                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">$999</span>
+                  <span className="text-sm text-gray-500 ml-1">/year</span>
+                </motion.div>
 
-                <button
+                {/* CTA — Button-in-Button pattern, no gradient */}
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
                   onClick={() => {
                     setUpgradeOpen(false);
                     navigate(`/${role}/settings`);
                   }}
-                  className="w-full py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-[#4F8CFF] to-[#8B5CF6] hover:from-[#4F8CFF]/90 hover:to-[#8B5CF6]/90 shadow-lg shadow-[#4F8CFF]/20 active:scale-[0.98] transition-all"
+                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-[#0B1020] bg-[#DEDBC8] hover:bg-[#E1E0CC] shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
-                  Upgrade Now — $999/year
-                </button>
+                  <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
+                  {/* Nested icon pill */}
+                  <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B1020]">
+                      <path d="M7 17l9.2-9.2M17 17V7H7" />
+                    </svg>
+                  </span>
+                </motion.button>
 
-                <button
+                {/* Secondary action */}
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                   onClick={() => setUpgradeOpen(false)}
-                  className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors"
+                  className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
                   Maybe later
-                </button>
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>

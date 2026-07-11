@@ -9,14 +9,14 @@ import { authorAPI } from './author.api';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const TOPIC_COLORS = [
-  '#4F8CFF',
-  '#00D1B2',
-  '#A78BFA',
-  '#F59E0B',
-  '#34D399',
-  '#FB923C',
-  '#F472B6',
-  '#60A5FA',
+  '#DEDBC8',
+  '#C5BFA0',
+  '#A09878',
+  '#8A8468',
+  '#6B6550',
+  '#B8B298',
+  '#948C70',
+  '#7A7458',
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -175,75 +175,77 @@ export default function AuthorResearchFocus({ keyword }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Pie Chart */}
-        <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] flex items-center justify-center">
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data.topics}
-                dataKey="paperCount"
-                nameKey="topicName"
-                cx="50%"
-                cy="50%"
-                outerRadius={110}
-                innerRadius={55}
-                paddingAngle={2}
-              >
-                {data.topics.map((_, index) => (
-                  <Cell
-                    key={index}
-                    fill={TOPIC_COLORS[index % TOPIC_COLORS.length]}
-                    stroke="transparent"
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomPieTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Legend + details */}
-        <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] flex flex-col justify-center">
-          <div className="flex items-center gap-2 mb-4">
-            <PieChartIcon size={13} className="text-[#DEDBC8]/40" />
-            <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-              Topic Distribution
-            </span>
+      <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* Pie Chart */}
+          <div className="flex items-center justify-center">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={data.topics}
+                  dataKey="paperCount"
+                  nameKey="topicName"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  innerRadius={50}
+                  paddingAngle={2}
+                >
+                  {data.topics.map((_, index) => (
+                    <Cell
+                      key={index}
+                      fill={TOPIC_COLORS[index % TOPIC_COLORS.length]}
+                      stroke="transparent"
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomPieTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
-          <div className="space-y-2">
-            {data.topics.map((topic, i) => (
-              <motion.div
-                key={topic.topicName || i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + i * 0.04, duration: 0.25 }}
-                className="flex items-center gap-2.5 group"
-              >
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ background: TOPIC_COLORS[i % TOPIC_COLORS.length] }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-[12px] text-gray-300 truncate group-hover:text-[#E1E0CC] transition-colors">
-                    {topic.topicName}
-                  </div>
-                  {topic.subfield && (
-                    <div className="text-[10px] text-gray-500 truncate">
-                      {[topic.subfield, topic.field].filter(Boolean).join(' · ')}
+
+          {/* Legend + details */}
+          <div className="flex flex-col justify-center">
+            <div className="flex items-center gap-2 mb-3">
+              <PieChartIcon size={13} className="text-[#DEDBC8]/40" />
+              <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+                Topic Distribution
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {data.topics.map((topic, i) => (
+                <motion.div
+                  key={topic.topicName || i}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 + i * 0.04, duration: 0.25 }}
+                  className="flex items-center gap-2.5 group"
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ background: TOPIC_COLORS[i % TOPIC_COLORS.length] }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] text-gray-300 truncate group-hover:text-[#E1E0CC] transition-colors">
+                      {topic.topicName}
                     </div>
-                  )}
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-xs font-mono font-semibold text-[#E1E0CC]">
-                    {topic.paperCount}
+                    {topic.subfield && (
+                      <div className="text-[10px] text-gray-500 truncate">
+                        {[topic.subfield, topic.field].filter(Boolean).join(' · ')}
+                      </div>
+                    )}
                   </div>
-                  <div className="text-[10px] text-gray-500">
-                    {topic.percentage?.toFixed(1)}%
+                  <div className="text-right shrink-0">
+                    <div className="text-xs font-mono font-semibold text-[#E1E0CC]">
+                      {topic.paperCount}
+                    </div>
+                    <div className="text-[10px] text-gray-500">
+                      {topic.percentage?.toFixed(1)}%
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

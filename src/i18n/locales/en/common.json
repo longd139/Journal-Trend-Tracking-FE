@@ -24,6 +24,7 @@
     "support": "Support",
     "auditLogs": "Audit Logs",
     "configs": "Configs",
+    "pdfRequests": "PDF Requests",
     "dataSources": "Data Sources",
     "signOut": "Sign Out",
     "signIn": "Sign In",

@@ -18,6 +18,7 @@
     "settings": "Settings",
     "auditLogs": "Audit Logs",
     "configs": "Configs",
+    "pdfRequests": "PDF Requests",
     "dataSources": "Data Sources",
     "paperDetails": "Paper Details",
     "dashboard": "Dashboard"
@@ -41,6 +42,7 @@
     "settings": "Manage your account profile",
     "auditLogs": "Track system activity and security events",
     "configs": "Manage system configuration parameters",
+    "pdfRequests": "Manage user PDF access requests",
     "dataSources": "Manage external data integrations",
     "paperDetails": "Viewing paper details and citation information",
     "welcomeBack": "Welcome back"

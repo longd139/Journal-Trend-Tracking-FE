@@ -94,17 +94,13 @@ export function PaperItemCard({
   >
    <Card
     onClick={handleCardClick}
-    className={`bg-[#101010] border-[#DEDBC8]/5 p-5 transition-all duration-300 hover:border-[#DEDBC8]/20 cursor-pointer relative overflow-hidden ${
-      isLocked ? 'opacity-70' : ''
-    }`}
+    className={`bg-[#101010] border-[#DEDBC8]/5 p-5 transition-all duration-300 hover:border-[#DEDBC8]/20 cursor-pointer relative`}
    >
-    {/* Lock overlay for academic users */}
+    {/* Lock badge for academic users — pinned to top border */}
     {isLocked && (
-      <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/20 backdrop-blur-[1px] rounded-xl">
-        <div className="flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-xl bg-black/70 border border-[#DEDBC8]/15">
-          <Lock size={22} className="text-[#DEDBC8]/50" />
-          <span className="text-[10px] font-bold text-[#DEDBC8]/60 uppercase tracking-wider">Researcher Only</span>
-        </div>
+      <div className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#151922] border border-[#DEDBC8]/15 shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
+        <Lock size={10} className="text-[#DEDBC8]/50" />
+        <span className="text-[9px] font-bold text-[#DEDBC8]/50 uppercase tracking-wider">Researcher</span>
       </div>
     )}
     <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
@@ -262,14 +258,16 @@ export function PaperItemCard({
        </button>
 
        {/* PDF indicator */}
-       {paper.pdfAvailable && paper.pdfUrl && (
-        <span
-         className={`${iconBtn} text-[#DEDBC8]/60 border-[#DEDBC8]/15`}
-         title="PDF Available"
-        >
+       <span
+         className={`${iconBtn} ${
+           paper.pdfAvailable
+             ? 'bg-white text-gray-900 border-white hover:bg-gray-100 hover:text-black hover:border-white'
+             : 'text-gray-600 border-gray-600/20'
+         }`}
+         title={paper.pdfAvailable ? 'PDF Available' : 'PDF Unavailable'}
+       >
          <FileText size={15} />
-        </span>
-       )}
+       </span>
       </div>
      </div>
     </CardContent>

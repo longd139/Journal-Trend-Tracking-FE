@@ -142,28 +142,6 @@ export default function AuthorTimeline({ keyword }) {
         </span>
       </div>
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010]">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Total Papers</div>
-          <div className="text-xl font-bold text-[#E1E0CC] font-display">
-            {(data.totalPapers ?? 0).toLocaleString()}
-          </div>
-        </div>
-        <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010]">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">Total Citations</div>
-          <div className="text-xl font-bold text-[#E1E0CC] font-display">
-            {(data.totalCitations ?? 0).toLocaleString()}
-          </div>
-        </div>
-        <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010]">
-          <div className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">h-Index</div>
-          <div className="text-xl font-bold text-[#E1E0CC] font-display">
-            {data.hIndex != null ? data.hIndex : '—'}
-          </div>
-        </div>
-      </div>
-
       {/* Chart */}
       <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010]">
         <ResponsiveContainer width="100%" height={320}>
@@ -210,7 +188,7 @@ export default function AuthorTimeline({ keyword }) {
               yAxisId="left"
               dataKey="worksCount"
               name="Papers"
-              fill="#4F8CFF"
+              fill="#DEDBC8"
               radius={[4, 4, 0, 0]}
               barSize={20}
               fillOpacity={0.85}
@@ -220,10 +198,10 @@ export default function AuthorTimeline({ keyword }) {
               type="monotone"
               dataKey="citedByCount"
               name="Citations"
-              stroke="#00D1B2"
+              stroke="#A09878"
               strokeWidth={2.5}
-              dot={{ fill: '#00D1B2', r: 3, strokeWidth: 0 }}
-              activeDot={{ fill: '#00D1B2', r: 5, strokeWidth: 2, stroke: '#0B1020' }}
+              dot={{ fill: '#A09878', r: 3, strokeWidth: 0 }}
+              activeDot={{ fill: '#A09878', r: 5, strokeWidth: 2, stroke: '#0B1020' }}
             />
           </ComposedChart>
         </ResponsiveContainer>

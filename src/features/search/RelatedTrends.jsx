@@ -104,6 +104,7 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
         {trends
           .slice()
           .sort((a, b) => (b.thisYearCount ?? 0) - (a.thisYearCount ?? 0))
+          .slice(0, 3)
           .map((trend, i) => {
           const rank = i + 1;
           const medalColor =

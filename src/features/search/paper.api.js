@@ -210,6 +210,40 @@ export const paperAPI = {
     const { data } = await axiosClient.post(`/api/v1/papers/${paperId}/pdf-requests`);
     return data; // AppResponse<{ status, message }>
   },
+
+  /**
+   * Check whether the current user has already requested PDF access for a paper.
+   * GET /api/v1/papers/{paperId}/pdf-requests/status
+   * Returns true (has requested) or false (never requested).
+   */
+  async getPdfRequestStatus(paperId) {
+    const { data } = await axiosClient.get(`/api/v1/papers/${paperId}/pdf-requests/status`);
+    return data; // AppResponse<boolean>
+  },
+
+  // ─── Rating ─────────────────────────────────────────────────────────────
+
+  /**
+   * Rate a paper (1-5) — upsert.
+   * POST /api/v1/papers/{paperId}/ratings?score=4
+   */
+  async ratePaper(paperId, score) {
+    const { data } = await axiosClient.post(`/api/v1/papers/${paperId}/ratings`, null, {
+      params: { score },
+    });
+    return data;
+  },
+
+  /**
+   * Get my rating + average rating for a paper.
+   * GET /api/v1/papers/{paperId}/ratings
+   * Response: { averageRating, totalRatings, myRating }
+   */
+  async getPaperRating(paperId) {
+    const { data } = await axiosClient.get(`/api/v1/papers/${paperId}/ratings`);
+    return data;
+  },
+
   // ─── Citation Export APIs ──────────────────────────────────────────────────
 
   /**

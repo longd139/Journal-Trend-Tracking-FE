@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
-  Clock, Trash2, BarChart2,
+  Clock, Trash2, BarChart2, Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
@@ -133,12 +133,12 @@ function TimelineChart({ timeline }) {
           <AreaChart data={sorted} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
             <defs>
               <linearGradient id="paperGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4F8CFF" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#4F8CFF" stopOpacity={0} />
+                <stop offset="0%" stopColor="#DEDBC8" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#DEDBC8" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="citationGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#00D1B2" stopOpacity={0.3} />
-                <stop offset="100%" stopColor="#00D1B2" stopOpacity={0} />
+                <stop offset="0%" stopColor="#A09878" stopOpacity={0.3} />
+                <stop offset="100%" stopColor="#A09878" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.05)" />
@@ -155,17 +155,18 @@ function TimelineChart({ timeline }) {
             />
             <Tooltip
               contentStyle={{
-                background: '#1B2235',
+                background: '#151922',
                 border: '1px solid rgba(222,219,200,0.1)',
                 borderRadius: 12,
                 fontSize: 12,
               }}
               labelStyle={{ color: '#E1E0CC', fontWeight: 600 }}
+              itemStyle={{ color: '#E1E0CC' }}
             />
             <Area
               type="monotone"
               dataKey="paperCount"
-              stroke="#4F8CFF"
+              stroke="#DEDBC8"
               strokeWidth={2}
               fill="url(#paperGradient)"
               name="Papers"
@@ -173,7 +174,7 @@ function TimelineChart({ timeline }) {
             <Area
               type="monotone"
               dataKey="citationCount"
-              stroke="#00D1B2"
+              stroke="#A09878"
               strokeWidth={2}
               fill="url(#citationGradient)"
               name="Citations"
@@ -185,11 +186,11 @@ function TimelineChart({ timeline }) {
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 text-[11px] text-gray-500">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#4F8CFF]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#DEDBC8]" />
           Papers
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00D1B2]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#A09878]" />
           Citations
         </span>
       </div>
@@ -201,7 +202,7 @@ function TimelineChart({ timeline }) {
    Top Authors
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function TopAuthors({ authors }) {
+function TopAuthors({ authors, isAcademic }) {
   if (!authors || authors.length === 0) return null;
 
   return (
@@ -220,39 +221,44 @@ function TopAuthors({ authors }) {
       </div>
 
       <div className="space-y-2">
-        {authors.map((author, i) => (
-          <motion.div
-            key={author.authorName || i}
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-            className="flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.03] border border-[#DEDBC8]/5 hover:bg-[#DEDBC8]/[0.06] transition-colors"
-          >
-            {/* Rank */}
-            <span className="w-5 text-xs font-bold text-gray-500 text-center">#{i + 1}</span>
+        {authors.map((author, i) => {
+          const isBlurred = isAcademic && i < 3;
+          return (
+            <motion.div
+              key={author.authorName || i}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
+              className={`relative flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.03] border border-[#DEDBC8]/5 hover:bg-[#DEDBC8]/[0.06] transition-colors ${
+                isBlurred ? 'blur-[4px] select-none pointer-events-none' : ''
+              }`}
+            >
+              {/* Rank */}
+              <span className="w-5 text-xs font-bold text-gray-500 text-center">#{i + 1}</span>
 
-            {/* Author name */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#E1E0CC] truncate">{author.authorName}</p>
-            </div>
+              {/* Author name */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[#E1E0CC] truncate">{author.authorName}</p>
+              </div>
 
-            {/* Stats */}
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#E1E0CC]">{author.paperCount}</p>
-                <p className="text-[10px] text-gray-500">Papers</p>
+              {/* Stats */}
+              <div className="flex items-center gap-4 shrink-0">
+                <div className="text-right">
+                  <p className="text-xs font-bold text-[#E1E0CC]">{author.paperCount}</p>
+                  <p className="text-[10px] text-gray-500">Papers</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-[#E1E0CC]">{author.totalCitations?.toLocaleString()}</p>
+                  <p className="text-[10px] text-gray-500">Citations</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold text-[#A09878]">{author.avgCitationsPerPaper?.toFixed(1)}</p>
+                  <p className="text-[10px] text-gray-500">Avg</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#E1E0CC]">{author.totalCitations?.toLocaleString()}</p>
-                <p className="text-[10px] text-gray-500">Citations</p>
-              </div>
-              <div className="text-right">
-                <p className="text-xs font-bold text-[#00D1B2]">{author.avgCitationsPerPaper?.toFixed(1)}</p>
-                <p className="text-[10px] text-gray-500">Avg</p>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
@@ -331,6 +337,8 @@ export default function SearchJournal() {
   const searchInputRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
   const userId = user?.id || user?.email || currentRole;
   const historyKey = useMemo(() => `scitrack_journal_history_${userId}`, [userId]);
@@ -529,6 +537,13 @@ export default function SearchJournal() {
   /* ─── Browse mode: fetch categories when no query ─── */
   useEffect(() => {
     if (query.trim()) return;
+
+    // Clear stale search results when returning to browse mode
+    setJournalStats(null);
+    setTimeline(null);
+    setTopPapers([]);
+    setTopAuthors([]);
+    setError(null);
 
     let cancelled = false;
 
@@ -740,13 +755,15 @@ export default function SearchJournal() {
                 {loadingField ? (
                   <JournalSkeleton />
                 ) : fieldData && fieldData.topJournals && fieldData.topJournals.length > 0 ? (
-                  <motion.div
-                    key={selectedFieldId}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                    className="space-y-3"
-                  >
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={selectedFieldId}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -12 }}
+                      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                      className="space-y-3"
+                    >
                     {/* Journal cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {fieldData.topJournals.map((journal, i) => (
@@ -814,6 +831,7 @@ export default function SearchJournal() {
                       ))}
                     </div>
                   </motion.div>
+                  </AnimatePresence>
                 ) : !loadingField ? (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -883,21 +901,21 @@ export default function SearchJournal() {
                 value={(journalStats.totalPapers ?? 0).toLocaleString()}
                 change=""
                 Icon={FileText}
-                accent="#4F8CFF"
+                accent="#DEDBC8"
               />
               <StatCard
                 label="Total Citations"
                 value={(journalStats.totalCitations ?? 0).toLocaleString()}
                 change=""
                 Icon={Star}
-                accent="#A78BFA"
+                accent="#C5BFA0"
               />
               <StatCard
                 label="Avg Citations/Paper"
                 value={journalStats.avgCitationsPerPaper != null ? journalStats.avgCitationsPerPaper.toFixed(2) : '—'}
                 change=""
                 Icon={TrendingUp}
-                accent="#00D1B2"
+                accent="#A09878"
               />
             </motion.div>
 
@@ -931,8 +949,13 @@ export default function SearchJournal() {
                         index={i}
                         badgeColor="#F59E0B"
                         isSaved={bookmarkedIds.has(paper.paperId)}
+                        isLocked={isAcademic}
                         onToggleBookmark={handleToggleBookmark}
                         onClick={(p) => {
+                          if (isAcademic) {
+                            setUpgradeOpen(true);
+                            return;
+                          }
                           const role = sessionStorage.getItem('userRole') || 'researcher';
                           sessionStorage.setItem('scitrack_referrer', window.location.pathname);
                           navigate(`/${role}/papers/${p.paperId}`);
@@ -945,10 +968,91 @@ export default function SearchJournal() {
             )}
 
             {/* Top Authors */}
-            {topAuthors.length > 0 && <TopAuthors authors={topAuthors} />}
+            {topAuthors.length > 0 && <TopAuthors authors={topAuthors} isAcademic={isAcademic} />}
           </div>
         )}
       </div>
+
+      {/* Upgrade to Researcher Modal */}
+      <AnimatePresence>
+        {upgradeOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
+            onClick={() => setUpgradeOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.96, opacity: 0, y: 24 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.96, opacity: 0, y: 24 }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-sm rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
+            >
+              <button
+                onClick={() => setUpgradeOpen(false)}
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#DEDBC8]/5 text-gray-500 hover:bg-[#DEDBC8]/10 hover:text-[#E1E0CC] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+              >
+                <X size={14} />
+              </button>
+              <div className="text-center space-y-6">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="mx-auto w-14 h-14 rounded-2xl bg-[#DEDBC8]/[0.06] border border-[#DEDBC8]/10 flex items-center justify-center"
+                >
+                  <Lock size={22} className="text-[#DEDBC8]" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="space-y-2"
+                >
+                  <h3 className="text-xl font-black text-[#E1E0CC] font-display tracking-[-0.02em]">Upgrade to Researcher</h3>
+                  <p className="text-[13px] text-gray-400 leading-relaxed max-w-[260px] mx-auto">
+                    Unlock full paper details, AI summaries, citation exports, and unlimited searches.
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  className="rounded-xl bg-[#0F0F0F] border border-[#DEDBC8]/5 p-4 space-y-0"
+                >
+                  {['Full abstract & paper details', 'AI-powered paper summaries', 'Similar paper recommendations', 'Citation export (BibTeX, RIS, APA)', 'Unlimited searches & bookmarks'].map((f, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-[#DEDBC8]/5 last:border-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]/50 shrink-0" />
+                      <span className="text-xs text-gray-300">{f}</span>
+                    </motion.div>
+                  ))}
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="text-center">
+                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">$999</span>
+                  <span className="text-sm text-gray-500 ml-1">/year</span>
+                </motion.div>
+                <motion.button
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  onClick={() => { setUpgradeOpen(false); navigate(`/${currentRole}/settings`); }}
+                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-[#0B1020] bg-[#DEDBC8] hover:bg-[#E1E0CC] shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                >
+                  <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
+                  <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B1020]"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
+                  </span>
+                </motion.button>
+                <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} onClick={() => setUpgradeOpen(false)} className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">Maybe later</motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

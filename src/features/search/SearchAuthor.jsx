@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Clock, Trash2, UserSearch } from 'lucide-react';
+import { Search, X, Clock, Trash2, UserSearch, Lock } from 'lucide-react';
 import AuthorQuickStats from './AuthorQuickStats';
 import { useAuthStore } from '../user/store.js';
 import AuthorTimeline from './AuthorTimeline';
@@ -15,6 +16,7 @@ import AuthorSuggestions from './AuthorSuggestions';
 
 export default function SearchAuthor() {
   const { t } = useTranslation('search');
+  const navigate = useNavigate();
   const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_author_query') || '');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -22,6 +24,7 @@ export default function SearchAuthor() {
   const resultsRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
+  const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
   const user = useAuthStore((s) => s.user);
   const userId = user?.id || user?.email || currentRole;
   const historyKey = useMemo(() => `scitrack_author_search_history_${userId}`, [userId]);
@@ -160,9 +163,81 @@ export default function SearchAuthor() {
             className="space-y-8"
           >
             <AuthorQuickStats keyword={query.trim()} />
-            <AuthorTimeline keyword={query.trim()} />
-            <AuthorResearchFocus keyword={query.trim()} />
-            <AuthorCoAuthors keyword={query.trim()} onAuthorClick={handleSearch} />
+            {isAcademic ? (
+              <div className="space-y-8">
+                {/* Timeline — blurred real content */}
+                <div className="relative">
+                  <div className="blur-[6px] pointer-events-none select-none">
+                    <AuthorTimeline keyword={query.trim()} />
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-3 px-4">
+                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <p className="text-xs text-gray-400 max-w-[260px]">
+                        Publication timeline & citation trends — available for{' '}
+                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                      </p>
+                      <button
+                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                      >
+                        Upgrade now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Research Focus — blurred real content */}
+                <div className="relative">
+                  <div className="blur-[6px] pointer-events-none select-none">
+                    <AuthorResearchFocus keyword={query.trim()} />
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-3 px-4">
+                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <p className="text-xs text-gray-400 max-w-[260px]">
+                        Topic distribution & research domains — available for{' '}
+                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                      </p>
+                      <button
+                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                      >
+                        Upgrade now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Co-authors — blurred real content */}
+                <div className="relative">
+                  <div className="blur-[6px] pointer-events-none select-none">
+                    <AuthorCoAuthors keyword={query.trim()} onAuthorClick={handleSearch} />
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center space-y-3 px-4">
+                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <p className="text-xs text-gray-400 max-w-[260px]">
+                        Collaboration network & top co-authors — available for{' '}
+                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                      </p>
+                      <button
+                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                      >
+                        Upgrade now
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <AuthorTimeline keyword={query.trim()} />
+                <AuthorResearchFocus keyword={query.trim()} />
+                <AuthorCoAuthors keyword={query.trim()} onAuthorClick={handleSearch} />
+              </>
+            )}
           </motion.div>
         )}
       </div>

@@ -113,7 +113,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
 
       {/* Summary strip */}
       <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#DEDBC8]/3 border border-[#DEDBC8]/5 text-[11px] text-gray-400">
-        <Users size={12} className="text-[#4F8CFF]" />
+        <Users size={12} className="text-[#DEDBC8]/50" />
         <span>Top {data.coAuthors.length} most frequent collaborators</span>
         {onAuthorClick && (
           <span className="text-[#DEDBC8]/30 ml-auto text-[10px]">Click to explore →</span>
@@ -138,7 +138,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
               className="w-full flex items-center gap-3 p-3 rounded-xl border border-[#DEDBC8]/5 bg-[#101010] group hover:border-[#DEDBC8]/10 transition-all text-left cursor-pointer"
             >
               {/* Avatar */}
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#E1E0CC] bg-[#DEDBC8]/10 shrink-0 group-hover:bg-[#4F8CFF]/15 group-hover:text-[#4F8CFF] transition-colors">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#E1E0CC] bg-[#DEDBC8]/10 shrink-0 group-hover:bg-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-colors">
                 {author.name
                   ? author.name
                       .split(' ')
@@ -152,11 +152,11 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-semibold text-[#E1E0CC] truncate group-hover:text-[#4F8CFF] transition-colors">
+                  <span className="text-[12px] font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
                     {author.name}
                   </span>
                   {onAuthorClick && (
-                    <ArrowRight size={11} className="shrink-0 text-gray-600 group-hover:text-[#4F8CFF] transition-colors opacity-0 group-hover:opacity-100" />
+                    <ArrowRight size={11} className="shrink-0 text-gray-600 group-hover:text-[#DEDBC8] transition-colors opacity-0 group-hover:opacity-100" />
                   )}
                   {author.openAlexId && (
                     <a
@@ -164,7 +164,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="shrink-0 text-gray-500 hover:text-[#4F8CFF] transition-colors"
+                      className="shrink-0 text-gray-500 hover:text-[#DEDBC8] transition-colors"
                       title="Open in OpenAlex"
                     >
                       <ExternalLink size={11} />
@@ -187,7 +187,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                     transition={{ delay: 0.2 + i * 0.04, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     className="h-full rounded-full group-hover:opacity-80"
                     style={{
-                      background: `linear-gradient(90deg, #4F8CFF40, #4F8CFF)`,
+                      background: `linear-gradient(90deg, #DEDBC840, #DEDBC8)`,
                     }}
                   />
                 </div>

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft, BookOpen, ExternalLink, FileText, Download,
+  ArrowLeft, BookOpen, ExternalLink, FileText,
   Quote, Star, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
   BrainCircuit, Cpu, RefreshCw, Lock,
@@ -83,9 +83,14 @@ function DetailSkeleton() {
    Request PDF Button
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function RequestPdfButton({ paperId, paperTitle }) {
+function RequestPdfButton({ paperId, paperTitle, hasRequestedPdf }) {
+  const [requested, setRequested] = useState(hasRequestedPdf || false);
   const [requesting, setRequesting] = useState(false);
-  const [requested, setRequested] = useState(false);
+
+  // Sync with prop when paper data loads/changes
+  useEffect(() => {
+    setRequested(hasRequestedPdf || false);
+  }, [hasRequestedPdf]);
 
   const handleRequest = async () => {
     if (!paperId) return;
@@ -102,14 +107,20 @@ function RequestPdfButton({ paperId, paperTitle }) {
     }
   };
 
+  // Already requested — disabled, same style as adjacent buttons
   if (requested) {
     return (
-      <span className="flex items-center gap-1.5 text-[11px] font-semibold text-gray-900 bg-white px-3 py-2 rounded-lg border border-white shadow-md shadow-white/10">
-        <CheckCircle2 size={13} /> PDF Requested
-      </span>
+      <button
+        disabled
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-white text-gray-900 border-white cursor-not-allowed opacity-80"
+      >
+        <CheckCircle2 size={14} />
+        Requested
+      </button>
     );
   }
 
+  // Never requested — enable button
   return (
     <button
       onClick={handleRequest}
@@ -119,6 +130,97 @@ function RequestPdfButton({ paperId, paperTitle }) {
       <FileText size={14} />
       {requesting ? 'Requesting...' : 'Request PDF'}
     </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Rating Widget
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+function RatingWidget({ paperId, initialRating }) {
+  const [hoverIdx, setHoverIdx] = useState(0);
+  const [myRating, setMyRating] = useState(null);    // null = chưa load
+  const [avgRating, setAvgRating] = useState(initialRating || 0);
+  const [totalRatings, setTotalRatings] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!paperId) return;
+    (async () => {
+      try {
+        const res = await paperAPI.getPaperRating(paperId);
+        const d = res?.data;
+        setMyRating(d?.myRating || 0);
+        if (d?.averageRating != null) setAvgRating(d.averageRating);
+        if (d?.totalRatings != null) setTotalRatings(d.totalRatings);
+      } catch { /* silently ignore */ }
+    })();
+  }, [paperId]);
+
+  const handleClick = async (score) => {
+    if (!paperId || submitting) return;
+    setSubmitting(true);
+    // Optimistic update
+    const prev = myRating;
+    setMyRating(score);
+    try {
+      await paperAPI.ratePaper(paperId, score);
+      // Refresh rating data after submit
+      const res = await paperAPI.getPaperRating(paperId);
+      const d = res?.data;
+      if (d?.myRating != null) setMyRating(d.myRating);
+      if (d?.averageRating != null) setAvgRating(d.averageRating);
+      if (d?.totalRatings != null) setTotalRatings(d.totalRatings);
+    } catch {
+      setMyRating(prev); // rollback
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const displayRating = hoverIdx || myRating || 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.06 }}
+      className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#DEDBC8]/10 bg-[#DEDBC8]/[0.02]"
+    >
+      {/* Stars */}
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            disabled={submitting}
+            onClick={() => handleClick(n)}
+            onMouseEnter={() => setHoverIdx(n)}
+            onMouseLeave={() => setHoverIdx(0)}
+            className="p-0.5 transition-all active:scale-90 disabled:opacity-50"
+          >
+            <Star
+              size={20}
+              className="transition-colors"
+              fill={n <= displayRating ? '#F59E0B' : 'transparent'}
+              stroke={n <= displayRating ? '#F59E0B' : '#6B7280'}
+            />
+          </button>
+        ))}
+      </div>
+
+      {/* Meta */}
+      <span className="text-xs text-gray-400">
+        {avgRating > 0 ? (
+          <>
+            <span className="font-bold text-[#E1E0CC]">{avgRating.toFixed(1)}</span>
+            <span className="text-gray-500"> ({totalRatings})</span>
+          </>
+        ) : (
+          'No ratings yet'
+        )}
+      </span>
+    </motion.div>
   );
 }
 
@@ -370,14 +472,14 @@ export default function PaperDetailPage() {
 
   // ── Upgrade banner for academic users ──
   const UpgradeBanner = ({ feature }) => (
-    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-gradient-to-r from-[#4F8CFF]/5 to-[#A78BFA]/5 border border-[#4F8CFF]/15">
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/10">
       <div className="flex items-center gap-2">
-        <Lock size={13} className="text-[#4F8CFF]/70 shrink-0" />
-        <span className="text-[11px] text-[#4F8CFF]/80">
-          {feature} is available for <strong>Researcher</strong> accounts.{' '}
+        <Lock size={13} className="text-[#DEDBC8]/50 shrink-0" />
+        <span className="text-[11px] text-gray-400">
+          {feature} is available for <strong className="text-[#E1E0CC]">Researcher</strong> accounts.{' '}
           <button
             onClick={() => navigate(`/${role}/settings`)}
-            className="underline hover:text-[#4F8CFF] transition-colors font-semibold"
+            className="underline hover:text-[#DEDBC8] transition-colors font-semibold text-[#DEDBC8]/70"
           >
             Upgrade now
           </button>
@@ -557,7 +659,7 @@ export default function PaperDetailPage() {
   const field = paper.fieldName || '';
   const year = paper.pubYear || '';
   const citations = paper.citationCount ?? 0;
-  const downloads = paper.downloadCount ?? 0;
+  const bookmarks = paper.bookmarkCount ?? 0;
   const rating = paper.rating ?? 0;
   const isOpenAccess = paper.isOpenAccess;
   const journal = paper.journalName || '';
@@ -626,10 +728,13 @@ export default function PaperDetailPage() {
           className="grid grid-cols-2 md:grid-cols-4 gap-3"
         >
           <StatChip icon={Quote} label="Citations" value={citations.toLocaleString()} color="#4F8CFF" />
-          <StatChip icon={Download} label="Downloads" value={downloads.toLocaleString()} color="#00D1B2" />
+          <StatChip icon={Bookmark} label="Bookmarks" value={bookmarks.toLocaleString()} color="#00D1B2" />
           <StatChip icon={Star} label="Rating" value={rating > 0 ? rating.toFixed(1) : '—'} color="#F59E0B" />
           <StatChip icon={Eye} label="Views" value={paper.viewCount?.toLocaleString() || '—'} color="#A78BFA" />
         </motion.div>
+
+        {/* ── Rating Widget ── */}
+        <RatingWidget paperId={paperId} initialRating={rating} />
 
         {/* ── Actions ── */}
         <motion.div
@@ -639,27 +744,20 @@ export default function PaperDetailPage() {
           className="flex flex-wrap items-center gap-2"
         >
           {paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl) && (
-            <>
-              <button
-                onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
+              <a
+                href={paper.pdfUrl || paper.downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-white text-gray-900 border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97]"
               >
-                <Download size={14} />
-                Download PDF
-              </button>
-              <button
-                onClick={() => window.open(paper.pdfUrl || paper.downloadUrl, '_blank')}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
-              >
-                <Eye size={14} />
-                Preview PDF
-              </button>
-            </>
+                <FileText size={14} />
+                PDF
+              </a>
           )}
 
           {/* Request PDF — shown when paper has no direct PDF access */}
           {!(paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl)) && (
-            <RequestPdfButton paperId={paper.paperId} paperTitle={paper.title} />
+            <RequestPdfButton paperId={paper.paperId} paperTitle={paper.title} hasRequestedPdf={paper.hasRequestedPdf} />
           )}
           {doi && (
             <button
@@ -749,13 +847,9 @@ export default function PaperDetailPage() {
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Abstract</h3>
             {isAcademic ? (
               <div className="space-y-3">
-                <p className="text-sm text-gray-300 leading-relaxed line-clamp-3">
+                <p className="text-sm text-gray-300 leading-relaxed">
                   {abstract}
                 </p>
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#101010] -top-8 h-12 pointer-events-none" />
-                </div>
-                <UpgradeBanner feature="Full abstract reading" />
               </div>
             ) : (
               <p className="text-sm text-gray-300 leading-relaxed">{abstract}</p>
