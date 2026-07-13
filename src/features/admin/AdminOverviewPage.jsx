@@ -19,6 +19,24 @@ import { Skeleton } from '../../components/ui/skeleton';
 const NO_DATA = '—';
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Helpers
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Trim leading & trailing empty data points from a time-series array.
+ * "Empty" means both `requests` and `errors` are 0 or null.
+ * Keeps the chart focused on the period where the server was actually active.
+ */
+function trimEmptyEdges(points) {
+  if (!points?.length) return points;
+  let start = 0;
+  let end = points.length - 1;
+  while (start <= end && !points[start].requests && !points[start].errors) start++;
+  while (end >= start && !points[end].requests && !points[end].errors) end--;
+  return points.slice(start, end + 1);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Components
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -169,6 +187,9 @@ export default function AdminOverview() {
 
   const fmt = (val) => (val != null ? val.toLocaleString() : NO_DATA);
 
+  // Trim empty edges so the chart only shows the server's active window
+  const chartData = trimEmptyEdges(requestVolume?.points);
+
   const activeUsers    = stats?.activeUsers != null ? fmt(stats.activeUsers) : NO_DATA;
   const totalRequests  = stats?.totalRequests != null ? fmt(stats.totalRequests) : NO_DATA;
   const avgLatencyMs   = stats?.avgLatencyMs != null ? `${stats.avgLatencyMs} ms` : NO_DATA;
@@ -305,9 +326,9 @@ export default function AdminOverview() {
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500" />{t('overview.errors')}</span>
               </div>
             </div>
-            {requestVolume?.points?.length > 0 ? (
+            {chartData?.length > 0 ? (
               <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={requestVolume.points} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="requestsGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#34D399" stopOpacity={0.3} />

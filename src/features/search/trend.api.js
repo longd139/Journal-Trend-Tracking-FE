@@ -43,4 +43,20 @@ export const trendAPI = {
     });
     return data.data || data;
   },
+
+  /**
+   * Keyword autocomplete — returns keyword suggestions matching the
+   * given prefix (min 2 chars), ordered by paper count.
+   *
+   * GET /api/public/keywords/suggest?q=mach&limit=8
+   *
+   * Response shape: string[] of keyword texts, e.g.
+   * ["machine learning", "machine", "mach number", ...]
+   */
+  async suggestKeywords(q, limit = 8) {
+    const { data } = await axiosClient.get('/api/public/keywords/suggest', {
+      params: { q, limit },
+    });
+    return data.data || data;
+  },
 };

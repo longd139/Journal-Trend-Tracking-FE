@@ -274,6 +274,43 @@ export const paperAPI = {
     return response.data; // Blob
   },
 
+  // ─── Usage / Quota ─────────────────────────────────────────────────────────
+
+  /**
+   * Get current user's search quota — remaining searches, views, monthly limit,
+   * reset date, and role. For RESEARCHER/ADMIN, numeric fields are null.
+   *
+   * GET /api/v1/papers/usage
+   *
+   * Response (ACADEMIC_USER):
+   * { remainingSearches: 25, remainingViews: 18, monthlyLimit: 30,
+   *   resetDate: "2026-08-01", currentMonth: "2026-07", userRole: "ACADEMIC_USER" }
+   *
+   * Response (RESEARCHER / ADMIN): numeric fields are null → skip quota UI.
+   */
+  async getUsage() {
+    const { data } = await axiosClient.get('/api/v1/papers/usage');
+    return data.data || data;
+  },
+
+  /**
+   * Check whether searching a specific keyword will consume quota.
+   * Must be called BEFORE executing the actual search.
+   *
+   * GET /api/v1/papers/search/quota?query=...
+   *
+   * Response:
+   *   { quotaConsumed: true/false, fromCache: true/false, keyword: "..." }
+   *
+   * HTTP 403 → quota exhausted (caller must handle).
+   */
+  async checkQuota(query) {
+    const { data } = await axiosClient.get('/api/v1/papers/search/quota', {
+      params: { query },
+    });
+    return data.data || data;
+  },
+
   // ─── Recommendations ──────────────────────────────────────────────────────
 
   /**

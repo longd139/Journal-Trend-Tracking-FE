@@ -10,9 +10,9 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 
-// Generate year range — from 1950 to current year
+// Generate year range — from 2023 to current year
 const currentYear = new Date().getFullYear();
-const START_YEAR = 1950;
+const START_YEAR = 2023;
 const YEARS = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) =>
   String(currentYear - i),
 );

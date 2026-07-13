@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, Clock, Trash2, SlidersHorizontal, ArrowUpDown, Lock, Gauge } from 'lucide-react';
+import { toast } from 'sonner';
 import WeeklyBreakout from './WeeklyBreakout';
 import KeywordQuickStats from './KeywordQuickStats';
 import KeywordGraphExplorer from './KeywordGraphExplorer';
@@ -16,7 +17,8 @@ import {
   SelectValue,
 } from '../../components/ui/select';
 import { useAuthStore } from '../user/store.js';
-import { overviewAPI } from '../overview/api.js';
+import { paperAPI } from './paper.api.js';
+import { trendAPI } from './trend.api.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Main Component
@@ -25,13 +27,17 @@ import { overviewAPI } from '../overview/api.js';
 export default function SearchPapers() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
-  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_papers_query') || '');
+  const savedQuery = sessionStorage.getItem('scitrack_papers_query') || '';
+  const [query, setQuery] = useState(savedQuery);
+  const [searchedKeyword, setSearchedKeyword] = useState(savedQuery);
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false });
   const [sortBy, setSortBy] = useState('relevance');
   const searchInputRef = useRef(null);
+  const [apiSuggestions, setApiSuggestions] = useState([]);
+  const debounceRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
   const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
@@ -40,15 +46,17 @@ export default function SearchPapers() {
   // ── Search quota for academics ──
   const [searchesLeft, setSearchesLeft] = useState(null);
   const [searchLimit, setSearchLimit] = useState(null);
+  const [resetDate, setResetDate] = useState(null);
   const quotaExhausted = isAcademic && searchesLeft === 0;
 
   useEffect(() => {
     if (!isAcademic) return;
     (async () => {
       try {
-        const data = await overviewAPI.getUserOverview();
-        if (data?.searchesRemaining != null) setSearchesLeft(data.searchesRemaining);
-        if (data?.monthlySearchLimit != null) setSearchLimit(data.monthlySearchLimit);
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+        if (data?.monthlyLimit != null) setSearchLimit(data.monthlyLimit);
+        if (data?.resetDate != null) setResetDate(data.resetDate);
       } catch { /* silently ignore */ }
     })();
   }, [isAcademic]);
@@ -68,14 +76,26 @@ export default function SearchPapers() {
     titleZA:    { sortBy: 'title',      sortDirection: 'desc' },
   };
 
+  const [searchParams] = useSearchParams();
+
   // Restore persisted search
   useEffect(() => {
     const saved = sessionStorage.getItem('scitrack_papers_query');
     if (saved && saved.trim() && !query) {
       setQuery(saved);
+      setSearchedKeyword(saved);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Handle incoming keyword from URL (e.g. from Trending Topics card click)
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q && q.trim() && q.trim() !== query.trim()) {
+      handleSearch(q.trim());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // ─── Load search history ───
   useEffect(() => {
@@ -86,6 +106,28 @@ export default function SearchPapers() {
       setSearchHistory([]);
     }
   }, [historyKey]);
+
+  // ─── Debounced keyword autocomplete ───
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setApiSuggestions([]);
+      return;
+    }
+    // Debounce 300ms before calling API
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const suggestions = await trendAPI.suggestKeywords(q, 8);
+        setApiSuggestions(Array.isArray(suggestions) ? suggestions : []);
+      } catch {
+        setApiSuggestions([]);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
 
   // ─── Helpers ───
   const saveToSearchHistory = (keyword) => {
@@ -109,25 +151,56 @@ export default function SearchPapers() {
   };
 
   const handleSearch = (kw) => {
-    if (quotaExhausted) return;
+    if (quotaExhausted) {
+      toast.error('Search limit reached', {
+        description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
+        action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+        duration: 6000,
+      });
+      return;
+    }
+
+    // Update input + history + trigger results IMMEDIATELY
     setQuery(kw);
+    setSearchedKeyword(kw);
     saveToSearchHistory(kw);
     sessionStorage.setItem('scitrack_papers_query', kw);
     setShowSuggestions(false);
-    // Refresh quota after search (backend decrements on each search)
+    setApiSuggestions([]);
+
+    // ── Quota check in background (fire-and-forget, non-blocking) ──
     if (isAcademic) {
-      setTimeout(async () => {
-        try {
-          const data = await overviewAPI.getUserOverview();
-          if (data?.searchesRemaining != null) setSearchesLeft(data.searchesRemaining);
-        } catch { /* ignore */ }
-      }, 800);
+      paperAPI.checkQuota(kw)
+        .then((quotaResult) => {
+          if (quotaResult?.quotaConsumed) return paperAPI.getUsage();
+        })
+        .then((usage) => {
+          if (usage?.remainingSearches != null) setSearchesLeft(usage.remainingSearches);
+          if (usage?.resetDate != null) setResetDate(usage.resetDate);
+        })
+        .catch((err) => {
+          if (err?.response?.status === 403 || err?.apiStatus === 403) {
+            setSearchesLeft(0);
+            toast.error('Search limit reached', {
+              description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
+              action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+              duration: 6000,
+            });
+          } else {
+            console.error('Quota check failed:', err);
+          }
+        });
     }
   };
 
-  const filteredSuggestions = query.trim()
+  // Merge API suggestions + filtered history (API first, no duplicates)
+  const filteredHistory = query.trim()
     ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
     : searchHistory;
+  const historyExtras = filteredHistory.filter(
+    (k) => !apiSuggestions.some((s) => s.toLowerCase() === k.toLowerCase())
+  );
+  const allSuggestions = [...apiSuggestions, ...historyExtras];
 
   /* ═══════════════════════════════════════════════════════════════════════════
      Render
@@ -143,18 +216,23 @@ export default function SearchPapers() {
             <input
               ref={searchInputRef}
               type="text"
-              placeholder={t('placeholder')}
+              placeholder={quotaExhausted ? 'Search limit reached — upgrade to continue' : t('placeholder')}
               value={query}
+              disabled={quotaExhausted}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter' && query.trim()) handleSearch(query); }}
-              onFocus={() => { if (searchHistory.length > 0) setShowSuggestions(true); }}
+              onFocus={() => { if (!quotaExhausted && (searchHistory.length > 0 || apiSuggestions.length > 0)) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className="w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all"
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
+                quotaExhausted
+                  ? 'border-red-500/20 opacity-50 cursor-not-allowed'
+                  : 'border-[#DEDBC8]/10'
+              }`}
             />
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); sessionStorage.removeItem('scitrack_papers_query'); }}
+                onClick={() => { setQuery(''); setSearchedKeyword(''); setApiSuggestions([]); sessionStorage.removeItem('scitrack_papers_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
@@ -162,33 +240,44 @@ export default function SearchPapers() {
             )}
           </div>
 
-          {/* Search suggestions */}
+          {/* Search suggestions (API autocomplete + history) */}
           <AnimatePresence>
-            {showSuggestions && filteredSuggestions.length > 0 && (
+            {showSuggestions && allSuggestions.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
               >
-                {filteredSuggestions.slice(0, 8).map((kw) => (
-                  <button key={kw} type="button"
-                    onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
-                  >
-                    <Clock size={12} className="text-gray-500 shrink-0" />
-                    <span className="flex-1 truncate">{kw}</span>
-                    <button type="button"
-                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeSearchHistoryItem(kw); }}
-                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
-                    ><X size={11} /></button>
-                  </button>
-                ))}
-                <div className="border-t border-[#DEDBC8]/5">
-                  <button type="button" onMouseDown={(e) => { e.preventDefault(); clearSearchHistory(); }}
-                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                  ><Trash2 size={11} /> Clear search history</button>
-                </div>
+                {allSuggestions.slice(0, 10).map((kw) => {
+                  const isFromApi = apiSuggestions.some((s) => s.toLowerCase() === kw.toLowerCase());
+                  return (
+                    <button key={kw} type="button"
+                      onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
+                      className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
+                    >
+                      {isFromApi ? (
+                        <Search size={12} className="text-[#DEDBC8]/40 shrink-0" />
+                      ) : (
+                        <Clock size={12} className="text-gray-500 shrink-0" />
+                      )}
+                      <span className="flex-1 truncate">{kw}</span>
+                      {!isFromApi && (
+                        <button type="button"
+                          onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeSearchHistoryItem(kw); }}
+                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
+                        ><X size={11} /></button>
+                      )}
+                    </button>
+                  );
+                })}
+                {historyExtras.length > 0 && (
+                  <div className="border-t border-[#DEDBC8]/5">
+                    <button type="button" onMouseDown={(e) => { e.preventDefault(); clearSearchHistory(); }}
+                      className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                    ><Trash2 size={11} /> Clear search history</button>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -206,9 +295,16 @@ export default function SearchPapers() {
                 <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]/50'} />
                 <span className="text-xs font-semibold text-[#E1E0CC]">Search Quota</span>
               </div>
-              <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]'}`}>
-                {searchesLeft} / {searchLimit}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]'}`}>
+                  {searchesLeft} / {searchLimit}
+                </span>
+                {resetDate && (
+                  <span className="text-[10px] text-gray-500">
+                    · Resets {new Date(resetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="h-1.5 rounded-full bg-[#DEDBC8]/5 overflow-hidden">
               <motion.div
@@ -222,11 +318,11 @@ export default function SearchPapers() {
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#DEDBC8]/5">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
-                  <span>Monthly limit reached</span>
+                  <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors shrink-0 ml-3"
                 >
                   Upgrade
                 </button>
@@ -236,12 +332,12 @@ export default function SearchPapers() {
         )}
 
         {/* ─── Pre-search: Weekly Breakout + Trending ─── */}
-        {!query.trim() && (
+        {!searchedKeyword && (
           <WeeklyBreakout onKeywordClick={handleSearch} />
         )}
 
         {/* ─── Post-search: Quick Stats + Graph ─── */}
-        {query && query.trim() && (
+        {searchedKeyword && (
           <>
             {/* Toolbar: Sort + Filters */}
             <div className="flex items-center gap-2">
@@ -302,15 +398,15 @@ export default function SearchPapers() {
 
             {/* Content */}
             <div className="space-y-8">
-              <KeywordQuickStats keyword={query.trim()} />
+              <KeywordQuickStats keyword={searchedKeyword} />
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               >
                 <div className="space-y-8">
-                  <KeywordGraphExplorer keyword={query.trim()} onKeywordClick={handleSearch} />
-                  <TopPapers keyword={query.trim()} sortBy={sortBy} />
+                  <KeywordGraphExplorer keyword={searchedKeyword} onKeywordClick={handleSearch} />
+                  <TopPapers keyword={searchedKeyword} sortBy={sortBy} />
                 </div>
               </motion.div>
             </div>
