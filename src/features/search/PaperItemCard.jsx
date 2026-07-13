@@ -9,6 +9,7 @@ import {
  ChevronUp,
  FileText,
  Lock,
+ Loader2,
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
@@ -25,6 +26,7 @@ export function PaperItemCard({
   onClick,
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
+ const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   if (!paper) return null;
 
@@ -76,9 +78,15 @@ export function PaperItemCard({
   if (url) window.open(url, '_blank');
  };
 
- const handleToggleBookmark = (e) => {
+ const handleToggleBookmark = async (e) => {
   e.stopPropagation();
-  if (onToggleBookmark) onToggleBookmark(paper);
+  if (!onToggleBookmark) return;
+  setBookmarkLoading(true);
+  try {
+   await onToggleBookmark(paper);
+  } finally {
+   setBookmarkLoading(false);
+  }
  };
 
  // ── Icon button style: transparent + border → filled on hover ──
@@ -239,13 +247,18 @@ export function PaperItemCard({
        <button
         type="button"
         onClick={handleToggleBookmark}
+        disabled={bookmarkLoading}
         className={`${iconBtn} ${
          isSaved
           ? 'bg-[#DEDBC8]/10 border-[#DEDBC8]/30 text-[#DEDBC8]'
           : ''
-        }`}
+        } ${bookmarkLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
        >
-        <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+        {bookmarkLoading ? (
+         <Loader2 size={15} className="animate-spin" />
+        ) : (
+         <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
+        )}
        </button>
 
        {/* External link */}

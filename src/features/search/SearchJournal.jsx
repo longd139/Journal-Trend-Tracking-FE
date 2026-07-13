@@ -460,6 +460,7 @@ export default function SearchJournal() {
       if (wasBookmarked) {
         await bookmarkAPI.removeBookmarkByPaper(paperId);
         removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Removed from bookmarks');
       } else {
         const res = await bookmarkAPI.addBookmark(paperId);
@@ -475,6 +476,7 @@ export default function SearchJournal() {
           notes: null,
           createdAt: new Date().toISOString(),
         });
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Saved to bookmarks');
       }
     } catch (err) {

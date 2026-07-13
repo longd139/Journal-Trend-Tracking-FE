@@ -406,7 +406,7 @@ export default function SearchPapers() {
               >
                 <div className="space-y-8">
                   <KeywordGraphExplorer keyword={searchedKeyword} onKeywordClick={handleSearch} />
-                  <TopPapers keyword={searchedKeyword} sortBy={sortBy} />
+                  <TopPapers keyword={searchedKeyword} sortBy={sortBy} filters={filters} />
                 </div>
               </motion.div>
             </div>

@@ -40,7 +40,7 @@ function Skeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function TopPapers({ keyword, sortBy = 'relevance' }) {
+export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} }) {
   const navigate = useNavigate();
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -110,6 +110,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
         await bookmarkAPI.removeBookmarkByPaper(paperId);
         // Optimistic: remove from cached bookmarks list
         removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Removed from bookmarks');
       } else {
         const res = await bookmarkAPI.addBookmark(paperId);
@@ -126,6 +127,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
           notes: null,
           createdAt: new Date().toISOString(),
         });
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Saved to bookmarks');
       }
     } catch (err) {
@@ -156,7 +158,10 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await paperAPI.getTopPapers(keyword.trim());
+        const apiParams = {};
+        if (filters.startYear) apiParams.startYear = filters.startYear;
+        if (filters.endYear) apiParams.endYear = filters.endYear;
+        const data = await paperAPI.getTopPapers(keyword.trim(), apiParams);
         if (!cancelled) {
           setPapers(Array.isArray(data) ? data : []);
         }
@@ -175,30 +180,43 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters.startYear, filters.endYear]);
 
-  // Client-side sorting based on sortBy prop
+  // Client-side sorting + year filtering based on sortBy and filters props
   const sortedPapers = useMemo(() => {
     if (!papers.length) return [];
-    const sorted = [...papers];
+    let filtered = [...papers];
+    // Client-side year filter fallback (in case BE doesn't filter)
+    if (filters.startYear) {
+      const start = parseInt(filters.startYear, 10);
+      if (!isNaN(start)) {
+        filtered = filtered.filter((p) => (p.pubYear || p.year || 0) >= start);
+      }
+    }
+    if (filters.endYear) {
+      const end = parseInt(filters.endYear, 10);
+      if (!isNaN(end)) {
+        filtered = filtered.filter((p) => (p.pubYear || p.year || 0) <= end);
+      }
+    }
     switch (sortBy) {
       case 'newest':
-        return sorted.sort((a, b) => (b.pubYear || b.year || 0) - (a.pubYear || a.year || 0));
+        return filtered.sort((a, b) => (b.pubYear || b.year || 0) - (a.pubYear || a.year || 0));
       case 'oldest':
-        return sorted.sort((a, b) => (a.pubYear || a.year || 0) - (b.pubYear || b.year || 0));
+        return filtered.sort((a, b) => (a.pubYear || a.year || 0) - (b.pubYear || b.year || 0));
       case 'leastCited':
-        return sorted.sort((a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0));
+        return filtered.sort((a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0));
       case 'mostCited':
-        return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+        return filtered.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
       case 'titleAZ':
-        return sorted.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        return filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
       case 'titleZA':
-        return sorted.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        return filtered.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
       case 'relevance':
       default:
-        return sorted.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+        return filtered.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
     }
-  }, [papers, sortBy]);
+  }, [papers, sortBy, filters.startYear, filters.endYear]);
 
   if (!keyword || !keyword.trim()) return null;
   if (isLoading) return <Skeleton />;
