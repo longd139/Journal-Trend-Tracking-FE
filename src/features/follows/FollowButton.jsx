@@ -114,6 +114,7 @@ export default function FollowButton({
       if (created?.followId) followIdRef.current = created.followId;
       setStatus('followed');
       toast.success(t('toast.followSuccess'));
+      window.dispatchEvent(new CustomEvent('follow-changed'));
       onFollowed?.();
     } catch (error) {
       const httpStatus = error?.response?.status;
@@ -151,6 +152,7 @@ export default function FollowButton({
       followIdRef.current = null;
       setStatus('default');
       toast.success(t('toast.unfollowSuccess'));
+      window.dispatchEvent(new CustomEvent('follow-changed'));
       onFollowed?.();
     } catch (error) {
       setStatus('followed'); // revert on error

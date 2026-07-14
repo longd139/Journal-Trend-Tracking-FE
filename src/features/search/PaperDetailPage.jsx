@@ -465,6 +465,7 @@ export default function PaperDetailPage() {
   const [error, setError] = useState(null);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkId, setBookmarkId] = useState(null);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
   // Role check for academic restrictions
   const role = sessionStorage.getItem('userRole') || 'researcher';
@@ -562,10 +563,9 @@ export default function PaperDetailPage() {
 
   // Bookmark toggle
   const handleToggleBookmark = async () => {
+    if (bookmarkLoading) return;
     const wasBookmarked = isBookmarked;
-
-    // Optimistic update — toggle instantly
-    setIsBookmarked(!wasBookmarked);
+    setBookmarkLoading(true);
 
     try {
       if (wasBookmarked) {
@@ -574,11 +574,15 @@ export default function PaperDetailPage() {
         } else {
           await bookmarkAPI.removeBookmarkByPaper(paperId);
         }
+        setIsBookmarked(false);
+        setBookmarkId(null);
         removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Removed from bookmarks');
       } else {
         const res = await bookmarkAPI.addBookmark(paperId);
         const bm = res?.data?.data || res?.data || res;
+        setIsBookmarked(true);
         if (bm?.bookmarkId) setBookmarkId(bm.bookmarkId);
         // Optimistic: add to cached list so bookmarks page shows it instantly
         prependToCache('bookmarks-list', {
@@ -592,6 +596,7 @@ export default function PaperDetailPage() {
           notes: null,
           createdAt: new Date().toISOString(),
         });
+        window.dispatchEvent(new CustomEvent('bookmark-changed'));
         toast.success('Saved to bookmarks');
       }
     } catch (err) {
@@ -601,6 +606,8 @@ export default function PaperDetailPage() {
         setIsBookmarked(wasBookmarked);
         toast.error(err?.response?.data?.message || err?.message || 'Failed');
       }
+    } finally {
+      setBookmarkLoading(false);
     }
   };
 
@@ -777,14 +784,21 @@ export default function PaperDetailPage() {
           </button>
           <button
             onClick={handleToggleBookmark}
+            disabled={bookmarkLoading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all active:scale-[0.97] ${
-              isBookmarked
-                ? 'bg-white border-white text-gray-900 shadow-md shadow-white/10'
-                : 'border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white'
+              bookmarkLoading
+                ? 'opacity-50 cursor-not-allowed border-white/10 text-white/50'
+                : isBookmarked
+                  ? 'bg-white border-white text-gray-900 shadow-md shadow-white/10'
+                  : 'border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white'
             }`}
           >
-            <Bookmark size={14} fill={isBookmarked ? 'currentColor' : 'none'} />
-            {isBookmarked ? 'Saved' : 'Bookmark'}
+            {bookmarkLoading ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Bookmark size={14} fill={isBookmarked ? 'currentColor' : 'none'} />
+            )}
+            {bookmarkLoading ? 'Saving...' : isBookmarked ? 'Saved' : 'Bookmark'}
           </button>
           <CitationExport paper={paper} variant="compact" />
           <FollowButton

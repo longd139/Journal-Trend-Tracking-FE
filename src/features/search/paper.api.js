@@ -76,11 +76,16 @@ export const paperAPI = {
 
   /**
    * Get top 5 most-cited papers for a keyword (DB-only, no external API).
-   * GET /api/search/keyword/top-papers?keyword={keyword}
+   * Supports optional year range filtering.
+   * GET /api/search/keyword/top-papers?keyword={keyword}&startYear={startYear}&endYear={endYear}
    */
-  async getTopPapers(keyword) {
+  async getTopPapers(keyword, params = {}) {
     const { data } = await axiosClient.get('/api/search/keyword/top-papers', {
-      params: { keyword },
+      params: {
+        keyword,
+        startYear: params.startYear || undefined,
+        endYear: params.endYear || undefined,
+      },
     });
     return data.data || data;
   },

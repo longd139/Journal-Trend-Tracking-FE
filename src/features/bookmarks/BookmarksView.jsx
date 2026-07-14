@@ -232,7 +232,7 @@ export default function BookmarksView() {
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
 
   // Cache-first data fetching — instant display on tab switch
-  const { data: bookmarks, loading, error, mutate: setBookmarks } = useStaleWhileRevalidate(
+  const { data: bookmarks, loading, error, mutate: setBookmarks, refetch } = useStaleWhileRevalidate(
     'bookmarks-list',
     async () => {
       const response = await bookmarkAPI.getMyBookmarks();
@@ -262,6 +262,13 @@ export default function BookmarksView() {
     setSelectedIds(new Set());
     setShowBatchExport(false);
   }, [bookmarks.length]);
+
+  // Re-fetch bookmarks when saved/removed from other pages (e.g. SearchPapers)
+  useEffect(() => {
+    const handler = () => refetch();
+    window.addEventListener('bookmark-changed', handler);
+    return () => window.removeEventListener('bookmark-changed', handler);
+  }, [refetch]);
 
   const removeBookmark = useCallback(async (bookmark) => {
     try {
