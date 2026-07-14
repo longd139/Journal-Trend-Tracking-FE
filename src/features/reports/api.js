@@ -6,23 +6,31 @@ export const reportAPI = {
   // ═══════════════════════════════════════════════════════════════════
 
   /**
-   * GET /api/public/reports/keyword-trend?keyword= — Generate mới
+   * GET /api/public/reports/keyword-trend?keyword=&startYear=&endYear= — Generate mới
    * @returns {Promise<{status, message, data: KeywordTrendReport}>}
    */
-  async getKeywordTrend(keyword) {
+  async getKeywordTrend(keyword, { startYear, endYear } = {}) {
     const { data } = await axiosClient.get('/api/public/reports/keyword-trend', {
-      params: { keyword },
+      params: {
+        keyword,
+        ...(startYear && { startYear }),
+        ...(endYear && { endYear }),
+      },
     });
     return data;
   },
 
   /**
-   * GET /api/public/reports/keyword-trend/cached?keyword= — Lấy từ cache
+   * GET /api/public/reports/keyword-trend/cached?keyword=&startYear=&endYear= — Lấy từ cache
    * @returns {Promise<{status, message, data: KeywordTrendReport}>}
    */
-  async getKeywordTrendCached(keyword) {
+  async getKeywordTrendCached(keyword, { startYear, endYear } = {}) {
     const { data } = await axiosClient.get('/api/public/reports/keyword-trend/cached', {
-      params: { keyword },
+      params: {
+        keyword,
+        ...(startYear && { startYear }),
+        ...(endYear && { endYear }),
+      },
     });
     return data;
   },
@@ -63,50 +71,4 @@ export const reportAPI = {
     return data;
   },
 
-  // ═══════════════════════════════════════════════════════════════════
-  // Report History (requires BE: ReportHistoryController — Step 3)
-  // These endpoints use auth-protected /api/v1/reports
-  // Gracefully fall back to local-only if BE is not yet available
-  // ═══════════════════════════════════════════════════════════════════
-
-  /**
-   * POST /api/v1/reports — Lưu report vào history
-   * @param {{ reportType: string, queryText: string, reportName: string }} body
-   * @returns {Promise<object>} ReportHistoryResponse
-   */
-  async saveReport(body) {
-    const { data } = await axiosClient.post('/api/v1/reports', body);
-    return data.data || data;
-  },
-
-  /**
-   * GET /api/v1/reports — Lấy danh sách report history (phân trang)
-   * @param {number} [page=0]
-   * @param {number} [size=10]
-   * @returns {Promise<{ content: object[], totalPages: number, totalElements: number }>}
-   */
-  async getHistory(page = 0, size = 20) {
-    const { data } = await axiosClient.get('/api/v1/reports', {
-      params: { page, size },
-    });
-    return data.data || data;
-  },
-
-  /**
-   * DELETE /api/v1/reports/{reportId} — Xóa report khỏi history
-   * @param {string} reportId
-   */
-  async deleteReport(reportId) {
-    await axiosClient.delete(`/api/v1/reports/${reportId}`);
-  },
-
-  /**
-   * GET /api/v1/reports/{reportId}/regenerate — Xem lại report đã lưu
-   * @param {string} reportId
-   * @returns {Promise<object>} Full report data (type-dependent)
-   */
-  async regenerateReport(reportId) {
-    const { data } = await axiosClient.get(`/api/v1/reports/${reportId}/regenerate`);
-    return data.data || data;
-  },
 };

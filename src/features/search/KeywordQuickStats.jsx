@@ -213,7 +213,14 @@ export default function KeywordQuickStats({ keyword, filters }) {
         </span>
         {/* Generate Report button */}
         <button
-          onClick={() => navigate(`/${role}/reports?type=keyword-trend&q=${encodeURIComponent(stats.keyword || keyword)}`)}
+          onClick={() => {
+            const params = new URLSearchParams();
+            params.set('type', 'keyword-trend');
+            params.set('q', stats.keyword || keyword);
+            if (filters?.pubYearFrom) params.set('startYear', filters.pubYearFrom);
+            if (filters?.pubYearTo) params.set('endYear', filters.pubYearTo);
+            navigate(`/${role}/reports?${params.toString()}`);
+          }}
           className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6]/20 transition-all"
         >
           <BarChart2 size={12} />

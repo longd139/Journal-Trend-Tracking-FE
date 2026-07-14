@@ -180,9 +180,13 @@ export default function TopPapers({
       setIsLoading(true);
       setError(null);
       try {
+        const filterParams = {
+          startYear: filters.startYear || filters.pubYearFrom || undefined,
+          endYear: filters.endYear || filters.pubYearTo || undefined,
+        };
         const data = await (customFetchPapers
-          ? customFetchPapers(keyword.trim())
-          : paperAPI.getTopPapers(keyword.trim()));
+          ? customFetchPapers(keyword.trim(), filterParams)
+          : paperAPI.getTopPapers(keyword.trim(), filterParams));
         if (!cancelled) {
           setPapers(Array.isArray(data) ? data : []);
         }
@@ -201,7 +205,7 @@ export default function TopPapers({
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters.startYear, filters.endYear, filters.pubYearFrom, filters.pubYearTo]);
 
   // Client-side sorting + year filtering based on sortBy and filters props
   const sortedPapers = useMemo(() => {
@@ -302,9 +306,7 @@ export default function TopPapers({
               paper={paper}
               index={i}
               badgeColor="#F59E0B"
-              isSaved={bookmarkedIds.has(paper.paperId)}
               isLocked={isAcademic}
-              onToggleBookmark={handleToggleBookmark}
               onClick={(p) => {
                 if (isAcademic) {
                   setUpgradeOpen(true);

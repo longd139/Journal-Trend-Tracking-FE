@@ -9,35 +9,40 @@ import {
 import {
   LineChart, Line, BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
-  PieChart as RePieChart, Pie, Cell, Legend,
+  PieChart as RePieChart, Pie, Cell,
 } from 'recharts';
 import ExportButtons from './ExportButtons';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Color Palette (theme-aligned)
+   Color Palette (validated dark-theme categorical + status)
+   Categorical slots validated with dataviz/scripts/validate_palette.js
+   Surface: #0A0A0A · Mode: dark · All 6 slots pass checks 1-5.
    ═══════════════════════════════════════════════════════════════════════════ */
 const COLORS = {
-  primary: '#4F8CFF',
-  accent: '#00D1B2',
-  purple: '#A78BFA',
-  amber: '#F59E0B',
-  green: '#34D399',
-  red: '#EF4444',
-  pink: '#F472B6',
-  cyan: '#22D3EE',
-  orange: '#FB923C',
-  muted: '#6B7280',
-  cardBg: '#0A0A0A',
-  border: 'rgba(222,219,200,0.06)',
+  // ── Chart series (categorical, fixed order, never cycled) ──
+  primary: '#3987e5',   // slot 1 — blue     (Publication Trend line)
+  accent:  '#199e70',   // slot 2 — aqua     (Citation Trend area)
+  purple:  '#9085e9',   // slot 5 — violet   (Co-occurring Keywords bar)
+
+  // ── Status & indicators (reserved, never used as series) ──
+  amber: '#F59E0B',     // neutral / warning
+  green: '#34D399',     // positive growth
+  red:   '#EF4444',     // negative growth
+
+  // ── UI chrome ──
+  muted:  '#6B7280',    // axis ticks, labels, placeholder
+  cardBg: '#0A0A0A',    // chart surface
+  border: 'rgba(222,219,200,0.06)',  // hairline grid / container
 };
 
+/** Donut chart — warm neutral palette matching researchFields CHART_COLORS */
 const DONUT_COLORS = [
-  COLORS.primary,
-  COLORS.accent,
-  COLORS.purple,
-  COLORS.amber,
-  COLORS.green,
-  COLORS.muted,
+  '#DEDBC8',  // lightest beige
+  '#C5BFA0',
+  '#A09878',
+  '#8A8468',
+  '#6B6550',  // darkest brown
+  '#4A4538',  // extra dark
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -51,6 +56,8 @@ const tooltipStyle = {
     fontSize: 12,
     color: '#E1E0CC',
   },
+  itemStyle: { color: '#E1E0CC' },
+  labelStyle: { color: '#c3c2b7' },
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -310,7 +317,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
         <div className="rounded-xl p-5 border" style={{ borderColor: COLORS.border, background: COLORS.cardBg }}>
           <SectionHeader
             icon={Activity}
-            iconColor={COLORS.primary}
+            iconColor={COLORS.green}
             title={t('charts.publicationTrend') || 'Xu hướng xuất bản theo thời gian'}
           />
           {displayPublicationTrend.length >= 2 ? (
@@ -344,10 +351,10 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 <Line
                   type="monotone"
                   dataKey="count"
-                  stroke={COLORS.primary}
+                  stroke={COLORS.green}
                   strokeWidth={2.5}
-                  dot={{ fill: COLORS.primary, r: 4, strokeWidth: 2, stroke: '#0A0A0A' }}
-                  activeDot={{ r: 6, fill: COLORS.primary, strokeWidth: 2, stroke: '#fff' }}
+                  dot={{ fill: COLORS.green, r: 4, strokeWidth: 2, stroke: '#0A0A0A' }}
+                  activeDot={{ r: 6, fill: COLORS.green, strokeWidth: 2, stroke: '#fff' }}
                   name="Papers"
                 />
               </LineChart>
@@ -505,46 +512,61 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
             title={t('charts.topJournals') || 'Phân bổ theo Tạp chí (Top Journals)'}
           />
           {donutData.length > 0 ? (
-            <div className="flex flex-col lg:flex-row items-center gap-4">
-              <ResponsiveContainer width="100%" height={280} className="max-w-[320px]">
-                <RePieChart>
-                  <Pie
-                    data={donutData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={65}
-                    outerRadius={110}
-                    paddingAngle={3}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    {donutData.map((entry, index) => (
-                      <Cell
-                        key={entry.name}
-                        fill={DONUT_COLORS[index % DONUT_COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    {...tooltipStyle}
-                    formatter={(value, _name, props) => [
-                      value.toLocaleString(),
-                      props.payload.name,
-                    ]}
-                  />
-                  <Legend
-                    verticalAlign="middle"
-                    align="right"
-                    layout="vertical"
-                    iconType="circle"
-                    iconSize={8}
-                    formatter={(value) => (
-                      <span className="text-[#E1E0CC] text-xs">{value}</span>
-                    )}
-                    wrapperStyle={{ fontSize: 11, lineHeight: '20px' }}
-                  />
-                </RePieChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
+              <div className="relative w-full max-w-[280px]">
+                <ResponsiveContainer width="100%" height={280}>
+                  <RePieChart>
+                    <Pie
+                      data={donutData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={65}
+                      outerRadius={110}
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="none"
+                    >
+                      {donutData.map((entry, index) => (
+                        <Cell
+                          key={entry.name}
+                          fill={DONUT_COLORS[index % DONUT_COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      {...tooltipStyle}
+                      formatter={(value, _name, props) => [
+                        `${value.toLocaleString()} papers`,
+                        props.payload.name,
+                      ]}
+                    />
+                  </RePieChart>
+                </ResponsiveContainer>
+                {/* Center label — total papers */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <span className="text-[22px] font-bold text-[#E1E0CC] font-mono tabular-nums">
+                    {donutData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-gray-500 mt-0.5">papers</span>
+                </div>
+              </div>
+              {/* Legend — below on mobile, right on desktop */}
+              <div className="flex flex-wrap lg:flex-col gap-x-4 gap-y-1.5 justify-center">
+                {donutData.map((entry, index) => (
+                  <div key={entry.name} className="flex items-center gap-2 text-xs">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0"
+                      style={{ background: DONUT_COLORS[index % DONUT_COLORS.length] }}
+                    />
+                    <span className="text-[#E1E0CC] truncate max-w-[140px]" title={entry.name}>
+                      {entry.name}
+                    </span>
+                    <span className="text-gray-500 tabular-nums">
+                      {entry.value.toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             <ChartPlaceholder message="No journal distribution data" />

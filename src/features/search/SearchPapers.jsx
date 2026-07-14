@@ -59,6 +59,78 @@ export default function SearchPapers() {
     quartile: [],
   });
   const [sortBy, setSortBy] = useState('relevance');
+
+  // ── Active filter chips (shown next to filter button) ──
+  const activeFilterChips = useMemo(() => {
+    const chips = [];
+    const clear = (patch) => setAppliedFilters((p) => ({ ...p, ...patch }));
+    const clearDraft = (patch) => setDraftFilters((p) => ({ ...p, ...patch }));
+
+    // Year range
+    const from = appliedFilters.pubYearFrom;
+    const to = appliedFilters.pubYearTo;
+    if (from || to) {
+      const label = from && to ? `${from}–${to}` : from ? `From ${from}` : `To ${to}`;
+      chips.push({
+        key: 'year',
+        label,
+        onRemove: () => {
+          clear({ pubYearFrom: '', pubYearTo: '' });
+          clearDraft({ pubYearFrom: '', pubYearTo: '' });
+        },
+      });
+    }
+
+    // Open Access
+    if (appliedFilters.isOpenAccess) {
+      chips.push({
+        key: 'oa',
+        label: 'Open Access',
+        onRemove: () => {
+          clear({ isOpenAccess: false });
+          clearDraft({ isOpenAccess: false });
+        },
+      });
+    }
+
+    // Min citations
+    if (appliedFilters.minCitations) {
+      chips.push({
+        key: 'citations',
+        label: `≥${appliedFilters.minCitations} citations`,
+        onRemove: () => {
+          clear({ minCitations: '' });
+          clearDraft({ minCitations: '' });
+        },
+      });
+    }
+
+    // Fields
+    (appliedFilters.fields || []).forEach((f) => {
+      chips.push({
+        key: `field-${f}`,
+        label: f,
+        onRemove: () => {
+          clear({ fields: appliedFilters.fields.filter((x) => x !== f) });
+          clearDraft({ fields: draftFilters.fields.filter((x) => x !== f) });
+        },
+      });
+    });
+
+    // Quartiles
+    (appliedFilters.quartile || []).forEach((q) => {
+      chips.push({
+        key: `q-${q}`,
+        label: q,
+        onRemove: () => {
+          clear({ quartile: appliedFilters.quartile.filter((x) => x !== q) });
+          clearDraft({ quartile: draftFilters.quartile.filter((x) => x !== q) });
+        },
+      });
+    });
+
+    return chips;
+  }, [appliedFilters, draftFilters]);
   const searchInputRef = useRef(null);
   const [apiSuggestions, setApiSuggestions] = useState([]);
   const debounceRef = useRef(null);
@@ -515,6 +587,23 @@ export default function SearchPapers() {
                     v && (!Array.isArray(v) || v.length > 0) && v !== false,
                 ) && <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />}
               </button>
+
+              {/* ── Active Filter Chips ── */}
+              {activeFilterChips.map((chip) => (
+                <span
+                  key={chip.key}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-[#DEDBC8]/8 text-[#DEDBC8] border border-[#DEDBC8]/15"
+                >
+                  {chip.label}
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="p-0.5 rounded-full hover:bg-[#DEDBC8]/15 transition-colors"
+                  >
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
             </div>
 
             {/* Filters Dropdown Panel */}

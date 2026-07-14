@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import AuthorQuickStats from './AuthorQuickStats';
 import { useAuthStore } from '../user/store.js';
 import { paperAPI } from './paper.api.js';
+import { authorAPI } from './author.api.js';
 import AuthorTimeline from './AuthorTimeline';
 import AuthorResearchFocus from './AuthorResearchFocus';
 import AuthorCoAuthors from './AuthorCoAuthors';
@@ -22,7 +23,14 @@ export default function SearchAuthor() {
   const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_author_query') || '');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [apiSuggestions, setApiSuggestions] = useState([]);
+  const [suggestHasMore, setSuggestHasMore] = useState(false);
+  const [suggestTotal, setSuggestTotal] = useState(0);
+  const [suggestPage, setSuggestPage] = useState(1);
+  const [suggestLoading, setSuggestLoading] = useState(false);
+  const [showSuggestionList, setShowSuggestionList] = useState(false);
   const searchInputRef = useRef(null);
+  const debounceRef = useRef(null);
   const resultsRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole');
@@ -68,6 +76,66 @@ export default function SearchAuthor() {
     }
   }, [historyKey]);
 
+  // ─── Debounced author autocomplete (API suggest) ───
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setApiSuggestions([]);
+      setSuggestHasMore(false);
+      setSuggestTotal(0);
+      setSuggestPage(1);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        setSuggestLoading(true);
+        const res = await authorAPI.getSuggest(q, { page: 1, size: 20 });
+        // Handle paginated response: { data: [...], total, page, hasMore }
+        if (res && Array.isArray(res.data)) {
+          setApiSuggestions(res.data);
+          setSuggestTotal(res.total || res.data.length);
+          setSuggestHasMore(res.hasMore || false);
+          setSuggestPage(res.page || 1);
+        } else if (Array.isArray(res)) {
+          setApiSuggestions(res);
+          setSuggestTotal(res.length);
+          setSuggestHasMore(false);
+        } else {
+          setApiSuggestions([]);
+          setSuggestHasMore(false);
+        }
+      } catch {
+        setApiSuggestions([]);
+        setSuggestHasMore(false);
+      } finally {
+        setSuggestLoading(false);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
+
+  // ─── Load more authors ───
+  const loadMoreAuthors = async () => {
+    const nextPage = suggestPage + 1;
+    try {
+      setSuggestLoading(true);
+      const res = await authorAPI.getSuggest(query.trim(), { page: nextPage, size: 20 });
+      if (res && Array.isArray(res.data)) {
+        setApiSuggestions((prev) => [...prev, ...res.data]);
+        setSuggestTotal(res.total || 0);
+        setSuggestHasMore(res.hasMore || false);
+        setSuggestPage(res.page || nextPage);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setSuggestLoading(false);
+    }
+  };
+
   // ─── Helpers ───
   const saveToSearchHistory = (keyword) => {
     const trimmed = keyword.trim();
@@ -101,6 +169,9 @@ export default function SearchAuthor() {
 
     // Update UI + trigger results IMMEDIATELY
     setQuery(kw);
+    setShowSuggestionList(false);
+    setShowSuggestions(false);
+    setApiSuggestions([]);
     saveToSearchHistory(kw);
     sessionStorage.setItem('scitrack_author_query', kw);
     setShowSuggestions(false);
@@ -134,10 +205,6 @@ export default function SearchAuthor() {
     }, 150);
   };
 
-  const filteredSuggestions = query.trim()
-    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
-    : searchHistory;
-
   /* ═══════════════════════════════════════════════════════════════════════════
      Render
      ═══════════════════════════════════════════════════════════════════════════ */
@@ -155,9 +222,17 @@ export default function SearchAuthor() {
               placeholder={quotaExhausted ? 'Search limit reached — upgrade to continue' : t('author.placeholder')}
               value={query}
               disabled={quotaExhausted}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && query.trim()) handleSearch(query); }}
-              onFocus={() => { if (!quotaExhausted && searchHistory.length > 0) setShowSuggestions(true); }}
+              onChange={(e) => { setQuery(e.target.value); setShowSuggestionList(false); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  const q = query.trim();
+                  if (!q) return;
+                  setShowSuggestionList(true);
+                  setShowSuggestions(false);
+                }
+              }}
+              onFocus={() => { if (!quotaExhausted && query.trim().length >= 2) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
                 quotaExhausted
@@ -176,33 +251,32 @@ export default function SearchAuthor() {
             )}
           </div>
 
-          {/* Search suggestions */}
+          {/* Keyword autocomplete dropdown — simple names while typing */}
           <AnimatePresence>
-            {showSuggestions && filteredSuggestions.length > 0 && (
+            {showSuggestions && query.trim().length >= 2 && !showSuggestionList && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
               >
-                {filteredSuggestions.slice(0, 8).map((kw) => (
-                  <button key={kw} type="button"
-                    onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
-                  >
-                    <Clock size={12} className="text-gray-500 shrink-0" />
-                    <span className="flex-1 truncate">{kw}</span>
-                    <button type="button"
-                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeSearchHistoryItem(kw); }}
-                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
-                    ><X size={11} /></button>
-                  </button>
-                ))}
-                <div className="border-t border-[#DEDBC8]/5">
-                  <button type="button" onMouseDown={(e) => { e.preventDefault(); clearSearchHistory(); }}
-                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                  ><Trash2 size={11} /> Clear search history</button>
-                </div>
+                {apiSuggestions.length > 0 ? (
+                  apiSuggestions.map((s) => (
+                    <button key={s.authorId || s.fullName} type="button"
+                      onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); handleSearch(s.fullName); }}
+                      className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
+                    >
+                      <UserSearch size={12} className="text-[#DEDBC8]/50 shrink-0" />
+                      <span className="text-[#E1E0CC] truncate">{s.fullName}</span>
+                      {s.hIndex != null && <span className="text-[10px] text-gray-500 ml-auto shrink-0">h-index {s.hIndex}</span>}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-5 py-4 text-xs text-gray-500 flex items-center gap-2">
+                    <Search size={12} />
+                    Press Enter to search "{query.trim()}"
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -256,13 +330,97 @@ export default function SearchAuthor() {
           </motion.div>
         )}
 
+        {/* ─── Suggestion list — shown after pressing Enter ─── */}
+        {showSuggestionList && query.trim() && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <Search size={13} className="text-[#DEDBC8]/50" />
+              <span className="text-xs text-gray-400">
+                {apiSuggestions.length > 0
+                  ? `Showing ${apiSuggestions.length} of ${suggestTotal} author${suggestTotal !== 1 ? 's' : ''} matching "${query.trim()}"`
+                  : `Searching for "${query.trim()}"...`}
+              </span>
+              <button
+                type="button"
+                onClick={() => { setShowSuggestionList(false); setQuery(''); }}
+                className="ml-auto text-[10px] text-gray-500 hover:text-gray-300"
+              >
+                ✕ Clear
+              </button>
+            </div>
+            {apiSuggestions.length > 0 ? (
+              <div className="grid grid-cols-1 gap-2">
+                {apiSuggestions.map((s) => (
+                  <motion.button
+                    key={s.authorId || s.fullName}
+                    type="button"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => handleSearch(s.fullName)}
+                    className="w-full text-left rounded-xl border border-[#DEDBC8]/8 bg-[#101010] hover:bg-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 p-4 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <UserSearch size={13} className="text-[#DEDBC8]/50 shrink-0 group-hover:text-[#DEDBC8] transition-colors" />
+                          <span className="text-sm font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
+                            {s.fullName}
+                          </span>
+                        </div>
+                        {s.affiliation && (
+                          <p className="text-[10px] text-gray-500 mt-1 truncate">{s.affiliation}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0 text-right">
+                        <div>
+                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{s.hIndex ?? '—'}</p>
+                          <p className="text-[10px] text-gray-500">h-index</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#A09878] font-mono">{(s.totalCitations ?? 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-gray-500">citations</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{(s.paperCount ?? 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-gray-500">papers</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-12 text-xs text-gray-500">
+                No authors found for "{query.trim()}". Try a different name.
+              </div>
+            )}
+            {/* Load more button */}
+            {suggestHasMore && (
+              <div className="flex justify-center pt-1 pb-2">
+                <button
+                  type="button"
+                  onClick={loadMoreAuthors}
+                  disabled={suggestLoading}
+                  className="px-5 py-2 rounded-xl text-xs font-medium text-[#DEDBC8] bg-[#DEDBC8]/5 hover:bg-[#DEDBC8]/10 border border-[#DEDBC8]/10 transition-all disabled:opacity-50"
+                >
+                  {suggestLoading ? 'Loading...' : `Load more (${suggestTotal - apiSuggestions.length} remaining)`}
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* ─── Pre-search: Suggested authors ─── */}
-        {!query.trim() && (
+        {!query.trim() && !showSuggestionList && (
           <AuthorSuggestions onAuthorClick={handleSearch} />
         )}
 
-        {/* ─── Results (only when query is entered) ─── */}
-        {query && query.trim() && (
+        {/* ─── Results (only after selecting an author) ─── */}
+        {query && query.trim() && !showSuggestionList && (
           <motion.div
             ref={resultsRef}
             initial={{ opacity: 0, y: 12 }}
