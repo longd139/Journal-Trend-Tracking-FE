@@ -20,4 +20,16 @@ export const journalAPI = {
     const { data } = await axiosClient.get(`/api/v1/journals/fields/${fieldId}`);
     return data.data || data;
   },
+
+  /**
+   * Search journals by name (fuzzy, case-insensitive LIKE).
+   * GET /api/v1/journals/search?q={name}&size=10
+   * Returns journals with quartile, impactFactor, issn, publisher.
+   */
+  async searchJournals(q, size = 10) {
+    const { data } = await axiosClient.get('/api/v1/journals/search', {
+      params: { q, size },
+    });
+    return data.data || data;
+  },
 };

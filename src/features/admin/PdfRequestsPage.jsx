@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   FileText, RefreshCw, Search, X, ExternalLink,
   CheckCircle, XCircle, Clock, Loader2,
-  ChevronLeft, ChevronRight,
+  ChevronLeft, ChevronRight, Upload,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { adminAPI } from './api';
+
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Helpers
@@ -96,6 +98,11 @@ export default function PdfRequestsPage() {
   const [fulfillUrl, setFulfillUrl] = useState('');
   const [fulfillNote, setFulfillNote] = useState('');
 
+  // File upload state
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
   // Reject modal
   const [rejectModal, setRejectModal] = useState({ open: false, request: null });
   const [rejectNote, setRejectNote] = useState('');
@@ -139,6 +146,86 @@ export default function PdfRequestsPage() {
     setFulfillModal({ open: true, request: req });
     setFulfillUrl('');
     setFulfillNote('');
+    setUploadFile(null);
+  };
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate PDF
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are accepted');
+      return;
+    }
+
+    // Validate size ≤ 20MB
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File must be less than 20MB');
+      return;
+    }
+
+    setUploadFile(file);
+    setFulfillUrl(''); // clear URL when file is selected
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    if (file.type !== 'application/pdf') {
+      toast.error('Only PDF files are accepted');
+      return;
+    }
+
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File must be less than 20MB');
+      return;
+    }
+
+    setUploadFile(file);
+    setFulfillUrl('');
+  };
+
+  const handleUploadFulfill = async () => {
+    const req = fulfillModal.request;
+    if (!uploadFile) {
+      toast.error('Please select a PDF file');
+      return;
+    }
+    setUploading(true);
+    try {
+      await adminAPI.uploadPdfRequest(req.requestId, uploadFile, fulfillNote.trim() || undefined);
+      toast.success('PDF uploaded — request fulfilled and user notified');
+      setFulfillModal({ open: false, request: null });
+      setUploadFile(null);
+      fetchRequests();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to upload PDF');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleCandidatesUpload = async () => {
+    const req = candidatesModal.request;
+    if (!uploadFile) {
+      toast.error('Please select a PDF file');
+      return;
+    }
+    setUploading(true);
+    try {
+      await adminAPI.uploadPdfRequest(req.requestId, uploadFile, undefined);
+      toast.success('PDF uploaded — request fulfilled and user notified');
+      setCandidatesModal({ open: false, request: null });
+      setUploadFile(null);
+      fetchRequests();
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to upload PDF');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleFulfill = async () => {
@@ -193,6 +280,7 @@ export default function PdfRequestsPage() {
     setCandidatesModal({ open: true, request: req });
     setCandidates([]);
     setCandidatesLoading(true);
+    setUploadFile(null);
     try {
       const res = await adminAPI.findPdfCandidates(req.requestId);
       setCandidates(res?.data?.candidates || res?.data || []);
@@ -208,6 +296,7 @@ export default function PdfRequestsPage() {
 
   const quickFulfill = (candidateUrl) => {
     setFulfillUrl(candidateUrl);
+    setUploadFile(null);
     setCandidatesModal({ open: false, request: null });
     // Open fulfill modal with the same request and pre-filled URL
     const req = candidatesModal.request;
@@ -377,7 +466,7 @@ export default function PdfRequestsPage() {
                           </div>
                         ) : req.pdfUrl ? (
                           <a
-                            href={req.pdfUrl}
+                            href={req.pdfUrl.startsWith('http') ? req.pdfUrl : `${API_BASE}${req.pdfUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs text-[#DEDBC8] hover:underline"
@@ -426,7 +515,7 @@ export default function PdfRequestsPage() {
       {/* ════════ Find Candidates Modal ════════ */}
       <Modal
         open={candidatesModal.open}
-        onClose={() => setCandidatesModal({ open: false, request: null })}
+        onClose={() => { setCandidatesModal({ open: false, request: null }); setUploadFile(null); }}
         title="PDF Candidates from OpenAlex"
       >
         <div className="space-y-4">
@@ -449,7 +538,7 @@ export default function PdfRequestsPage() {
           ) : candidates.length === 0 ? (
             <div className="text-center py-6 text-gray-500 text-xs">
               <Search size={24} className="mx-auto mb-2 opacity-30" />
-              No PDF candidates found. Try fulfilling manually with a known URL.
+              No PDF candidates found. You can upload a PDF directly below.
             </div>
           ) : (
             <div className="space-y-2">
@@ -489,9 +578,74 @@ export default function PdfRequestsPage() {
             </div>
           )}
 
+          {/* ── Divider ── */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">or upload your own PDF</span>
+            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+          </div>
+
+          {/* ── Upload drop zone ── */}
+          {uploadFile ? (
+            <div className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                <FileText size={18} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-[#E1E0CC] font-medium truncate">{uploadFile.name}</p>
+                <p className="text-[10px] text-gray-500">
+                  {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              </div>
+              <button
+                onClick={() => { setUploadFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <div
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              onClick={() => fileInputRef.current?.click()}
+              className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[#DEDBC8]/20 bg-black/20 cursor-pointer hover:border-[#DEDBC8]/40 hover:bg-black/30 transition-all group"
+            >
+              <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-[#DEDBC8] transition-colors">
+                <Upload size={22} />
+              </div>
+              <div className="text-center">
+                <p className="text-xs text-gray-400 group-hover:text-[#DEDBC8] transition-colors">
+                  <span className="text-[#DEDBC8] font-medium">Click to browse</span> or drag & drop
+                </p>
+                <p className="text-[10px] text-gray-600 mt-0.5">PDF only · Max 20 MB</p>
+              </div>
+            </div>
+          )}
+
+          {uploadFile && (
+            <button
+              onClick={handleCandidatesUpload}
+              disabled={uploading}
+              className="w-full py-2.5 rounded-xl text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Uploading to Cloudinary...
+                </>
+              ) : (
+                <>
+                  <Upload size={14} />
+                  Upload & Fulfill
+                </>
+              )}
+            </button>
+          )}
+
           <div className="flex justify-end pt-2">
             <button
-              onClick={() => setCandidatesModal({ open: false, request: null })}
+              onClick={() => { setCandidatesModal({ open: false, request: null }); setUploadFile(null); }}
               className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               Close
@@ -503,7 +657,7 @@ export default function PdfRequestsPage() {
       {/* ════════ Fulfill Modal ════════ */}
       <Modal
         open={fulfillModal.open}
-        onClose={() => setFulfillModal({ open: false, request: null })}
+        onClose={() => { setFulfillModal({ open: false, request: null }); setUploadFile(null); }}
         title="Fulfill PDF Request"
       >
         <div className="space-y-4">
@@ -517,18 +671,103 @@ export default function PdfRequestsPage() {
               </p>
             </div>
           )}
+
+          {/* ── File upload area ── */}
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
-              PDF URL <span className="text-red-400">*</span>
+              Upload PDF <span className="text-red-400">*</span>
+            </label>
+
+            {uploadFile ? (
+              /* File selected */
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                  <FileText size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-[#E1E0CC] font-medium truncate">{uploadFile.name}</p>
+                  <p className="text-[10px] text-gray-500">
+                    {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setUploadFile(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                  className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              /* Drop zone */
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                onClick={() => fileInputRef.current?.click()}
+                className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[#DEDBC8]/20 bg-black/20 cursor-pointer hover:border-[#DEDBC8]/40 hover:bg-black/30 transition-all group"
+              >
+                <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-[#DEDBC8] transition-colors">
+                  <Upload size={22} />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs text-gray-400 group-hover:text-[#DEDBC8] transition-colors">
+                    <span className="text-[#DEDBC8] font-medium">Click to browse</span> or drag & drop
+                  </p>
+                  <p className="text-[10px] text-gray-600 mt-0.5">PDF only · Max 20 MB</p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+            )}
+
+            {/* Upload button when file is selected */}
+            {uploadFile && (
+              <button
+                onClick={handleUploadFulfill}
+                disabled={uploading}
+                className="mt-3 w-full py-2.5 rounded-xl text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Uploading to Cloudinary...
+                  </>
+                ) : (
+                  <>
+                    <Upload size={14} />
+                    Upload & Fulfill
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          {/* ── Divider ── */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">or paste URL</span>
+            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+          </div>
+
+          {/* ── URL input ── */}
+          <div>
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+              PDF URL
             </label>
             <input
               type="url"
               value={fulfillUrl}
-              onChange={(e) => setFulfillUrl(e.target.value)}
+              onChange={(e) => { setFulfillUrl(e.target.value); setUploadFile(null); }}
               placeholder="https://example.com/paper.pdf"
               className="w-full px-3 py-2.5 rounded-lg border border-[#DEDBC8]/20 bg-black/40 text-xs text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/40 transition-colors"
             />
           </div>
+
+          {/* ── Admin note ── */}
           <div>
             <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
               Admin Note (optional)
@@ -541,20 +780,24 @@ export default function PdfRequestsPage() {
               className="w-full px-3 py-2.5 rounded-lg border border-[#DEDBC8]/20 bg-black/40 text-xs text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/40 transition-colors resize-none"
             />
           </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <button
-              onClick={() => setFulfillModal({ open: false, request: null })}
+              onClick={() => { setFulfillModal({ open: false, request: null }); setUploadFile(null); }}
               className="px-4 py-2 rounded-lg text-xs text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
             >
               Cancel
             </button>
-            <button
-              onClick={handleFulfill}
-              disabled={actionLoading}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 transition-colors"
-            >
-              {actionLoading ? 'Processing...' : 'Fulfill'}
-            </button>
+            {/* URL fulfill button (only when no file selected) */}
+            {!uploadFile && (
+              <button
+                onClick={handleFulfill}
+                disabled={actionLoading}
+                className="px-4 py-2 rounded-lg text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 transition-colors"
+              >
+                {actionLoading ? 'Processing...' : 'Fulfill'}
+              </button>
+            )}
           </div>
         </div>
       </Modal>

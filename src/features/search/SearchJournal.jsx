@@ -560,8 +560,19 @@ export default function SearchJournal() {
           paperAPI.getJournalTopAuthors(q),
         ]);
 
+        // Enrich quartile from journal search API (quick-stats may not include it)
+        let enrichedStats = stats;
+        try {
+          const journals = await journalAPI.searchJournals(q, 1);
+          if (journals && journals.length > 0 && journals[0].quartile) {
+            enrichedStats = { ...stats, quartile: journals[0].quartile };
+          }
+        } catch {
+          // silent — keep stats as-is
+        }
+
         if (!cancelled) {
-          if (stats) setJournalStats(stats);
+          if (enrichedStats) setJournalStats(enrichedStats);
           if (tl) setTimeline(Array.isArray(tl.timeline) ? tl.timeline : Array.isArray(tl) ? tl : []);
           if (papers) setTopPapers(Array.isArray(papers) ? papers : []);
           if (authors) setTopAuthors(Array.isArray(authors) ? authors : []);
@@ -1007,7 +1018,7 @@ export default function SearchJournal() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="grid grid-cols-2 lg:grid-cols-3 gap-3"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-3"
             >
               <StatCard
                 label="Total Papers"
@@ -1029,6 +1040,13 @@ export default function SearchJournal() {
                 change=""
                 Icon={TrendingUp}
                 accent="#A09878"
+              />
+              <StatCard
+                label="Quartile"
+                value={journalStats.quartile || 'N/A'}
+                change={!journalStats.quartile ? 'Not ranked yet' : journalStats.quartile === 'Q1' ? 'Top 25%' : journalStats.quartile === 'Q2' ? '25–50%' : journalStats.quartile === 'Q3' ? '50–75%' : 'Bottom 25%'}
+                Icon={Gauge}
+                accent={Q_COLORS[journalStats.quartile] || '#6B7280'}
               />
             </motion.div>
 

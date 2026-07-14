@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
  ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle,
- Info, ExternalLink, Users,
+ Info, ExternalLink, Users, Upload, FileText, X,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -159,6 +159,13 @@ export default function SyncDataPage() {
  const [backfillLoading, setBackfillLoading] = useState(false);
  const [backfillResult, setBackfillResult] = useState(null);
  const [backfillError, setBackfillError] = useState(null);
+
+	// SCImago journal enrichment
+	const [scimagoFile, setScimagoFile] = useState(null);
+	const [scimagoUploading, setScimagoUploading] = useState(false);
+	const [scimagoResult, setScimagoResult] = useState(null);
+	const [scimagoError, setScimagoError] = useState(null);
+	const scimagoInputRef = useRef(null);
 
  const [autoSyncEnabled, setAutoSyncEnabled] = useState(null); // null = loading
  const [autoSyncStats, setAutoSyncStats] = useState(null);
@@ -369,6 +376,51 @@ export default function SyncDataPage() {
       toast.error(msg, { position: 'top-right', duration: 5000 });
     } finally {
       setBackfillLoading(false);
+    }
+  };
+
+  // SCImago CSV upload handlers
+  const handleScimagoFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      toast.error('Only CSV files are accepted');
+      return;
+    }
+    setScimagoFile(file);
+    setScimagoResult(null);
+    setScimagoError(null);
+  };
+
+  const handleScimagoDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+      toast.error('Only CSV files are accepted');
+      return;
+    }
+    setScimagoFile(file);
+    setScimagoResult(null);
+    setScimagoError(null);
+  };
+
+  const handleScimagoUpload = async () => {
+    if (!scimagoFile) return;
+    setScimagoUploading(true);
+    setScimagoResult(null);
+    setScimagoError(null);
+    try {
+      const res = await adminAPI.enrichJournalsUpload(scimagoFile);
+      setScimagoResult(res?.message || res?.data || 'Enrichment complete');
+      toast.success('SCImago enrichment complete');
+      setScimagoFile(null);
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Upload failed';
+      setScimagoError(msg);
+      toast.error(msg);
+    } finally {
+      setScimagoUploading(false);
     }
   };
 
@@ -1343,6 +1395,132 @@ export default function SyncDataPage() {
 	 )}
 	</motion.div>
 	</div>
+
+	{/* -- SCImago Journal Quartile Enrichment -- */}
+	<div className="border-t border-gray-200 border-[#DEDBC8]/5 pt-6 mt-2">
+	<motion.div
+	 initial={{ opacity: 0 }}
+	 animate={{ opacity: 1 }}
+	 className={`${card} p-5 border-[#DEDBC8]/20`}
+	 style={{ borderLeft: "3px solid #10B981" }}
+	>
+	 <div className="flex items-start gap-3 mb-4">
+	  <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: "#10B98115", color: "#10B981" }}>
+	   <Layers size={18} />
+	  </div>
+	  <div>
+	   <h4 className="text-sm font-bold text-[#E1E0CC]">SCImago Journal Quartile Enrichment</h4>
+	   <p className="text-xs text-gray-500 mt-0.5">
+	    Upload the SCImago Journal Rank CSV to populate journal quartile rankings (Q1–Q4).
+	   </p>
+	  </div>
+	 </div>
+
+	 {/* Help text */}
+	 <div className="mb-4 p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
+	  <div className="flex items-start gap-2">
+	   <Info size={14} className="text-blue-400 shrink-0 mt-0.5" />
+	   <div className="text-xs text-gray-400">
+	    <p>
+	     <a
+	      href="https://www.scimagojr.com/journalrank.php?out=csv"
+	      target="_blank"
+	      rel="noopener noreferrer"
+	      className="inline-flex items-center gap-1 text-blue-400 hover:underline font-medium"
+	     >
+	      Download scimagojr.csv <ExternalLink size={10} />
+	     </a>
+	     <span> — open the link in your browser to auto-download the CSV, then upload it here.</span>
+	    </p>
+	    <p className="mt-1">The system matches journals by ISSN and name, then updates the <strong className="text-[#E1E0CC]">Quartile</strong> column in the database.</p>
+	   </div>
+	  </div>
+	 </div>
+
+	 {/* Drop zone / File preview */}
+	 {scimagoFile ? (
+	  <>
+	   <div className="flex items-center gap-3 p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5">
+	    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+	     <FileText size={18} />
+	    </div>
+	    <div className="flex-1 min-w-0">
+	     <p className="text-xs text-[#E1E0CC] font-medium truncate">{scimagoFile.name}</p>
+	     <p className="text-[10px] text-gray-500">{(scimagoFile.size / 1024).toFixed(1)} KB</p>
+	    </div>
+	    <button
+	     onClick={() => { setScimagoFile(null); if (scimagoInputRef.current) scimagoInputRef.current.value = ""; }}
+	     className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+	    >
+	     <X size={14} />
+	    </button>
+	   </div>
+	   <button
+	    onClick={handleScimagoUpload}
+	    disabled={scimagoUploading}
+	    className="mt-3 w-full py-2.5 rounded-xl text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+	   >
+	    {scimagoUploading ? (
+	     <>
+	      <RefreshCw size={14} className="animate-spin" />
+	      "Enriching journals..."
+	     </>
+	    ) : (
+	     <>
+	      <Upload size={14} />
+	      "Upload & Enrich"
+	     </>
+	    )}
+	   </button>
+	  </>
+	 ) : (
+	  <div
+	   onDrop={handleScimagoDrop}
+	   onDragOver={(e) => e.preventDefault()}
+	   onClick={() => scimagoInputRef.current?.click()}
+	   className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[#DEDBC8]/20 bg-black/20 cursor-pointer hover:border-[#DEDBC8]/40 hover:bg-black/30 transition-all group"
+	  >
+	   <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-[#DEDBC8] transition-colors">
+	    <Upload size={22} />
+	   </div>
+	   <div className="text-center">
+	    <p className="text-xs text-gray-400 group-hover:text-[#DEDBC8] transition-colors">
+	     <span className="text-[#DEDBC8] font-medium">Click to browse</span> or drag & drop
+	    </p>
+	    <p className="text-[10px] text-gray-600 mt-0.5">CSV only · scimagojr.csv</p>
+	   </div>
+	   <input
+	    ref={scimagoInputRef}
+	    type="file"
+	    accept=".csv,text/csv"
+	    onChange={handleScimagoFileSelect}
+	    className="hidden"
+	   />
+	  </div>
+	 )}
+
+	 {/* Result */}
+	 {scimagoResult && (
+	  <div className="mt-3 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+	   <div className="flex items-center gap-2">
+	    <CheckCircle2 size={14} className="text-emerald-400 shrink-0" />
+	    <span className="text-xs text-emerald-400">{scimagoResult}</span>
+	   </div>
+	  </div>
+	 )}
+
+	 {/* Error */}
+	 {scimagoError && (
+	  <div className="mt-3 p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+	   <div className="flex items-center gap-2">
+	    <AlertCircle size={14} className="text-red-500 shrink-0" />
+	    <span className="text-xs text-red-400">{scimagoError}</span>
+	   </div>
+	  </div>
+	 )}
+	</motion.div>
+	</div>
+
 
 	{/* -- Clear Confirmation Dialog -- */}
   <Dialog open={showClearDialog} onOpenChange={setShowClearDialog}>

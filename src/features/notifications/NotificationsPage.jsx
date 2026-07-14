@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   CheckCheck,
@@ -13,6 +14,8 @@ import {
   Clock,
   UserCheck,
   BellRing,
+  ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
 import { notificationAPI } from './api';
 import { adminAPI } from '../admin/api';
@@ -161,7 +164,7 @@ function NotificationCard({ notif, onClick, onDismiss }) {
    Detail Sheet
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function DetailSheet({ notif, onClose }) {
+function DetailSheet({ notif, onClose, onViewPaper }) {
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
 
@@ -194,6 +197,25 @@ function DetailSheet({ notif, onClose }) {
       </div>
 
       <p className="text-sm text-gray-300 leading-relaxed">{notif.detail}</p>
+
+      {/* Action buttons */}
+      {notif.actionable && notif.relatedPaperId && (
+        <div className="flex items-center gap-2 pt-1">
+          <button
+            onClick={() => onViewPaper(notif.relatedPaperId)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-black bg-[#DEDBC8] hover:bg-[#DEDBC8]/90 active:scale-[0.97] transition-all duration-150"
+          >
+            <ExternalLink size={14} />
+            View Paper
+            <ArrowRight size={14} />
+          </button>
+          {notif.relatedPaperTitle && (
+            <span className="text-xs text-gray-500 truncate max-w-[200px]">
+              {notif.relatedPaperTitle}
+            </span>
+          )}
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -226,6 +248,7 @@ function NotificationSkeleton() {
 
 export default function NotificationsPage() {
   const { t } = useTranslation('common');
+  const navigate = useNavigate();
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -366,6 +389,11 @@ export default function NotificationsPage() {
     if (!notif.read) markAsRead(notif.id);
   };
 
+  const handleViewPaper = (paperId) => {
+    const role = sessionStorage.getItem('userRole') || 'researcher';
+    navigate(`/${role}/papers/${paperId}`);
+  };
+
   return (
     <div className="p-6 sm:p-8 space-y-6 min-h-screen bg-transparent">
       {/* Header */}
@@ -435,6 +463,7 @@ export default function NotificationsPage() {
           <DetailSheet
             notif={selectedNotif}
             onClose={() => setSelectedNotif(null)}
+            onViewPaper={handleViewPaper}
           />
         )}
       </AnimatePresence>

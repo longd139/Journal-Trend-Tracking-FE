@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, ExternalLink, FileText,
-  Quote, Star, Eye, Users, Calendar, Globe, Hash,
+  Quote, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
   BrainCircuit, Cpu, RefreshCw, Lock,
 } from 'lucide-react';
@@ -130,97 +130,6 @@ function RequestPdfButton({ paperId, paperTitle, hasRequestedPdf }) {
       <FileText size={14} />
       {requesting ? 'Requesting...' : 'Request PDF'}
     </button>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Rating Widget
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-function RatingWidget({ paperId, initialRating }) {
-  const [hoverIdx, setHoverIdx] = useState(0);
-  const [myRating, setMyRating] = useState(null);    // null = chưa load
-  const [avgRating, setAvgRating] = useState(initialRating || 0);
-  const [totalRatings, setTotalRatings] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (!paperId) return;
-    (async () => {
-      try {
-        const res = await paperAPI.getPaperRating(paperId);
-        const d = res?.data;
-        setMyRating(d?.myRating || 0);
-        if (d?.averageRating != null) setAvgRating(d.averageRating);
-        if (d?.totalRatings != null) setTotalRatings(d.totalRatings);
-      } catch { /* silently ignore */ }
-    })();
-  }, [paperId]);
-
-  const handleClick = async (score) => {
-    if (!paperId || submitting) return;
-    setSubmitting(true);
-    // Optimistic update
-    const prev = myRating;
-    setMyRating(score);
-    try {
-      await paperAPI.ratePaper(paperId, score);
-      // Refresh rating data after submit
-      const res = await paperAPI.getPaperRating(paperId);
-      const d = res?.data;
-      if (d?.myRating != null) setMyRating(d.myRating);
-      if (d?.averageRating != null) setAvgRating(d.averageRating);
-      if (d?.totalRatings != null) setTotalRatings(d.totalRatings);
-    } catch {
-      setMyRating(prev); // rollback
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const displayRating = hoverIdx || myRating || 0;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.06 }}
-      className="flex items-center gap-3 px-4 py-3 rounded-xl border border-[#DEDBC8]/10 bg-[#DEDBC8]/[0.02]"
-    >
-      {/* Stars */}
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((n) => (
-          <button
-            key={n}
-            type="button"
-            disabled={submitting}
-            onClick={() => handleClick(n)}
-            onMouseEnter={() => setHoverIdx(n)}
-            onMouseLeave={() => setHoverIdx(0)}
-            className="p-0.5 transition-all active:scale-90 disabled:opacity-50"
-          >
-            <Star
-              size={20}
-              className="transition-colors"
-              fill={n <= displayRating ? '#F59E0B' : 'transparent'}
-              stroke={n <= displayRating ? '#F59E0B' : '#6B7280'}
-            />
-          </button>
-        ))}
-      </div>
-
-      {/* Meta */}
-      <span className="text-xs text-gray-400">
-        {avgRating > 0 ? (
-          <>
-            <span className="font-bold text-[#E1E0CC]">{avgRating.toFixed(1)}</span>
-            <span className="text-gray-500"> ({totalRatings})</span>
-          </>
-        ) : (
-          'No ratings yet'
-        )}
-      </span>
-    </motion.div>
   );
 }
 
@@ -445,6 +354,7 @@ function AISummarySection({ paperId }) {
 export default function PaperDetailPage() {
   const { paperId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const goBack = () => {
     // Prefer saved referrer (set when navigating TO this page)
@@ -557,9 +467,10 @@ export default function PaperDetailPage() {
   }, [paperId]);
 
   useEffect(() => {
-    // Run both fetches in parallel — no need to wait sequentially
+    // Re-fetch whenever user navigates to this page (even same paperId)
+    // e.g. from notification → paper detail after admin fulfilled PDF request
     Promise.all([fetchPaper(), checkBookmark()]);
-  }, [fetchPaper, checkBookmark]);
+  }, [fetchPaper, checkBookmark, location.key]);
 
   // Bookmark toggle
   const handleToggleBookmark = async () => {
@@ -667,7 +578,6 @@ export default function PaperDetailPage() {
   const year = paper.pubYear || '';
   const citations = paper.citationCount ?? 0;
   const bookmarks = paper.bookmarkCount ?? 0;
-  const rating = paper.rating ?? 0;
   const isOpenAccess = paper.isOpenAccess;
   const journal = paper.journalName || '';
   const doi = paper.doi || '';
@@ -736,12 +646,8 @@ export default function PaperDetailPage() {
         >
           <StatChip icon={Quote} label="Citations" value={citations.toLocaleString()} color="#4F8CFF" />
           <StatChip icon={Bookmark} label="Bookmarks" value={bookmarks.toLocaleString()} color="#00D1B2" />
-          <StatChip icon={Star} label="Rating" value={rating > 0 ? rating.toFixed(1) : '—'} color="#F59E0B" />
           <StatChip icon={Eye} label="Views" value={paper.viewCount?.toLocaleString() || '—'} color="#A78BFA" />
         </motion.div>
-
-        {/* ── Rating Widget ── */}
-        <RatingWidget paperId={paperId} initialRating={rating} />
 
         {/* ── Actions ── */}
         <motion.div

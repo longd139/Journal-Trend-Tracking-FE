@@ -25,6 +25,12 @@ axiosClient.interceptors.request.use(
       config.headers['Accept-Language'] = preferredLanguage;
     }
 
+    // 3. For FormData (file uploads), delete Content-Type so axios sets
+    //    multipart/form-data with the correct boundary automatically
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {

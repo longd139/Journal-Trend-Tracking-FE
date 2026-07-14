@@ -317,6 +317,26 @@ export const adminAPI = {
     return data;
   },
 
+  /**
+   * Upload a PDF file directly to fulfill a request.
+   * POST /api/admin/pdf-requests/{requestId}/upload
+   * Content-Type: multipart/form-data
+   *
+   * @param {string} requestId
+   * @param {File} file - PDF file (validated: application/pdf, ≤ 20MB)
+   * @param {string} [adminNote]
+   */
+  async uploadPdfRequest(requestId, file, adminNote) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (adminNote) formData.append('adminNote', adminNote);
+    const { data } = await axiosClient.post(
+      `/api/admin/pdf-requests/${requestId}/upload`,
+      formData,
+    );
+    return data;
+  },
+
   /* ──────────── Bulk Sync (/api/v1/admin/sync/bulk) ──────────── */
 
   /**
@@ -401,6 +421,23 @@ export const adminAPI = {
     const { data } = await axiosClient.post('/api/v1/admin/sync/backfill-author-metrics', null, {
       params: { limit },
     });
+    return data;
+  },
+
+  /* ──────────── SCImago Journal Enrichment (/api/admin/sync/enrich-journals) ──────────── */
+
+  /**
+   * Upload a SCImago CSV file to enrich journal quartile data.
+   * POST /api/admin/sync/enrich-journals/upload
+   * Content-Type: multipart/form-data
+   *
+   * @param {File} file - CSV file from SCImago (scimagojr.csv)
+   * @returns {{ status, message, data: string }} — summary string with scan/match/update counts
+   */
+  async enrichJournalsUpload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await axiosClient.post('/api/admin/sync/enrich-journals/upload', formData);
     return data;
   },
 };
