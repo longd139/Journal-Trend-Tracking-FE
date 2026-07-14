@@ -123,7 +123,7 @@ function QuickStatsSkeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function KeywordQuickStats({ keyword }) {
+export default function KeywordQuickStats({ keyword, filters }) {
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'academic';
   const [stats, setStats] = useState(null);
@@ -143,7 +143,7 @@ export default function KeywordQuickStats({ keyword }) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await paperAPI.getKeywordQuickStats(keyword.trim());
+        const data = await paperAPI.getKeywordQuickStats(keyword.trim(), filters || {});
         if (!cancelled) {
           setStats(data);
         }
@@ -163,7 +163,7 @@ export default function KeywordQuickStats({ keyword }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters?.pubYearFrom, filters?.pubYearTo, filters?.isOpenAccess]);
 
   /* ─── Nothing to show ─── */
   if (!keyword || !keyword.trim()) return null;
@@ -253,7 +253,7 @@ export default function KeywordQuickStats({ keyword }) {
         {/* Avg Citations per Paper */}
         <StatCard
           label="Avg Citations/Paper"
-          value={stats.avgCitationsPerPaper != null ? stats.avgCitationsPerPaper.toFixed(1) : '—'}
+          value={stats.avgCitationsPerPaper != null ? Number(stats.avgCitationsPerPaper).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
           change=""
           Icon={TrendingUp}
           accent="#00D1B2"

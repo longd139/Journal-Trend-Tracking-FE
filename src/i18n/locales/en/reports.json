@@ -49,6 +49,22 @@
     "success": "Report generated successfully!",
     "error": "Failed to generate report"
   },
+  "summary": {
+    "title": "Overview",
+    "totalPublications": "Total Publications",
+    "peakYear": "Peak Year",
+    "totalCitations": "Total Citations",
+    "topJournal": "Top Journal"
+  },
+  "charts": {
+    "publicationTrend": "Publication Trend Over Time",
+    "citationTrend": "Citation Trend Over Time",
+    "coKeywords": "Co-occurring Keywords Network",
+    "topJournals": "Top Journals Distribution"
+  },
+  "insight": {
+    "title": "Insight & Analysis"
+  },
   "button": {
     "generate": "Generate Report",
     "customReport": "Custom Report"

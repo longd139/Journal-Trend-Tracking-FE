@@ -54,9 +54,14 @@ export const paperAPI = {
    * YoY growth rate, avg citations per paper, and top journals.
    * GET /api/search/keyword/quick-stats?keyword={keyword}
    */
-  async getKeywordQuickStats(keyword) {
+  async getKeywordQuickStats(keyword, filters = {}) {
     const { data } = await axiosClient.get('/api/search/keyword/quick-stats', {
-      params: { keyword },
+      params: {
+        keyword,
+        ...(filters.pubYearFrom && { pubYearFrom: filters.pubYearFrom }),
+        ...(filters.pubYearTo && { pubYearTo: filters.pubYearTo }),
+        ...(filters.isOpenAccess != null && filters.isOpenAccess !== false && { isOpenAccess: filters.isOpenAccess }),
+      },
     });
     return data.data || data;
   },
@@ -67,9 +72,13 @@ export const paperAPI = {
    * together in recent papers (last 2 years), with YoY growth rates.
    * GET /api/search/keyword/related-trends?keyword={keyword}
    */
-  async getRelatedTrends(keyword) {
+  async getRelatedTrends(keyword, filters = {}) {
     const { data } = await axiosClient.get('/api/search/keyword/related-trends', {
-      params: { keyword },
+      params: {
+        keyword,
+        ...(filters.pubYearFrom && { pubYearFrom: filters.pubYearFrom }),
+        ...(filters.pubYearTo && { pubYearTo: filters.pubYearTo }),
+      },
     });
     return data.data || data;
   },
@@ -152,11 +161,12 @@ export const paperAPI = {
     const { data } = await axiosClient.get('/api/v1/papers/filter/advanced', {
       params: {
         query: params.query || '',
-        startYear: params.startYear || '',
-        endYear: params.endYear || '',
+        pubYearFrom: params.pubYearFrom || '',
+        pubYearTo: params.pubYearTo || '',
         fields: params.fields?.join(',') || '',
         minCitations: params.minCitations || '',
-        openAccess: params.openAccess || false,
+        isOpenAccess: params.isOpenAccess || false,
+        quartile: params.quartile?.join(',') || '',
         page: params.page ?? 0,
         size: params.size ?? 20,
         sortBy: params.sortBy || 'relevance',

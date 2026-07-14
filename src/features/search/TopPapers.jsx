@@ -40,7 +40,7 @@ function Skeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function TopPapers({ keyword, sortBy = 'relevance' }) {
+export default function TopPapers({ keyword, sortBy = 'relevance', filters }) {
   const navigate = useNavigate();
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -156,14 +156,40 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await paperAPI.getTopPapers(keyword.trim());
+        const hasFilters = filters && (
+          filters.pubYearFrom || filters.pubYearTo ||
+          filters.minCitations || filters.isOpenAccess ||
+          (filters.fields && filters.fields.length > 0) ||
+          (filters.quartile && filters.quartile.length > 0)
+        );
+
+        let data;
+        if (hasFilters) {
+          // Use full search with filters
+          const result = await paperAPI.searchPapersAdvanced({
+            query: keyword.trim(),
+            pubYearFrom: filters.pubYearFrom || '',
+            pubYearTo: filters.pubYearTo || '',
+            minCitations: filters.minCitations || '',
+            isOpenAccess: filters.isOpenAccess || false,
+            quartile: filters.quartile || [],
+            fields: filters.fields || [],
+            page: 0,
+            size: 20,
+          });
+          data = result?.data?.papers || result?.papers || result?.data || result;
+        } else {
+          // Use simple top papers endpoint
+          data = await paperAPI.getTopPapers(keyword.trim());
+        }
+
         if (!cancelled) {
           setPapers(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Top papers fetch error:', err);
-          setError(err?.message || 'Failed to load top papers');
+          console.error('Papers fetch error:', err);
+          setError(err?.message || 'Failed to load papers');
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -175,7 +201,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance' }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters?.pubYearFrom, filters?.pubYearTo, filters?.minCitations, filters?.isOpenAccess, JSON.stringify(filters?.fields), JSON.stringify(filters?.quartile)]);
 
   // Client-side sorting based on sortBy prop
   const sortedPapers = useMemo(() => {

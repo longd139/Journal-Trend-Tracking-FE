@@ -49,6 +49,22 @@
     "success": "Tạo báo cáo thành công!",
     "error": "Tạo báo cáo thất bại"
   },
+  "summary": {
+    "title": "Tổng quan",
+    "totalPublications": "Tổng số bài báo",
+    "peakYear": "Năm bùng nổ",
+    "totalCitations": "Tổng trích dẫn",
+    "topJournal": "Tạp chí hàng đầu"
+  },
+  "charts": {
+    "publicationTrend": "Xu hướng xuất bản theo thời gian",
+    "citationTrend": "Xu hướng trích dẫn theo thời gian",
+    "coKeywords": "Mạng lưới từ khóa liên quan",
+    "topJournals": "Phân bổ theo Tạp chí"
+  },
+  "insight": {
+    "title": "Nhận định & Phân tích"
+  },
   "button": {
     "generate": "Tạo báo cáo",
     "customReport": "Báo cáo tùy chỉnh"

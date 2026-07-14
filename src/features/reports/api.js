@@ -1,11 +1,49 @@
 import axiosClient from '../../lib/apiClient.js';
 
 export const reportAPI = {
-  /** GET /api/public/reports/keyword-trend?keyword= — Báo cáo xu hướng keyword */
+  // ═══════════════════════════════════════════════════════════════════
+  // Keyword Trend Report (V2 — public endpoints)
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * GET /api/public/reports/keyword-trend?keyword= — Generate mới
+   * @returns {Promise<{status, message, data: KeywordTrendReport}>}
+   */
   async getKeywordTrend(keyword) {
     const { data } = await axiosClient.get('/api/public/reports/keyword-trend', {
       params: { keyword },
     });
+    return data;
+  },
+
+  /**
+   * GET /api/public/reports/keyword-trend/cached?keyword= — Lấy từ cache
+   * @returns {Promise<{status, message, data: KeywordTrendReport}>}
+   */
+  async getKeywordTrendCached(keyword) {
+    const { data } = await axiosClient.get('/api/public/reports/keyword-trend/cached', {
+      params: { keyword },
+    });
+    return data;
+  },
+
+  /**
+   * DELETE /api/public/reports/keyword-trend/cached?keyword= — Xóa khỏi cache
+   * @returns {Promise<{status, message}>}
+   */
+  async deleteKeywordTrendCache(keyword) {
+    const { data } = await axiosClient.delete('/api/public/reports/keyword-trend/cached', {
+      params: { keyword },
+    });
+    return data;
+  },
+
+  /**
+   * GET /api/public/reports/keyword-trend/history — Danh sách keyword đã report
+   * @returns {Promise<{status, message, data: KeywordTrendHistoryItem[]}>}
+   */
+  async getKeywordTrendHistory() {
+    const { data } = await axiosClient.get('/api/public/reports/keyword-trend/history');
     return data;
   },
 

@@ -7,7 +7,7 @@ import RelatedTrends from './RelatedTrends';
    (Neo4j graph removed — kept card UI from REST API)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function KeywordGraphExplorer({ keyword, onKeywordClick }) {
+export default function KeywordGraphExplorer({ keyword, onKeywordClick, filters }) {
   if (!keyword?.trim()) {
     return (
       <div className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-8 flex flex-col items-center justify-center text-center min-h-[200px]">
@@ -25,7 +25,7 @@ export default function KeywordGraphExplorer({ keyword, onKeywordClick }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
     >
-      <RelatedTrends keyword={keyword} onKeywordClick={onKeywordClick} />
+      <RelatedTrends keyword={keyword} onKeywordClick={onKeywordClick} filters={filters} />
     </motion.div>
   );
 }

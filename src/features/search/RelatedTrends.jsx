@@ -31,7 +31,7 @@ function Skeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function RelatedTrends({ keyword, onKeywordClick }) {
+export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
   const [trends, setTrends] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -49,7 +49,7 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await paperAPI.getRelatedTrends(keyword.trim());
+        const data = await paperAPI.getRelatedTrends(keyword.trim(), filters || {});
         if (!cancelled) {
           setTrends(Array.isArray(data) ? data : []);
         }
@@ -68,7 +68,7 @@ export default function RelatedTrends({ keyword, onKeywordClick }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters?.pubYearFrom, filters?.pubYearTo]);
 
   /* ─── Don't render if nothing ─── */
   if (!keyword || !keyword.trim()) return null;

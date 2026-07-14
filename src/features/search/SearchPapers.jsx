@@ -33,7 +33,8 @@ export default function SearchPapers() {
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false });
+  const [draftFilters, setDraftFilters] = useState({ fields: [], pubYearFrom: '', pubYearTo: '', minCitations: '', isOpenAccess: false, quartile: [] });
+  const [appliedFilters, setAppliedFilters] = useState({ fields: [], pubYearFrom: '', pubYearTo: '', minCitations: '', isOpenAccess: false, quartile: [] });
   const [sortBy, setSortBy] = useState('relevance');
   const searchInputRef = useRef(null);
   const [apiSuggestions, setApiSuggestions] = useState([]);
@@ -369,7 +370,7 @@ export default function SearchPapers() {
               >
                 <SlidersHorizontal size={13} />
                 Filters
-                {Object.values(filters).some(v => v && (!Array.isArray(v) || v.length > 0) && v !== false) && (
+                {Object.values(draftFilters).some(v => v && (!Array.isArray(v) || v.length > 0) && v !== false) && (
                   <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />
                 )}
               </button>
@@ -387,9 +388,13 @@ export default function SearchPapers() {
                 >
                   <div className="pt-1">
                     <AdvancedFilter
-                      filters={filters}
-                      setFilters={setFilters}
-                      clearFilters={() => setFilters({ fields: [], startYear: '', endYear: '', minCitations: '', openAccess: false })}
+                      filters={draftFilters}
+                      setFilters={setDraftFilters}
+                      clearFilters={() => setDraftFilters({ fields: [], pubYearFrom: '', pubYearTo: '', minCitations: '', isOpenAccess: false, quartile: [] })}
+                      onApply={() => {
+                        setAppliedFilters({ ...draftFilters });
+                        setShowFilters(false);
+                      }}
                     />
                   </div>
                 </motion.div>
@@ -398,15 +403,15 @@ export default function SearchPapers() {
 
             {/* Content */}
             <div className="space-y-8">
-              <KeywordQuickStats keyword={searchedKeyword} />
+              <KeywordQuickStats keyword={searchedKeyword} filters={appliedFilters} />
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               >
                 <div className="space-y-8">
-                  <KeywordGraphExplorer keyword={searchedKeyword} onKeywordClick={handleSearch} />
-                  <TopPapers keyword={searchedKeyword} sortBy={sortBy} />
+                  <KeywordGraphExplorer keyword={searchedKeyword} onKeywordClick={handleSearch} filters={appliedFilters} />
+                  <TopPapers keyword={searchedKeyword} sortBy={sortBy} filters={appliedFilters} />
                 </div>
               </motion.div>
             </div>
