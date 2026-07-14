@@ -83,6 +83,13 @@ export default function FollowsView() {
     fetchFollows();
   }, [fetchFollows]);
 
+  // Re-fetch when follow/unfollow happens from other pages (e.g. SearchPapers)
+  useEffect(() => {
+    const handler = () => fetchFollows();
+    window.addEventListener('follow-changed', handler);
+    return () => window.removeEventListener('follow-changed', handler);
+  }, [fetchFollows]);
+
   // Toggle notification
   const handleToggleNotify = useCallback(
     async (followId, enabled) => {

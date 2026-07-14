@@ -16,16 +16,17 @@ import {
 import { paperAPI } from './paper.api';
 import { journalAPI } from './journal.api';
 import { StatCard } from '../../components/SharedUI';
-import { PaperItemCard } from './PaperItemCard';
+import TopPapers from './TopPapers';
 import FollowButton from '../follows/FollowButton';
-import { bookmarkAPI } from '../bookmarks/api';
-import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const Q_COLORS = { Q1: '#34D399', Q2: '#F59E0B', Q3: '#FB923C', Q4: '#EF4444' };
+
+/** Quick check whether a string looks like a UUID (used to decide API-vs-cache path). */
+const _isUUID = (s) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Journal Header
@@ -325,13 +326,12 @@ export default function SearchJournal() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_journal_query') || '');
+  const [searchedKeyword, setSearchedKeyword] = useState(query);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [journalStats, setJournalStats] = useState(null);
   const [timeline, setTimeline] = useState(null);
-  const [topPapers, setTopPapers] = useState([]);
   const [topAuthors, setTopAuthors] = useState([]);
-  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInputRef = useRef(null);
@@ -405,92 +405,6 @@ export default function SearchJournal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch user's bookmarks to know which papers are saved
-  const refreshBookmarks = useCallback(async () => {
-    try {
-      const response = await bookmarkAPI.getMyBookmarks();
-      let items = null;
-      if (Array.isArray(response)) {
-        items = response;
-      } else if (response && Array.isArray(response.data)) {
-        items = response.data;
-      } else if (response?.data && Array.isArray(response.data.data)) {
-        items = response.data.data;
-      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
-        items = response.data.data.data;
-      } else {
-        if (response && typeof response === 'object') {
-          for (const val of Object.values(response)) {
-            if (Array.isArray(val)) { items = val; break; }
-          }
-        }
-      }
-      if (Array.isArray(items)) {
-        const ids = new Set();
-        items.forEach((b) => {
-          const pid = b.paperId || b.paper?.paperId;
-          if (pid) ids.add(pid);
-        });
-        setBookmarkedIds(ids);
-      } else {
-        console.warn('[SearchJournal] Could not extract bookmark list from response:', response);
-      }
-    } catch (err) {
-      console.error('[SearchJournal] Failed to fetch bookmarks:', err);
-    }
-  }, []);
-
-  useEffect(() => { refreshBookmarks(); }, [refreshBookmarks]);
-
-  const handleToggleBookmark = useCallback(async (paper) => {
-    const paperId = paper.paperId;
-    if (!paperId) return;
-
-    const wasBookmarked = bookmarkedIds.has(paperId);
-
-    // Optimistic update — toggle instantly
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      if (wasBookmarked) next.delete(paperId);
-      else next.add(paperId);
-      return next;
-    });
-
-    try {
-      if (wasBookmarked) {
-        await bookmarkAPI.removeBookmarkByPaper(paperId);
-        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
-        toast.success('Removed from bookmarks');
-      } else {
-        const res = await bookmarkAPI.addBookmark(paperId);
-        const bm = res?.data?.data || res?.data || res;
-        prependToCache('bookmarks-list', {
-          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
-          paperId,
-          paperTitle: paper.title || 'Untitled',
-          keywordId: null,
-          keywordText: null,
-          collectionId: null,
-          collectionName: null,
-          notes: null,
-          createdAt: new Date().toISOString(),
-        });
-        toast.success('Saved to bookmarks');
-      }
-    } catch (err) {
-      if (err?.response?.status !== 409) {
-        // Revert on real error
-        setBookmarkedIds((prev) => {
-          const next = new Set(prev);
-          if (wasBookmarked) next.add(paperId);
-          else next.delete(paperId);
-          return next;
-        });
-        toast.error(err?.response?.data?.message || err?.message || 'Failed');
-      }
-    }
-  }, [bookmarkedIds]);
-
   // ─── Browse mode (categories) ───
   const [categories, setCategories] = useState([]);
   const [selectedFieldId, setSelectedFieldId] = useState(null);
@@ -547,22 +461,20 @@ export default function SearchJournal() {
       setError(null);
       setJournalStats(null);
       setTimeline(null);
-      setTopPapers([]);
       setTopAuthors([]);
 
       try {
-        const [stats, tl, papers, authors] = await Promise.all([
+        const [stats, tl, authors] = await Promise.all([
           paperAPI.getJournalQuickStats(q),
           paperAPI.getJournalTimeline(q),
-          paperAPI.getJournalTopPapers(q),
           paperAPI.getJournalTopAuthors(q),
         ]);
 
         if (!cancelled) {
           if (stats) setJournalStats(stats);
           if (tl) setTimeline(Array.isArray(tl.timeline) ? tl.timeline : Array.isArray(tl) ? tl : []);
-          if (papers) setTopPapers(Array.isArray(papers) ? papers : []);
           if (authors) setTopAuthors(Array.isArray(authors) ? authors : []);
+          setSearchedKeyword(q);
           // Persist query so it survives tab switches
           sessionStorage.setItem('scitrack_journal_query', q);
         }
@@ -599,7 +511,6 @@ export default function SearchJournal() {
     // Clear stale search results when returning to browse mode
     setJournalStats(null);
     setTimeline(null);
-    setTopPapers([]);
     setTopAuthors([]);
     setError(null);
 
@@ -611,13 +522,36 @@ export default function SearchJournal() {
       try {
         const cats = await journalAPI.getCategories();
         if (!cancelled && Array.isArray(cats)) {
+          // Normalize: ensure every category has a usable id (OpenAlex fallback
+          // sends fieldId=null which gets stripped by @JsonInclude NON_NULL).
+          const normalized = cats.map((c, i) => ({
+            ...c,
+            fieldId: c.fieldId || c.fieldName || `category-${i}`,
+          }));
           // Sort by journalCount descending
-          const sorted = cats.sort((a, b) => (b.journalCount || 0) - (a.journalCount || 0));
+          const sorted = normalized.sort((a, b) => (b.journalCount || 0) - (a.journalCount || 0));
           setCategories(sorted);
-          // Auto-select first category
-          if (cats.length > 0) {
-            setSelectedFieldId(cats[0].fieldId);
-            setFieldData(cats[0]);
+          // Auto-select first category + fetch journals if not preloaded
+          if (sorted.length > 0) {
+            const first = sorted[0];
+            setSelectedFieldId(first.fieldId);
+            if (first.topJournals && first.topJournals.length > 0) {
+              setFieldData(first);
+            } else if (_isUUID(first.fieldId)) {
+              // Categories list lacks full journal data — fetch it
+              setLoadingField(true);
+              try {
+                const full = await journalAPI.getByField(first.fieldId);
+                if (!cancelled) setFieldData(full || first);
+              } catch {
+                if (!cancelled) setFieldData(first);
+              } finally {
+                if (!cancelled) setLoadingField(false);
+              }
+            } else {
+              // Non-UUID id (OpenAlex) — use whatever data we have
+              setFieldData(first);
+            }
           }
         }
       } catch (err) {
@@ -636,21 +570,27 @@ export default function SearchJournal() {
 
   /* ─── Browse mode: fetch journals for a specific field ─── */
   const handleFieldClick = async (fieldId) => {
-    if (fieldId === selectedFieldId) return;
+    if (!fieldId) return;
+
+    // Same tab + already has journal data → no-op (avoid redundant fetch)
+    if (fieldId === selectedFieldId && fieldData?.topJournals?.length > 0) return;
+
     setSelectedFieldId(fieldId);
     setLoadingField(true);
     try {
-      // Check if we already have full data from categories
       const cat = categories.find((c) => c.fieldId === fieldId);
       if (cat && cat.topJournals && cat.topJournals.length > 0) {
         setFieldData(cat);
-      } else {
+      } else if (cat && _isUUID(fieldId)) {
+        // Only call getByField for real UUIDs (DB fields); OpenAlex data is self-contained
         const data = await journalAPI.getByField(fieldId);
-        setFieldData(data);
+        setFieldData(data || cat);
+      } else {
+        // OpenAlex fallback — use whatever the category already carries
+        setFieldData(cat || null);
       }
     } catch (err) {
       console.error('Failed to load field journals:', err);
-      // Keep showing previous field data on error
     } finally {
       setLoadingField(false);
     }
@@ -686,7 +626,7 @@ export default function SearchJournal() {
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
+                onClick={() => { setQuery(''); setSearchedKeyword(''); setJournalStats(null); setTimeline(null); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
@@ -1033,50 +973,12 @@ export default function SearchJournal() {
             {/* Timeline Chart */}
             {timeline && timeline.length > 0 && <TimelineChart timeline={timeline} />}
 
-            {/* Top Papers */}
-            {topPapers.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-3"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText size={14} className="text-[#DEDBC8]/40" />
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-                    Top Cited Papers
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  {topPapers.map((paper, i) => (
-                    <motion.div
-                      key={paper.paperId || i}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 + i * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <PaperItemCard
-                        paper={paper}
-                        index={i}
-                        badgeColor="#F59E0B"
-                        isSaved={bookmarkedIds.has(paper.paperId)}
-                        isLocked={isAcademic}
-                        onToggleBookmark={handleToggleBookmark}
-                        onClick={(p) => {
-                          if (isAcademic) {
-                            setUpgradeOpen(true);
-                            return;
-                          }
-                          const role = sessionStorage.getItem('userRole') || 'researcher';
-                          sessionStorage.setItem('scitrack_referrer', window.location.pathname);
-                          navigate(`/${role}/papers/${p.paperId}`);
-                        }}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            {/* Top Papers — delegates bookmark & paper fetching to TopPapers component */}
+            <TopPapers
+              keyword={searchedKeyword}
+              sortBy="mostCited"
+              fetchPapers={(kw) => paperAPI.getJournalTopPapers(kw)}
+            />
 
             {/* Top Authors */}
             {topAuthors.length > 0 && <TopAuthors authors={topAuthors} isAcademic={isAcademic} />}
