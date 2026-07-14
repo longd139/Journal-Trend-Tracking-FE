@@ -243,7 +243,8 @@ export function PaperItemCard({
       </span>
 
       <div className="flex gap-2 sm:mt-1">
-       {/* Bookmark */}
+       {/* Bookmark — only when onToggleBookmark is provided */}
+       {onToggleBookmark && (
        <button
         type="button"
         onClick={handleToggleBookmark}
@@ -260,6 +261,7 @@ export function PaperItemCard({
          <Bookmark size={15} fill={isSaved ? 'currentColor' : 'none'} />
         )}
        </button>
+       )}
 
        {/* External link */}
        <button

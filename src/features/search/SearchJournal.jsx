@@ -16,16 +16,17 @@ import {
 import { paperAPI } from './paper.api';
 import { journalAPI } from './journal.api';
 import { StatCard } from '../../components/SharedUI';
-import { PaperItemCard } from './PaperItemCard';
+import TopPapers from './TopPapers';
 import FollowButton from '../follows/FollowButton';
-import { bookmarkAPI } from '../bookmarks/api';
-import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const Q_COLORS = { Q1: '#34D399', Q2: '#F59E0B', Q3: '#FB923C', Q4: '#EF4444' };
+
+/** Quick check whether a string looks like a UUID (used to decide API-vs-cache path). */
+const _isUUID = (s) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Journal Header
@@ -325,16 +326,18 @@ export default function SearchJournal() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_journal_query') || '');
+  const [searchedKeyword, setSearchedKeyword] = useState(query);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [journalStats, setJournalStats] = useState(null);
   const [timeline, setTimeline] = useState(null);
-  const [topPapers, setTopPapers] = useState([]);
   const [topAuthors, setTopAuthors] = useState([]);
-  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [apiSuggestions, setApiSuggestions] = useState([]);
+  const [showSuggestionList, setShowSuggestionList] = useState(false);
   const searchInputRef = useRef(null);
+  const debounceRef = useRef(null);
 
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
   const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
@@ -392,10 +395,6 @@ export default function SearchJournal() {
     localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
-  const filteredSuggestions = query.trim()
-    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
-    : searchHistory;
-
   // Restore search on mount if query was persisted
   useEffect(() => {
     const savedQuery = sessionStorage.getItem('scitrack_journal_query');
@@ -405,94 +404,6 @@ export default function SearchJournal() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch user's bookmarks to know which papers are saved
-  const refreshBookmarks = useCallback(async () => {
-    try {
-      const response = await bookmarkAPI.getMyBookmarks();
-      let items = null;
-      if (Array.isArray(response)) {
-        items = response;
-      } else if (response && Array.isArray(response.data)) {
-        items = response.data;
-      } else if (response?.data && Array.isArray(response.data.data)) {
-        items = response.data.data;
-      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
-        items = response.data.data.data;
-      } else {
-        if (response && typeof response === 'object') {
-          for (const val of Object.values(response)) {
-            if (Array.isArray(val)) { items = val; break; }
-          }
-        }
-      }
-      if (Array.isArray(items)) {
-        const ids = new Set();
-        items.forEach((b) => {
-          const pid = b.paperId || b.paper?.paperId;
-          if (pid) ids.add(pid);
-        });
-        setBookmarkedIds(ids);
-      } else {
-        console.warn('[SearchJournal] Could not extract bookmark list from response:', response);
-      }
-    } catch (err) {
-      console.error('[SearchJournal] Failed to fetch bookmarks:', err);
-    }
-  }, []);
-
-  useEffect(() => { refreshBookmarks(); }, [refreshBookmarks]);
-
-  const handleToggleBookmark = useCallback(async (paper) => {
-    const paperId = paper.paperId;
-    if (!paperId) return;
-
-    const wasBookmarked = bookmarkedIds.has(paperId);
-
-    // Optimistic update — toggle instantly
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      if (wasBookmarked) next.delete(paperId);
-      else next.add(paperId);
-      return next;
-    });
-
-    try {
-      if (wasBookmarked) {
-        await bookmarkAPI.removeBookmarkByPaper(paperId);
-        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
-        window.dispatchEvent(new CustomEvent('bookmark-changed'));
-        toast.success('Removed from bookmarks');
-      } else {
-        const res = await bookmarkAPI.addBookmark(paperId);
-        const bm = res?.data?.data || res?.data || res;
-        prependToCache('bookmarks-list', {
-          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
-          paperId,
-          paperTitle: paper.title || 'Untitled',
-          keywordId: null,
-          keywordText: null,
-          collectionId: null,
-          collectionName: null,
-          notes: null,
-          createdAt: new Date().toISOString(),
-        });
-        window.dispatchEvent(new CustomEvent('bookmark-changed'));
-        toast.success('Saved to bookmarks');
-      }
-    } catch (err) {
-      if (err?.response?.status !== 409) {
-        // Revert on real error
-        setBookmarkedIds((prev) => {
-          const next = new Set(prev);
-          if (wasBookmarked) next.add(paperId);
-          else next.delete(paperId);
-          return next;
-        });
-        toast.error(err?.response?.data?.message || err?.message || 'Failed');
-      }
-    }
-  }, [bookmarkedIds]);
-
   // ─── Browse mode (categories) ───
   const [categories, setCategories] = useState([]);
   const [selectedFieldId, setSelectedFieldId] = useState(null);
@@ -500,6 +411,39 @@ export default function SearchJournal() {
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingField, setLoadingField] = useState(false);
   const [browseError, setBrowseError] = useState(null);
+
+  // ─── Debounced journal autocomplete (API suggest) ───
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setApiSuggestions([]);
+      return;
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const suggestions = await journalAPI.getSuggest(q);
+        setApiSuggestions(Array.isArray(suggestions) ? suggestions : []);
+      } catch {
+        setApiSuggestions([]);
+      }
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query]);
+
+  // ── Merge API suggestions + filtered history (API first, no duplicates) ──
+  const filteredHistory = query.trim()
+    ? searchHistory.filter((k) => k.toLowerCase().includes(query.toLowerCase()))
+    : searchHistory;
+  const mergedSuggestions = useMemo(() => {
+    const apiNames = apiSuggestions.map((s) => s.name);
+    const historyExtras = filteredHistory.filter(
+      (k) => !apiNames.some((n) => n.toLowerCase() === k.toLowerCase()),
+    );
+    return { api: apiSuggestions, history: historyExtras };
+  }, [apiSuggestions, filteredHistory]);
 
   /* ─── Search journal ─── */
   const handleSearch = (keywordOverride) => {
@@ -516,7 +460,9 @@ export default function SearchJournal() {
     }
 
     saveToHistory(q);
+    setQuery(q);
     setShowSuggestions(false);
+    setApiSuggestions([]);
 
     // ── Quota check in background (fire-and-forget, non-blocking) ──
     if (isAcademic) {
@@ -549,14 +495,12 @@ export default function SearchJournal() {
       setError(null);
       setJournalStats(null);
       setTimeline(null);
-      setTopPapers([]);
       setTopAuthors([]);
 
       try {
-        const [stats, tl, papers, authors] = await Promise.all([
+        const [stats, tl, authors] = await Promise.all([
           paperAPI.getJournalQuickStats(q),
           paperAPI.getJournalTimeline(q),
-          paperAPI.getJournalTopPapers(q),
           paperAPI.getJournalTopAuthors(q),
         ]);
 
@@ -574,8 +518,8 @@ export default function SearchJournal() {
         if (!cancelled) {
           if (enrichedStats) setJournalStats(enrichedStats);
           if (tl) setTimeline(Array.isArray(tl.timeline) ? tl.timeline : Array.isArray(tl) ? tl : []);
-          if (papers) setTopPapers(Array.isArray(papers) ? papers : []);
           if (authors) setTopAuthors(Array.isArray(authors) ? authors : []);
+          setSearchedKeyword(q);
           // Persist query so it survives tab switches
           sessionStorage.setItem('scitrack_journal_query', q);
         }
@@ -602,7 +546,14 @@ export default function SearchJournal() {
 
   /* ─── Keyboard shortcut ─── */
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') handleSearch();
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = query.trim();
+      if (!q) return;
+      // Show suggestion list instead of searching immediately
+      setShowSuggestionList(true);
+      setShowSuggestions(false);
+    }
   };
 
   /* ─── Browse mode: fetch categories when no query ─── */
@@ -612,7 +563,6 @@ export default function SearchJournal() {
     // Clear stale search results when returning to browse mode
     setJournalStats(null);
     setTimeline(null);
-    setTopPapers([]);
     setTopAuthors([]);
     setError(null);
 
@@ -624,13 +574,36 @@ export default function SearchJournal() {
       try {
         const cats = await journalAPI.getCategories();
         if (!cancelled && Array.isArray(cats)) {
+          // Normalize: ensure every category has a usable id (OpenAlex fallback
+          // sends fieldId=null which gets stripped by @JsonInclude NON_NULL).
+          const normalized = cats.map((c, i) => ({
+            ...c,
+            fieldId: c.fieldId || c.fieldName || `category-${i}`,
+          }));
           // Sort by journalCount descending
-          const sorted = cats.sort((a, b) => (b.journalCount || 0) - (a.journalCount || 0));
+          const sorted = normalized.sort((a, b) => (b.journalCount || 0) - (a.journalCount || 0));
           setCategories(sorted);
-          // Auto-select first category
-          if (cats.length > 0) {
-            setSelectedFieldId(cats[0].fieldId);
-            setFieldData(cats[0]);
+          // Auto-select first category + fetch journals if not preloaded
+          if (sorted.length > 0) {
+            const first = sorted[0];
+            setSelectedFieldId(first.fieldId);
+            if (first.topJournals && first.topJournals.length > 0) {
+              setFieldData(first);
+            } else if (_isUUID(first.fieldId)) {
+              // Categories list lacks full journal data — fetch it
+              setLoadingField(true);
+              try {
+                const full = await journalAPI.getByField(first.fieldId);
+                if (!cancelled) setFieldData(full || first);
+              } catch {
+                if (!cancelled) setFieldData(first);
+              } finally {
+                if (!cancelled) setLoadingField(false);
+              }
+            } else {
+              // Non-UUID id (OpenAlex) — use whatever data we have
+              setFieldData(first);
+            }
           }
         }
       } catch (err) {
@@ -649,21 +622,27 @@ export default function SearchJournal() {
 
   /* ─── Browse mode: fetch journals for a specific field ─── */
   const handleFieldClick = async (fieldId) => {
-    if (fieldId === selectedFieldId) return;
+    if (!fieldId) return;
+
+    // Same tab + already has journal data → no-op (avoid redundant fetch)
+    if (fieldId === selectedFieldId && fieldData?.topJournals?.length > 0) return;
+
     setSelectedFieldId(fieldId);
     setLoadingField(true);
     try {
-      // Check if we already have full data from categories
       const cat = categories.find((c) => c.fieldId === fieldId);
       if (cat && cat.topJournals && cat.topJournals.length > 0) {
         setFieldData(cat);
-      } else {
+      } else if (cat && _isUUID(fieldId)) {
+        // Only call getByField for real UUIDs (DB fields); OpenAlex data is self-contained
         const data = await journalAPI.getByField(fieldId);
-        setFieldData(data);
+        setFieldData(data || cat);
+      } else {
+        // OpenAlex fallback — use whatever the category already carries
+        setFieldData(cat || null);
       }
     } catch (err) {
       console.error('Failed to load field journals:', err);
-      // Keep showing previous field data on error
     } finally {
       setLoadingField(false);
     }
@@ -686,9 +665,9 @@ export default function SearchJournal() {
               placeholder={quotaExhausted ? 'Search limit reached — upgrade to continue' : 'Search by journal name or ID...'}
               value={query}
               disabled={quotaExhausted}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); setShowSuggestionList(false); }}
               onKeyDown={handleKeyDown}
-              onFocus={() => { if (!quotaExhausted && searchHistory.length > 0) setShowSuggestions(true); }}
+              onFocus={() => { if (!quotaExhausted && query.trim().length >= 2) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#0F0F0F] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
                 quotaExhausted
@@ -699,7 +678,7 @@ export default function SearchJournal() {
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); setJournalStats(null); setTimeline(null); setTopPapers([]); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
+                onClick={() => { setQuery(''); setSearchedKeyword(''); setJournalStats(null); setTimeline(null); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
@@ -707,33 +686,32 @@ export default function SearchJournal() {
             )}
           </div>
 
-          {/* Search suggestions */}
+          {/* Keyword autocomplete dropdown — simple names while typing */}
           <AnimatePresence>
-            {showSuggestions && filteredSuggestions.length > 0 && (
+            {showSuggestions && query.trim().length >= 2 && !showSuggestionList && !journalStats && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-[#DEDBC8]/10 shadow-xl shadow-black/40 overflow-hidden"
               >
-                {filteredSuggestions.slice(0, 8).map((kw) => (
-                  <button key={kw} type="button"
-                    onMouseDown={(e) => { e.preventDefault(); handleSearch(kw); }}
-                    className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
-                  >
-                    <Clock size={12} className="text-gray-500 shrink-0" />
-                    <span className="flex-1 truncate">{kw}</span>
-                    <button type="button"
-                      onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); removeHistoryItem(kw); }}
-                      className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
-                    ><X size={11} /></button>
-                  </button>
-                ))}
-                <div className="border-t border-[#DEDBC8]/5">
-                  <button type="button" onMouseDown={(e) => { e.preventDefault(); clearHistory(); }}
-                    className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                  ><Trash2 size={11} /> Clear search history</button>
-                </div>
+                {apiSuggestions.length > 0 ? (
+                  apiSuggestions.map((s) => (
+                    <button key={s.id || s.name} type="button"
+                      onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); handleSearch(s.name); }}
+                      className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
+                    >
+                      <BookOpen size={12} className="text-[#DEDBC8]/50 shrink-0" />
+                      <span className="text-[#E1E0CC] truncate">{s.name}</span>
+                      {s.issn && <span className="text-[10px] text-gray-500 ml-auto shrink-0">ISSN {s.issn}</span>}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-5 py-4 text-xs text-gray-500 flex items-center gap-2">
+                    <Search size={12} />
+                    Press Enter to search "{query.trim()}"
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
@@ -782,6 +760,74 @@ export default function SearchJournal() {
                 >
                   Upgrade
                 </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* ─── Suggestion list — shown after pressing Enter ─── */}
+        {showSuggestionList && !isLoading && !journalStats && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-3"
+          >
+            <div className="flex items-center gap-2">
+              <Search size={13} className="text-[#DEDBC8]/50" />
+              <span className="text-xs text-gray-400">
+                {apiSuggestions.length > 0
+                  ? `Found ${apiSuggestions.length} journal${apiSuggestions.length > 1 ? 's' : ''} matching "${query.trim()}"`
+                  : `Searching for "${query.trim()}"...`}
+              </span>
+              <button
+                type="button"
+                onClick={() => { setShowSuggestionList(false); setQuery(''); }}
+                className="ml-auto text-[10px] text-gray-500 hover:text-gray-300"
+              >
+                ✕ Clear
+              </button>
+            </div>
+            {apiSuggestions.length > 0 ? (
+              <div className="grid grid-cols-1 gap-2">
+                {apiSuggestions.map((s) => (
+                  <motion.button
+                    key={s.id || s.name}
+                    type="button"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    onClick={() => { setShowSuggestionList(false); handleSearch(s.name); }}
+                    className="w-full text-left rounded-xl border border-[#DEDBC8]/8 bg-[#0F0F0F] hover:bg-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 p-4 transition-all group"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <BookOpen size={13} className="text-[#DEDBC8]/50 shrink-0 group-hover:text-[#DEDBC8] transition-colors" />
+                          <span className="text-sm font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
+                            {s.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500">
+                          {s.issn && <span>ISSN: {s.issn}</span>}
+                          {s.publisher && <span className="truncate">{s.publisher}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3 shrink-0 text-right">
+                        <div>
+                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{(s.totalWorks ?? 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-gray-500">papers</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-[#A09878] font-mono">{(s.totalCitations ?? 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-gray-500">citations</p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-12 text-xs text-gray-500">
+                No journals found for "{query.trim()}". Try a different keyword.
               </div>
             )}
           </motion.div>
@@ -1053,50 +1099,12 @@ export default function SearchJournal() {
             {/* Timeline Chart */}
             {timeline && timeline.length > 0 && <TimelineChart timeline={timeline} />}
 
-            {/* Top Papers */}
-            {topPapers.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-3"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText size={14} className="text-[#DEDBC8]/40" />
-                  <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
-                    Top Cited Papers
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-4">
-                  {topPapers.map((paper, i) => (
-                    <motion.div
-                      key={paper.paperId || i}
-                      initial={{ opacity: 0, y: 12 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.25 + i * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                    >
-                      <PaperItemCard
-                        paper={paper}
-                        index={i}
-                        badgeColor="#F59E0B"
-                        isSaved={bookmarkedIds.has(paper.paperId)}
-                        isLocked={isAcademic}
-                        onToggleBookmark={handleToggleBookmark}
-                        onClick={(p) => {
-                          if (isAcademic) {
-                            setUpgradeOpen(true);
-                            return;
-                          }
-                          const role = sessionStorage.getItem('userRole') || 'researcher';
-                          sessionStorage.setItem('scitrack_referrer', window.location.pathname);
-                          navigate(`/${role}/papers/${p.paperId}`);
-                        }}
-                      />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
+            {/* Top Papers — delegates bookmark & paper fetching to TopPapers component */}
+            <TopPapers
+              keyword={searchedKeyword}
+              sortBy="mostCited"
+              fetchPapers={(kw) => paperAPI.getJournalTopPapers(kw)}
+            />
 
             {/* Top Authors */}
             {topAuthors.length > 0 && <TopAuthors authors={topAuthors} isAcademic={isAcademic} />}

@@ -6,7 +6,10 @@ import { toast } from 'sonner';
 import { PaperItemCard } from './PaperItemCard';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
-import { prependToCache, removeFromCache } from '../../hooks/useStaleWhileRevalidate.js';
+import {
+  prependToCache,
+  removeFromCache,
+} from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Loading Skeleton
@@ -40,7 +43,12 @@ function Skeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} }) {
+export default function TopPapers({
+  keyword,
+  sortBy = 'relevance',
+  filters = {},
+  fetchPapers: customFetchPapers,
+}) {
   const navigate = useNavigate();
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -64,13 +72,19 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
         items = response.data;
       } else if (response?.data && Array.isArray(response.data.data)) {
         items = response.data.data;
-      } else if (response?.data?.data && Array.isArray(response.data.data.data)) {
+      } else if (
+        response?.data?.data &&
+        Array.isArray(response.data.data.data)
+      ) {
         items = response.data.data.data;
       } else {
         // Last resort: search for any array in the first level
         if (response && typeof response === 'object') {
           for (const val of Object.values(response)) {
-            if (Array.isArray(val)) { items = val; break; }
+            if (Array.isArray(val)) {
+              items = val;
+              break;
+            }
           }
         }
       }
@@ -82,68 +96,76 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
         });
         setBookmarkedIds(ids);
       } else {
-        console.warn('[TopPapers] Could not extract bookmark list from response:', response);
+        console.warn(
+          '[TopPapers] Could not extract bookmark list from response:',
+          response,
+        );
       }
     } catch (err) {
       console.error('[TopPapers] Failed to fetch bookmarks:', err);
     }
   }, []);
 
-  useEffect(() => { refreshBookmarks(); }, [refreshBookmarks]);
+  useEffect(() => {
+    refreshBookmarks();
+  }, [refreshBookmarks]);
 
-  const handleToggleBookmark = useCallback(async (paper) => {
-    const paperId = paper.paperId;
-    if (!paperId) return;
+  const handleToggleBookmark = useCallback(
+    async (paper) => {
+      const paperId = paper.paperId;
+      if (!paperId) return;
 
-    const wasBookmarked = bookmarkedIds.has(paperId);
+      const wasBookmarked = bookmarkedIds.has(paperId);
 
-    // Optimistic update — toggle instantly for smooth UX
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      if (wasBookmarked) next.delete(paperId);
-      else next.add(paperId);
-      return next;
-    });
+      // Optimistic update — toggle instantly for smooth UX
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        if (wasBookmarked) next.delete(paperId);
+        else next.add(paperId);
+        return next;
+      });
 
-    try {
-      if (wasBookmarked) {
-        await bookmarkAPI.removeBookmarkByPaper(paperId);
-        // Optimistic: remove from cached bookmarks list
-        removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
-        window.dispatchEvent(new CustomEvent('bookmark-changed'));
-        toast.success('Removed from bookmarks');
-      } else {
-        const res = await bookmarkAPI.addBookmark(paperId);
-        const bm = res?.data?.data || res?.data || res;
-        // Optimistic: add to cached bookmarks list so it shows instantly
-        prependToCache('bookmarks-list', {
-          bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
-          paperId,
-          paperTitle: paper.title || 'Untitled',
-          keywordId: null,
-          keywordText: null,
-          collectionId: null,
-          collectionName: null,
-          notes: null,
-          createdAt: new Date().toISOString(),
-        });
-        window.dispatchEvent(new CustomEvent('bookmark-changed'));
-        toast.success('Saved to bookmarks');
+      try {
+        if (wasBookmarked) {
+          await bookmarkAPI.removeBookmarkByPaper(paperId);
+          // Optimistic: remove from cached bookmarks list
+          removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
+          window.dispatchEvent(new CustomEvent('bookmark-changed'));
+          toast.success('Removed from bookmarks');
+        } else {
+          const res = await bookmarkAPI.addBookmark(paperId);
+          const bm = res?.data?.data || res?.data || res;
+          // Optimistic: add to cached bookmarks list so it shows instantly
+          prependToCache('bookmarks-list', {
+            bookmarkId: bm?.bookmarkId || `temp-${paperId}`,
+            paperId,
+            paperTitle: paper.title || 'Untitled',
+            keywordId: null,
+            keywordText: null,
+            collectionId: null,
+            collectionName: null,
+            notes: null,
+            createdAt: new Date().toISOString(),
+          });
+          window.dispatchEvent(new CustomEvent('bookmark-changed'));
+          toast.success('Saved to bookmarks');
+        }
+      } catch (err) {
+        // 409 = already bookmarked → state is already correct, ignore
+        if (err?.response?.status !== 409) {
+          // Revert on real error
+          setBookmarkedIds((prev) => {
+            const next = new Set(prev);
+            if (wasBookmarked) next.add(paperId);
+            else next.delete(paperId);
+            return next;
+          });
+          toast.error(err?.response?.data?.message || err?.message || 'Failed');
+        }
       }
-    } catch (err) {
-      // 409 = already bookmarked → state is already correct, ignore
-      if (err?.response?.status !== 409) {
-        // Revert on real error
-        setBookmarkedIds((prev) => {
-          const next = new Set(prev);
-          if (wasBookmarked) next.add(paperId);
-          else next.delete(paperId);
-          return next;
-        });
-        toast.error(err?.response?.data?.message || err?.message || 'Failed');
-      }
-    }
-  }, [bookmarkedIds]);
+    },
+    [bookmarkedIds],
+  );
 
   useEffect(() => {
     if (!keyword || !keyword.trim()) {
@@ -158,17 +180,20 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
       setIsLoading(true);
       setError(null);
       try {
-        const apiParams = {};
-        if (filters.startYear) apiParams.startYear = filters.startYear;
-        if (filters.endYear) apiParams.endYear = filters.endYear;
-        const data = await paperAPI.getTopPapers(keyword.trim(), apiParams);
+        const filterParams = {
+          startYear: filters.startYear || filters.pubYearFrom || undefined,
+          endYear: filters.endYear || filters.pubYearTo || undefined,
+        };
+        const data = await (customFetchPapers
+          ? customFetchPapers(keyword.trim(), filterParams)
+          : paperAPI.getTopPapers(keyword.trim(), filterParams));
         if (!cancelled) {
           setPapers(Array.isArray(data) ? data : []);
         }
       } catch (err) {
         if (!cancelled) {
-          console.error('Top papers fetch error:', err);
-          setError(err?.message || 'Failed to load top papers');
+          console.error('Papers fetch error:', err);
+          setError(err?.message || 'Failed to load papers');
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -180,7 +205,7 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword, filters.startYear, filters.endYear]);
+  }, [keyword, filters.startYear, filters.endYear, filters.pubYearFrom, filters.pubYearTo]);
 
   // Client-side sorting + year filtering based on sortBy and filters props
   const sortedPapers = useMemo(() => {
@@ -201,20 +226,34 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
     }
     switch (sortBy) {
       case 'newest':
-        return filtered.sort((a, b) => (b.pubYear || b.year || 0) - (a.pubYear || a.year || 0));
+        return filtered.sort(
+          (a, b) => (b.pubYear || b.year || 0) - (a.pubYear || a.year || 0),
+        );
       case 'oldest':
-        return filtered.sort((a, b) => (a.pubYear || a.year || 0) - (b.pubYear || b.year || 0));
+        return filtered.sort(
+          (a, b) => (a.pubYear || a.year || 0) - (b.pubYear || b.year || 0),
+        );
       case 'leastCited':
-        return filtered.sort((a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0));
+        return filtered.sort(
+          (a, b) => (a.citationCount ?? 0) - (b.citationCount ?? 0),
+        );
       case 'mostCited':
-        return filtered.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+        return filtered.sort(
+          (a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0),
+        );
       case 'titleAZ':
-        return filtered.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        return filtered.sort((a, b) =>
+          (a.title || '').localeCompare(b.title || ''),
+        );
       case 'titleZA':
-        return filtered.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        return filtered.sort((a, b) =>
+          (b.title || '').localeCompare(a.title || ''),
+        );
       case 'relevance':
       default:
-        return filtered.sort((a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0));
+        return filtered.sort(
+          (a, b) => (b.citationCount ?? 0) - (a.citationCount ?? 0),
+        );
     }
   }, [papers, sortBy, filters.startYear, filters.endYear]);
 
@@ -257,21 +296,26 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
             key={paper.paperId || i}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 + i * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            transition={{
+              delay: 0.25 + i * 0.06,
+              duration: 0.35,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <PaperItemCard
               paper={paper}
               index={i}
               badgeColor="#F59E0B"
-              isSaved={bookmarkedIds.has(paper.paperId)}
               isLocked={isAcademic}
-              onToggleBookmark={handleToggleBookmark}
               onClick={(p) => {
                 if (isAcademic) {
                   setUpgradeOpen(true);
                   return;
                 }
-                sessionStorage.setItem('scitrack_referrer', window.location.pathname);
+                sessionStorage.setItem(
+                  'scitrack_referrer',
+                  window.location.pathname,
+                );
                 navigate(`/${role}/papers/${p.paperId}`);
               }}
             />
@@ -312,7 +356,11 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.1,
+                    duration: 0.5,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   className="mx-auto w-14 h-14 rounded-2xl bg-[#DEDBC8]/[0.06] border border-[#DEDBC8]/10 flex items-center justify-center"
                 >
                   <Lock size={22} className="text-[#DEDBC8]" />
@@ -322,14 +370,19 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.15,
+                    duration: 0.5,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   className="space-y-2"
                 >
                   <h3 className="text-xl font-black text-[#E1E0CC] font-display tracking-[-0.02em]">
                     Upgrade to Researcher
                   </h3>
                   <p className="text-[13px] text-gray-400 leading-relaxed max-w-[260px] mx-auto">
-                    Unlock full paper details, AI summaries, citation exports, and unlimited searches.
+                    Unlock full paper details, AI summaries, citation exports,
+                    and unlimited searches.
                   </p>
                 </motion.div>
 
@@ -337,7 +390,11 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.2,
+                    duration: 0.5,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   className="rounded-xl bg-[#0F0F0F] border border-[#DEDBC8]/5 p-4 space-y-0"
                 >
                   {[
@@ -351,7 +408,11 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                       key={i}
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                      transition={{
+                        delay: 0.25 + i * 0.06,
+                        duration: 0.4,
+                        ease: [0.32, 0.72, 0, 1],
+                      }}
                       className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-[#DEDBC8]/5 last:border-0"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]/50 shrink-0" />
@@ -364,10 +425,16 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.div
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.55,
+                    duration: 0.4,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   className="text-center"
                 >
-                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">$999</span>
+                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">
+                    $999
+                  </span>
                   <span className="text-sm text-gray-500 ml-1">/year</span>
                 </motion.div>
 
@@ -375,17 +442,33 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.6,
+                    duration: 0.5,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   onClick={() => {
                     setUpgradeOpen(false);
                     navigate(`/${role}/settings`);
                   }}
                   className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-[#0B1020] bg-[#DEDBC8] hover:bg-[#E1E0CC] shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
-                  <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
+                  <span className="flex-1 text-center pl-6">
+                    Upgrade Now — $999/year
+                  </span>
                   {/* Nested icon pill */}
                   <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B1020]">
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-[#0B1020]"
+                    >
                       <path d="M7 17l9.2-9.2M17 17V7H7" />
                     </svg>
                   </span>
@@ -395,7 +478,11 @@ export default function TopPapers({ keyword, sortBy = 'relevance', filters = {} 
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                  transition={{
+                    delay: 0.7,
+                    duration: 0.4,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
                   onClick={() => setUpgradeOpen(false)}
                   className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >

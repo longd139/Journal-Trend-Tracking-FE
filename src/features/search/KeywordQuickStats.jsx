@@ -123,7 +123,7 @@ function QuickStatsSkeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function KeywordQuickStats({ keyword }) {
+export default function KeywordQuickStats({ keyword, filters }) {
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'academic';
   const [stats, setStats] = useState(null);
@@ -143,7 +143,7 @@ export default function KeywordQuickStats({ keyword }) {
       setIsLoading(true);
       setError(null);
       try {
-        const data = await paperAPI.getKeywordQuickStats(keyword.trim());
+        const data = await paperAPI.getKeywordQuickStats(keyword.trim(), filters || {});
         if (!cancelled) {
           setStats(data);
         }
@@ -163,7 +163,7 @@ export default function KeywordQuickStats({ keyword }) {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [keyword]);
+  }, [keyword, filters?.pubYearFrom, filters?.pubYearTo, filters?.isOpenAccess]);
 
   /* ─── Nothing to show ─── */
   if (!keyword || !keyword.trim()) return null;
@@ -213,7 +213,14 @@ export default function KeywordQuickStats({ keyword }) {
         </span>
         {/* Generate Report button */}
         <button
-          onClick={() => navigate(`/${role}/reports?type=keyword-trend&q=${encodeURIComponent(stats.keyword || keyword)}`)}
+          onClick={() => {
+            const params = new URLSearchParams();
+            params.set('type', 'keyword-trend');
+            params.set('q', stats.keyword || keyword);
+            if (filters?.pubYearFrom) params.set('startYear', filters.pubYearFrom);
+            if (filters?.pubYearTo) params.set('endYear', filters.pubYearTo);
+            navigate(`/${role}/reports?${params.toString()}`);
+          }}
           className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6]/20 transition-all"
         >
           <BarChart2 size={12} />
@@ -253,7 +260,7 @@ export default function KeywordQuickStats({ keyword }) {
         {/* Avg Citations per Paper */}
         <StatCard
           label="Avg Citations/Paper"
-          value={stats.avgCitationsPerPaper != null ? stats.avgCitationsPerPaper.toFixed(1) : '—'}
+          value={stats.avgCitationsPerPaper != null ? Number(stats.avgCitationsPerPaper).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}
           change=""
           Icon={TrendingUp}
           accent="#00D1B2"

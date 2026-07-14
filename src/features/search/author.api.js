@@ -2,6 +2,19 @@ import axiosClient from '../../lib/apiClient.js';
 
 export const authorAPI = {
   /**
+   * Author name autocomplete — OpenAlex-powered suggestions with pagination.
+   * GET /api/search/author/suggest?query={partial_name}&page=1&size=20
+   * Auth: Bearer Token required
+   * Response: { data: { data: [...], total, page, hasMore } }
+   */
+  async getSuggest(query, { page = 1, size = 20 } = {}) {
+    const { data } = await axiosClient.get('/api/search/author/suggest', {
+      params: { query, page, size },
+    });
+    return data.data || data;
+  },
+
+  /**
    * Tra cứu nhanh hồ sơ học thuật của tác giả từ OpenAlex.
    * GET /api/search/author/quick-stats?keyword={keyword}
    */
