@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
-  Clock, Trash2, BarChart2, Lock, Gauge,
+  Clock, Trash2, Lock, Gauge, History,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
@@ -92,14 +92,6 @@ function JournalHeader({ journal }) {
               {journal.quartile}
             </span>
           )}
-          {/* Generate Report */}
-          <button
-            onClick={() => navigate(`/${role}/reports?type=journal-quality&q=${encodeURIComponent(journal.journalName)}`)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
-          >
-            <BarChart2 size={12} />
-            Report
-          </button>
         </div>
       </div>
     </motion.div>
@@ -325,8 +317,9 @@ function JournalSkeleton() {
 export default function SearchJournal() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
-  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_journal_query') || '');
-  const [searchedKeyword, setSearchedKeyword] = useState(query);
+  const location = useLocation();
+  const [query, setQuery] = useState('');
+  const [searchedKeyword, setSearchedKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [journalStats, setJournalStats] = useState(null);
@@ -334,6 +327,7 @@ export default function SearchJournal() {
   const [topAuthors, setTopAuthors] = useState([]);
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [apiSuggestions, setApiSuggestions] = useState([]);
   const [showSuggestionList, setShowSuggestionList] = useState(false);
   const searchInputRef = useRef(null);
@@ -395,14 +389,23 @@ export default function SearchJournal() {
     localStorage.setItem(historyKey, JSON.stringify(updated));
   };
 
-  // Restore search on mount if query was persisted
+  // Restore search on mount if query was persisted — REMOVED (now shows zero state)
+  // Reset search state when leaving this page (KeepAlive keeps it mounted)
+  const isJournalRoute = location.pathname.endsWith('/journal-search');
   useEffect(() => {
-    const savedQuery = sessionStorage.getItem('scitrack_journal_query');
-    if (savedQuery && savedQuery.trim()) {
-      handleSearch(savedQuery);
+    if (!isJournalRoute) {
+      setQuery('');
+      setSearchedKeyword('');
+      setJournalStats(null);
+      setTimeline(null);
+      setTopAuthors([]);
+      setError(null);
+      setApiSuggestions([]);
+      setShowSuggestions(false);
+      setShowHistory(false);
+      setShowSuggestionList(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isJournalRoute]);
 
   // ─── Browse mode (categories) ───
   const [categories, setCategories] = useState([]);
@@ -520,8 +523,6 @@ export default function SearchJournal() {
           if (tl) setTimeline(Array.isArray(tl.timeline) ? tl.timeline : Array.isArray(tl) ? tl : []);
           if (authors) setTopAuthors(Array.isArray(authors) ? authors : []);
           setSearchedKeyword(q);
-          // Persist query so it survives tab switches
-          sessionStorage.setItem('scitrack_journal_query', q);
         }
       } catch (err) {
         if (!cancelled) {
@@ -678,12 +679,28 @@ export default function SearchJournal() {
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); setSearchedKeyword(''); setJournalStats(null); setTimeline(null); setTopAuthors([]); setError(null); sessionStorage.removeItem('scitrack_journal_query'); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                onClick={() => { setQuery(''); setSearchedKeyword(''); setJournalStats(null); setTimeline(null); setTopAuthors([]); setError(null); }}
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
               </button>
             )}
+            {/* History toggle button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowHistory(!showHistory);
+                setShowSuggestions(false);
+              }}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
+                showHistory
+                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
+                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+              }`}
+              title="Search history"
+            >
+              <History size={14} />
+            </button>
           </div>
 
           {/* Keyword autocomplete dropdown — simple names while typing */}
@@ -711,6 +728,71 @@ export default function SearchJournal() {
                     <Search size={12} />
                     Press Enter to search "{query.trim()}"
                   </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* History dropdown */}
+          <AnimatePresence>
+            {showHistory && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-[#DEDBC8]/10 shadow-xl shadow-black/40 overflow-hidden"
+              >
+                {searchHistory.length === 0 ? (
+                  <div className="px-5 py-6 text-center">
+                    <Clock size={24} className="mx-auto text-gray-600 mb-2" />
+                    <p className="text-xs text-gray-500">No recent searches</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
+                        <History size={11} />
+                        Recent Searches
+                      </span>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          clearHistory();
+                          setShowHistory(false);
+                        }}
+                        className="text-[10px] font-medium text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                      >
+                        <Trash2 size={10} /> Clear all
+                      </button>
+                    </div>
+                    {searchHistory.map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearch(kw);
+                          setShowHistory(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors text-slate-300 group"
+                      >
+                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <span className="flex-1 truncate">{kw}</span>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeHistoryItem(kw);
+                          }}
+                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={11} />
+                        </button>
+                      </button>
+                    ))}
+                  </>
                 )}
               </motion.div>
             )}

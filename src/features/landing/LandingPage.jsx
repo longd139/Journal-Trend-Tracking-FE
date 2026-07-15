@@ -40,19 +40,19 @@ function HeroSection() {
   {/* Auth buttons — top right */}
   <div className="absolute top-10 sm:top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
    <button
-   onClick={() => navigate('/login')}
+   onClick={() => navigate('/register')}
    className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 active:scale-[0.97]"
    style={{ color: 'rgba(225, 224, 204, 0.8)' }}
    onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
    onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
    >
-   Sign In
+   Register
    </button>
    <button
-   onClick={() => navigate('/register')}
+   onClick={() => navigate('/login')}
    className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#DEDBC8] text-black transition-all duration-200 hover:scale-105 active:scale-[0.97]"
    >
-   Register
+   Sign In
    </button>
   </div>
 
@@ -278,7 +278,7 @@ function AboutSection() {
   </div>
 
   {/* ── Advantages ──────────────────────────────────────────────── */}
-  <div className="px-4 md:px-6 pb-20 md:pb-28 -mt-2">
+  <div className="relative z-10 px-4 md:px-6 pb-20 md:pb-28 -mt-2">
   <div className="max-w-6xl mx-auto">
    {/* Asymmetric grid instead of 3 equal columns — 2fr + 1fr */}
    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
@@ -289,7 +289,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-    className="group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300 active:scale-[0.98]"
+    className="relative z-10 group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300 active:scale-[0.98]"
     >
     <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-all duration-500 leading-none">
      {item.num}
@@ -513,11 +513,11 @@ function FeaturesSection() {
   <div className="bg-noise opacity-[0.04] pointer-events-none" />
 
   <div className="relative z-10 max-w-7xl mx-auto">
-  {/* Header — left-aligned on desktop, NOT centered */}
-  <div className="mb-14 md:mb-20 md:text-left">
+  {/* Header — centered */}
+  <div className="mb-14 md:mb-20 text-center">
    <WordsPullUpMultiStyle
    segments={FEATURE_HEADER_SEGMENTS}
-   className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal max-w-3xl mx-auto md:mx-0 leading-[1.2]"
+   className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-normal max-w-3xl mx-auto leading-[1.2]"
    />
   </div>
 

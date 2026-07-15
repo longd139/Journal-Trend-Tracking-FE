@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { notificationAPI } from './api';
 import { adminAPI } from '../admin/api';
+import { useNotificationStore } from '../../store/useNotificationStore';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Type → icon + color mapping
@@ -256,6 +257,9 @@ export default function NotificationsPage() {
   const [selectedNotif, setSelectedNotif] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
+  // Sync with global store so sidebar badge updates instantly
+  const setStoreUnreadCount = useNotificationStore((s) => s.setUnreadCount);
+
   const userRole = sessionStorage.getItem('userRole');
   const isAdmin = userRole === 'admin';
 
@@ -274,11 +278,13 @@ export default function NotificationsPage() {
   const fetchUnreadCount = useCallback(async () => {
     try {
       const result = await notificationAPI.getUnreadCount();
-      setUnreadCount(result?.unreadCount ?? 0);
+      const count = result?.unreadCount ?? 0;
+      setUnreadCount(count);
+      setStoreUnreadCount(count);
     } catch {
       // silent
     }
-  }, []);
+  }, [setStoreUnreadCount]);
 
   useEffect(() => {
     fetchNotifications();
@@ -366,20 +372,31 @@ export default function NotificationsPage() {
 
   const markAsRead = async (id) => {
     setNotifs((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
-    setUnreadCount((c) => Math.max(0, c - 1));
+    setUnreadCount((c) => {
+      const next = Math.max(0, c - 1);
+      setStoreUnreadCount(next);
+      return next;
+    });
     try { await notificationAPI.markAsRead(id); } catch { /* revert on next fetch */ }
   };
 
   const markAllAsRead = async () => {
     setNotifs((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnreadCount(0);
+    setStoreUnreadCount(0);
     try { await notificationAPI.markAllAsRead(); } catch { /* revert on next fetch */ }
   };
 
   const dismissNotif = async (id) => {
     const notif = notifs.find((n) => n.id === id);
     setNotifs((prev) => prev.filter((n) => n.id !== id));
-    if (notif && !notif.read) setUnreadCount((c) => Math.max(0, c - 1));
+    if (notif && !notif.read) {
+      setUnreadCount((c) => {
+        const next = Math.max(0, c - 1);
+        setStoreUnreadCount(next);
+        return next;
+      });
+    }
     if (selectedNotif?.id === id) setSelectedNotif(null);
     try { await notificationAPI.deleteNotification(id); } catch { /* revert on next fetch */ }
   };

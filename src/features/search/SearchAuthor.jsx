@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Clock, Trash2, UserSearch, Lock, Gauge } from 'lucide-react';
+import { Search, X, Clock, Trash2, UserSearch, Lock, Gauge, History } from 'lucide-react';
 import { toast } from 'sonner';
 import AuthorQuickStats from './AuthorQuickStats';
 import { useAuthStore } from '../user/store.js';
@@ -20,9 +20,12 @@ import AuthorSuggestions from './AuthorSuggestions';
 export default function SearchAuthor() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
-  const [query, setQuery] = useState(() => sessionStorage.getItem('scitrack_author_query') || '');
+  const location = useLocation();
+  const [query, setQuery] = useState('');
+  const [searchedAuthor, setSearchedAuthor] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [apiSuggestions, setApiSuggestions] = useState([]);
   const [suggestHasMore, setSuggestHasMore] = useState(false);
   const [suggestTotal, setSuggestTotal] = useState(0);
@@ -57,14 +60,18 @@ export default function SearchAuthor() {
     })();
   }, [isAcademic]);
 
-  // Restore persisted search
+  // Reset search state when leaving this page (KeepAlive keeps it mounted)
+  const isAuthorRoute = location.pathname.endsWith('/search-author');
   useEffect(() => {
-    const saved = sessionStorage.getItem('scitrack_author_query');
-    if (saved && saved.trim() && !query) {
-      setQuery(saved);
+    if (!isAuthorRoute) {
+      setQuery('');
+      setSearchedAuthor('');
+      setApiSuggestions([]);
+      setShowSuggestions(false);
+      setShowHistory(false);
+      setShowSuggestionList(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthorRoute]);
 
   // ─── Load search history ───
   useEffect(() => {
@@ -169,11 +176,11 @@ export default function SearchAuthor() {
 
     // Update UI + trigger results IMMEDIATELY
     setQuery(kw);
+    setSearchedAuthor(kw);
     setShowSuggestionList(false);
     setShowSuggestions(false);
     setApiSuggestions([]);
     saveToSearchHistory(kw);
-    sessionStorage.setItem('scitrack_author_query', kw);
     setShowSuggestions(false);
 
     // ── Quota check in background (fire-and-forget, non-blocking) ──
@@ -243,12 +250,28 @@ export default function SearchAuthor() {
             {query && (
               <button
                 type="button"
-                onClick={() => { setQuery(''); sessionStorage.removeItem('scitrack_author_query'); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                onClick={() => { setQuery(''); }}
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
               </button>
             )}
+            {/* History toggle button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowHistory(!showHistory);
+                setShowSuggestions(false);
+              }}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
+                showHistory
+                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
+                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+              }`}
+              title="Search history"
+            >
+              <History size={14} />
+            </button>
           </div>
 
           {/* Keyword autocomplete dropdown — simple names while typing */}
@@ -263,7 +286,7 @@ export default function SearchAuthor() {
                 {apiSuggestions.length > 0 ? (
                   apiSuggestions.map((s) => (
                     <button key={s.authorId || s.fullName} type="button"
-                      onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); handleSearch(s.fullName); }}
+                      onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); setQuery(s.fullName); setShowSuggestionList(true); }}
                       className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
                     >
                       <UserSearch size={12} className="text-[#DEDBC8]/50 shrink-0" />
@@ -276,6 +299,71 @@ export default function SearchAuthor() {
                     <Search size={12} />
                     Press Enter to search "{query.trim()}"
                   </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* History dropdown */}
+          <AnimatePresence>
+            {showHistory && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+              >
+                {searchHistory.length === 0 ? (
+                  <div className="px-5 py-6 text-center">
+                    <Clock size={24} className="mx-auto text-gray-600 mb-2" />
+                    <p className="text-xs text-gray-500">No recent searches</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
+                        <History size={11} />
+                        Recent Searches
+                      </span>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          clearSearchHistory();
+                          setShowHistory(false);
+                        }}
+                        className="text-[10px] font-medium text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                      >
+                        <Trash2 size={10} /> Clear all
+                      </button>
+                    </div>
+                    {searchHistory.map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearch(kw);
+                          setShowHistory(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors text-slate-300 group"
+                      >
+                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <span className="flex-1 truncate">{kw}</span>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeSearchHistoryItem(kw);
+                          }}
+                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={11} />
+                        </button>
+                      </button>
+                    ))}
+                  </>
                 )}
               </motion.div>
             )}
@@ -415,12 +503,12 @@ export default function SearchAuthor() {
         )}
 
         {/* ─── Pre-search: Suggested authors ─── */}
-        {!query.trim() && !showSuggestionList && (
+        {!searchedAuthor && !showSuggestionList && (
           <AuthorSuggestions onAuthorClick={handleSearch} />
         )}
 
         {/* ─── Results (only after selecting an author) ─── */}
-        {query && query.trim() && !showSuggestionList && (
+        {searchedAuthor && (
           <motion.div
             ref={resultsRef}
             initial={{ opacity: 0, y: 12 }}
@@ -428,13 +516,13 @@ export default function SearchAuthor() {
             transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-8"
           >
-            <AuthorQuickStats keyword={query.trim()} />
+            <AuthorQuickStats keyword={searchedAuthor} />
             {isAcademic ? (
               <div className="space-y-8">
                 {/* Timeline — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
-                    <AuthorTimeline keyword={query.trim()} />
+                    <AuthorTimeline keyword={searchedAuthor} />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
@@ -456,7 +544,7 @@ export default function SearchAuthor() {
                 {/* Research Focus — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
-                    <AuthorResearchFocus keyword={query.trim()} />
+                    <AuthorResearchFocus keyword={searchedAuthor} />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
@@ -478,7 +566,7 @@ export default function SearchAuthor() {
                 {/* Co-authors — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
-                    <AuthorCoAuthors keyword={query.trim()} onAuthorClick={handleSearch} />
+                    <AuthorCoAuthors keyword={searchedAuthor} onAuthorClick={handleSearch} />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
@@ -499,9 +587,9 @@ export default function SearchAuthor() {
               </div>
             ) : (
               <>
-                <AuthorTimeline keyword={query.trim()} />
-                <AuthorResearchFocus keyword={query.trim()} />
-                <AuthorCoAuthors keyword={query.trim()} onAuthorClick={handleSearch} />
+                <AuthorTimeline keyword={searchedAuthor} />
+                <AuthorResearchFocus keyword={searchedAuthor} />
+                <AuthorCoAuthors keyword={searchedAuthor} onAuthorClick={handleSearch} />
               </>
             )}
           </motion.div>

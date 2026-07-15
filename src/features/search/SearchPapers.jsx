@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,6 +11,7 @@ import {
   ArrowUpDown,
   Lock,
   Gauge,
+  History,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import WeeklyBreakout from './WeeklyBreakout';
@@ -36,11 +37,11 @@ import { trendAPI } from './trend.api.js';
 export default function SearchPapers() {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
-  const savedQuery = sessionStorage.getItem('scitrack_papers_query') || '';
-  const [query, setQuery] = useState(savedQuery);
-  const [searchedKeyword, setSearchedKeyword] = useState(savedQuery);
+  const [query, setQuery] = useState('');
+  const [searchedKeyword, setSearchedKeyword] = useState('');
   const [searchHistory, setSearchHistory] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [draftFilters, setDraftFilters] = useState({
     fields: [],
@@ -180,16 +181,7 @@ export default function SearchPapers() {
   };
 
   const [searchParams] = useSearchParams();
-
-  // Restore persisted search
-  useEffect(() => {
-    const saved = sessionStorage.getItem('scitrack_papers_query');
-    if (saved && saved.trim() && !query) {
-      setQuery(saved);
-      setSearchedKeyword(saved);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const location = useLocation();
 
   // Handle incoming keyword from URL (e.g. from Trending Topics card click)
   useEffect(() => {
@@ -199,6 +191,18 @@ export default function SearchPapers() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
+
+  // Reset search state when leaving this page (KeepAlive keeps it mounted)
+  const isSearchRoute = location.pathname.endsWith('/search');
+  useEffect(() => {
+    if (!isSearchRoute) {
+      setQuery('');
+      setSearchedKeyword('');
+      setApiSuggestions([]);
+      setShowSuggestions(false);
+      setShowHistory(false);
+    }
+  }, [isSearchRoute]);
 
   // ─── Load search history ───
   useEffect(() => {
@@ -273,7 +277,6 @@ export default function SearchPapers() {
     setQuery(kw);
     setSearchedKeyword(kw);
     saveToSearchHistory(kw);
-    sessionStorage.setItem('scitrack_papers_query', kw);
     setShowSuggestions(false);
     setApiSuggestions([]);
 
@@ -365,13 +368,28 @@ export default function SearchPapers() {
                   setQuery('');
                   setSearchedKeyword('');
                   setApiSuggestions([]);
-                  sessionStorage.removeItem('scitrack_papers_query');
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
               >
                 <X size={14} />
               </button>
             )}
+            {/* History toggle button */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowHistory(!showHistory);
+                setShowSuggestions(false);
+              }}
+              className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
+                showHistory
+                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
+                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+              }`}
+              title="Search history"
+            >
+              <History size={14} />
+            </button>
           </div>
 
           {/* Search suggestions (API autocomplete + history) */}
@@ -435,6 +453,71 @@ export default function SearchPapers() {
                       <Trash2 size={11} /> Clear search history
                     </button>
                   </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* History dropdown */}
+          <AnimatePresence>
+            {showHistory && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+              >
+                {searchHistory.length === 0 ? (
+                  <div className="px-5 py-6 text-center">
+                    <Clock size={24} className="mx-auto text-gray-600 mb-2" />
+                    <p className="text-xs text-gray-500">No recent searches</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
+                        <History size={11} />
+                        Recent Searches
+                      </span>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          clearSearchHistory();
+                          setShowHistory(false);
+                        }}
+                        className="text-[10px] font-medium text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                      >
+                        <Trash2 size={10} /> Clear all
+                      </button>
+                    </div>
+                    {searchHistory.map((kw) => (
+                      <button
+                        key={kw}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearch(kw);
+                          setShowHistory(false);
+                        }}
+                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors text-slate-300 group"
+                      >
+                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <span className="flex-1 truncate">{kw}</span>
+                        <button
+                          type="button"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeSearchHistoryItem(kw);
+                          }}
+                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={11} />
+                        </button>
+                      </button>
+                    ))}
+                  </>
                 )}
               </motion.div>
             )}

@@ -7,7 +7,7 @@ import {
   BookOpen, FileText, BarChart3, Activity, Tag, PieChart, Clock,
 } from 'lucide-react';
 import {
-  LineChart, Line, BarChart, Bar, AreaChart, Area,
+  BarChart, Bar, AreaChart, Area,
   XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   PieChart as RePieChart, Pie, Cell,
 } from 'recharts';
@@ -312,20 +312,26 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
         </div>
 
         {/* ═══════════════════════════════════════════════════════════
-            SECTION 2 — CHART 1: Publication Trend (Line Chart)
+            SECTION 2 — CHART 1: Publication Trend (Bar Chart)
             ═══════════════════════════════════════════════════════════ */}
         <div className="rounded-xl p-5 border" style={{ borderColor: COLORS.border, background: COLORS.cardBg }}>
           <SectionHeader
             icon={Activity}
-            iconColor={COLORS.green}
-            title={t('charts.publicationTrend') || 'Xu hướng xuất bản theo thời gian'}
+            iconColor={DONUT_COLORS[0]}
+            title={t('charts.publicationTrend') || 'Publication Trend Over Time'}
           />
           {displayPublicationTrend.length >= 2 ? (
             <ResponsiveContainer width="100%" height={260}>
-              <LineChart
+              <BarChart
                 data={displayPublicationTrend}
                 margin={{ top: 8, right: 8, left: -10, bottom: 0 }}
               >
+                <defs>
+                  <linearGradient id="pubBarGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={DONUT_COLORS[0]} stopOpacity={1} />
+                    <stop offset="100%" stopColor={DONUT_COLORS[3]} stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="rgba(222,219,200,0.06)"
@@ -347,17 +353,16 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   {...tooltipStyle}
                   formatter={(value) => [value.toLocaleString(), 'Papers']}
                   labelFormatter={(label) => `Year ${label}`}
+                  cursor={{ fill: 'rgba(222,219,200,0.04)' }}
                 />
-                <Line
-                  type="monotone"
+                <Bar
                   dataKey="count"
-                  stroke={COLORS.green}
-                  strokeWidth={2.5}
-                  dot={{ fill: COLORS.green, r: 4, strokeWidth: 2, stroke: '#0A0A0A' }}
-                  activeDot={{ r: 6, fill: COLORS.green, strokeWidth: 2, stroke: '#fff' }}
+                  fill="url(#pubBarGradient)"
+                  radius={[4, 4, 0, 0]}
+                  maxBarSize={40}
                   name="Papers"
                 />
-              </LineChart>
+              </BarChart>
             </ResponsiveContainer>
           ) : (
             <ChartPlaceholder message="Need at least 2 years of data for trend chart" />
@@ -365,13 +370,13 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
         </div>
 
         {/* ═══════════════════════════════════════════════════════════
-            SECTION 3 — CHART 2: Citation Trend (Area + Line)
+            SECTION 3 — CHART 2: Citation Trend (Area)
             ═══════════════════════════════════════════════════════════ */}
         <div className="rounded-xl p-5 border" style={{ borderColor: COLORS.border, background: COLORS.cardBg }}>
           <SectionHeader
             icon={TrendingUp}
-            iconColor={COLORS.accent}
-            title={t('charts.citationTrend') || 'Xu hướng trích dẫn theo thời gian'}
+            iconColor={DONUT_COLORS[0]}
+            title={t('charts.citationTrend') || 'Citation Trend Over Time'}
           />
           {citationTrend.length >= 2 ? (
             <ResponsiveContainer width="100%" height={260}>
@@ -381,8 +386,9 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
               >
                 <defs>
                   <linearGradient id="citationGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={COLORS.accent} stopOpacity={0.25} />
-                    <stop offset="95%" stopColor={COLORS.accent} stopOpacity={0} />
+                    <stop offset="0%" stopColor={DONUT_COLORS[0]} stopOpacity={0.35} />
+                    <stop offset="40%" stopColor={DONUT_COLORS[2]} stopOpacity={0.15} />
+                    <stop offset="100%" stopColor={DONUT_COLORS[4]} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -405,22 +411,17 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   {...tooltipStyle}
                   formatter={(value) => [value.toLocaleString(), 'Citations']}
                   labelFormatter={(label) => `Year ${label}`}
+                  cursor={{ fill: 'rgba(222,219,200,0.04)' }}
                 />
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke={COLORS.accent}
+                  stroke={DONUT_COLORS[0]}
                   strokeWidth={2}
                   fill="url(#citationGradient)"
                   name="Citations"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="count"
-                  stroke={COLORS.accent}
-                  strokeWidth={2}
-                  dot={{ fill: COLORS.accent, r: 3, strokeWidth: 2, stroke: '#0A0A0A' }}
-                  activeDot={{ r: 5, fill: COLORS.accent, strokeWidth: 2, stroke: '#fff' }}
+                  dot={{ fill: DONUT_COLORS[0], r: 3, strokeWidth: 2, stroke: COLORS.cardBg }}
+                  activeDot={{ r: 5, fill: DONUT_COLORS[0], strokeWidth: 2, stroke: '#fff' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -435,8 +436,8 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
         <div className="rounded-xl p-5 border" style={{ borderColor: COLORS.border, background: COLORS.cardBg }}>
           <SectionHeader
             icon={Tag}
-            iconColor={COLORS.purple}
-            title={t('charts.coKeywords') || 'Mạng lưới từ khóa liên quan (Top Co-occurring Keywords)'}
+            iconColor={DONUT_COLORS[2]}
+            title={t('charts.coKeywords') || 'Co-occurring Keywords Network'}
           />
           {hBarData.length > 0 ? (
             <div className="space-y-4">
@@ -446,6 +447,13 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   layout="vertical"
                   margin={{ top: 0, right: 20, left: 100, bottom: 0 }}
                 >
+                  <defs>
+                    <linearGradient id="coKwBarGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={DONUT_COLORS[4]} stopOpacity={0.5} />
+                      <stop offset="50%" stopColor={DONUT_COLORS[2]} stopOpacity={0.85} />
+                      <stop offset="100%" stopColor={DONUT_COLORS[0]} stopOpacity={1} />
+                    </linearGradient>
+                  </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="rgba(222,219,200,0.06)"
@@ -472,7 +480,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   />
                   <Bar
                     dataKey="count"
-                    fill={COLORS.purple}
+                    fill="url(#coKwBarGradient)"
                     radius={[0, 4, 4, 0]}
                     maxBarSize={24}
                     name="Co-occurrences"

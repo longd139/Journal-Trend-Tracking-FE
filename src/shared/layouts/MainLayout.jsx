@@ -25,9 +25,10 @@ import {
   X,
   HelpCircle,
 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
 import { useAuthStore } from '../../features/user/store';
+import { useNotificationStore } from '../../store/useNotificationStore';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 import SupportDialog from '../../components/common/SupportDialog';
 
@@ -35,7 +36,7 @@ import SupportDialog from '../../components/common/SupportDialog';
    Sidebar
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
+function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount = 0, pdfPendingCount = 0 }) {
   const { t } = useTranslation('common');
   const [supportOpen, setSupportOpen] = useState(false);
   const clearTokens = useAuthStore((s) => s.clearTokens);
@@ -123,6 +124,16 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose }) {
             >
               <Icon size={15} />
               {label}
+              {id === 'notifications' && unreadCount > 0 && (
+                <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+              {id === 'pdf-requests' && pdfPendingCount > 0 && (
+                <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
+                  {pdfPendingCount > 99 ? '99+' : pdfPendingCount}
+                </span>
+              )}
             </button>
           );
         })}
@@ -258,6 +269,11 @@ export default function DashboardLayout({ children }) {
   const setUser = useAuthStore((s) => s.setUser);
   const backgroundUrl = useAuthStore((s) => s.backgroundUrl);
 
+  const unreadCount = useNotificationStore((s) => s.unreadCount);
+  const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
+  const pdfPendingCount = useNotificationStore((s) => s.pdfPendingCount);
+  const fetchPdfPendingCount = useNotificationStore((s) => s.fetchPdfPendingCount);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const pathParts = location.pathname.split('/').filter(Boolean);
@@ -270,6 +286,24 @@ export default function DashboardLayout({ children }) {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  // Poll unread notification count every 30s (researcher / academic only)
+  const intervalRef = useRef(null);
+  useEffect(() => {
+    if (role === 'admin') return;
+    fetchUnreadCount();
+    intervalRef.current = setInterval(fetchUnreadCount, 30_000);
+    return () => clearInterval(intervalRef.current);
+  }, [role, fetchUnreadCount]);
+
+  // Poll PDF pending count every 30s (admin only)
+  const pdfIntervalRef = useRef(null);
+  useEffect(() => {
+    if (role !== 'admin') return;
+    fetchPdfPendingCount();
+    pdfIntervalRef.current = setInterval(fetchPdfPendingCount, 30_000);
+    return () => clearInterval(pdfIntervalRef.current);
+  }, [role, fetchPdfPendingCount]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -374,6 +408,8 @@ export default function DashboardLayout({ children }) {
         user={user}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        unreadCount={unreadCount}
+        pdfPendingCount={pdfPendingCount}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar
