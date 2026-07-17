@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -8,7 +8,6 @@ import {
   Plus,
   RefreshCw,
   Trash2,
-  Eye,
   ArrowLeft,
   Copy,
   Download,
@@ -17,8 +16,8 @@ import {
   TrendingUp,
   AlertCircle,
   CheckCircle2,
+  Check,
   AlertTriangle,
-  XCircle,
   FileText,
   ExternalLink,
   Clock,
@@ -28,6 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ideaAPI } from './api.js';
+import { useIdeaAnalysisStore } from '../../store/useIdeaAnalysisStore.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -50,12 +50,12 @@ const LOADING_STEPS = [
 
 function CriterionBadge({ value }) {
   return value ? (
-    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-      <CheckCircle2 size={11} /> true
+    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-300 bg-emerald-500/20 border border-emerald-500/40">
+      <Check size={15} strokeWidth={2.5} />
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-      <XCircle size={11} /> false
+    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-red-300 bg-red-500/20 border border-red-500/40">
+      <X size={15} strokeWidth={2.5} />
     </span>
   );
 }
@@ -504,7 +504,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
       <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-bold text-[#E1E0CC]">
-            🎯 {t('idea:newAnalysis.step4.noveltyScore')}
+            {t('idea:newAnalysis.step4.noveltyScore')}
           </span>
           <span className="text-lg font-black text-[#00D1B2]">
             {noveltyScore}%
@@ -621,14 +621,14 @@ function LiteratureReviewPanel({ literatureReview, t }) {
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 text-xs font-medium hover:bg-white/15 transition-all"
         >
           <Copy size={13} />
-          📋 {t('idea:newAnalysis.step4.copyText')}
+          {t('idea:newAnalysis.step4.copyText')}
         </button>
         <button
           onClick={handleExportBibtex}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 text-xs font-medium hover:bg-white/15 transition-all"
         >
           <Download size={13} />
-          📥 {t('idea:newAnalysis.step4.exportBibtex')}
+          {t('idea:newAnalysis.step4.exportBibtex')}
         </button>
       </div>
     </div>
@@ -640,7 +640,15 @@ function LiteratureReviewPanel({ literatureReview, t }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
-  const [popoverCell, setPopoverCell] = useState(null);
+  const [expandedCell, setExpandedCell] = useState(null); // { paperId, criterion } or null
+
+  const toggleExpand = (paperId, criterion) => {
+    setExpandedCell((prev) =>
+      prev?.paperId === paperId && prev?.criterion === criterion
+        ? null
+        : { paperId, criterion },
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -669,112 +677,140 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
             </tr>
           </thead>
           <tbody>
-            {papers.map((paper, i) => (
-              <tr
-                key={paper.paperId || i}
-                className="border-b border-white/5 hover:bg-white/[0.02] transition-colors"
-              >
-                {/* Title */}
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-gray-500 font-mono">
-                      #{i + 1}
-                    </span>
-                    <div>
-                      <a
-                        href={paper.pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-[#E1E0CC] hover:text-[#4F8CFF] transition-colors inline-flex items-center gap-1"
-                      >
-                        {paper.title}
-                        <ExternalLink size={11} />
-                      </a>
-                      {paper.abstractText && (
-                        <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
-                          {paper.abstractText}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </td>
+            {papers.map((paper, i) => {
+              const paperId = paper.paperId || i;
+              const isExpanded = expandedCell?.paperId === paperId;
+              const expandedCriterion = isExpanded ? expandedCell.criterion : null;
 
-                {/* Criteria cells */}
-                {CRITERIA_ORDER.map((criterion) => {
-                  const crit = paper.criteria?.find(
-                    (c) => c.criterionName === criterion,
-                  );
-                  const value = crit?.value;
-                  const evidence = crit?.evidenceQuote || '';
-
-                  return (
-                    <td key={criterion} className="py-3 px-2 text-center">
-                      <button
-                        onClick={() =>
-                          setPopoverCell(
-                            popoverCell?.paperId === paper.paperId &&
-                              popoverCell?.criterion === criterion
-                              ? null
-                              : {
-                                  paperId: paper.paperId || i,
-                                  criterion,
-                                  evidence,
-                                  value,
-                                  paperTitle: paper.title,
-                                },
-                          )
-                        }
-                        className="cursor-pointer hover:scale-110 transition-transform"
-                      >
-                        <CriterionBadge value={value} />
-                      </button>
+              return (
+                <Fragment key={paperId}>
+                  {/* Main paper row */}
+                  <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                    {/* Title */}
+                    <td className="py-3 px-3">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[11px] text-gray-500 font-mono">
+                          #{i + 1}
+                        </span>
+                        <div>
+                          <a
+                            href={paper.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-[#E1E0CC] hover:text-[#4F8CFF] transition-colors inline-flex items-center gap-1"
+                          >
+                            {paper.title}
+                            <ExternalLink size={11} />
+                          </a>
+                          {paper.abstractText && (
+                            <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
+                              {paper.abstractText}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </td>
-                  );
-                })}
-              </tr>
-            ))}
+
+                    {/* Criteria cells */}
+                    {CRITERIA_ORDER.map((criterion) => {
+                      const crit = paper.criteria?.find(
+                        (c) => c.criterionName === criterion,
+                      );
+                      const value = crit?.value;
+
+                      return (
+                        <td key={criterion} className="py-3 px-2 text-center align-top">
+                          <button
+                            onClick={() => toggleExpand(paperId, criterion)}
+                            className="cursor-pointer hover:scale-110 transition-transform"
+                            title={t('idea:newAnalysis.step4.evidenceFromPaper')}
+                          >
+                            <CriterionBadge value={value} />
+                          </button>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* Expanded evidence row — smooth dropdown, no layout shift */}
+                  <tr>
+                    <td colSpan={5} className="p-0 border-0">
+                      <motion.div
+                        initial={false}
+                        animate={{
+                          height: isExpanded ? 'auto' : 0,
+                          opacity: isExpanded ? 1 : 0,
+                        }}
+                        transition={{ duration: 0.25, ease: [0.32, 0.72, 0, 1] }}
+                        className="overflow-hidden"
+                      >
+                        {expandedCriterion && (() => {
+                          const crit = paper.criteria?.find((c) => c.criterionName === expandedCriterion);
+                          const isTrue = crit?.value === true;
+                          return (
+                            <div
+                              className={`rounded-lg p-3 mb-2 ml-8 border ${
+                                isTrue
+                                  ? 'bg-emerald-500/15 border-emerald-500/40'
+                                  : 'bg-red-500/15 border-red-500/40'
+                              }`}
+                            >
+                              <EvidenceContent
+                                paper={paper}
+                                criterion={expandedCriterion}
+                                t={t}
+                                onClose={() => setExpandedCell(null)}
+                              />
+                            </div>
+                          );
+                        })()}
+                      </motion.div>
+                    </td>
+                  </tr>
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
 
-      {/* Popover for evidence quote */}
-      <AnimatePresence>
-        {popoverCell && (
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 4 }}
-            className="bg-[#1B2235] border border-[#DEDBC8]/20 rounded-xl p-4 shadow-2xl"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-gray-400">
-                  {t('idea:newAnalysis.step4.evidenceFromPaper')}:
-                </span>
-                <CriterionBadge value={popoverCell.value} />
-              </div>
-              <button
-                onClick={() => setPopoverCell(null)}
-                className="text-gray-500 hover:text-gray-300"
-              >
-                <X size={14} />
-              </button>
-            </div>
-            <p className="text-sm text-gray-500 italic mb-1">
-              {popoverCell.paperTitle}
-            </p>
-            {popoverCell.evidence ? (
-              <blockquote className="text-sm text-[#E1E0CC] leading-relaxed border-l-2 border-[#4F8CFF]/40 pl-3 py-1">
-                "{popoverCell.evidence}"
-              </blockquote>
-            ) : (
-              <p className="text-xs text-gray-500">
-                {t('idea:newAnalysis.step4.noEvidence')}
-              </p>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+/** Renders evidence quote for a specific criterion of a paper */
+function EvidenceContent({ paper, criterion, t, onClose }) {
+  const crit = paper.criteria?.find((c) => c.criterionName === criterion);
+  const value = crit?.value;
+  const evidence = crit?.evidenceQuote || '';
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+            {t(`idea:newAnalysis.criteria.${criterion}`)}
+          </span>
+          <CriterionBadge value={value} />
+        </div>
+        <button
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-300 transition-colors"
+        >
+          <X size={14} />
+        </button>
+      </div>
+      <p className="text-xs text-gray-500 italic mb-1.5">
+        {paper.title}
+      </p>
+      {evidence ? (
+        <blockquote className="text-sm text-[#E1E0CC] leading-relaxed border-l-2 border-[#4F8CFF]/40 pl-3 py-1">
+          "{evidence}"
+        </blockquote>
+      ) : (
+        <p className="text-xs text-gray-500">
+          {t('idea:newAnalysis.step4.noEvidence')}
+        </p>
+      )}
     </div>
   );
 }
@@ -830,13 +866,14 @@ function HistoryTab({
           key={item.analysisId}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all"
+          onClick={() => onView(item)}
+          className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all cursor-pointer"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               {/* Idea text preview */}
               <p className="text-sm font-medium text-[#E1E0CC] line-clamp-2 mb-2">
-                📝 "{item.ideaText}"
+                "{item.ideaText}"
               </p>
 
               {/* Keywords */}
@@ -882,21 +919,14 @@ function HistoryTab({
             {/* Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
               <button
-                onClick={() => onView(item)}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#4F8CFF] hover:bg-[#4F8CFF]/10 transition-all"
-                title={t('idea:history.item.view')}
-              >
-                <Eye size={15} />
-              </button>
-              <button
-                onClick={() => onContinue(item)}
+                onClick={(e) => { e.stopPropagation(); onContinue(item); }}
                 className="p-2 rounded-lg text-gray-400 hover:text-[#00D1B2] hover:bg-[#00D1B2]/10 transition-all"
                 title={t('idea:history.item.continue')}
               >
                 <RefreshCw size={15} />
               </button>
               <button
-                onClick={() => onDelete(item)}
+                onClick={(e) => { e.stopPropagation(); onDelete(item); }}
                 className="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
                 title={t('idea:history.item.delete')}
               >
@@ -1047,6 +1077,10 @@ export default function IdeaPage() {
   const [extractLoading, setExtractLoading] = useState(false);
   const [analyzeLoading, setAnalyzeLoading] = useState(false);
 
+  // ── Background analysis store ──
+  const analysisTask = useIdeaAnalysisStore((s) => s.task);
+  const clearAndAcknowledge = useIdeaAnalysisStore((s) => s.clearAndAcknowledge);
+
   // ── Load history on mount & tab switch ──
   const fetchHistory = useCallback(
     async (page = 0) => {
@@ -1093,25 +1127,43 @@ export default function IdeaPage() {
     }
   };
 
-  // ── Step 2 → Analyze ──
-  const handleAnalyze = async () => {
-    if (selectedKeywords.length === 0) return;
-    setAnalyzeLoading(true);
-    setStep(3);
-    try {
-      const res = await ideaAPI.analyze({
-        ideaText,
-        selectedKeywords,
-      });
-      setResults(res);
+  // ── React to background analysis task completion ──
+  useEffect(() => {
+    if (!analysisTask) return;
+    if (analysisTask.status === 'done' && analysisTask.result && step !== 4) {
+      setResults(analysisTask.result);
       setStep(4);
-    } catch (err) {
-      console.error('Analysis failed:', err);
-      toast.error(err.message || 'Analysis failed');
-      setStep(2); // go back so user can retry
-    } finally {
       setAnalyzeLoading(false);
     }
+    if (analysisTask.status === 'error' && step === 3) {
+      toast.error(analysisTask.error || 'Analysis failed');
+      setStep(2);
+      setAnalyzeLoading(false);
+    }
+  }, [analysisTask?.status, analysisTask?.result]);
+
+  // ── Mount-time check: consume completed task when navigating back ──
+  useEffect(() => {
+    if (activeTab !== 'new') return;
+    const task = useIdeaAnalysisStore.getState().task;
+    if (!task) return;
+    if (task.status === 'done' && task.result) {
+      setResults(task.result);
+      setStep(4);
+      setAnalyzeLoading(false);
+      clearAndAcknowledge();
+    } else if (task.status === 'running' && step < 3) {
+      setStep(3);
+      setAnalyzeLoading(true);
+    }
+  }, [activeTab]);
+
+  // ── Step 2 → Analyze (dispatches to background store) ──
+  const handleAnalyze = () => {
+    if (selectedKeywords.length === 0) return;
+    useIdeaAnalysisStore.getState().startAnalysis({ ideaText, selectedKeywords });
+    setAnalyzeLoading(true);
+    setStep(3);
   };
 
   // ── Regenerate keywords (from step 2) ──
@@ -1150,6 +1202,7 @@ export default function IdeaPage() {
   };
 
   const handleContinue = (item) => {
+    useIdeaAnalysisStore.getState().dismissTask();
     setIdeaText(item.ideaText || '');
     setExtractedKeywords(item.keywords || []);
     setSuggestedKeywords([]);
@@ -1176,6 +1229,7 @@ export default function IdeaPage() {
   };
 
   const handleNewAnalysis = () => {
+    useIdeaAnalysisStore.getState().dismissTask();
     setIdeaText('');
     setExtractedKeywords([]);
     setSuggestedKeywords([]);
@@ -1289,7 +1343,14 @@ export default function IdeaPage() {
             )}
 
             {/* Step 3: Loading */}
-            {step === 3 && <Step3Loading t={t} />}
+            {step === 3 && (
+              <div>
+                <Step3Loading t={t} />
+                <p className="text-center text-xs text-gray-500 mt-2">
+                  {t('idea:newAnalysis.step3.navigateAway')}
+                </p>
+              </div>
+            )}
 
             {/* Step 4: Results */}
             {step === 4 && results && (

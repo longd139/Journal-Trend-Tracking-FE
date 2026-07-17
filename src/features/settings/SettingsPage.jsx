@@ -17,9 +17,9 @@ import {
   Bell,
   Lock,
   LogOut,
-  Palette,
   Camera,
   X,
+  RotateCcw,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +29,6 @@ import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../../utils/localization';
 import { useAuthStore } from '../user/store';
 import ChangePasswordForm from './ChangePasswordForm';
-import AppearanceSettings from './AppearanceSettings';
 import NotificationSettings from './NotificationSettings';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -347,6 +346,26 @@ export default function SettingsPage() {
     setBackgroundPreview(null);
     setBackgroundFile(null);
     setBackgroundChanged(true);
+  };
+
+  const handleResetBackground = async () => {
+    try {
+      setBackgroundPreview(null);
+      setBackgroundFile(null);
+      setBackgroundChanged(false);
+      useAuthStore.getState().setBackground(null);
+      const payload = {
+        fullName: formData.fullName,
+        institution: formData.institution,
+        email: formData.email,
+        backgroundUrl: null,
+      };
+      await userAPI.updateProfile(payload);
+      setFormData((prev) => ({ ...prev, backgroundUrl: null }));
+      toast.success('Background reset to default');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to reset background');
+    }
   };
 
   const handlePresetColor = async (color) => {
@@ -855,6 +874,15 @@ export default function SettingsPage() {
               <X size={13} /> Remove
             </button>
           )}
+          <button
+            type="button"
+            onClick={handleResetBackground}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
+              text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/8 transition-all"
+            title="Reset to default video background"
+          >
+            <RotateCcw size={13} /> Reset to default
+          </button>
           {backgroundChanged && backgroundFile && (
             <button
               type="button"
@@ -960,18 +988,6 @@ export default function SettingsPage() {
             {t('language.resetDefault')}
           </button>
         </div>
-      </SectionCard>
-
-      {/* ═════════════════════════════════════════════════════════════════
-         SECTION 3 — Appearance
-         ═════════════════════════════════════════════════════════════════ */}
-      <SectionCard
-        icon={Palette}
-        title={t('appearance.title')}
-        description={t('appearance.description')}
-        delay={0.15}
-      >
-        <AppearanceSettings />
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════

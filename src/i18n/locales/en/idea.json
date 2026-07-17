@@ -44,7 +44,9 @@
       "literatureReview": "✍️ Generating literature review draft...",
       "complete": "✅ Analysis complete!",
       "error": "❌ Analysis failed. Please try again.",
-      "estimatedTime": "This may take 30-60 seconds"
+      "estimatedTime": "This may take 30-60 seconds",
+      "dispatched": "Analysis is running in the background",
+      "navigateAway": "You can navigate to other pages — we'll notify you when it's done"
     },
     "step4": {
       "title": "Analysis Results",
@@ -110,5 +112,19 @@
   "cache": {
     "cached": "Cached ⚡",
     "fresh": "Fresh analysis"
+  },
+  "floatingPanel": {
+    "analyzing": "Analyzing {{keyword}}...",
+    "analyzingGeneric": "Analyzing...",
+    "inProgress": "Analysis in Progress",
+    "complete": "Analysis Complete",
+    "failed": "Analysis Failed",
+    "viewResults": "View Results",
+    "retry": "Retry",
+    "dismiss": "Dismiss",
+    "minimize": "Minimize",
+    "papersFound": "{{count}} papers evaluated",
+    "elapsed": "Elapsed: {{time}}",
+    "backgroundNotice": "You can navigate to other pages — the analysis continues in the background"
   }
 }

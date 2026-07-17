@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
+import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
 import {
   Home,
@@ -452,6 +453,7 @@ export default function DashboardLayout({ children }) {
           </main>
         </div>
         <SyncFloatingPanel />
+        <IdeaAnalysisFloatingPanel />
       </div>
     </div>
   );

@@ -44,7 +44,9 @@
       "literatureReview": "✍️ Đang tạo bản nháp tổng quan tài liệu...",
       "complete": "✅ Phân tích hoàn tất!",
       "error": "❌ Phân tích thất bại. Vui lòng thử lại.",
-      "estimatedTime": "Quá trình này có thể mất 30-60 giây"
+      "estimatedTime": "Quá trình này có thể mất 30-60 giây",
+      "dispatched": "Phân tích đang chạy ngầm",
+      "navigateAway": "Bạn có thể chuyển trang khác — chúng tôi sẽ thông báo khi hoàn tất"
     },
     "step4": {
       "title": "Kết quả phân tích",
@@ -110,5 +112,19 @@
   "cache": {
     "cached": "Đã lưu cache ⚡",
     "fresh": "Phân tích mới"
+  },
+  "floatingPanel": {
+    "analyzing": "Đang phân tích {{keyword}}...",
+    "analyzingGeneric": "Đang phân tích...",
+    "inProgress": "Đang phân tích",
+    "complete": "Phân tích hoàn tất",
+    "failed": "Phân tích thất bại",
+    "viewResults": "Xem kết quả",
+    "retry": "Thử lại",
+    "dismiss": "Đóng",
+    "minimize": "Thu nhỏ",
+    "papersFound": "{{count}} bài báo đã đánh giá",
+    "elapsed": "Thời gian: {{time}}",
+    "backgroundNotice": "Bạn có thể chuyển trang khác — phân tích vẫn tiếp tục chạy ngầm"
   }
 }
