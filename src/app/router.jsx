@@ -25,6 +25,7 @@ const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.js
 const BookmarksView = lazy(() => import('../features/bookmarks/BookmarksView.jsx'));
 const ReadingHistoryPage = lazy(() => import('../features/history/ReadingHistoryPage.jsx'));
 const ReportsView = lazy(() => import('../features/reports/ReportsViewPage.jsx'));
+const IdeaPage = lazy(() => import('../features/idea/IdeaPage.jsx'));
 const FollowsView = lazy(() => import('../features/follows/FollowsView.jsx'));
 const NotificationsPage = lazy(() => import('../features/notifications/NotificationsPage.jsx'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage.jsx'));
@@ -232,6 +233,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <ReportsView />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'ideas', // -> URL thực tế: /:roleName/ideas
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <IdeaPage />
             </Suspense>
           </ProtectedRoute>
         ),
