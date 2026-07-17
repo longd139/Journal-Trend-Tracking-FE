@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "idea": "Ý tưởng nghiên cứu",
+    "newAnalysis": "Phân tích mới",
+    "history": "Lịch sử"
+  },
+  "headings": {
+    "idea": "Phân tích ý tưởng nghiên cứu",
+    "newAnalysis": "Phân tích mới",
+    "history": "Lịch sử phân tích"
+  },
+  "subtitles": {
+    "idea": "Đánh giá ý tưởng nghiên cứu và phân tích khoảng trống bằng AI",
+    "newAnalysis": "Gửi ý tưởng nghiên cứu của bạn và để AI phân tích dựa trên tài liệu hiện có",
+    "history": "Xem và tiếp tục các phân tích trước đây của bạn"
+  },
+  "newAnalysis": {
+    "step1": {
+      "title": "Mô tả ý tưởng nghiên cứu của bạn",
+      "description": "Viết mô tả chi tiết về ý tưởng nghiên cứu. Càng cụ thể, AI càng phân tích tốt hơn.",
+      "placeholder": "Mô tả chi tiết ý tưởng nghiên cứu của bạn...\n\nVí dụ:\n- Bạn đang cố gắng giải quyết vấn đề gì?\n- Bạn dự định sử dụng phương pháp luận nào?\n- Bạn muốn lấp đầy khoảng trống nào trong tài liệu?\n- Đóng góp dự kiến của bạn là gì?",
+      "charCount": "{{current}} / {{max}} ký tự",
+      "submit": "Trích xuất từ khóa"
+    },
+    "step2": {
+      "title": "Chọn từ khóa",
+      "description": "Xem lại từ khóa do AI trích xuất và thêm từ khóa của riêng bạn. Chúng sẽ được dùng để tìm kiếm bài báo liên quan.",
+      "extractedLabel": "Trích xuất từ ý tưởng của bạn",
+      "suggestedLabel": "Từ khóa AI gợi ý",
+      "yourKeywordsLabel": "Từ khóa bạn thêm",
+      "addPlaceholder": "Nhập từ khóa và nhấn Enter",
+      "addButton": "Thêm",
+      "regenerateKeywords": "Tạo lại từ khóa",
+      "confirmSearch": "Xác nhận & Tìm kiếm",
+      "minKeywordsWarning": "Vui lòng chọn ít nhất 1 từ khóa để tiếp tục",
+      "noKeywords": "Chưa có từ khóa nào được chọn"
+    },
+    "step3": {
+      "title": "Đang phân tích ý tưởng của bạn",
+      "searching": "🔍 Đang tìm kiếm OpenAlex cho các bài báo liên quan...",
+      "downloading": "📥 Đang tải PDF cho các bài báo hàng đầu...",
+      "evaluating": "🤖 AI đang đánh giá bài báo dựa trên ý tưởng của bạn...",
+      "gapAnalysis": "🧠 Đang phân tích khoảng trống nghiên cứu...",
+      "literatureReview": "✍️ Đang tạo bản nháp tổng quan tài liệu...",
+      "complete": "✅ Phân tích hoàn tất!",
+      "error": "❌ Phân tích thất bại. Vui lòng thử lại.",
+      "estimatedTime": "Quá trình này có thể mất 30-60 giây",
+      "dispatched": "Phân tích đang chạy ngầm",
+      "navigateAway": "Bạn có thể chuyển trang khác — chúng tôi sẽ thông báo khi hoàn tất"
+    },
+    "step4": {
+      "title": "Kết quả phân tích",
+      "gapAnalysisTitle": "Phân tích khoảng trống nghiên cứu",
+      "literatureReviewTitle": "Bản nháp tổng quan tài liệu",
+      "paperEvaluationTitle": "Chi tiết đánh giá bài báo",
+      "solvedAreas": "Những gì đã được giải quyết",
+      "partiallyAddressed": "Đã đề cập một phần",
+      "researchGaps": "Khoảng trống nghiên cứu — Cơ hội",
+      "suggestedDirections": "Hướng nghiên cứu đề xuất",
+      "noveltyScore": "Điểm mới",
+      "noveltyExplanation": "Ý tưởng của bạn có {{score}}% tính mới — {{explanation}}",
+      "copyText": "Sao chép văn bản",
+      "exportBibtex": "Xuất BibTeX",
+      "regenerate": "Tạo lại",
+      "textCopied": "Đã sao chép tổng quan tài liệu vào clipboard!",
+      "bibtexExported": "Đã tải xuống file BibTeX!",
+      "references": "Tài liệu tham khảo",
+      "viewPdf": "Xem PDF",
+      "evidenceFromPaper": "Bằng chứng từ bài báo",
+      "noEvidence": "Không có trích dẫn bằng chứng"
+    },
+    "criteria": {
+      "TOPIC_MATCH": "Khớp chủ đề",
+      "METHOD_RELEVANT": "Phương pháp liên quan",
+      "GAP_ADDRESSED": "Đã giải quyết khoảng trống",
+      "CITE_WORTHY": "Đáng trích dẫn"
+    }
+  },
+  "history": {
+    "title": "Lịch sử phân tích",
+    "empty": {
+      "title": "Chưa có phân tích nào",
+      "description": "Các phân tích ý tưởng nghiên cứu trước đây sẽ xuất hiện ở đây. Hãy bắt đầu bằng cách phân tích một ý tưởng mới!"
+    },
+    "item": {
+      "papers": "{{count}} bài báo",
+      "papers_plural": "{{count}} bài báo",
+      "view": "Xem",
+      "continue": "Tiếp tục",
+      "delete": "Xóa",
+      "noveltyScore": "Độ mới {{score}}%"
+    },
+    "delete": {
+      "title": "Xóa phân tích",
+      "description": "Bạn có chắc chắn muốn xóa phân tích này không? Hành động này không thể hoàn tác.",
+      "confirm": "Xóa",
+      "cancel": "Hủy",
+      "success": "Đã xóa phân tích thành công",
+      "error": "Không thể xóa phân tích"
+    },
+    "detail": {
+      "title": "Chi tiết phân tích",
+      "back": "Quay lại lịch sử",
+      "originalIdea": "Ý tưởng gốc",
+      "keywords": "Từ khóa",
+      "performedOn": "Thực hiện vào {{date}}",
+      "paperCount": "{{count}} bài báo đã phân tích"
+    },
+    "loadError": "Không thể tải lịch sử phân tích",
+    "detailLoadError": "Không thể tải chi tiết phân tích"
+  },
+  "cache": {
+    "cached": "Đã lưu cache ⚡",
+    "fresh": "Phân tích mới"
+  },
+  "floatingPanel": {
+    "analyzing": "Đang phân tích {{keyword}}...",
+    "analyzingGeneric": "Đang phân tích...",
+    "inProgress": "Đang phân tích",
+    "complete": "Phân tích hoàn tất",
+    "failed": "Phân tích thất bại",
+    "viewResults": "Xem kết quả",
+    "retry": "Thử lại",
+    "dismiss": "Đóng",
+    "minimize": "Thu nhỏ",
+    "papersFound": "{{count}} bài báo đã đánh giá",
+    "elapsed": "Thời gian: {{time}}",
+    "backgroundNotice": "Bạn có thể chuyển trang khác — phân tích vẫn tiếp tục chạy ngầm"
+  }
+}

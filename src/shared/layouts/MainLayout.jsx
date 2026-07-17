@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
+import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
 import {
   Home,
@@ -24,6 +25,7 @@ import {
   Menu,
   X,
   HelpCircle,
+  Lightbulb,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
@@ -51,6 +53,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
+    { id: 'ideas', Icon: Lightbulb, label: t('sidebar.idea') },
   ];
 
   const researcherNav = [
@@ -63,6 +66,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
+    { id: 'ideas', Icon: Lightbulb, label: t('sidebar.idea') },
   ];
 
   const adminNav = [
@@ -339,6 +343,7 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.searchAuthor'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
+    ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
@@ -448,6 +453,7 @@ export default function DashboardLayout({ children }) {
           </main>
         </div>
         <SyncFloatingPanel />
+        <IdeaAnalysisFloatingPanel />
       </div>
     </div>
   );

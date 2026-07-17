@@ -1,0 +1,130 @@
+{
+  "sidebar": {
+    "idea": "Research Idea",
+    "newAnalysis": "New Analysis",
+    "history": "History"
+  },
+  "headings": {
+    "idea": "Research Idea Analysis",
+    "newAnalysis": "New Analysis",
+    "history": "Analysis History"
+  },
+  "subtitles": {
+    "idea": "AI-powered research idea evaluation and gap analysis",
+    "newAnalysis": "Submit your research idea and let AI analyze it against existing literature",
+    "history": "View and continue your previous analyses"
+  },
+  "newAnalysis": {
+    "step1": {
+      "title": "Describe Your Research Idea",
+      "description": "Write a detailed description of your research idea. The more specific you are, the better the AI can analyze it.",
+      "placeholder": "Describe your research idea in detail...\n\nFor example:\n- What problem are you trying to solve?\n- What methodology do you plan to use?\n- What gap in the literature do you aim to address?\n- What are your expected contributions?",
+      "charCount": "{{current}} / {{max}} characters",
+      "submit": "Extract Keywords"
+    },
+    "step2": {
+      "title": "Select Keywords",
+      "description": "Review AI-extracted keywords and add your own. These will be used to search for related papers.",
+      "extractedLabel": "Extracted from your idea",
+      "suggestedLabel": "AI suggested keywords",
+      "yourKeywordsLabel": "Your added keywords",
+      "addPlaceholder": "Type a keyword and press Enter",
+      "addButton": "Add",
+      "regenerateKeywords": "Regenerate Keywords",
+      "confirmSearch": "Confirm & Search",
+      "minKeywordsWarning": "Please select at least 1 keyword to continue",
+      "noKeywords": "No keywords selected yet"
+    },
+    "step3": {
+      "title": "Analyzing Your Idea",
+      "searching": "🔍 Searching OpenAlex for relevant papers...",
+      "downloading": "📥 Downloading PDFs for top papers...",
+      "evaluating": "🤖 AI evaluating papers against your idea...",
+      "gapAnalysis": "🧠 Performing cross-paper gap analysis...",
+      "literatureReview": "✍️ Generating literature review draft...",
+      "complete": "✅ Analysis complete!",
+      "error": "❌ Analysis failed. Please try again.",
+      "estimatedTime": "This may take 30-60 seconds",
+      "dispatched": "Analysis is running in the background",
+      "navigateAway": "You can navigate to other pages — we'll notify you when it's done"
+    },
+    "step4": {
+      "title": "Analysis Results",
+      "gapAnalysisTitle": "Research Gap Analysis",
+      "literatureReviewTitle": "Literature Review Draft",
+      "paperEvaluationTitle": "Paper Evaluation Details",
+      "solvedAreas": "What is Already Solved",
+      "partiallyAddressed": "Partially Addressed",
+      "researchGaps": "Research Gaps — Opportunities",
+      "suggestedDirections": "Suggested Research Directions",
+      "noveltyScore": "Novelty Score",
+      "noveltyExplanation": "Your idea has {{score}}% novelty — {{explanation}}",
+      "copyText": "Copy Text",
+      "exportBibtex": "Export BibTeX",
+      "regenerate": "Regenerate",
+      "textCopied": "Literature review copied to clipboard!",
+      "bibtexExported": "BibTeX file downloaded!",
+      "references": "References",
+      "viewPdf": "View PDF",
+      "evidenceFromPaper": "Evidence from paper",
+      "noEvidence": "No evidence quote available"
+    },
+    "criteria": {
+      "TOPIC_MATCH": "Topic Match",
+      "METHOD_RELEVANT": "Method Relevant",
+      "GAP_ADDRESSED": "Gap Addressed",
+      "CITE_WORTHY": "Cite Worthy"
+    }
+  },
+  "history": {
+    "title": "Analysis History",
+    "empty": {
+      "title": "No analyses yet",
+      "description": "Your previous research idea analyses will appear here. Start by analyzing a new idea!"
+    },
+    "item": {
+      "papers": "{{count}} paper",
+      "papers_plural": "{{count}} papers",
+      "view": "View",
+      "continue": "Continue",
+      "delete": "Delete",
+      "noveltyScore": "Novelty {{score}}%"
+    },
+    "delete": {
+      "title": "Delete Analysis",
+      "description": "Are you sure you want to delete this analysis? This action cannot be undone.",
+      "confirm": "Delete",
+      "cancel": "Cancel",
+      "success": "Analysis deleted successfully",
+      "error": "Failed to delete analysis"
+    },
+    "detail": {
+      "title": "Analysis Detail",
+      "back": "Back to History",
+      "originalIdea": "Original Idea",
+      "keywords": "Keywords",
+      "performedOn": "Performed on {{date}}",
+      "paperCount": "{{count}} papers analyzed"
+    },
+    "loadError": "Failed to load analysis history",
+    "detailLoadError": "Failed to load analysis detail"
+  },
+  "cache": {
+    "cached": "Cached ⚡",
+    "fresh": "Fresh analysis"
+  },
+  "floatingPanel": {
+    "analyzing": "Analyzing {{keyword}}...",
+    "analyzingGeneric": "Analyzing...",
+    "inProgress": "Analysis in Progress",
+    "complete": "Analysis Complete",
+    "failed": "Analysis Failed",
+    "viewResults": "View Results",
+    "retry": "Retry",
+    "dismiss": "Dismiss",
+    "minimize": "Minimize",
+    "papersFound": "{{count}} papers evaluated",
+    "elapsed": "Elapsed: {{time}}",
+    "backgroundNotice": "You can navigate to other pages — the analysis continues in the background"
+  }
+}
