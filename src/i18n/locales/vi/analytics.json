@@ -5,6 +5,11 @@
     "title": "Phân tích",
     "subtitle": "Phân tích chuyên sâu dữ liệu nghiên cứu"
   },
+  "tabs": {
+    "myAnalytics": "Phân tích của tôi",
+    "trendPrediction": "Dự đoán xu hướng",
+    "researchLandscape": "Bản đồ nghiên cứu"
+  },
   "cards": {
     "trendAnalysis": "Phân tích xu hướng",
     "fieldDistribution": "Phân bố lĩnh vực",
@@ -12,17 +17,71 @@
     "geographicDistribution": "Phân bố địa lý",
     "hotKeywords": "Từ khóa nổi bật"
   },
+  "statCards": {
+    "totalPapers": "Tổng bài báo",
+    "totalCitations": "Tổng trích dẫn",
+    "hIndex": "Chỉ số H",
+    "activeFields": "Lĩnh vực",
+    "avgCitations": "Trích dẫn TB"
+  },
   "charts": {
     "publicationsOverTime": "Công bố theo thời gian",
     "citationsPerField": "Trích dẫn theo lĩnh vực",
     "impactByYear": "Tác động theo năm",
     "researchGrowth": "Tăng trưởng nghiên cứu",
-    "trendingKeywords": "Những từ khóa được tìm kiếm nhiều nhất"
+    "trendingKeywords": "Những từ khóa được tìm kiếm nhiều nhất",
+    "yourTopKeywords": "Từ khóa của bạn",
+    "keywordComparison": "So sánh từ khóa"
+  },
+  "trendPrediction": {
+    "title": "Dự đoán xu hướng AI",
+    "risingStars": "Đang lên",
+    "risingStarsDesc": "Từ khóa dự kiến sẽ bùng nổ trong 6-12 tháng tới",
+    "declining": "Đang giảm",
+    "decliningDesc": "Từ khóa đang mất đà",
+    "matchedToYou": "Phù hợp với bạn",
+    "matchedToYouDesc": "Xu hướng mới nổi liên quan đến nghiên cứu của bạn",
+    "confidence": "Độ tin cậy",
+    "expectedGrowth": "Tăng trưởng dự kiến",
+    "matchesYourField": "Phù hợp với lĩnh vực của bạn",
+    "emergingInYourArea": "Mới nổi trong lĩnh vực của bạn",
+    "predictedPeak": "Đỉnh dự kiến",
+    "trendTimeline": "Dòng thời gian xu hướng",
+    "historical": "Lịch sử",
+    "predicted": "Dự đoán",
+    "papers": "Bài báo",
+    "noData": "Chưa có dự đoán xu hướng. Hãy thử chọn một lĩnh vực nghiên cứu.",
+    "selectField": "Chọn lĩnh vực nghiên cứu để xem dự đoán AI"
+  },
+  "researchLandscape": {
+    "title": "Bản đồ lĩnh vực nghiên cứu",
+    "fieldBreakdown": "Chi tiết lĩnh vực",
+    "papers": "Bài báo",
+    "growth": "Tăng trưởng",
+    "hot": "Nóng",
+    "rising": "Đang lên",
+    "stable": "Ổn định",
+    "declining": "Đang giảm",
+    "crossFieldTrends": "Xu hướng liên lĩnh vực",
+    "fastestGrowing": "Lĩnh vực liên ngành tăng trưởng nhanh nhất",
+    "noData": "Không có dữ liệu bản đồ nghiên cứu."
   },
   "hotKeywords": {
     "searches": "lượt tìm",
     "loading": "Đang tải từ khóa nổi bật…",
     "error": "Không thể tải từ khóa nổi bật",
     "empty": "Chưa có dữ liệu từ khóa"
+  },
+  "comparison": {
+    "placeholder": "Thêm từ khóa để so sánh...",
+    "addKeyword": "Thêm",
+    "compare": "So sánh",
+    "minTwo": "Thêm ít nhất 2 từ khóa để so sánh",
+    "totalPapers": "So sánh tổng bài báo",
+    "keyword": "Từ khóa",
+    "papers": "Bài báo",
+    "citations": "Trích dẫn",
+    "avgPerPaper": "TB/Bài",
+    "yoy": "YoY"
   }
 }

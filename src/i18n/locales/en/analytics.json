@@ -5,6 +5,11 @@
     "title": "Analytics",
     "subtitle": "Deep dive into your research data"
   },
+  "tabs": {
+    "myAnalytics": "My Analytics",
+    "trendPrediction": "Trend Prediction",
+    "researchLandscape": "Research Landscape"
+  },
   "cards": {
     "trendAnalysis": "Trend Analysis",
     "fieldDistribution": "Field Distribution",
@@ -12,17 +17,71 @@
     "geographicDistribution": "Geographic Distribution",
     "hotKeywords": "Hot Keywords"
   },
+  "statCards": {
+    "totalPapers": "Total Papers",
+    "totalCitations": "Total Citations",
+    "hIndex": "H-Index",
+    "activeFields": "Active Fields",
+    "avgCitations": "Avg Citations"
+  },
   "charts": {
     "publicationsOverTime": "Publications Over Time",
     "citationsPerField": "Citations per Field",
     "impactByYear": "Impact by Year",
     "researchGrowth": "Research Growth",
-    "trendingKeywords": "Most searched keywords right now"
+    "trendingKeywords": "Most searched keywords right now",
+    "yourTopKeywords": "Your Top Keywords",
+    "keywordComparison": "Keyword Comparison"
+  },
+  "trendPrediction": {
+    "title": "AI Trend Forecast",
+    "risingStars": "Rising Stars",
+    "risingStarsDesc": "Keywords expected to surge in the next 6-12 months",
+    "declining": "Declining",
+    "decliningDesc": "Keywords losing momentum",
+    "matchedToYou": "Matched to Your Interests",
+    "matchedToYouDesc": "Emerging trends relevant to your research",
+    "confidence": "Confidence",
+    "expectedGrowth": "Expected growth",
+    "matchesYourField": "Matches your field",
+    "emergingInYourArea": "Emerging in your research area",
+    "predictedPeak": "Predicted peak",
+    "trendTimeline": "Trend Timeline",
+    "historical": "Historical",
+    "predicted": "Predicted",
+    "papers": "Papers",
+    "noData": "No trend predictions available yet. Try selecting a research field.",
+    "selectField": "Select a research field to see AI predictions"
+  },
+  "researchLandscape": {
+    "title": "Research Field Map",
+    "fieldBreakdown": "Field Breakdown",
+    "papers": "Papers",
+    "growth": "Growth",
+    "hot": "Hot",
+    "rising": "Rising",
+    "stable": "Stable",
+    "declining": "Declining",
+    "crossFieldTrends": "Cross-Field Trends",
+    "fastestGrowing": "Fastest growing interdisciplinary area",
+    "noData": "No research landscape data available."
   },
   "hotKeywords": {
     "searches": "searches",
     "loading": "Loading hot keywords…",
     "error": "Failed to load hot keywords",
     "empty": "No keyword data yet"
+  },
+  "comparison": {
+    "placeholder": "Add keyword to compare...",
+    "addKeyword": "Add",
+    "compare": "Compare",
+    "minTwo": "Add at least 2 keywords to compare",
+    "totalPapers": "Total Papers Comparison",
+    "keyword": "Keyword",
+    "papers": "Papers",
+    "citations": "Citations",
+    "avgPerPaper": "Avg/Ppr",
+    "yoy": "YoY"
   }
 }
