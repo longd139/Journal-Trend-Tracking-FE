@@ -26,6 +26,7 @@
     "auditLogs": "Audit Logs",
     "configs": "Configs",
     "pdfRequests": "PDF Requests",
+    "upgradeRequests": "Upgrade Requests",
     "dataSources": "Data Sources",
     "signOut": "Sign Out",
     "signIn": "Sign In",

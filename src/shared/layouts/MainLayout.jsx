@@ -25,6 +25,7 @@ import {
   X,
   HelpCircle,
   Lightbulb,
+  ArrowUp,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
@@ -37,7 +38,7 @@ import SupportDialog from '../../components/common/SupportDialog';
    Sidebar
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount = 0, pdfPendingCount = 0 }) {
+function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount = 0, pdfPendingCount = 0, upgradePendingCount = 0 }) {
   const { t } = useTranslation('common');
   const [supportOpen, setSupportOpen] = useState(false);
   const clearTokens = useAuthStore((s) => s.clearTokens);
@@ -74,6 +75,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
+    { id: 'upgrade-requests', Icon: ArrowUp, label: t('sidebar.upgradeRequests') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
   ];
@@ -135,6 +137,11 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
               {id === 'pdf-requests' && pdfPendingCount > 0 && (
                 <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
                   {pdfPendingCount > 99 ? '99+' : pdfPendingCount}
+                </span>
+              )}
+              {id === 'upgrade-requests' && upgradePendingCount > 0 && (
+                <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-bold leading-none">
+                  {upgradePendingCount > 99 ? '99+' : upgradePendingCount}
                 </span>
               )}
             </button>
@@ -276,6 +283,8 @@ export default function DashboardLayout({ children }) {
   const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
   const pdfPendingCount = useNotificationStore((s) => s.pdfPendingCount);
   const fetchPdfPendingCount = useNotificationStore((s) => s.fetchPdfPendingCount);
+  const upgradePendingCount = useNotificationStore((s) => s.upgradePendingCount);
+  const fetchUpgradePendingCount = useNotificationStore((s) => s.fetchUpgradePendingCount);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -307,6 +316,15 @@ export default function DashboardLayout({ children }) {
     pdfIntervalRef.current = setInterval(fetchPdfPendingCount, 30_000);
     return () => clearInterval(pdfIntervalRef.current);
   }, [role, fetchPdfPendingCount]);
+
+  // Poll upgrade pending count every 30s (admin only)
+  const upgradeIntervalRef = useRef(null);
+  useEffect(() => {
+    if (role !== 'admin') return;
+    fetchUpgradePendingCount();
+    upgradeIntervalRef.current = setInterval(fetchUpgradePendingCount, 30_000);
+    return () => clearInterval(upgradeIntervalRef.current);
+  }, [role, fetchUpgradePendingCount]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -381,6 +399,10 @@ export default function DashboardLayout({ children }) {
       title: t('headings.pdfRequests'),
       sub: t('subtitles.pdfRequests'),
     },
+    'upgrade-requests': {
+      title: 'Upgrade Requests',
+      sub: 'Review and manage academic user upgrade requests',
+    },
     papers: {
       title: t('headings.paperDetails'),
       sub: t('subtitles.paperDetails'),
@@ -414,6 +436,7 @@ export default function DashboardLayout({ children }) {
         onClose={() => setSidebarOpen(false)}
         unreadCount={unreadCount}
         pdfPendingCount={pdfPendingCount}
+        upgradePendingCount={upgradePendingCount}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar

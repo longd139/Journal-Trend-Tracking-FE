@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   Users, Server, Database,
-  AlertTriangle, Zap, Clock, Globe, TrendingUp,
+  AlertTriangle, Zap, Clock, Globe, TrendingUp, ArrowUp,
 } from 'lucide-react';
 import {
   ResponsiveContainer, AreaChart, Area,
@@ -11,6 +12,7 @@ import {
 } from 'recharts';
 import { adminAPI } from './api.js';
 import { Skeleton } from '../../components/ui/skeleton';
+import { useNotificationStore } from '../../store/useNotificationStore';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Data — fetched from GET /api/v1/admin/overview
@@ -98,6 +100,8 @@ function PulseDot({ color = '#34D399' }) {
 export default function AdminOverview() {
   const { t } = useTranslation('admin');
   const { t: tc } = useTranslation('common');
+  const navigate = useNavigate();
+  const upgradePendingCount = useNotificationStore((s) => s.upgradePendingCount);
   const [now, setNow] = useState(new Date());
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -269,6 +273,18 @@ export default function AdminOverview() {
                   loading={loading}
                   label={t('overview.storage')}
                 />
+                {upgradePendingCount > 0 && (
+                  <button
+                    onClick={() => navigate(`/${sessionStorage.getItem('userRole')}/upgrade-requests`)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl border bg-amber-500/5 border-amber-500/10 hover:bg-amber-500/10 transition-all cursor-pointer"
+                  >
+                    <ArrowUp size={13} className="text-amber-400" />
+                    <div>
+                      <div className="text-sm font-bold font-mono tabular-nums text-amber-400">{upgradePendingCount}</div>
+                      <div className="text-[9px] text-amber-500/70 uppercase">pending upgrades</div>
+                    </div>
+                  </button>
+                )}
               </div>
             </div>
           </div>

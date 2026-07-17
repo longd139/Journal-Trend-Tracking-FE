@@ -1253,8 +1253,8 @@ export default function SearchJournal() {
                   ))}
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="text-center">
-                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">$999</span>
-                  <span className="text-sm text-gray-500 ml-1">/year</span>
+                  <span className="text-base font-bold text-[#E1E0CC]">Researcher Account</span>
+                  <span className="text-sm text-gray-500 ml-2">Unlock all features</span>
                 </motion.div>
                 <motion.button
                   initial={{ opacity: 0, y: 8 }}
@@ -1263,7 +1263,7 @@ export default function SearchJournal() {
                   onClick={() => { setUpgradeOpen(false); navigate(`/${currentRole}/settings`); }}
                   className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-[#0B1020] bg-[#DEDBC8] hover:bg-[#E1E0CC] shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
-                  <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
+                  <span className="flex-1 text-center pl-6">Request Upgrade Now</span>
                   <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B1020]"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
                   </span>

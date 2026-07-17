@@ -20,6 +20,7 @@ import {
   Palette,
   Camera,
   X,
+  ArrowUp,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -31,6 +32,8 @@ import { useAuthStore } from '../user/store';
 import ChangePasswordForm from './ChangePasswordForm';
 import AppearanceSettings from './AppearanceSettings';
 import NotificationSettings from './NotificationSettings';
+import UpgradeRequestsSection from '../upgrade/UpgradeRequestsSection';
+import UpgradeRequestForm from '../upgrade/UpgradeRequestForm';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -151,6 +154,7 @@ export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
   const clearTokens = useAuthStore((s) => s.clearTokens);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [showUpgradeForm, setShowUpgradeForm] = useState(false);
 
   /* ── Language preview ────────────────────────────────────────────── */
   const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
@@ -985,6 +989,43 @@ export default function SettingsPage() {
       >
         <NotificationSettings />
       </SectionCard>
+
+      {/* ═════════════════════════════════════════════════════════════════
+         SECTION 4.5 — Upgrade Request (academic_user only)
+         ═════════════════════════════════════════════════════════════════ */}
+      {role === 'academic_user' && (
+        <SectionCard
+          icon={ArrowUp}
+          title="Upgrade Request"
+          description="Submit and track your Researcher upgrade requests"
+          delay={0.19}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div>
+                <h4 className="text-sm font-bold text-[#E1E0CC]">Researcher Upgrade</h4>
+                <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+                  Get unlimited searches, advanced analytics, and more by upgrading to Researcher.
+                </p>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowUpgradeForm(true)}
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#4F8CFF]/15 text-[#4F8CFF] border border-[#4F8CFF]/25 hover:bg-[#4F8CFF]/25 hover:border-[#4F8CFF]/40 transition-all flex items-center gap-2"
+              >
+                <ArrowUp size={14} />
+                New Request
+              </motion.button>
+            </div>
+
+            <UpgradeRequestsSection />
+          </div>
+        </SectionCard>
+      )}
+
+      {/* UpgradeRequestForm modal — rendered outside SectionCard to avoid stacking-context clipping */}
+      <UpgradeRequestForm open={showUpgradeForm} onClose={() => setShowUpgradeForm(false)} />
 
       {/* ═════════════════════════════════════════════════════════════════
          SECTION 5 — Account Actions
