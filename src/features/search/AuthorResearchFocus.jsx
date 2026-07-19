@@ -27,15 +27,15 @@ function FocusSkeleton() {
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] animate-pulse">
-          <div className="h-64 bg-[#DEDBC8]/3 rounded-full w-64 mx-auto" />
+        <div className="rounded-xl p-5 border border-primary/5 bg-card animate-pulse">
+          <div className="h-64 bg-primary/3 rounded-full w-64 mx-auto" />
         </div>
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#DEDBC8]/8 shrink-0" />
-              <div className="flex-1 h-3 bg-[#DEDBC8]/5 rounded" />
-              <div className="h-3 w-10 bg-[#DEDBC8]/5 rounded" />
+              <div className="w-2.5 h-2.5 rounded-full bg-primary/8 shrink-0" />
+              <div className="flex-1 h-3 bg-primary/5 rounded" />
+              <div className="h-3 w-10 bg-primary/5 rounded" />
             </div>
           ))}
         </div>
@@ -53,11 +53,11 @@ function CustomPieTooltip({ active, payload }) {
   const entry = payload[0];
   const item = entry.payload;
   return (
-    <div className="rounded-lg border border-[#DEDBC8]/10 bg-[#101010]/95 backdrop-blur-sm p-3 shadow-xl max-w-xs">
-      <p className="text-xs font-semibold text-[#E1E0CC] mb-1">{item.topicName}</p>
+    <div className="rounded-lg border border-primary/10 bg-card/95 backdrop-blur-sm p-3 shadow-xl max-w-xs">
+      <p className="text-xs font-semibold text-foreground mb-1">{item.topicName}</p>
       <div className="text-[11px] text-gray-400 space-y-0.5">
         <div>
-          Papers: <span className="font-mono font-semibold text-[#E1E0CC]">{item.paperCount}</span>
+          Papers: <span className="font-mono font-semibold text-foreground">{item.paperCount}</span>
           {' '}({item.percentage?.toFixed(1)}%)
         </div>
         {item.subfield && <div>Subfield: {item.subfield}</div>}
@@ -86,7 +86,7 @@ function renderLegend(props) {
               style={{ background: entry.color }}
             />
             <span className="text-gray-400 truncate flex-1">{item.topicName}</span>
-            <span className="font-mono font-semibold text-[#E1E0CC] w-10 text-right">
+            <span className="font-mono font-semibold text-foreground w-10 text-right">
               {item.percentage?.toFixed(1)}%
             </span>
           </div>
@@ -166,16 +166,16 @@ export default function AuthorResearchFocus({ keyword }) {
     >
       {/* Section label */}
       <div className="flex items-center gap-2">
-        <div className="w-1 h-4 rounded-full bg-[#DEDBC8]/20" />
+        <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Research Focus
-          <span className="text-[#DEDBC8]/60 ml-1.5 font-normal normal-case">
+          <span className="text-primary/60 ml-1.5 font-normal normal-case">
             — {data.totalTopics ?? data.topics.length} topics
           </span>
         </span>
       </div>
 
-      <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010]">
+      <div className="rounded-xl p-5 border border-primary/5 bg-card">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {/* Pie Chart */}
           <div className="flex items-center justify-center">
@@ -207,7 +207,7 @@ export default function AuthorResearchFocus({ keyword }) {
           {/* Legend + details */}
           <div className="flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-3">
-              <PieChartIcon size={13} className="text-[#DEDBC8]/40" />
+              <PieChartIcon size={13} className="text-primary/40" />
               <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
                 Topic Distribution
               </span>
@@ -226,7 +226,7 @@ export default function AuthorResearchFocus({ keyword }) {
                     style={{ background: TOPIC_COLORS[i % TOPIC_COLORS.length] }}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-[12px] text-gray-300 truncate group-hover:text-[#E1E0CC] transition-colors">
+                    <div className="text-[12px] text-gray-300 truncate group-hover:text-foreground transition-colors">
                       {topic.topicName}
                     </div>
                     {topic.subfield && (
@@ -236,7 +236,7 @@ export default function AuthorResearchFocus({ keyword }) {
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-xs font-mono font-semibold text-[#E1E0CC]">
+                    <div className="text-xs font-mono font-semibold text-foreground">
                       {topic.paperCount}
                     </div>
                     <div className="text-[10px] text-gray-500">

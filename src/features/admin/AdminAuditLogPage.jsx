@@ -92,7 +92,7 @@ function StatCard({ icon: Icon, accent, value, label, index = 0 }) {
       whileHover={{ y: -4 }}
       className="group relative p-4 rounded-2xl border flex flex-col gap-3
         bg-card-elevated border-card-elevated-border
-        hover:border-[#DEDBC8]/15 transition-colors duration-300
+        hover:border-primary/15 transition-colors duration-300
         shadow-[inset_0_1px_0_0_rgba(222,219,200,0.04)]
         overflow-hidden"
     >
@@ -108,7 +108,7 @@ function StatCard({ icon: Icon, accent, value, label, index = 0 }) {
         </div>
       </div>
       <div className="relative z-10">
-        <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">{value.toLocaleString()}</p>
+        <p className="text-xl font-bold text-foreground font-mono tabular-nums">{value.toLocaleString()}</p>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
       </div>
     </motion.div>
@@ -199,7 +199,7 @@ export default function AdminAuditLogPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
       >
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-amber-400/60 to-transparent" />
         <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
@@ -208,7 +208,7 @@ export default function AdminAuditLogPage() {
               <Shield size={18} />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#E1E0CC] font-display">{t('auditLogs.title')}</h2>
+              <h2 className="text-base font-bold text-foreground font-display">{t('auditLogs.title')}</h2>
               <p className="text-[11px] text-gray-500">{t('auditLogs.description')}</p>
             </div>
           </div>
@@ -220,7 +220,7 @@ export default function AdminAuditLogPage() {
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all border ${
                 autoRefresh
                   ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  : 'text-gray-400 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+                  : 'text-gray-400 border-primary/10 hover:text-foreground hover:border-primary/20'
               }`}
             >
               <RefreshCw size={11} className={autoRefresh ? 'animate-spin-slow' : ''} />
@@ -229,7 +229,7 @@ export default function AdminAuditLogPage() {
             <button
               onClick={() => fetchLogs()}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 border border-[#DEDBC8]/8"
+              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.04] text-gray-400 hover:text-foreground hover:bg-white/[0.08] active:scale-[0.97] transition-all duration-150 border border-primary/8"
             >
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} />
               {tc('actions.refresh')}
@@ -257,15 +257,15 @@ export default function AdminAuditLogPage() {
       {/* ─── Filter Bar ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         {/* Action filter pills */}
-        <div className="flex gap-1.5 p-1 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/5">
+        <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-primary/5">
           {ACTION_FILTERS.map((action) => (
             <button
               key={action}
               onClick={() => handleFilterChange(action)}
               className={`px-3.5 py-2 rounded-[10px] text-[11px] font-bold transition-all duration-300 ${
                 actionFilter === action
-                  ? 'bg-[#DEDBC8] text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                  : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.03]'
+                  ? 'bg-primary text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
+                  : 'text-gray-400 hover:text-foreground hover:bg-white/[0.03]'
               }`}
             >
               {action === 'ALL' ? t('auditLogs.allActions') : action}
@@ -281,17 +281,17 @@ export default function AdminAuditLogPage() {
             value={searchQuery}
             onChange={handleSearchChange}
             placeholder={t('auditLogs.searchPlaceholder')}
-            className="w-full pl-8 pr-3 py-2 rounded-xl text-xs border bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-600 focus:outline-none focus:border-[#DEDBC8]/25 transition-colors"
+            className="w-full pl-8 pr-3 py-2 rounded-xl text-xs border bg-card border-primary/10 text-foreground placeholder:text-gray-600 focus:outline-none focus:border-primary/25 transition-colors"
           />
         </div>
       </div>
 
       {/* ─── Table ─── */}
-      <div className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden">
+      <div className="rounded-2xl border border-primary/10 bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#DEDBC8]/10">
+              <tr className="border-b border-primary/10">
                 <th className="text-left px-5 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider w-[30%]">
                   {t('auditLogs.table.admin')}
                 </th>
@@ -309,20 +309,20 @@ export default function AdminAuditLogPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#DEDBC8]/5">
+            <tbody className="divide-y divide-primary/5">
               {loading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i}>
                     <td colSpan={5} className="px-5 py-4">
                       <div className="flex items-center gap-4 animate-pulse">
-                        <div className="w-8 h-8 rounded-full bg-[#DEDBC8]/8 shrink-0" />
+                        <div className="w-8 h-8 rounded-full bg-primary/8 shrink-0" />
                         <div className="flex-1 space-y-2">
-                          <div className="h-3 w-36 bg-[#DEDBC8]/8 rounded" />
-                          <div className="h-2.5 w-24 bg-[#DEDBC8]/5 rounded" />
+                          <div className="h-3 w-36 bg-primary/8 rounded" />
+                          <div className="h-2.5 w-24 bg-primary/5 rounded" />
                         </div>
-                        <div className="h-5 w-16 bg-[#DEDBC8]/8 rounded shrink-0" />
-                        <div className="h-3 w-28 bg-[#DEDBC8]/5 rounded shrink-0 hidden md:block" />
-                        <div className="h-3 w-16 bg-[#DEDBC8]/5 rounded shrink-0" />
+                        <div className="h-5 w-16 bg-primary/8 rounded shrink-0" />
+                        <div className="h-3 w-28 bg-primary/5 rounded shrink-0 hidden md:block" />
+                        <div className="h-3 w-16 bg-primary/5 rounded shrink-0" />
                       </div>
                     </td>
                   </tr>
@@ -334,7 +334,7 @@ export default function AdminAuditLogPage() {
                       <div className="w-16 h-16 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-center mb-4">
                         <Inbox size={28} className="text-gray-500" />
                       </div>
-                      <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('auditLogs.emptyTitle')}</h3>
+                      <h3 className="text-sm font-bold text-foreground mb-1">{t('auditLogs.emptyTitle')}</h3>
                       <p className="text-xs text-gray-500 text-center max-w-[260px]">{t('auditLogs.emptyDesc')}</p>
                     </div>
                   </td>
@@ -349,10 +349,10 @@ export default function AdminAuditLogPage() {
                     {/* Admin */}
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-full bg-[#DEDBC8]/10 flex items-center justify-center shrink-0">
-                          <span className="text-[11px] font-bold text-[#DEDBC8]">{getInitial(log.adminEmail)}</span>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <span className="text-[11px] font-bold text-primary">{getInitial(log.adminEmail)}</span>
                         </div>
-                        <span className="text-xs text-[#E1E0CC] font-medium truncate block max-w-[180px]">
+                        <span className="text-xs text-foreground font-medium truncate block max-w-[180px]">
                           {log.adminEmail || t('auditLogs.system')}
                         </span>
                       </div>
@@ -369,7 +369,7 @@ export default function AdminAuditLogPage() {
                         <Database size={11} className="text-gray-600 shrink-0" />
                         {log.targetTable ? (
                           <span className="text-xs text-gray-400 truncate block" title={`${log.targetTable}${log.targetId ? ` #${log.targetId}` : ''}`}>
-                            <span className="text-[#DEDBC8]">{log.targetTable}</span>
+                            <span className="text-primary">{log.targetTable}</span>
                             {log.targetId && (
                               <span className="text-gray-600 ml-1 font-mono text-[10px]">
                                 #{typeof log.targetId === 'string' ? log.targetId.substring(0, 8) : log.targetId}
@@ -411,7 +411,7 @@ export default function AdminAuditLogPage() {
 
         {/* ─── Pagination ─── */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-3 border-t border-[#DEDBC8]/10">
+          <div className="flex items-center justify-between px-5 py-3 border-t border-primary/10">
             <span className="text-xs text-gray-500 font-mono tabular-nums">
               {t('auditLogs.pagination', { current: page + 1, total: totalPages })}
             </span>
@@ -435,8 +435,8 @@ export default function AdminAuditLogPage() {
                     onClick={() => setPage(pn)}
                     className={`w-8 h-8 rounded-lg text-[11px] font-bold transition-all duration-150 ${
                       pn === page
-                        ? 'bg-[#DEDBC8] text-black'
-                        : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/5'
+                        ? 'bg-primary text-black'
+                        : 'text-gray-400 hover:text-foreground hover:bg-white/5'
                     }`}
                   >
                     {pn + 1}
@@ -460,17 +460,17 @@ export default function AdminAuditLogPage() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-md !bg-[#101010] border-l border-[#DEDBC8]/10 p-0 flex flex-col"
+          className="w-full sm:max-w-md !bg-card border-l border-primary/10 p-0 flex flex-col"
         >
           {selectedLog && (
             <>
-              <SheetHeader className="px-6 py-5 border-b border-[#DEDBC8]/10 space-y-3">
+              <SheetHeader className="px-6 py-5 border-b border-primary/10 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
                     <Shield size={18} />
                   </div>
                   <div>
-                    <SheetTitle className="text-base font-bold text-[#E1E0CC]">{t('auditLogs.detail.title')}</SheetTitle>
+                    <SheetTitle className="text-base font-bold text-foreground">{t('auditLogs.detail.title')}</SheetTitle>
                     <p className="text-[10px] font-mono text-gray-500 mt-0.5">
                       {t('auditLogs.detail.auditId')}: {typeof selectedLog.auditId === 'string' ? selectedLog.auditId.substring(0, 12) : selectedLog.auditId}
                     </p>
@@ -492,11 +492,11 @@ export default function AdminAuditLogPage() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                     {t('auditLogs.detail.admin')}
                   </span>
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
-                    <div className="w-9 h-9 rounded-full bg-[#DEDBC8]/10 flex items-center justify-center">
-                      <User size={15} className="text-[#DEDBC8]" />
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User size={15} className="text-primary" />
                     </div>
-                    <span className="text-sm text-[#E1E0CC] font-medium">
+                    <span className="text-sm text-foreground font-medium">
                       {selectedLog.adminEmail || t('auditLogs.system')}
                     </span>
                   </div>
@@ -508,13 +508,13 @@ export default function AdminAuditLogPage() {
                     {t('auditLogs.detail.target')}
                   </span>
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
+                    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
                       <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-0.5">{t('auditLogs.detail.targetTable')}</p>
-                      <p className="text-sm font-medium text-[#DEDBC8]">{selectedLog.targetTable || '—'}</p>
+                      <p className="text-sm font-medium text-primary">{selectedLog.targetTable || '—'}</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
+                    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
                       <p className="text-[9px] uppercase tracking-wider text-gray-600 mb-0.5">{t('auditLogs.detail.targetId')}</p>
-                      <p className="text-sm font-mono text-[#E1E0CC] truncate">{selectedLog.targetId || '—'}</p>
+                      <p className="text-sm font-mono text-foreground truncate">{selectedLog.targetId || '—'}</p>
                     </div>
                   </div>
                 </div>
@@ -524,9 +524,9 @@ export default function AdminAuditLogPage() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                     {t('auditLogs.detail.ipAddress')}
                   </span>
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
                     <Globe size={15} className="text-gray-500" />
-                    <span className="text-sm font-mono text-[#E1E0CC]">{selectedLog.ipAddress || '—'}</span>
+                    <span className="text-sm font-mono text-foreground">{selectedLog.ipAddress || '—'}</span>
                   </div>
                 </div>
 
@@ -535,9 +535,9 @@ export default function AdminAuditLogPage() {
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                     {t('auditLogs.detail.timestamp')}
                   </span>
-                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
                     <Clock size={15} className="text-gray-500" />
-                    <span className="text-sm text-[#E1E0CC]">{formatFullDate(selectedLog.createdAt)}</span>
+                    <span className="text-sm text-foreground">{formatFullDate(selectedLog.createdAt)}</span>
                   </div>
                 </div>
 
@@ -547,7 +547,7 @@ export default function AdminAuditLogPage() {
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
                       {t('auditLogs.detail.details') || 'Details'}
                     </span>
-                    <div className="p-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5">
+                    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5">
                       <pre className="text-[11px] text-gray-400 font-mono whitespace-pre-wrap leading-relaxed">
                         {selectedLog.details || JSON.stringify({ oldValue: selectedLog.oldValue, newValue: selectedLog.newValue }, null, 2)}
                       </pre>

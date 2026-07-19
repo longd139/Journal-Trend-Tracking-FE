@@ -47,7 +47,7 @@ function StatCard({ label, value, loading, Icon, accent, index = 0 }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -3 }}
-      className="group p-4 rounded-2xl border flex flex-col gap-2.5 bg-[#101010] border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 hover:shadow-lg hover:shadow-[#DEDBC8]/5 hover:-translate-y-0.5 transition-all duration-300"
+      className="group p-4 rounded-2xl border flex flex-col gap-2.5 bg-card border-primary/5 hover:border-primary/15 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300"
     >
       <div className="flex items-start justify-between">
         <div className="p-2.5 rounded-xl" style={{ background: `${accent}18`, color: accent }}>
@@ -57,22 +57,22 @@ function StatCard({ label, value, loading, Icon, accent, index = 0 }) {
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
         {loading ? (
-          <Skeleton className="h-6 w-20 mt-1 bg-[#DEDBC8]/10" />
+          <Skeleton className="h-6 w-20 mt-1 bg-primary/10" />
         ) : (
-          <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">{value}</p>
+          <p className="text-xl font-bold text-foreground font-mono tabular-nums">{value}</p>
         )}
       </div>
     </motion.div>
   );
 }
 
-function BannerPill({ icon, value, loading, label, accent = 'text-[#E1E0CC]', borderClass = 'bg-[#DEDBC8]/5 border-[#DEDBC8]/8' }) {
+function BannerPill({ icon, value, loading, label, accent = 'text-foreground', borderClass = 'bg-primary/5 border-primary/8' }) {
   return (
     <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${borderClass}`}>
       {icon}
       <div>
         {loading ? (
-          <Skeleton className="h-4 w-14 bg-[#DEDBC8]/10" />
+          <Skeleton className="h-4 w-14 bg-primary/10" />
         ) : (
           <div className={`text-sm font-bold font-mono tabular-nums ${accent}`}>{value}</div>
         )}
@@ -207,10 +207,10 @@ export default function AdminOverview() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
         >
           {/* Subtle top accent line */}
-          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#DEDBC8]/60 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
           {/* Noise overlay */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundRepeat: 'repeat', backgroundSize: '128px 128px' }} />
 
@@ -219,15 +219,15 @@ export default function AdminOverview() {
               {/* Left: Status overview */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/10 border border-[#DEDBC8]/15">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/10 border border-primary/15">
                     <PulseDot color="#34D399" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#DEDBC8]">{tc('actions.live')}</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{tc('actions.live')}</span>
                   </div>
                   <span className="text-[11px] text-gray-500">
                     {now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString()}
                   </span>
                 </div>
-                <h1 className="text-lg sm:text-xl font-black text-[#E1E0CC] font-display tracking-tight">
+                <h1 className="text-lg sm:text-xl font-black text-foreground font-display tracking-tight">
                   {t('overview.console')}
                 </h1>
                 <p className="text-xs text-gray-500 max-w-md">
@@ -238,7 +238,7 @@ export default function AdminOverview() {
               {/* Right: Quick stat pills */}
               <div className="flex flex-wrap items-center gap-2">
                 <BannerPill
-                  icon={<Users size={13} className="text-[#DEDBC8]" />}
+                  icon={<Users size={13} className="text-primary" />}
                   value={activeUsers}
                   loading={loading}
                   label={t('overview.users')}
@@ -258,13 +258,13 @@ export default function AdminOverview() {
                   borderClass="bg-emerald-500/5 border-emerald-500/10"
                 />
                 <BannerPill
-                  icon={<Clock size={13} className="text-[#DEDBC8]" />}
+                  icon={<Clock size={13} className="text-primary" />}
                   value={avgLatencyMs}
                   loading={loading}
                   label={t('overview.latency')}
                 />
                 <BannerPill
-                  icon={<Database size={13} className="text-[#DEDBC8]" />}
+                  icon={<Database size={13} className="text-primary" />}
                   value={storage}
                   loading={loading}
                   label={t('overview.storage')}
@@ -289,7 +289,7 @@ export default function AdminOverview() {
             </div>
             <button
               onClick={handleRetry}
-              className="px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-[#DEDBC8]/10 hover:bg-[#DEDBC8]/20 text-[#E1E0CC] transition-colors"
+              className="px-3 py-1.5 text-[11px] font-semibold rounded-lg bg-primary/10 hover:bg-primary/20 text-foreground transition-colors"
             >
               {tc('actions.retry')}
             </button>
@@ -312,12 +312,12 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.5 }}
-            className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+            className="rounded-2xl border p-6 bg-card border-primary/5"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Globe size={14} className="text-[#DEDBC8]" /> {t('overview.requestVolume')}
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Globe size={14} className="text-primary" /> {t('overview.requestVolume')}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.requestSubtitle')}</p>
               </div>
@@ -376,12 +376,12 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}
-            className="rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+            className="rounded-2xl border p-6 bg-card border-primary/5"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Server size={14} className="text-[#DEDBC8]" /> {t('overview.resourceUsage')}
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Server size={14} className="text-primary" /> {t('overview.resourceUsage')}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.resourceSubtitle')}</p>
               </div>
@@ -392,9 +392,9 @@ export default function AdminOverview() {
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-gray-400">{t('overview.cpu')}</span>
-                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.cpuPercent}%</span>
+                    <span className="text-foreground font-mono tabular-nums">{resourceUsage.cpuPercent}%</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-700"
                          style={{ width: `${Math.min(resourceUsage.cpuPercent, 100)}%` }} />
                   </div>
@@ -403,9 +403,9 @@ export default function AdminOverview() {
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-gray-400">{t('overview.memory')}</span>
-                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.heapUsedMb} / {resourceUsage.heapMaxMb} MB</span>
+                    <span className="text-foreground font-mono tabular-nums">{resourceUsage.heapUsedMb} / {resourceUsage.heapMaxMb} MB</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-700"
                          style={{ width: `${resourceUsage.heapMaxMb > 0 ? Math.min((resourceUsage.heapUsedMb / resourceUsage.heapMaxMb) * 100, 100) : 0}%` }} />
                   </div>
@@ -414,9 +414,9 @@ export default function AdminOverview() {
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
                     <span className="text-gray-400">{t('overview.disk')}</span>
-                    <span className="text-[#E1E0CC] font-mono tabular-nums">{resourceUsage.diskUsedGb} / {resourceUsage.diskTotalGb} GB</span>
+                    <span className="text-foreground font-mono tabular-nums">{resourceUsage.diskUsedGb} / {resourceUsage.diskTotalGb} GB</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-[#DEDBC8]/10 overflow-hidden">
+                  <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
                     <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-purple-500 transition-all duration-700"
                          style={{ width: `${resourceUsage.diskTotalGb > 0 ? Math.min((resourceUsage.diskUsedGb / resourceUsage.diskTotalGb) * 100, 100) : 0}%` }} />
                   </div>
@@ -437,12 +437,12 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.5 }}
-            className="lg:col-span-3 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+            className="lg:col-span-3 rounded-2xl border p-6 bg-card border-primary/5"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <TrendingUp size={14} className="text-[#DEDBC8]" /> {t('overview.visitorTraffic')}
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <TrendingUp size={14} className="text-primary" /> {t('overview.visitorTraffic')}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.trafficSubtitle')}</p>
               </div>
@@ -487,12 +487,12 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.5 }}
-            className="lg:col-span-2 rounded-2xl border p-6 bg-[#101010] border-[#DEDBC8]/5"
+            className="lg:col-span-2 rounded-2xl border p-6 bg-card border-primary/5"
           >
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <Zap size={14} className="text-[#DEDBC8]" /> {t('overview.recentEvents')}
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <Zap size={14} className="text-primary" /> {t('overview.recentEvents')}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">{t('overview.eventsSubtitle')}</p>
               </div>
@@ -500,12 +500,12 @@ export default function AdminOverview() {
             {recentEvents?.events?.length > 0 ? (
               <div className="space-y-3 h-[200px] overflow-y-auto pr-1 custom-scrollbar">
                 {recentEvents.events.map((evt, i) => (
-                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl border border-[#DEDBC8]/6 hover:border-[#DEDBC8]/12 transition-colors">
+                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-xl border border-primary/6 hover:border-primary/12 transition-colors">
                     <div className={`p-1.5 rounded-lg mt-0.5 ${evt.type === 'audit' ? 'bg-amber-500/10 text-amber-400' : evt.type === 'sync' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'}`}>
                       {evt.type === 'audit' ? <AlertTriangle size={12} /> : evt.type === 'sync' ? <Server size={12} /> : <Zap size={12} />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-[#E1E0CC] truncate">{evt.title}</p>
+                      <p className="text-xs font-semibold text-foreground truncate">{evt.title}</p>
                       <p className="text-[10px] text-gray-500 truncate mt-0.5">{evt.description}</p>
                       <p className="text-[9px] text-gray-600 mt-1">{evt.timestamp ? new Date(evt.timestamp).toLocaleString() : ''}</p>
                     </div>

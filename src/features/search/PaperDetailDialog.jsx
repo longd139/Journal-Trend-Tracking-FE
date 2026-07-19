@@ -110,7 +110,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC]">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-card border-primary/10 text-foreground">
         {/* ── Header ── */}
         <DialogHeader>
           <DialogTitle className="text-base font-bold leading-snug pr-6">
@@ -127,7 +127,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
           {p.field && (
             <Badge
               variant="outline"
-              className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 bg-blue-500/10 text-[#DEDBC8] border-blue-500/25"
+              className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 bg-blue-500/10 text-primary border-blue-500/25"
             >
               {p.field}
             </Badge>
@@ -144,7 +144,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         </div>
 
         {/* ── Follow ── */}
-        <div className="flex items-center gap-2 border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+        <div className="flex items-center gap-2 border-t border-gray-100 border-primary/5 pt-4">
           <FollowButton
             journalId={p.journalId || null}
             journalName={p.journalName || p.journal || null}
@@ -161,7 +161,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Journal & DOI ── */}
         {(p.journal || p.doi) && (
-          <div className="space-y-1.5 border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+          <div className="space-y-1.5 border-t border-gray-100 border-primary/5 pt-4">
             {p.journal && (
               <p className="text-xs text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
                 <BookOpen size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
@@ -184,7 +184,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Abstract ── */}
         {p.abstract && (
-          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+          <div className="border-t border-gray-100 border-primary/5 pt-4">
             <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
               Abstract
             </h5>
@@ -196,16 +196,16 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── AI Summary (compact) ── */}
         {aiLoading && (
-          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4 animate-pulse">
+          <div className="border-t border-gray-100 border-primary/5 pt-4 animate-pulse">
             <div className="flex items-center gap-1.5 mb-3">
               <div className="w-4 h-4 rounded-md bg-[#4F8CFF]/20" />
-              <div className="h-3 w-16 rounded bg-[#DEDBC8]/8" />
+              <div className="h-3 w-16 rounded bg-primary/8" />
             </div>
             <div className="space-y-2">
               {[1, 2].map((i) => (
-                <div key={i} className="rounded-md bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 p-3">
+                <div key={i} className="rounded-md bg-primary/[0.02] border border-primary/5 p-3">
                   <div className="h-2.5 w-16 rounded bg-[#4F8CFF]/10 mb-2" />
-                  <div className="h-2.5 w-full rounded bg-[#DEDBC8]/5" />
+                  <div className="h-2.5 w-full rounded bg-primary/5" />
                 </div>
               ))}
             </div>
@@ -213,7 +213,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         )}
 
         {!aiLoading && aiError && (
-          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-3">
+          <div className="border-t border-gray-100 border-primary/5 pt-3">
             <div className="flex items-center gap-2 text-[10px] text-amber-400/70">
               <AlertCircle size={11} className="shrink-0" />
               <span>{t('aiSummary.error')}</span>
@@ -237,7 +237,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
             if (!hasContent && !hasMethodology) {
               return (
-                <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-3">
+                <div className="border-t border-gray-100 border-primary/5 pt-3">
                   <div className="flex items-center gap-2 text-[10px] text-[#4F8CFF]/50">
                     <BrainCircuit size={11} className="shrink-0" />
                     <span>{t('aiSummary.unavailable')}</span>
@@ -253,7 +253,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
             ];
 
             return (
-              <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+              <div className="border-t border-gray-100 border-primary/5 pt-4">
                 <div className="flex items-center gap-1.5 mb-2.5">
                   <div className="w-5 h-5 rounded-md bg-[#4F8CFF]/10 flex items-center justify-center">
                     <BrainCircuit size={11} className="text-[#4F8CFF]" />
@@ -292,7 +292,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                   })}
                 </div>
                 {hasMethodology && (
-                  <div className="mt-2 ml-4 pl-4 border-l-2 border-[#DEDBC8]/5">
+                  <div className="mt-2 ml-4 pl-4 border-l-2 border-primary/5">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#00D1B2]/[0.06] border border-[#00D1B2]/12">
                       <Cpu size={10} className="text-[#00D1B2] shrink-0" />
                       <span className="text-[10px] font-semibold text-[#00D1B2]">{aiData.methodology}</span>
@@ -306,7 +306,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Keywords ── */}
         {p.keywordsArray.length > 0 && (
-          <div className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4">
+          <div className="border-t border-gray-100 border-primary/5 pt-4">
             <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
               Keywords
             </h5>
@@ -324,7 +324,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         )}
 
         {/* ── Footer actions ── */}
-        <DialogFooter className="border-t border-gray-100 border-[#DEDBC8]/5 pt-4 mt-2 gap-2">
+        <DialogFooter className="border-t border-gray-100 border-primary/5 pt-4 mt-2 gap-2">
           {p.pdfAvailable && p.pdfUrl && (
             <Button
               type="button"
@@ -339,7 +339,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
             type="button"
             variant="outline"
             onClick={handleScholarSearch}
-            className="flex items-center gap-2 text-xs bg-white dark:bg-white/[0.02] border-[#DEDBC8]/10 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-white/5"
+            className="flex items-center gap-2 text-xs bg-white dark:bg-white/[0.02] border-primary/10 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-white/5"
           >
             <ExternalLink size={14} />
             Search on Google Scholar

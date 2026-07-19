@@ -91,7 +91,7 @@ export function PaperItemCard({
 
  // ── Icon button style: transparent + border → filled on hover ──
  const iconBtn =
-  'w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-300 bg-transparent border-[#DEDBC8]/15 text-gray-500 hover:text-[#DEDBC8] hover:bg-[#DEDBC8]/10 hover:border-[#DEDBC8]/30 active:scale-95';
+  'w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-300 bg-transparent border-primary/15 text-gray-500 hover:text-primary hover:bg-primary/10 hover:border-primary/30 active:scale-95';
 
  return (
   <motion.div
@@ -102,13 +102,13 @@ export function PaperItemCard({
   >
    <Card
     onClick={handleCardClick}
-    className={`bg-[#101010] border-[#DEDBC8]/5 p-5 transition-all duration-300 hover:border-[#DEDBC8]/20 cursor-pointer relative`}
+    className={`bg-card border-primary/5 p-5 transition-all duration-300 hover:border-primary/20 cursor-pointer relative`}
    >
     {/* Lock badge for academic users — pinned to top border */}
     {isLocked && (
-      <div className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#151922] border border-[#DEDBC8]/15 shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
-        <Lock size={10} className="text-[#DEDBC8]/50" />
-        <span className="text-[9px] font-bold text-[#DEDBC8]/50 uppercase tracking-wider">Researcher</span>
+      <div className="absolute -top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-card border border-primary/15 shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
+        <Lock size={10} className="text-primary/50" />
+        <span className="text-[9px] font-bold text-primary/50 uppercase tracking-wider">Researcher</span>
       </div>
     )}
     <CardContent className="p-0 flex flex-col sm:flex-row items-start justify-between gap-4">
@@ -119,7 +119,7 @@ export function PaperItemCard({
        <span className="font-semibold text-slate-300">{authors}</span>
        {field && (
         <>
-         <span className="text-[#DEDBC8]/15">•</span>
+         <span className="text-primary/15">•</span>
          <Badge
           variant="outline"
           className="text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0"
@@ -136,7 +136,7 @@ export function PaperItemCard({
        {citations > 50000 && (
         <Badge
          variant="secondary"
-         className="bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 text-[9px] font-bold"
+         className="bg-primary/10 text-primary border border-primary/20 text-[9px] font-bold"
         >
          Classic
         </Badge>
@@ -144,7 +144,7 @@ export function PaperItemCard({
       </div>
 
       {/* Title */}
-      <h4 className="text-base font-bold text-[#E1E0CC] leading-snug">
+      <h4 className="text-base font-bold text-foreground leading-snug">
        {paper.title || 'Untitled Paper'}
       </h4>
 
@@ -166,7 +166,7 @@ export function PaperItemCard({
 
       {/* Abstract */}
       {abstract && (
-       <div className="bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 p-3 rounded-lg space-y-1.5 mt-1 transition-colors">
+       <div className="bg-primary/[0.02] border border-primary/5 p-3 rounded-lg space-y-1.5 mt-1 transition-colors">
         <p
          className={`text-xs text-gray-400 leading-relaxed transition-all duration-300 ${
           isAbstractExpanded ? '' : 'line-clamp-2'
@@ -178,7 +178,7 @@ export function PaperItemCard({
         <button
          type="button"
          onClick={() => setIsAbstractExpanded(!isAbstractExpanded)}
-         className="text-[11px] text-[#DEDBC8] hover:text-[#E1E0CC] flex items-center gap-0.5 font-medium transition-colors pt-0.5"
+         className="text-[11px] text-primary hover:text-foreground flex items-center gap-0.5 font-medium transition-colors pt-0.5"
         >
          {isAbstractExpanded ? (
           <><ChevronUp size={12} /> Read Less</>
@@ -195,7 +195,7 @@ export function PaperItemCard({
         {keywordsArray.map((tag, idx) => (
          <span
           key={idx}
-          className="text-[10px] px-2.5 py-1 rounded-md font-bold tracking-wide bg-[#DEDBC8]/5 text-[#DEDBC8]/70 border border-[#DEDBC8]/10 transition-colors cursor-default"
+          className="text-[10px] px-2.5 py-1 rounded-md font-bold tracking-wide bg-primary/5 text-primary/70 border border-primary/10 transition-colors cursor-default"
          >
           #{tag.toUpperCase()}
          </span>
@@ -205,16 +205,16 @@ export function PaperItemCard({
      </div>
 
      {/* ── RIGHT: Citations + Actions ── */}
-     <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-[#DEDBC8]/5 sm:border-t-0 sm:pl-4">
+     <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-primary/5 sm:border-t-0 sm:pl-4">
       <div className="text-left sm:text-right">
-       <div className="text-2xl font-bold text-[#E1E0CC] font-display tracking-tight">
+       <div className="text-2xl font-bold text-foreground font-display tracking-tight">
         {citations.toLocaleString()}
        </div>
        <div className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
         Citations
        </div>
        {paper.trend && (
-        <div className="text-[10px] font-semibold mt-0.5 text-[#DEDBC8] bg-[#DEDBC8]/5 px-1.5 py-0.5 rounded border border-[#DEDBC8]/10 inline-block">
+        <div className="text-[10px] font-semibold mt-0.5 text-primary bg-primary/5 px-1.5 py-0.5 rounded border border-primary/10 inline-block">
          {paper.trend}
         </div>
        )}
@@ -251,7 +251,7 @@ export function PaperItemCard({
         disabled={bookmarkLoading}
         className={`${iconBtn} ${
          isSaved
-          ? 'bg-[#DEDBC8]/10 border-[#DEDBC8]/30 text-[#DEDBC8]'
+          ? 'bg-primary/10 border-primary/30 text-primary'
           : ''
         } ${bookmarkLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
        >

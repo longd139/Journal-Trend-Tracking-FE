@@ -18,9 +18,9 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
   if (!history || history.length === 0) return null;
 
   return (
-    <div className="rounded-xl border overflow-hidden bg-[#101010] border-[#DEDBC8]/5">
-      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
-        <h3 className="text-sm font-bold text-[#E1E0CC]">
+    <div className="rounded-xl border overflow-hidden bg-card border-primary/5">
+      <div className="flex items-center justify-between p-5 border-b border-primary/5">
+        <h3 className="text-sm font-bold text-foreground">
           {t('history.title') || 'Report History'}
         </h3>
         <span className="text-xs text-gray-400">
@@ -31,7 +31,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-[#DEDBC8]/5">
+            <tr className="border-b border-primary/5">
               {['Type', 'Query', 'Generated', 'Status', ''].map((h) => (
                 <th
                   key={h}
@@ -51,12 +51,12 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
               return (
                 <tr
                   key={entry._id || `${entry.type}-${entry.timestamp}-${i}`}
-                  className="border-b border-[#DEDBC8]/5 hover:bg-white/[0.02] transition-colors"
+                  className="border-b border-primary/5 hover:bg-white/[0.02] transition-colors"
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
                       <TypeIcon size={15} style={{ color: typeColor }} />
-                      <span className="text-xs font-semibold text-[#E1E0CC]">
+                      <span className="text-xs font-semibold text-foreground">
                         {typeConfig.label || entry.type}
                       </span>
                     </div>
@@ -82,7 +82,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onView(entry)}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-[#DEDBC8] hover:text-white transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-white transition-colors"
                       >
                         <TrendingUp size={13} />
                         View

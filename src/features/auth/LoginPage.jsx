@@ -51,7 +51,7 @@ function AtmospherePanel({ isForgotMode, t }) {
         {/* Large SCITRACK Logo */}
         <div className="flex flex-col items-start gap-1.5">
           <div className="flex items-center">
-            <ScitrackSLogo className="text-[#DEDBC8] -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
+            <ScitrackSLogo className="text-primary -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
             <span className="text-5xl xl:text-6xl font-black text-white font-outfit tracking-[0.05em] leading-none drop-shadow-lg">
               CITRACK
             </span>
@@ -90,8 +90,8 @@ function AtmospherePanel({ isForgotMode, t }) {
               onClick={() => setCurrentStat(i)}
               className={`rounded-full transition-all duration-500 active:scale-[0.92] ${
                 i === currentStat
-                  ? 'w-8 h-1.5 bg-[#DEDBC8]'
-                  : 'w-1.5 h-1.5 bg-[#DEDBC8]/25 hover:bg-[#DEDBC8]/40'
+                  ? 'w-8 h-1.5 bg-primary'
+                  : 'w-1.5 h-1.5 bg-primary/25 hover:bg-primary/40'
               }`}
             />
           ))}
@@ -237,9 +237,9 @@ export default function LoginPage() {
 
   /* ── Shared input class ──────────────────────────────────────────────── */
   const inputBase =
-    'w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 text-[#E1E0CC] placeholder:text-gray-400 shadow-[0_0_0_1px_rgba(222,219,200,0.05)]';
+    'w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 text-foreground placeholder:text-gray-400 shadow-[0_0_0_1px_rgba(222,219,200,0.05)]';
   const inputDefault =
-    'border-[#DEDBC8]/35 bg-[#151922] focus:border-[#DEDBC8] focus:bg-[#1C2130] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20';
+    'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20';
   const inputError = 'border-red-500/50 bg-red-500/[0.08]';
 
   return (
@@ -272,15 +272,15 @@ export default function LoginPage() {
             transition={{ duration: 0.5, delay: 0.05 }}
             className="flex items-center gap-1 mb-8 lg:hidden"
           >
-            <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-7 h-10" />
-            <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em] font-outfit">
+            <ScitrackSLogo className="text-primary -mr-1 w-7 h-10" />
+            <span className="text-lg font-black text-foreground tracking-[0.05em] font-outfit">
               CITRACK
             </span>
           </motion.div>
 
           {/* Badge */}
           <motion.div {...formItem} transition={{ duration: 0.5, delay: 0.1 }}>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-[#DEDBC8]/20 bg-[#DEDBC8]/10 text-[#DEDBC8]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-primary/20 bg-primary/10 text-primary">
               <Zap size={10} />
               {isForgotMode ? t('login.passwordRecovery') : t('login.secureAccess')}
             </div>
@@ -288,7 +288,7 @@ export default function LoginPage() {
 
           {/* Heading */}
           <motion.div {...formItem} transition={{ duration: 0.5, delay: 0.15 }}>
-            <h2 className="text-3xl lg:text-4xl font-black text-[#E1E0CC] mb-2 font-display tracking-tight leading-tight">
+            <h2 className="text-3xl lg:text-4xl font-black text-foreground mb-2 font-display tracking-tight leading-tight">
               {isForgotMode ? t('login.resetPassword') : t('login.welcomeBack')}
             </h2>
             <p className="text-sm text-gray-400 mb-8 leading-relaxed">
@@ -302,7 +302,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* ── Email ──────────────────────────────────────────────── */}
             <motion.div {...formItem} transition={{ duration: 0.5, delay: 0.2 }}>
-              <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+              <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
                 {t('login.emailLabel')}
               </label>
               <div className="relative group">
@@ -311,7 +311,7 @@ export default function LoginPage() {
                   className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors duration-300 ${
                     errors.email || errors.emailFormat
                       ? 'text-red-400'
-                      : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+                      : 'text-primary/80 group-focus-within:text-primary'
                   }`}
                 />
                 <input
@@ -363,7 +363,7 @@ export default function LoginPage() {
                     transition={{ duration: 0.5, delay: 0.25 }}
                     className="space-y-1.5"
                   >
-                    <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+                    <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
                       {t('login.passwordLabel')}
                     </label>
                     <div className="relative group">
@@ -372,7 +372,7 @@ export default function LoginPage() {
                         className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors duration-300 ${
                           errors.password
                             ? 'text-red-400'
-                            : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+                            : 'text-primary/80 group-focus-within:text-primary'
                         }`}
                       />
                       <input
@@ -387,7 +387,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
                       >
                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
@@ -412,10 +412,10 @@ export default function LoginPage() {
                     transition={{ duration: 0.5, delay: 0.3 }}
                     className="flex items-center justify-between text-xs pt-2 px-1"
                   >
-                    <label className="flex items-center gap-2.5 cursor-pointer text-gray-300 hover:text-[#E1E0CC] transition-colors select-none active:scale-[0.98]">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-gray-300 hover:text-foreground transition-colors select-none active:scale-[0.98]">
                       <span className="relative flex items-center justify-center w-4 h-4">
                         <input type="checkbox" className="sr-only peer" />
-                        <span className="absolute inset-0 rounded border border-[#DEDBC8]/50 bg-white/[0.04] peer-checked:bg-[#DEDBC8] peer-checked:border-[#DEDBC8] transition-all duration-200" />
+                        <span className="absolute inset-0 rounded border border-primary/50 bg-white/[0.04] peer-checked:bg-primary peer-checked:border-[#DEDBC8] transition-all duration-200" />
                         <svg className="relative w-2.5 h-2.5 text-transparent peer-checked:text-black transition-colors pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
@@ -425,7 +425,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={toggleForgotMode}
-                      className="font-semibold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block"
+                      className="font-semibold transition-colors text-primary hover:text-foreground active:scale-[0.97] inline-block"
                     >
                       {t('login.forgotPassword')}
                     </button>
@@ -472,7 +472,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="relative w-full py-3.5 rounded-full text-sm font-bold text-[#DEDBC8] flex items-center justify-center gap-2 transition-all duration-300 border border-[#DEDBC8]/60 bg-transparent hover:bg-[#DEDBC8] hover:text-black hover:border-[#DEDBC8]"
+              className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-black hover:border-primary"
               style={{ opacity: loading ? 0.7 : 1 }}
             >
               {loading ? (
@@ -495,11 +495,11 @@ export default function LoginPage() {
                 className="pt-2 space-y-4"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#DEDBC8]/15 to-transparent" />
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
                   <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     {t('login.orContinueWith')}
                   </span>
-                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-[#DEDBC8]/15 to-transparent" />
+                  <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
                 </div>
                 <div className="flex justify-center w-full">
                   <motion.button
@@ -508,7 +508,7 @@ export default function LoginPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => googleLogin()}
                     disabled={loading}
-                    className="w-full py-3.5 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2.5 transition-all duration-300 bg-[#DEDBC8] hover:bg-[#E1E0CC]"
+                    className="w-full py-3.5 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2.5 transition-all duration-300 bg-primary hover:bg-foreground"
                   >
                     <svg viewBox="0 0 24 24" width="18" height="18" className="shrink-0">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -527,12 +527,12 @@ export default function LoginPage() {
           <motion.div
             {...formItem}
             transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-7 pt-6 border-t border-[#DEDBC8]/10 text-center text-xs"
+            className="mt-7 pt-6 border-t border-primary/10 text-center text-xs"
           >
             {isForgotMode ? (
               <button
                 onClick={toggleForgotMode}
-                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-gray-400 hover:text-[#E1E0CC] active:scale-[0.97]"
+                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-gray-400 hover:text-foreground active:scale-[0.97]"
               >
                 <ArrowLeft size={13} /> {t('login.backToLogin')}
               </button>
@@ -541,7 +541,7 @@ export default function LoginPage() {
                 {t('login.noAccount')}{' '}
                 <Link
                   to="/register"
-                  className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block"
+                  className="font-bold transition-colors text-primary hover:text-foreground active:scale-[0.97] inline-block"
                 >
                   {t('login.register')}
                 </Link>
@@ -559,7 +559,7 @@ export default function LoginPage() {
       {/* Back to landing */}
       <button
         onClick={() => navigate('/')}
-        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-[#DEDBC8] transition-colors flex items-center gap-1.5 active:scale-[0.97]"
+        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-primary transition-colors flex items-center gap-1.5 active:scale-[0.97]"
       >
         <ArrowLeft size={11} /> Back to home
       </button>

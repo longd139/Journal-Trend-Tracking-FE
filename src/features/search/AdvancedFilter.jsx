@@ -52,15 +52,15 @@ export function AdvancedFilter({
  const hasActiveFilters = (filters.fields?.length > 0) || filters.pubYearFrom || filters.pubYearTo || filters.minCitations || filters.isOpenAccess || (filters.quartile?.length > 0);
 
  return (
-  <div className="bg-[#0F0F0F] border border-[#DEDBC8]/10 rounded-2xl p-5 space-y-5 shadow-lg shadow-black/40">
+  <div className="bg-[#0F0F0F] border border-primary/10 rounded-2xl p-5 space-y-5 shadow-lg shadow-black/40">
    {/* Header */}
    <div className="flex items-center justify-between">
-    <span className="text-xs font-bold text-[#E1E0CC] uppercase tracking-wider">Filters</span>
+    <span className="text-xs font-bold text-foreground uppercase tracking-wider">Filters</span>
     {hasActiveFilters && (
      <button
       type="button"
       onClick={clearFilters}
-      className="text-[10px] font-medium text-[#DEDBC8]/50 hover:text-[#DEDBC8] transition-colors flex items-center gap-1"
+      className="text-[10px] font-medium text-primary/50 hover:text-primary transition-colors flex items-center gap-1"
      >
       <X size={11} /> Clear all
      </button>
@@ -79,10 +79,10 @@ export function AdvancedFilter({
        value={filters.pubYearFrom || ""}
        onValueChange={(v) => setFilters((p) => ({ ...p, pubYearFrom: v }))}
       >
-       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] hover:border-[#DEDBC8]/20 focus:ring-0 rounded-lg [&>svg]:hidden">
+       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-primary/10 text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
         <SelectValue placeholder="From" />
        </SelectTrigger>
-       <SelectContent className="max-h-[180px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+       <SelectContent className="max-h-[180px] bg-card border-primary/10 text-foreground rounded-xl">
         {getFromYears(filters.pubYearTo).map((year) => (
          <SelectItem key={year} value={year} className="text-[11px] cursor-pointer">{year}</SelectItem>
         ))}
@@ -93,10 +93,10 @@ export function AdvancedFilter({
        value={filters.pubYearTo || ""}
        onValueChange={(v) => setFilters((p) => ({ ...p, pubYearTo: v }))}
       >
-       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] hover:border-[#DEDBC8]/20 focus:ring-0 rounded-lg [&>svg]:hidden">
+       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-primary/10 text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
         <SelectValue placeholder="To" />
        </SelectTrigger>
-       <SelectContent className="max-h-[180px] bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+       <SelectContent className="max-h-[180px] bg-card border-primary/10 text-foreground rounded-xl">
         {getToYears(filters.pubYearFrom).map((year) => (
          <SelectItem key={year} value={year} className="text-[11px] cursor-pointer">{year}</SelectItem>
         ))}
@@ -115,7 +115,7 @@ export function AdvancedFilter({
       placeholder="0"
       value={filters.minCitations || ""}
       onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
-      className="w-[100px] h-[32px] px-2.5 py-0 text-[11px] bg-[#101010] border border-[#DEDBC8]/10 rounded-lg text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/30 transition-colors"
+      className="w-[100px] h-[32px] px-2.5 py-0 text-[11px] bg-card border border-primary/10 rounded-lg text-foreground placeholder:text-gray-600 outline-none focus:border-primary/30 transition-colors"
      />
     </div>
 
@@ -133,7 +133,7 @@ export function AdvancedFilter({
    </div>
 
    {/* Quartile Filter */}
-   <div className="space-y-1.5 pt-1 border-t border-[#DEDBC8]/5">
+   <div className="space-y-1.5 pt-1 border-t border-primary/5">
     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
      <Layers size={11} /> Journal Quartile
     </label>
@@ -169,7 +169,7 @@ export function AdvancedFilter({
 
    {/* Research Fields */}
    {fieldData.length > 0 && (
-    <div className="space-y-2 pt-1 border-t border-[#DEDBC8]/5">
+    <div className="space-y-2 pt-1 border-t border-primary/5">
      <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
       <Layers size={11} /> {t('filters.researchField') || 'Research Fields'}
      </label>
@@ -181,7 +181,7 @@ export function AdvancedFilter({
          checked={(filters.fields || []).includes(f.n)}
          onCheckedChange={() => handleFieldToggle(f.n)}
         />
-        <label htmlFor={`field-${f.n}`} className="text-[11px] text-gray-400 cursor-pointer select-none hover:text-[#E1E0CC] transition-colors">
+        <label htmlFor={`field-${f.n}`} className="text-[11px] text-gray-400 cursor-pointer select-none hover:text-foreground transition-colors">
          {f.n}
         </label>
        </div>

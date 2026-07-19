@@ -28,14 +28,14 @@ function StatChip({ icon: Icon, label, value, change, color = '#4F8CFF' }) {
   return (
     <motion.div
       whileHover={{ y: -2 }}
-      className="p-4 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 flex flex-col gap-2"
+      className="p-4 rounded-xl border bg-card border-primary/10 flex flex-col gap-2"
     >
       <div className="flex items-center justify-between">
         <span className="text-[10px] uppercase tracking-wider font-bold text-gray-500">{label}</span>
         <Icon size={16} style={{ color }} />
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="text-xl font-bold text-[#E1E0CC]">{value}</span>
+        <span className="text-xl font-bold text-foreground">{value}</span>
         {change && (
           <span className={`text-[11px] font-bold ${String(change).startsWith('+') ? 'text-emerald-400' : String(change).startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
             {change}
@@ -120,14 +120,14 @@ function KeywordComparison() {
             onKeyDown={(e) => { if (e.key === 'Enter') addKeyword(); }}
             placeholder="Add keyword to compare..."
             disabled={keywords.length >= 4}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-[#0A0A0A] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-[#0A0A0A] border border-primary/10 text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 transition-colors"
           />
         </div>
         <button
           type="button"
           onClick={addKeyword}
           disabled={!input.trim() || keywords.length >= 4}
-          className="p-2.5 rounded-xl bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all disabled:opacity-30"
+          className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all disabled:opacity-30"
         >
           <Plus size={16} />
         </button>
@@ -157,7 +157,7 @@ function KeywordComparison() {
               type="button"
               onClick={handleCompare}
               disabled={loading}
-              className="ml-2 px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#DEDBC8] text-black hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="ml-2 px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary text-black hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Activity size={12} />}
               Compare
@@ -174,7 +174,7 @@ function KeywordComparison() {
           className="space-y-4"
         >
           {/* Bar chart comparison */}
-          <div className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5">
+          <div className="rounded-xl border border-primary/10 bg-card p-5">
             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Total Papers Comparison</h4>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={comparisonData.keywords} layout="vertical" margin={{ left: 80 }}>
@@ -188,10 +188,10 @@ function KeywordComparison() {
           </div>
 
           {/* Metrics table */}
-          <div className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden">
+          <div className="rounded-xl border border-primary/10 bg-card overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#DEDBC8]/5">
+                <tr className="border-b border-primary/5">
                   <th className="text-left px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Keyword</th>
                   <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Papers</th>
                   <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Citations</th>
@@ -201,15 +201,15 @@ function KeywordComparison() {
               </thead>
               <tbody>
                 {comparisonData.keywords.map((k, i) => (
-                  <tr key={k.keyword} className="border-b border-[#DEDBC8]/5 last:border-b-0">
+                  <tr key={k.keyword} className="border-b border-primary/5 last:border-b-0">
                     <td className="px-5 py-3">
                       <span className="text-xs font-semibold" style={{ color: COLORS[i % COLORS.length] }}>
                         {k.keyword}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-right text-xs text-[#E1E0CC] font-mono">{(k.totalPapers ?? 0).toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right text-xs text-[#E1E0CC] font-mono">{(k.totalCitations ?? 0).toLocaleString()}</td>
-                    <td className="px-5 py-3 text-right text-xs text-[#E1E0CC] font-mono">{(k.avgCitationsPerPaper ?? 0).toFixed(1)}</td>
+                    <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.totalPapers ?? 0).toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.totalCitations ?? 0).toLocaleString()}</td>
+                    <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.avgCitationsPerPaper ?? 0).toFixed(1)}</td>
                     <td className="px-5 py-3 text-right text-xs font-mono font-bold" style={{ color: (k.yoyGrowthRate ?? 0) >= 0 ? '#34D399' : '#EF4444' }}>
                       {(k.yoyGrowthRate ?? 0) >= 0 ? '+' : ''}{(k.yoyGrowthRate ?? 0).toFixed(1)}%
                     </td>
@@ -233,12 +233,12 @@ function AnalyticsSkeleton() {
     <div className="space-y-6 animate-pulse">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-24 rounded-xl border bg-[#101010] border-[#DEDBC8]/5" />
+          <div key={i} className="h-24 rounded-xl border bg-card border-primary/5" />
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="h-72 rounded-xl border bg-[#101010] border-[#DEDBC8]/5" />
-        <div className="h-72 rounded-xl border bg-[#101010] border-[#DEDBC8]/5" />
+        <div className="h-72 rounded-xl border bg-card border-primary/5" />
+        <div className="h-72 rounded-xl border bg-card border-primary/5" />
       </div>
     </div>
   );
@@ -311,10 +311,10 @@ export default function AnalyticsPage() {
         <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
           <AlertCircle size={28} className="text-red-400" />
         </div>
-        <h3 className="text-lg font-bold text-[#E1E0CC]">{error}</h3>
+        <h3 className="text-lg font-bold text-foreground">{error}</h3>
         <button
           onClick={fetchAnalytics}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           Retry
         </button>
@@ -328,10 +328,10 @@ export default function AnalyticsPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <div className="flex items-center gap-2 mb-1">
-            <BarChart3 size={16} className="text-[#DEDBC8]" />
-            <span className="text-[11px] font-bold uppercase tracking-widest text-[#DEDBC8]/70">Analytics</span>
+            <BarChart3 size={16} className="text-primary" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-primary/70">Analytics</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#E1E0CC]">Research Analytics</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Research Analytics</h1>
           <p className="text-sm text-gray-500 mt-1.5 max-w-lg">
             Deep insights into your research impact, publication trends, and keyword performance.
           </p>
@@ -358,21 +358,21 @@ export default function AnalyticsPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6"
+            className="rounded-2xl border border-primary/10 bg-card p-6"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC]">Publication Trends</h3>
+                <h3 className="text-sm font-bold text-foreground">Publication Trends</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Your research output over time</p>
               </div>
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-[#DEDBC8]/5">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-primary/5">
                 {['yearly', 'monthly'].map((p) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setPeriod(p)}
                     className={`px-3 py-1.5 rounded-md text-[10px] font-bold capitalize transition-all ${
-                      period === p ? 'bg-[#DEDBC8] text-black' : 'text-gray-400 hover:text-[#E1E0CC]'
+                      period === p ? 'bg-primary text-black' : 'text-gray-400 hover:text-foreground'
                     }`}
                   >
                     {p}
@@ -411,10 +411,10 @@ export default function AnalyticsPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15 }}
-              className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6"
+              className="rounded-2xl border border-primary/10 bg-card p-6"
             >
               <div className="flex items-center gap-2 mb-5">
-                <Layers size={14} className="text-[#DEDBC8]/40" />
+                <Layers size={14} className="text-primary/40" />
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Your Top Keywords</h3>
               </div>
               <div className="space-y-2">
@@ -425,7 +425,7 @@ export default function AnalyticsPage() {
                   return (
                     <div key={kw.keyword || i} className="flex items-center gap-3">
                       <span className="w-24 text-[11px] text-gray-400 truncate text-right">{kw.keyword}</span>
-                      <div className="flex-1 h-5 bg-[#DEDBC8]/3 rounded-full overflow-hidden">
+                      <div className="flex-1 h-5 bg-primary/3 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${widthPct}%` }}
@@ -434,7 +434,7 @@ export default function AnalyticsPage() {
                           style={{ background: COLORS[i % COLORS.length] }}
                         />
                       </div>
-                      <span className="w-8 text-right text-[11px] font-mono font-semibold text-[#E1E0CC]">{kw.paperCount ?? 0}</span>
+                      <span className="w-8 text-right text-[11px] font-mono font-semibold text-foreground">{kw.paperCount ?? 0}</span>
                     </div>
                   );
                 })}
@@ -447,10 +447,10 @@ export default function AnalyticsPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6"
+            className="rounded-2xl border border-primary/10 bg-card p-6"
           >
             <div className="flex items-center gap-2 mb-5">
-              <ArrowUpRight size={14} className="text-[#DEDBC8]/40" />
+              <ArrowUpRight size={14} className="text-primary/40" />
               <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Keyword Comparison</h3>
             </div>
             <KeywordComparison />
@@ -462,10 +462,10 @@ export default function AnalyticsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6"
+          className="rounded-2xl border border-primary/10 bg-card p-6"
         >
           <div className="flex items-center gap-2 mb-5">
-            <TrendingUp size={14} className="text-[#DEDBC8]/40" />
+            <TrendingUp size={14} className="text-primary/40" />
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Hot Keywords</h3>
             <span className="text-[10px] text-gray-600 ml-auto">Trending across the platform</span>
           </div>
@@ -508,7 +508,7 @@ export default function AnalyticsPage() {
                     >
                       {rank}
                     </span>
-                    <span className="flex-1 text-xs font-medium text-[#E1E0CC] truncate">
+                    <span className="flex-1 text-xs font-medium text-foreground truncate">
                       {kw.keywordText}
                     </span>
                     <span className="text-[10px] font-semibold text-gray-400 shrink-0">
@@ -524,8 +524,8 @@ export default function AnalyticsPage() {
         {/* Empty state */}
         {!overview && !trends.length && !keywords.length && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
-              <BarChart3 size={32} className="text-[#DEDBC8]/30" />
+            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 mb-4">
+              <BarChart3 size={32} className="text-primary/30" />
             </div>
             <p className="text-sm text-gray-500 max-w-sm">
               Start searching and bookmarking papers to see your personalized analytics here.

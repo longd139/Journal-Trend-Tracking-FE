@@ -223,7 +223,7 @@ export default function RegisterPage() {
   <motion.div layout>
   <Link
    to="/auth"
-   className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-[#E1E0CC] mb-4 transition-colors active:scale-[0.97]"
+   className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-foreground mb-4 transition-colors active:scale-[0.97]"
   >
    <ArrowLeft size={13} /> {t('roleSelect.heading')}
   </Link>
@@ -232,7 +232,7 @@ export default function RegisterPage() {
   </h2>
   <p className="text-sm mb-8 text-gray-300">
    {t('register.createFor')}{' '}
-   <span className="font-bold text-[#DEDBC8] uppercase tracking-wider">
+   <span className="font-bold text-primary uppercase tracking-wider">
    {incomingRole}
    </span>
   </p>
@@ -241,14 +241,14 @@ export default function RegisterPage() {
   <form onSubmit={handleSubmit} noValidate className="space-y-5">
   {/* Full Name */}
   <motion.div layout>
-   <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+   <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
    {t('register.fullNameLabel')}
    </label>
    <div className="relative group">
    <User
     size={14}
     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
-    errors.fullName ? 'text-red-400' : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+    errors.fullName ? 'text-red-400' : 'text-primary/80 group-focus-within:text-primary'
     }`}
    />
    <input
@@ -259,8 +259,8 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.fullName
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-[#DEDBC8]/35 bg-[#111620] focus:border-[#DEDBC8] focus:bg-[#181d2a] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20'
-    } text-[#E1E0CC] placeholder:text-gray-400`}
+     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-gray-400`}
    />
    </div>
    {errors.fullName && (
@@ -272,14 +272,14 @@ export default function RegisterPage() {
 
   {/* Institution */}
   <motion.div layout className="relative">
-   <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+   <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
    {t('register.institutionLabel')}
    </label>
    <div className="relative group">
    <Building2
     size={14}
     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
-    errors.institution ? 'text-red-400' : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+    errors.institution ? 'text-red-400' : 'text-primary/80 group-focus-within:text-primary'
     }`}
    />
    <input
@@ -295,13 +295,13 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.institution
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-[#DEDBC8]/35 bg-[#111620] focus:border-[#DEDBC8] focus:bg-[#181d2a] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20'
-    } text-[#E1E0CC] placeholder:text-gray-400`}
+     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-gray-400`}
    />
    {loadingUnis && (
     <RefreshCw
     size={12}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 animate-spin text-[#DEDBC8]/50"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 animate-spin text-primary/50"
     />
    )}
    </div>
@@ -312,7 +312,7 @@ export default function RegisterPage() {
    )}
 
    {showSuggestions && suggestions.length > 0 && (
-   <ul className="absolute z-50 w-full mt-1.5 rounded-2xl border border-[#DEDBC8]/20 bg-[#151922] overflow-hidden shadow-2xl">
+   <ul className="absolute z-50 w-full mt-1.5 rounded-2xl border border-primary/20 bg-card overflow-hidden shadow-2xl">
     {suggestions.map((uni, idx) => (
     <li
      key={idx}
@@ -320,7 +320,7 @@ export default function RegisterPage() {
      handleChange('institution', uni.name);
      setShowSuggestions(false);
      }}
-     className="px-4 py-2.5 text-xs text-[#E1E0CC] hover:bg-[#DEDBC8]/10 cursor-pointer border-b border-[#DEDBC8]/5 last:border-b-0 transition-colors active:scale-[0.98] active:bg-[#DEDBC8]/15"
+     className="px-4 py-2.5 text-xs text-foreground hover:bg-primary/10 cursor-pointer border-b border-primary/5 last:border-b-0 transition-colors active:scale-[0.98] active:bg-primary/15"
     >
      {uni.name}
     </li>
@@ -331,14 +331,14 @@ export default function RegisterPage() {
 
   {/* Email */}
   <motion.div layout>
-   <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+   <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
    {t('register.emailLabel')}
    </label>
    <div className="relative group">
    <Mail
     size={14}
     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
-    errors.email || errors.emailFormat ? 'text-red-400' : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+    errors.email || errors.emailFormat ? 'text-red-400' : 'text-primary/80 group-focus-within:text-primary'
     }`}
    />
    <input
@@ -349,8 +349,8 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.email || errors.emailFormat
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-[#DEDBC8]/35 bg-[#111620] focus:border-[#DEDBC8] focus:bg-[#181d2a] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20'
-    } text-[#E1E0CC] placeholder:text-gray-400`}
+     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-gray-400`}
    />
    </div>
    {errors.email && (
@@ -368,14 +368,14 @@ export default function RegisterPage() {
   {/* Password & Confirm Password */}
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
    <motion.div layout>
-   <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+   <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
     {t('register.passwordLabel')}
    </label>
    <div className="relative group">
     <Lock
     size={14}
     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
-     errors.password ? 'text-red-400' : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+     errors.password ? 'text-red-400' : 'text-primary/80 group-focus-within:text-primary'
     }`}
     />
     <input
@@ -386,13 +386,13 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.password
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-[#DEDBC8]/35 bg-[#111620] focus:border-[#DEDBC8] focus:bg-[#181d2a] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20'
-    } text-[#E1E0CC] placeholder:text-gray-400`}
+     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-gray-400`}
     />
     <button
     type="button"
     onClick={() => setShowPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
     >
     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -405,14 +405,14 @@ export default function RegisterPage() {
    </motion.div>
 
    <motion.div layout>
-   <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5 ml-1">
+   <label className="text-xs font-semibold text-primary/80 block mb-1.5 ml-1">
     {t('register.confirmPasswordLabel')}
    </label>
    <div className="relative group">
     <Lock
     size={14}
     className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 transition-colors ${
-     errors.confirmPassword ? 'text-red-400' : 'text-[#DEDBC8]/80 group-focus-within:text-[#DEDBC8]'
+     errors.confirmPassword ? 'text-red-400' : 'text-primary/80 group-focus-within:text-primary'
     }`}
     />
     <input
@@ -423,13 +423,13 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.confirmPassword
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-[#DEDBC8]/35 bg-[#111620] focus:border-[#DEDBC8] focus:bg-[#181d2a] focus:shadow-[0_0_18px_rgba(222,219,200,0.10)] focus:ring-1 focus:ring-[#DEDBC8]/20'
-    } text-[#E1E0CC] placeholder:text-gray-400`}
+     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-gray-400`}
     />
     <button
     type="button"
     onClick={() => setShowConfirmPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-[#DEDBC8]/80 hover:text-[#DEDBC8] hover:bg-white/5 active:scale-[0.95]"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
     >
     {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -465,7 +465,7 @@ export default function RegisterPage() {
    whileTap={{ scale: 0.98 }}
    type="submit"
    disabled={loading}
-   className="relative w-full py-3.5 rounded-full text-sm font-bold text-[#DEDBC8] flex items-center justify-center gap-2 transition-all duration-300 border border-[#DEDBC8]/60 bg-transparent hover:bg-[#DEDBC8] hover:text-black hover:border-[#DEDBC8]"
+   className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-black hover:border-primary"
    style={{ opacity: loading ? 0.7 : 1 }}
   >
    <span className="relative z-10 flex items-center gap-2">
@@ -482,10 +482,10 @@ export default function RegisterPage() {
   </form>
 
   {/* Footer */}
-  <motion.div layout className="mt-7 pt-6 border-t border-[#DEDBC8]/10 text-center text-xs">
+  <motion.div layout className="mt-7 pt-6 border-t border-primary/10 text-center text-xs">
   <span className="text-gray-400">
    {t('register.haveAccount')}{' '}
-   <Link to="/login" className="font-bold transition-colors text-[#DEDBC8] hover:text-[#E1E0CC] active:scale-[0.97] inline-block">
+   <Link to="/login" className="font-bold transition-colors text-primary hover:text-foreground active:scale-[0.97] inline-block">
    {t('register.signIn')}
    </Link>
   </span>

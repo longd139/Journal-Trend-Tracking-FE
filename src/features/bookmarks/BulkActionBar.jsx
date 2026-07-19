@@ -23,20 +23,20 @@ export default function BulkActionBar({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-[#1A1A1A] border border-[#DEDBC8]/15 shadow-2xl shadow-black/60 backdrop-blur-xl flex items-center gap-4"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-[#1A1A1A] border border-primary/15 shadow-2xl shadow-black/60 backdrop-blur-xl flex items-center gap-4"
         >
           {/* Count */}
-          <span className="text-xs font-bold text-[#E1E0CC] whitespace-nowrap">
+          <span className="text-xs font-bold text-foreground whitespace-nowrap">
             {t('bulk.selected', { count: selectedCount })}
           </span>
 
           {/* Divider */}
-          <div className="w-px h-5 bg-[#DEDBC8]/10" />
+          <div className="w-px h-5 bg-primary/10" />
 
           {/* Deselect All */}
           <button
             onClick={onDeselectAll}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.04] transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all"
           >
             <X size={12} />
             {t('bulk.deselectAll')}
@@ -45,7 +45,7 @@ export default function BulkActionBar({
           {/* Export */}
           <button
             onClick={onExport}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/15 hover:bg-[#DEDBC8]/20 hover:border-[#DEDBC8]/30 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary/10 text-primary border border-primary/15 hover:bg-primary/20 hover:border-primary/30 transition-all"
           >
             <Download size={12} />
             {t('bulk.exportSelected')}

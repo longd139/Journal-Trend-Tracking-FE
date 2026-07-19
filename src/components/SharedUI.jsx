@@ -69,7 +69,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
     </span>
    )}
   </div>
-  <div className="text-2xl font-bold text-[#E1E0CC] mb-0.5 font-display tracking-[-0.02em]">
+  <div className="text-2xl font-bold text-foreground mb-0.5 font-display tracking-[-0.02em]">
    {value}
   </div>
   <div className="text-[11px] text-gray-500 font-medium uppercase tracking-wider">

@@ -99,7 +99,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
     `w-full pl-10 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-all duration-300 ${
       fieldErr
         ? 'border-red-500/30 bg-red-500/[0.04] text-red-300'
-        : 'border-[#DEDBC8]/10 bg-[#0A0D14] text-[#E1E0CC] placeholder:text-gray-500 focus:border-[#DEDBC8]/40 focus:bg-[#0F1219] focus:shadow-[0_0_18px_rgba(222,219,200,0.06)] focus:ring-1 focus:ring-[#DEDBC8]/15'
+        : 'border-primary/10 bg-[#0A0D14] text-foreground placeholder:text-gray-500 focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15'
     }`;
 
   return (
@@ -112,13 +112,13 @@ export default function ChangePasswordForm({ visible, onClose }) {
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="overflow-hidden"
         >
-          <div className="pt-6 mt-6 border-t border-[#DEDBC8]/6">
+          <div className="pt-6 mt-6 border-t border-primary/6">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center">
                 <Lock size={16} className="text-amber-400" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-[#E1E0CC] font-display">
+                <h4 className="text-sm font-bold text-foreground font-display">
                   {t('password.title')}
                 </h4>
                 <p className="text-[11px] text-gray-400">{t('password.description')}</p>
@@ -140,7 +140,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
               <form onSubmit={handleSubmit} noValidate className="space-y-4">
                 {/* Current Password */}
                 <div>
-                  <label className="text-[11px] font-bold text-[#DEDBC8]/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
+                  <label className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
                     {t('password.currentPassword')}
                   </label>
                   <div className="relative">
@@ -160,7 +160,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('current')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DEDBC8] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                     >
                       {show.current ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -174,7 +174,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
 
                 {/* New Password */}
                 <div>
-                  <label className="text-[11px] font-bold text-[#DEDBC8]/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
+                  <label className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
                     {t('password.newPassword')}
                   </label>
                   <div className="relative">
@@ -194,7 +194,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('new')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DEDBC8] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                     >
                       {show.new ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -208,7 +208,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
 
                 {/* Confirm Password */}
                 <div>
-                  <label className="text-[11px] font-bold text-[#DEDBC8]/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
+                  <label className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.05em] block mb-1.5 ml-1">
                     {t('password.confirmPassword')}
                   </label>
                   <div className="relative">
@@ -228,7 +228,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('confirm')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#DEDBC8] transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                     >
                       {show.confirm ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -283,7 +283,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                       setIsSuccess(false);
                       onClose();
                     }}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.04] transition-all border border-transparent hover:border-[#DEDBC8]/10"
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all border border-transparent hover:border-primary/10"
                   >
                     Cancel
                   </button>

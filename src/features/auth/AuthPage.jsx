@@ -44,7 +44,7 @@ export default function AuthPage() {
 
  return (
  <div>
-  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-[#DEDBC8]/30 bg-[#DEDBC8]/10 text-[#DEDBC8]">
+  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-primary/30 bg-primary/10 text-primary">
   <Zap size={10} /> {t('roleSelect.heading')}
   </div>
 
@@ -64,8 +64,8 @@ export default function AuthPage() {
     onClick={() => setSelectedRole(role.id)}
     className={`relative p-5 rounded-2xl border cursor-pointer transition-all duration-300 group overflow-hidden ${
     isSelected
-     ? 'border-[#DEDBC8]/60 bg-[#DEDBC8]/[0.08]'
-     : 'border-[#DEDBC8]/15 bg-white/[0.02] hover:border-[#DEDBC8]/30 hover:bg-white/[0.04]'
+     ? 'border-primary/60 bg-primary/[0.08]'
+     : 'border-primary/15 bg-white/[0.02] hover:border-primary/30 hover:bg-white/[0.04]'
     }`}
    >
     {isSelected && (
@@ -119,8 +119,8 @@ export default function AuthPage() {
   }}
   className={`w-full py-3.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 mt-8 transition-all duration-300 ${
    selectedRole
-   ? 'text-[#DEDBC8] border border-[#DEDBC8]/60 bg-transparent hover:bg-[#DEDBC8] hover:text-black hover:border-[#DEDBC8]'
-   : 'border border-[#DEDBC8]/10 bg-white/[0.02] text-gray-500'
+   ? 'text-primary border border-primary/60 bg-transparent hover:bg-primary hover:text-black hover:border-primary'
+   : 'border border-primary/10 bg-white/[0.02] text-gray-500'
   }`}
   >
   {t('roleSelect.continue')}

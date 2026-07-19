@@ -61,9 +61,9 @@ export default function FollowDialog({
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="sm:max-w-md bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC]">
+      <DialogContent className="sm:max-w-md bg-card border-primary/10 text-foreground">
         <DialogHeader>
-          <DialogTitle className="text-[#E1E0CC]">
+          <DialogTitle className="text-foreground">
             {t('dialog.title')}
           </DialogTitle>
           <DialogDescription className="text-gray-400">
@@ -87,7 +87,7 @@ export default function FollowDialog({
                     'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                     selected === key
                       ? 'border-[#4F8CFF] bg-[#4F8CFF]/10'
-                      : 'border-[#DEDBC8]/10 bg-[#DEDBC8]/5 hover:border-[#DEDBC8]/20',
+                      : 'border-primary/10 bg-primary/5 hover:border-primary/20',
                   )}
                 >
                   <RadioGroupItem value={key} className="sr-only" />
@@ -96,13 +96,13 @@ export default function FollowDialog({
                       'w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
                       selected === key
                         ? 'bg-[#4F8CFF]/20 text-[#4F8CFF]'
-                        : 'bg-[#DEDBC8]/10 text-gray-400',
+                        : 'bg-primary/10 text-gray-400',
                     )}
                   >
                     <Icon size={16} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-[#E1E0CC]">
+                    <div className="text-sm font-semibold text-foreground">
                       {option.name}
                     </div>
                     <div className="text-xs text-gray-400">
@@ -115,10 +115,10 @@ export default function FollowDialog({
           </RadioGroup>
 
           {/* Notification toggle */}
-          <div className="flex items-center justify-between p-3 rounded-lg border border-[#DEDBC8]/10 bg-[#DEDBC8]/5">
+          <div className="flex items-center justify-between p-3 rounded-lg border border-primary/10 bg-primary/5">
             <Label
               htmlFor="notify-toggle"
-              className="text-sm font-medium text-[#E1E0CC] cursor-pointer"
+              className="text-sm font-medium text-foreground cursor-pointer"
             >
               {t('dialog.enableNotification')}
             </Label>
@@ -134,7 +134,7 @@ export default function FollowDialog({
           <Button
             variant="outline"
             onClick={onClose}
-            className="border-[#DEDBC8]/10 text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10"
+            className="border-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/10"
           >
             {t('button.cancel')}
           </Button>

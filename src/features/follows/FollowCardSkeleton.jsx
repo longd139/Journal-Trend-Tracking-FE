@@ -2,7 +2,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 
 export default function FollowCardSkeleton() {
   return (
-    <div className="rounded-xl border p-4 sm:p-5 bg-[#101010] border-[#DEDBC8]/10">
+    <div className="rounded-xl border p-4 sm:p-5 bg-card border-primary/10">
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
         <div className="flex items-start gap-3 flex-1">
           <Skeleton className="w-10 h-10 rounded-lg bg-white/5" />

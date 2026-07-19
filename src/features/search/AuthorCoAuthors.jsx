@@ -11,18 +11,18 @@ function CoAuthorsSkeleton() {
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3">
-        <div className="h-3 w-40 bg-[#DEDBC8]/8 rounded" />
-        <div className="h-3 w-24 bg-[#DEDBC8]/5 rounded" />
+        <div className="h-3 w-40 bg-primary/8 rounded" />
+        <div className="h-3 w-24 bg-primary/5 rounded" />
       </div>
       <div className="space-y-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-[#DEDBC8]/5 bg-[#101010] animate-pulse">
-            <div className="w-7 h-7 rounded-full bg-[#DEDBC8]/8 shrink-0" />
+          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-primary/5 bg-card animate-pulse">
+            <div className="w-7 h-7 rounded-full bg-primary/8 shrink-0" />
             <div className="flex-1 space-y-1.5">
-              <div className="h-3 w-32 bg-[#DEDBC8]/8 rounded" />
-              <div className="h-2 w-48 bg-[#DEDBC8]/5 rounded" />
+              <div className="h-3 w-32 bg-primary/8 rounded" />
+              <div className="h-2 w-48 bg-primary/5 rounded" />
             </div>
-            <div className="h-4 w-12 bg-[#DEDBC8]/5 rounded" />
+            <div className="h-4 w-12 bg-primary/5 rounded" />
           </div>
         ))}
       </div>
@@ -102,21 +102,21 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
     >
       {/* Section label */}
       <div className="flex items-center gap-2">
-        <div className="w-1 h-4 rounded-full bg-[#DEDBC8]/20" />
+        <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Co-authors
-          <span className="text-[#DEDBC8]/60 ml-1.5 font-normal normal-case">
+          <span className="text-primary/60 ml-1.5 font-normal normal-case">
             — analyzed {data.totalPapersAnalyzed ?? '?'} papers, {data.totalCoAuthors ?? '?'} unique co-authors
           </span>
         </span>
       </div>
 
       {/* Summary strip */}
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#DEDBC8]/3 border border-[#DEDBC8]/5 text-[11px] text-gray-400">
-        <Users size={12} className="text-[#DEDBC8]/50" />
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-primary/5 text-[11px] text-gray-400">
+        <Users size={12} className="text-primary/50" />
         <span>Top {data.coAuthors.length} most frequent collaborators</span>
         {onAuthorClick && (
-          <span className="text-[#DEDBC8]/30 ml-auto text-[10px]">Click to explore →</span>
+          <span className="text-primary/30 ml-auto text-[10px]">Click to explore →</span>
         )}
       </div>
 
@@ -135,10 +135,10 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
               transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
               whileHover={onAuthorClick ? { y: -2, borderColor: 'rgba(79,140,255,0.25)' } : {}}
               whileTap={onAuthorClick ? { scale: 0.98 } : {}}
-              className="w-full flex items-center gap-3 p-3 rounded-xl border border-[#DEDBC8]/5 bg-[#101010] group hover:border-[#DEDBC8]/10 transition-all text-left cursor-pointer"
+              className="w-full flex items-center gap-3 p-3 rounded-xl border border-primary/5 bg-card group hover:border-primary/10 transition-all text-left cursor-pointer"
             >
               {/* Avatar */}
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-[#E1E0CC] bg-[#DEDBC8]/10 shrink-0 group-hover:bg-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-colors">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground bg-primary/10 shrink-0 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
                 {author.name
                   ? author.name
                       .split(' ')
@@ -152,11 +152,11 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
+                  <span className="text-[12px] font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                     {author.name}
                   </span>
                   {onAuthorClick && (
-                    <ArrowRight size={11} className="shrink-0 text-gray-600 group-hover:text-[#DEDBC8] transition-colors opacity-0 group-hover:opacity-100" />
+                    <ArrowRight size={11} className="shrink-0 text-gray-600 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" />
                   )}
                   {author.openAlexId && (
                     <a
@@ -164,7 +164,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="shrink-0 text-gray-500 hover:text-[#DEDBC8] transition-colors"
+                      className="shrink-0 text-gray-500 hover:text-primary transition-colors"
                       title="Open in OpenAlex"
                     >
                       <ExternalLink size={11} />
@@ -180,7 +180,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
 
               {/* Collaboration bar */}
               <div className="hidden sm:flex items-center gap-2 shrink-0">
-                <div className="w-20 h-5 bg-[#DEDBC8]/3 rounded-full overflow-hidden">
+                <div className="w-20 h-5 bg-primary/3 rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${widthPct}%` }}
@@ -191,13 +191,13 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                     }}
                   />
                 </div>
-                <span className="w-8 text-right text-[11px] font-mono font-semibold text-[#E1E0CC]">
+                <span className="w-8 text-right text-[11px] font-mono font-semibold text-foreground">
                   {author.collaborationCount}
                 </span>
               </div>
 
               {/* Mobile: just the count */}
-              <span className="sm:hidden text-[11px] font-mono font-semibold text-[#E1E0CC] shrink-0">
+              <span className="sm:hidden text-[11px] font-mono font-semibold text-foreground shrink-0">
                 {author.collaborationCount}
               </span>
             </motion.button>

@@ -13,13 +13,13 @@ function Skeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="shrink-0 w-44 bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-4 space-y-3 animate-pulse"
+          className="shrink-0 w-44 bg-card border border-primary/5 rounded-2xl p-4 space-y-3 animate-pulse"
         >
-          <div className="h-4 w-20 bg-[#DEDBC8]/8 rounded" />
-          <div className="h-3 w-16 bg-[#DEDBC8]/5 rounded-full" />
+          <div className="h-4 w-20 bg-primary/8 rounded" />
+          <div className="h-3 w-16 bg-primary/5 rounded-full" />
           <div className="flex items-center justify-between">
-            <div className="h-3 w-12 bg-[#DEDBC8]/5 rounded-full" />
-            <div className="h-4 w-10 bg-[#DEDBC8]/8 rounded" />
+            <div className="h-3 w-12 bg-primary/5 rounded-full" />
+            <div className="h-4 w-10 bg-primary/8 rounded" />
           </div>
         </div>
       ))}
@@ -93,7 +93,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
     >
       {/* Header */}
       <div className="flex items-center gap-2">
-        <Hash size={13} className="text-[#DEDBC8]/40" />
+        <Hash size={13} className="text-primary/40" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Related Research Trends
         </span>
@@ -123,7 +123,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onKeywordClick?.(trend.keyword)}
-              className="relative bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-[#141414] hover:border-[#DEDBC8]/15"
+              className="relative bg-card border border-primary/5 rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-[#141414] hover:border-primary/15"
             >
               {/* Rank badge */}
               <span
@@ -134,7 +134,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
               </span>
 
               {/* Keyword name */}
-              <h4 className="text-[13px] font-semibold text-[#E1E0CC] mb-2.5 truncate group-hover:text-white transition-colors">
+              <h4 className="text-[13px] font-semibold text-foreground mb-2.5 truncate group-hover:text-white transition-colors">
                 {trend.keyword}
               </h4>
 

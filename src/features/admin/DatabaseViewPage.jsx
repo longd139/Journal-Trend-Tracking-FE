@@ -13,7 +13,7 @@ import { adminAPI } from './api';
    Constants
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const card = 'bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl';
+const card = 'bg-card border border-primary/5 rounded-2xl';
 
 const ZERO_RETRY_DELAY_MS = 4_000; // retry after 4s if cache was stale (all zeros)
 
@@ -39,7 +39,7 @@ function StatCard({ label, value, Icon, accent, sub }) {
     <motion.div
       whileHover={{ y: -3 }}
       transition={{ duration: 0.18 }}
-      className={`${card} p-4 flex items-center gap-3.5 group cursor-default hover:shadow-lg hover:shadow-[#DEDBC8]/5`}
+      className={`${card} p-4 flex items-center gap-3.5 group cursor-default hover:shadow-lg hover:shadow-primary/5`}
     >
       <div
         className="p-2.5 rounded-xl shrink-0 transition-colors"
@@ -49,7 +49,7 @@ function StatCard({ label, value, Icon, accent, sub }) {
       </div>
       <div className="min-w-0">
         <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</div>
-        <div className="text-lg font-bold text-[#E1E0CC] font-mono tabular-nums">
+        <div className="text-lg font-bold text-foreground font-mono tabular-nums">
           {value?.toLocaleString() ?? '—'}
         </div>
         {sub && <div className="text-[10px] text-gray-500 mt-0.5">{sub}</div>}
@@ -69,7 +69,7 @@ function Section({ title, Icon, accent, children }) {
       <div className="flex items-center gap-2 mb-4">
         <div className="w-1 h-5 rounded-full" style={{ background: accent }} />
         <Icon size={14} style={{ color: accent }} />
-        <h3 className="text-sm font-bold text-[#E1E0CC]">{title}</h3>
+        <h3 className="text-sm font-bold text-foreground">{title}</h3>
       </div>
       {children}
     </motion.div>
@@ -79,7 +79,7 @@ function Section({ title, Icon, accent, children }) {
 function MiniBar({ value, max, color }) {
   const pct = max > 0 ? (value / max) * 100 : 0;
   return (
-    <div className="flex-1 h-2 bg-[#DEDBC8]/5 rounded-full overflow-hidden">
+    <div className="flex-1 h-2 bg-primary/5 rounded-full overflow-hidden">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
@@ -98,32 +98,32 @@ function MiniBar({ value, max, color }) {
 function Skeleton() {
   return (
     <div className="p-6 space-y-5 animate-pulse">
-      <div className="h-7 w-48 bg-[#DEDBC8]/8 rounded" />
+      <div className="h-7 w-48 bg-primary/8 rounded" />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className={`${card} p-4 flex items-center gap-3`}>
-            <div className="h-10 w-10 bg-[#DEDBC8]/8 rounded-xl" />
+            <div className="h-10 w-10 bg-primary/8 rounded-xl" />
             <div className="space-y-2 flex-1">
-              <div className="h-3 w-16 bg-[#DEDBC8]/8 rounded" />
-              <div className="h-5 w-20 bg-[#DEDBC8]/5 rounded" />
+              <div className="h-3 w-16 bg-primary/8 rounded" />
+              <div className="h-5 w-20 bg-primary/5 rounded" />
             </div>
           </div>
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className={`${card} p-5 space-y-3`}>
-          <div className="h-5 w-20 bg-[#DEDBC8]/8 rounded" />
+          <div className="h-5 w-20 bg-primary/8 rounded" />
           <div className="grid grid-cols-2 gap-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-16 bg-[#DEDBC8]/5 rounded-lg" />
+              <div key={i} className="h-16 bg-primary/5 rounded-lg" />
             ))}
           </div>
         </div>
         <div className={`${card} p-5 space-y-3`}>
-          <div className="h-5 w-24 bg-[#DEDBC8]/8 rounded" />
+          <div className="h-5 w-24 bg-primary/8 rounded" />
           <div className="grid grid-cols-3 gap-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 bg-[#DEDBC8]/5 rounded-lg" />
+              <div key={i} className="h-16 bg-primary/5 rounded-lg" />
             ))}
           </div>
         </div>
@@ -197,13 +197,13 @@ export default function DatabaseViewPage() {
           <AlertTriangle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('database.loadError')}</h3>
+          <h3 className="text-sm font-bold text-foreground mb-1">{t('database.loadError')}</h3>
           <p className="text-xs text-red-400">{error}</p>
         </div>
         <button
           type="button"
           onClick={() => window.location.reload()}
-          className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] hover:bg-[#DEDBC8]/20 transition-all active:scale-[0.97]"
+          className="px-4 py-2 rounded-xl text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-all active:scale-[0.97]"
         >
           {tc('actions.retry')}
         </button>
@@ -247,7 +247,7 @@ export default function DatabaseViewPage() {
             <span className="flex items-center gap-1 text-[10px] text-gray-500">
               <CheckCircle2 size={11} className="text-emerald-500" />
               {t('database.lastSync')}{' '}
-              <span className="text-[#DEDBC8]/70 font-medium">
+              <span className="text-primary/70 font-medium">
                 {new Date(syncLogs.lastSync).toLocaleString()}
               </span>
             </span>
@@ -257,7 +257,7 @@ export default function DatabaseViewPage() {
           type="button"
           onClick={() => fetchStats()}
           disabled={isLoading}
-          className="p-2 rounded-lg text-gray-500 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10 transition-all active:scale-[0.97] disabled:opacity-40"
+          className="p-2 rounded-lg text-gray-500 hover:text-foreground hover:bg-primary/10 transition-all active:scale-[0.97] disabled:opacity-40"
           title={t('database.refreshStats')}
         >
           <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
@@ -279,7 +279,7 @@ export default function DatabaseViewPage() {
           <Section title={t('database.paperBreakdown')} Icon={FileText} accent={PAPER_COLOR}>
             {/* Open Access & PDF */}
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
+              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
                 <div className="text-xl font-bold text-emerald-500 font-mono tabular-nums">
                   {papers?.openAccess?.toLocaleString() ?? '—'}
                 </div>
@@ -287,8 +287,8 @@ export default function DatabaseViewPage() {
                   {t('database.openAccess')}
                 </div>
               </div>
-              <div className="p-3.5 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-                <div className="text-xl font-bold text-[#DEDBC8] font-mono tabular-nums">
+              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+                <div className="text-xl font-bold text-primary font-mono tabular-nums">
                   {papers?.hasPdfUrl?.toLocaleString() ?? '—'}
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
@@ -299,7 +299,7 @@ export default function DatabaseViewPage() {
 
             {/* By Source */}
             {sourceEntries.length > 0 && (
-              <div className="pt-4 border-t border-[#DEDBC8]/5">
+              <div className="pt-4 border-t border-primary/5">
                 <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
                   {t('database.papersBySource')}
                 </h5>
@@ -312,7 +312,7 @@ export default function DatabaseViewPage() {
                         <Icon size={13} style={{ color: meta.color }} className="shrink-0" />
                         <span className="text-[11px] text-gray-400 w-28 truncate">{meta.label}</span>
                         <MiniBar value={count} max={maxSourceCount} color={meta.color} />
-                        <span className="text-[11px] font-mono font-semibold text-[#E1E0CC] w-10 text-right shrink-0">
+                        <span className="text-[11px] font-mono font-semibold text-foreground w-10 text-right shrink-0">
                           {count.toLocaleString()}
                         </span>
                       </div>
@@ -324,7 +324,7 @@ export default function DatabaseViewPage() {
 
             {/* By Year */}
             {yearEntries.length > 0 && (
-              <div className="pt-4 border-t border-[#DEDBC8]/5">
+              <div className="pt-4 border-t border-primary/5">
                 <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
                   {t('database.papersByYear')}
                 </h5>
@@ -333,7 +333,7 @@ export default function DatabaseViewPage() {
                     <div key={year} className="flex items-center gap-2.5">
                       <span className="text-[11px] text-gray-400 w-10 font-mono">{year}</span>
                       <MiniBar value={count} max={maxYearCount} color="#DEDBC8" />
-                      <span className="text-[11px] font-mono font-semibold text-[#E1E0CC] w-10 text-right">
+                      <span className="text-[11px] font-mono font-semibold text-foreground w-10 text-right">
                         {count.toLocaleString()}
                       </span>
                     </div>
@@ -441,8 +441,8 @@ export default function DatabaseViewPage() {
       {/* ── Sync Logs Footer ── */}
       <Section title={t('database.syncActivity')} Icon={Clock} accent="#DEDBC8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-            <div className="text-2xl font-bold text-[#DEDBC8] font-display">
+          <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+            <div className="text-2xl font-bold text-primary font-display">
               {syncLogs?.total?.toLocaleString() ?? '—'}
             </div>
             <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
@@ -450,8 +450,8 @@ export default function DatabaseViewPage() {
               {t('database.totalSyncRuns')}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 text-center">
-            <div className="text-sm font-bold text-[#DEDBC8]/80 font-mono">
+          <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+            <div className="text-sm font-bold text-primary/80 font-mono">
               {syncLogs?.lastSync
                 ? new Date(syncLogs.lastSync).toLocaleString()
                 : t('database.never')}
