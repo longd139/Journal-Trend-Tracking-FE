@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -32,10 +32,10 @@ const typeIcons = {
 };
 
 const typeColors = {
-  journal: { bg: 'bg-blue-500/10', text: 'text-blue-400', border: 'border-blue-500/20' },
-  topic: { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
-  keyword: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20' },
-  author: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
+  journal: { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-200 dark:border-blue-500/20' },
+  topic: { bg: 'bg-amber-50 dark:bg-amber-500/10', text: 'text-amber-600 dark:text-amber-400', border: 'border-amber-200 dark:border-amber-500/20' },
+  keyword: { bg: 'bg-violet-50 dark:bg-violet-500/10', text: 'text-violet-600 dark:text-violet-400', border: 'border-violet-200 dark:border-violet-500/20' },
+  author: { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-500/20' },
 };
 
 function getFollowType(follow) {
@@ -148,7 +148,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
               </span>
             </div>
             <h4 className="text-sm font-bold text-foreground truncate">{name}</h4>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {formatDate(follow.createdAt, t)}
             </p>
           </div>
@@ -157,9 +157,9 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
         {/* Right: toggle + unfollow */}
         <div className="flex items-center gap-4 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">{t('label.notification')}</span>
+            <span className="text-xs text-muted-foreground">{t('label.notification')}</span>
             {toggling ? (
-              <Loader2 size={14} className="animate-spin text-gray-400" />
+              <Loader2 size={14} className="animate-spin text-muted-foreground" />
             ) : (
               <Switch
                 checked={localNotify}
@@ -175,7 +175,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 variant="ghost"
                 size="icon"
                 disabled={deleting}
-                className="text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+                className="text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10"
               >
                 {deleting ? (
                   <Loader2 size={16} className="animate-spin" />
@@ -189,17 +189,17 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 <AlertDialogTitle className="text-foreground">
                   {t('button.unfollow')} "{name}"?
                 </AlertDialogTitle>
-                <AlertDialogDescription className="text-gray-400">
+                <AlertDialogDescription className="text-muted-foreground">
                   {t('toast.unfollowSuccess')}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="border-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/10">
+                <AlertDialogCancel className="border-primary/10 text-muted-foreground hover:text-foreground hover:bg-primary/10">
                   {t('button.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleUnfollow}
-                  className="bg-red-500 text-white hover:bg-red-600"
+                  className="bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600"
                 >
                   {t('button.unfollow')}
                 </AlertDialogAction>

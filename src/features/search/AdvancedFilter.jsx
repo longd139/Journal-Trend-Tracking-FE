@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import * as React from "react";
 import { Calendar, Layers, Quote, X, Check } from "lucide-react";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -52,7 +52,7 @@ export function AdvancedFilter({
  const hasActiveFilters = (filters.fields?.length > 0) || filters.pubYearFrom || filters.pubYearTo || filters.minCitations || filters.isOpenAccess || (filters.quartile?.length > 0);
 
  return (
-  <div className="bg-[#0F0F0F] border border-primary/10 rounded-2xl p-5 space-y-5 shadow-lg shadow-black/40">
+  <div className="bg-card border border-border rounded-2xl p-5 space-y-5 shadow-lg shadow-black/10">
    {/* Header */}
    <div className="flex items-center justify-between">
     <span className="text-xs font-bold text-foreground uppercase tracking-wider">Filters</span>
@@ -71,7 +71,7 @@ export function AdvancedFilter({
    <div className="flex flex-wrap items-end gap-3">
     {/* Year Range */}
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
       <Calendar size={11} /> Year
      </label>
      <div className="flex items-center gap-1.5">
@@ -79,24 +79,24 @@ export function AdvancedFilter({
        value={filters.pubYearFrom || ""}
        onValueChange={(v) => setFilters((p) => ({ ...p, pubYearFrom: v }))}
       >
-       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-primary/10 text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
+       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-input text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
         <SelectValue placeholder="From" />
        </SelectTrigger>
-       <SelectContent className="max-h-[180px] bg-card border-primary/10 text-foreground rounded-xl">
+       <SelectContent className="max-h-[180px] bg-card border-border text-foreground rounded-xl">
         {getFromYears(filters.pubYearTo).map((year) => (
          <SelectItem key={year} value={year} className="text-[11px] cursor-pointer">{year}</SelectItem>
         ))}
        </SelectContent>
       </Select>
-      <span className="text-gray-600 text-[11px]">–</span>
+      <span className="text-muted-foreground text-[11px]">–</span>
       <Select
        value={filters.pubYearTo || ""}
        onValueChange={(v) => setFilters((p) => ({ ...p, pubYearTo: v }))}
       >
-       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-primary/10 text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
+       <SelectTrigger className="w-[90px] h-[32px] px-2.5 py-0 text-[11px] bg-card border-input text-foreground hover:border-primary/20 focus:ring-0 rounded-lg [&>svg]:hidden">
         <SelectValue placeholder="To" />
        </SelectTrigger>
-       <SelectContent className="max-h-[180px] bg-card border-primary/10 text-foreground rounded-xl">
+       <SelectContent className="max-h-[180px] bg-card border-border text-foreground rounded-xl">
         {getToYears(filters.pubYearFrom).map((year) => (
          <SelectItem key={year} value={year} className="text-[11px] cursor-pointer">{year}</SelectItem>
         ))}
@@ -107,7 +107,7 @@ export function AdvancedFilter({
 
     {/* Min Citations */}
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
       <Quote size={11} /> Citations ≥
      </label>
      <input
@@ -115,7 +115,7 @@ export function AdvancedFilter({
       placeholder="0"
       value={filters.minCitations || ""}
       onChange={(e) => setFilters(p => ({ ...p, minCitations: e.target.value }))}
-      className="w-[100px] h-[32px] px-2.5 py-0 text-[11px] bg-card border border-primary/10 rounded-lg text-foreground placeholder:text-gray-600 outline-none focus:border-primary/30 transition-colors"
+      className="w-[100px] h-[32px] px-2.5 py-0 text-[11px] bg-card border border-input rounded-lg text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/30 transition-colors"
      />
     </div>
 
@@ -126,15 +126,15 @@ export function AdvancedFilter({
       checked={!!filters.isOpenAccess}
       onCheckedChange={(checked) => setFilters(p => ({ ...p, isOpenAccess: !!checked }))}
      />
-     <label htmlFor="filter-oa" className="text-[11px] font-medium text-gray-400 cursor-pointer select-none">
+     <label htmlFor="filter-oa" className="text-[11px] font-medium text-muted-foreground cursor-pointer select-none">
       {t('filters.openAccessOnly') || 'Open Access only'}
      </label>
     </div>
    </div>
 
    {/* Quartile Filter */}
-   <div className="space-y-1.5 pt-1 border-t border-primary/5">
-    <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
+   <div className="space-y-1.5 pt-1 border-t border-border">
+    <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
      <Layers size={11} /> Journal Quartile
     </label>
     <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ export function AdvancedFilter({
         />
         <span
          className="text-[11px] font-semibold"
-         style={{ color: isChecked ? qColors[q] : '#6B7280' }}
+         style={{ color: isChecked ? qColors[q] : 'var(--muted-foreground)' }}
         >
          {q}
         </span>
@@ -169,8 +169,8 @@ export function AdvancedFilter({
 
    {/* Research Fields */}
    {fieldData.length > 0 && (
-    <div className="space-y-2 pt-1 border-t border-primary/5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1">
+    <div className="space-y-2 pt-1 border-t border-border">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
       <Layers size={11} /> {t('filters.researchField') || 'Research Fields'}
      </label>
      <div className="flex flex-wrap gap-x-4 gap-y-1.5">
@@ -181,7 +181,7 @@ export function AdvancedFilter({
          checked={(filters.fields || []).includes(f.n)}
          onCheckedChange={() => handleFieldToggle(f.n)}
         />
-        <label htmlFor={`field-${f.n}`} className="text-[11px] text-gray-400 cursor-pointer select-none hover:text-foreground transition-colors">
+        <label htmlFor={`field-${f.n}`} className="text-[11px] text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors">
          {f.n}
         </label>
        </div>
@@ -195,7 +195,7 @@ export function AdvancedFilter({
     <Button
      onClick={onApply}
      size="sm"
-     className="h-7 px-4 text-[11px] font-semibold rounded-lg bg-[#4F8CFF] hover:bg-[#4F8CFF]/80 text-white gap-1.5"
+     className="h-7 px-4 text-[11px] font-semibold rounded-lg bg-accent-blue hover:bg-accent-blue/80 text-white gap-1.5"
     >
      <Check size={12} />
      Apply Filters

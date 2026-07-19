@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, Copy, Check, FileText, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -120,7 +120,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
         <button
           type="button"
           onClick={() => setOpen(!open)}
-          className={`${wrapperBtn} border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white`}
+          className={`${wrapperBtn} border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground`}
         >
           <Quote size={12} />
           Cite
@@ -145,8 +145,8 @@ export default function CitationExport({ paper, variant = 'inline' }) {
                       onClick={() => setActiveFormat(fmt.key)}
                       className={`flex-1 px-2.5 py-1.5 rounded-md text-[10px] font-bold transition-all ${
                         activeFormat === fmt.key
-                          ? 'bg-primary text-black'
-                          : 'text-gray-400 hover:text-foreground'
+                          ? 'bg-primary text-primary-foreground'
+                          : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       {fmt.label}
@@ -155,9 +155,9 @@ export default function CitationExport({ paper, variant = 'inline' }) {
                 </div>
 
                 {/* Citation preview */}
-                <pre className="text-[11px] text-gray-300 font-mono whitespace-pre-wrap break-words bg-[#0A0A0A] rounded-lg p-3 border border-primary/5 max-h-32 overflow-y-auto">
+                <pre className="text-[11px] text-foreground/80 font-mono whitespace-pre-wrap break-words bg-card rounded-lg p-3 border border-border max-h-32 overflow-y-auto">
                   {loading ? (
-                    <span className="flex items-center gap-1.5 text-gray-500">
+                    <span className="flex items-center gap-1.5 text-muted-foreground">
                       <Loader2 size={11} className="animate-spin" />
                       Loading...
                     </span>
@@ -179,7 +179,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
                     type="button"
                     onClick={handleCopy}
                     disabled={loading || !citationText}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold bg-primary text-black hover:opacity-90 transition-all disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40"
                   >
                     {copied ? <Check size={12} /> : <Copy size={12} />}
                     {copied ? 'Copied' : 'Copy'}
@@ -208,7 +208,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Quote size={15} className="text-primary/40" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Export Citation</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Export Citation</h3>
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -224,7 +224,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
             type="button"
             onClick={handleDownload}
             disabled={loading || !citationText}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-primary/5 text-gray-400 hover:text-foreground hover:bg-primary/10 transition-all border border-primary/5 disabled:opacity-40"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-primary/5 text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all border border-border disabled:opacity-40"
           >
             {loading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
             Download
@@ -242,7 +242,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
             className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${
               activeFormat === fmt.key
                 ? 'bg-primary/15 text-primary border-primary/30'
-                : 'text-gray-400 border-primary/5 hover:text-foreground hover:border-primary/15'
+                : 'text-muted-foreground border-border hover:text-foreground hover:border-primary/15'
             }`}
           >
             {fmt.label}
@@ -251,9 +251,9 @@ export default function CitationExport({ paper, variant = 'inline' }) {
       </div>
 
       {/* Citation text */}
-      <pre className="text-xs text-gray-300 font-mono whitespace-pre-wrap break-words bg-[#0A0A0A] rounded-xl p-4 border border-primary/5 max-h-52 overflow-y-auto">
+      <pre className="text-xs text-foreground/80 font-mono whitespace-pre-wrap break-words bg-card rounded-xl p-4 border border-border max-h-52 overflow-y-auto">
         {loading ? (
-          <span className="flex items-center gap-2 text-gray-500">
+          <span className="flex items-center gap-2 text-muted-foreground">
             <Loader2 size={13} className="animate-spin" />
             Fetching citation...
           </span>

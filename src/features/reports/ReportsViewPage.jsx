@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+﻿import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -193,11 +193,11 @@ export default function ReportsViewPage() {
     <motion.div
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/5 border border-red-500/10 text-[11px] text-red-400/80"
+      className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 text-[11px] text-red-600/80 dark:text-red-400/80"
     >
       <AlertCircle size={13} className="shrink-0" />
       <span>{error}</span>
-      <button onClick={() => setError(null)} className="ml-auto text-red-400/50 hover:text-red-400">✕</button>
+      <button onClick={() => setError(null)} className="ml-auto text-red-400/50 dark:text-red-400/50 hover:text-red-600 dark:hover:text-red-400">✕</button>
     </motion.div>
   );
 
@@ -213,7 +213,7 @@ export default function ReportsViewPage() {
           <FileText size={13} className="text-primary" />
           <span className="text-xs font-bold text-primary">Keyword Trend Report</span>
         </div>
-        <span className="text-[11px] text-gray-500">Search a keyword and generate a trend analysis report</span>
+        <span className="text-[11px] text-muted-foreground">Search a keyword and generate a trend analysis report</span>
       </motion.div>
 
       {/* Error Banner */}
@@ -227,19 +227,19 @@ export default function ReportsViewPage() {
           className="rounded-2xl border border-primary/10 bg-card p-8"
         >
           <div className="flex flex-col items-center text-center max-w-lg mx-auto">
-            <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/10 flex items-center justify-center mb-5">
-              <Search size={24} className="text-[#3B82F6]" />
+            <div className="w-14 h-14 rounded-2xl bg-accent-blue/10 flex items-center justify-center mb-5">
+              <Search size={24} className="text-accent-blue" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
               Generate a Keyword Trend Report
             </h3>
-            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6">
               Go to the <span className="text-foreground font-medium">Search Papers</span> page,
               search for a keyword, and click{' '}
-              <span className="text-[#3B82F6] font-medium">Generate Report</span> in the
+              <span className="text-accent-blue font-medium">Generate Report</span> in the
               Quick Stats section. Your trend analysis will appear right here.
             </p>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
                 Search Papers
               </span>
@@ -248,7 +248,7 @@ export default function ReportsViewPage() {
                 Quick Stats
               </span>
               <ArrowRight size={12} />
-              <span className="px-3 py-1.5 rounded-lg bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[#3B82F6] font-medium">
+              <span className="px-3 py-1.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue font-medium">
                 Generate Report
               </span>
             </div>
@@ -264,15 +264,15 @@ export default function ReportsViewPage() {
           className="rounded-2xl border border-primary/10 bg-card p-8"
         >
           <div className="flex flex-col items-center text-center">
-            <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/10 flex items-center justify-center mb-5">
-              <Loader2 size={24} className="text-[#3B82F6] animate-spin" />
+            <div className="w-14 h-14 rounded-2xl bg-accent-blue/10 flex items-center justify-center mb-5">
+              <Loader2 size={24} className="text-accent-blue animate-spin" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
               Generating Report
             </h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Analyzing trends for{' '}
-              <span className="text-[#3B82F6] font-semibold">"{loadingKeyword}"</span>
+              <span className="text-accent-blue font-semibold">"{loadingKeyword}"</span>
               — fetching publication data, citation metrics, and co-occurring keywords...
             </p>
           </div>
@@ -299,21 +299,21 @@ export default function ReportsViewPage() {
         <motion.div
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-primary/8 bg-[#0A0A0A] p-4"
+          className="rounded-xl border border-primary/8 bg-card p-4"
         >
           <div className="flex items-center gap-2 mb-3">
-            <History size={13} className="text-[#4F8CFF]" />
+            <History size={13} className="text-accent-blue" />
             <span className="text-xs font-semibold text-foreground uppercase tracking-wide">
               Report History
             </span>
-            <span className="text-[10px] text-gray-500 ml-auto">
+            <span className="text-[10px] text-muted-foreground ml-auto">
               {kwHistory.length} keyword{kwHistory.length > 1 ? 's' : ''}
             </span>
           </div>
           <div className="overflow-hidden rounded-lg border border-primary/10">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-primary/10 text-gray-500">
+                <tr className="border-b border-primary/10 text-muted-foreground">
                   <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Keyword</th>
                   <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Created Date</th>
                   <th className="text-right py-2.5 px-4 font-medium uppercase tracking-wider text-[10px] w-16">Action</th>
@@ -324,22 +324,22 @@ export default function ReportsViewPage() {
                   <tr
                     key={item.keyword}
                     onClick={() => loadFromKeywordHistory(item.keyword)}
-                    className="border-b border-primary/5 last:border-0
-                      hover:bg-[#4F8CFF]/5 cursor-pointer transition-colors"
+                    className="border-b border-border last:border-0
+                      hover:bg-accent-blue/5 cursor-pointer transition-colors"
                   >
                     <td className="py-2.5 px-4 text-foreground font-medium">
                       <div className="flex items-center gap-2">
-                        <Clock size={11} className="text-gray-500" />
+                        <Clock size={11} className="text-muted-foreground" />
                         {item.keyword}
                       </div>
                     </td>
-                    <td className="py-2.5 px-4 text-gray-400">
+                    <td className="py-2.5 px-4 text-muted-foreground">
                       {new Date(item.createdAt).toLocaleString('en-US')}
                     </td>
                     <td className="py-2.5 px-4 text-right">
                       <button
                         onClick={(e) => deleteKeywordFromCache(item.keyword, e)}
-                        className="p-1.5 rounded hover:bg-red-500/10 text-gray-600 hover:text-red-400 transition-colors"
+                        className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Remove from history"
                       >
                         <Trash2 size={12} />
@@ -351,12 +351,12 @@ export default function ReportsViewPage() {
             </table>
           </div>
           <div className="flex items-center justify-between mt-2">
-            <span className="text-[10px] text-gray-500">
+            <span className="text-[10px] text-muted-foreground">
               {kwHistory.length} keyword{kwHistory.length > 1 ? 's' : ''}
             </span>
             <button
               onClick={loadKeywordHistory}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-gray-300 transition-colors"
+              className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground/80 transition-colors"
               title="Refresh"
             >
               <RefreshCw size={12} className={kwHistoryLoading ? 'animate-spin' : ''} />

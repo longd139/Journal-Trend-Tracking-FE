@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, X } from 'lucide-react';
 
@@ -151,7 +151,7 @@ export default function SearchWithHistory({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 top-full mt-1.5 z-50 w-full rounded-2xl border border-primary/10 bg-[#151515] shadow-2xl backdrop-blur-xl overflow-hidden"
+            className="absolute left-0 top-full mt-1.5 z-50 w-full rounded-2xl border border-primary/10 bg-card shadow-2xl backdrop-blur-xl overflow-hidden"
           >
             <div className="py-1 max-h-[260px] overflow-y-auto">
               {suggestions.map((term, i) => (
@@ -159,14 +159,14 @@ export default function SearchWithHistory({
                   key={`${term}-${i}`}
                   type="button"
                   onClick={() => handleSelect(term)}
-                  className="w-full text-left px-3.5 py-2.5 text-[13px] text-slate-300 hover:text-white hover:bg-primary/5 transition-all flex items-center gap-3 group"
+                  className="w-full text-left px-3.5 py-2.5 text-[13px] text-muted-foreground hover:text-foreground hover:bg-primary/5 transition-all flex items-center gap-3 group"
                 >
-                  <Clock size={12} className="text-slate-500 shrink-0 group-hover:text-slate-400 transition-colors" />
+                  <Clock size={12} className="text-muted-foreground shrink-0 group-hover:text-foreground transition-colors" />
                   <span className="flex-1 truncate">{term}</span>
                   <button
                     type="button"
                     onClick={(e) => handleRemove(e, term)}
-                    className="p-0.5 rounded text-slate-600 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all shrink-0"
+                    className="p-0.5 rounded text-muted-foreground hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all shrink-0"
                     title="Remove"
                   >
                     <X size={12} />
@@ -175,11 +175,11 @@ export default function SearchWithHistory({
               ))}
             </div>
             {/* Clear all footer */}
-            <div className="border-t border-primary/5 px-3.5 py-2 flex justify-end">
+            <div className="border-t border-border px-3.5 py-2 flex justify-end">
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="text-[10px] font-semibold text-slate-500 hover:text-red-400 transition-colors uppercase tracking-wider"
+                className="text-[10px] font-semibold text-muted-foreground hover:text-red-400 transition-colors uppercase tracking-wider"
               >
                 Clear all
               </button>

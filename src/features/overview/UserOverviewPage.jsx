@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -40,9 +40,9 @@ function CustomTooltip({ active, payload }) {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div style={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, padding: '8px 12px' }}>
-      <p style={{ color: '#E1E0CC', fontWeight: 600, fontSize: 11, margin: 0 }}>{name}</p>
-      <p style={{ color: '#E1E0CC', fontSize: 11, margin: '2px 0 0' }}>{value}%</p>
+    <div style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, padding: '8px 12px' }}>
+      <p style={{ color: 'var(--foreground)', fontWeight: 600, fontSize: 11, margin: 0 }}>{name}</p>
+      <p style={{ color: 'var(--foreground)', fontSize: 11, margin: '2px 0 0' }}>{value}%</p>
     </div>
   );
 }
@@ -81,7 +81,7 @@ function StatCard({ label, value, sub, Icon, accent, index = 0 }) {
       className="group relative p-5 rounded-2xl border flex flex-col gap-3
         bg-card-elevated border-card-elevated-border
         hover:border-primary/20 transition-colors duration-300
-        shadow-[inset_0_1px_0_0_rgba(222,219,200,0.04)]
+        shadow-[inset_0_1px_0_0_var(--border)]
         overflow-hidden"
       style={{ '--mouse-x': '50%', '--mouse-y': '50%' }}
     >
@@ -99,9 +99,9 @@ function StatCard({ label, value, sub, Icon, accent, index = 0 }) {
       </div>
       <div className="relative z-10">
         <p className="text-2xl font-bold text-foreground font-display leading-tight tracking-[-0.03em]">{value}</p>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 mt-0.5">{label}</p>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mt-0.5">{label}</p>
       </div>
-      {sub && <p className="text-[11px] text-gray-500 relative z-10">{sub}</p>}
+      {sub && <p className="text-[11px] text-muted-foreground relative z-10">{sub}</p>}
     </motion.div>
   );
 }
@@ -128,9 +128,9 @@ function OverviewSkeleton() {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="p-5 rounded-2xl border bg-card-elevated border-card-elevated-border space-y-3">
-              <Skeleton className="h-10 w-10 rounded-xl bg-white/5" />
-              <Skeleton className="h-8 w-20 rounded bg-white/5" />
-              <Skeleton className="h-3 w-28 rounded bg-white/5" />
+              <Skeleton className="h-10 w-10 rounded-xl bg-muted/40" />
+              <Skeleton className="h-8 w-20 rounded bg-muted/40" />
+              <Skeleton className="h-3 w-28 rounded bg-muted/40" />
             </div>
           ))}
         </div>
@@ -290,7 +290,7 @@ export default function UserOverviewPage() {
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
-          <p className="text-sm text-gray-400">Unable to load dashboard data.</p>
+          <p className="text-sm text-muted-foreground">Unable to load dashboard data.</p>
         </div>
         <button
           onClick={() => fetchOverview(selectedAuthorId)}
@@ -343,14 +343,14 @@ export default function UserOverviewPage() {
               <button
                 onClick={() => navigate(`/${role}/search`)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                  bg-primary text-[#000000] hover:bg-foreground transition-all duration-200"
+                  bg-primary text-primary-foreground hover:bg-foreground transition-all duration-200"
               >
                 <Search size={12} /> New Search
               </button>
               <button
                 onClick={() => navigate(`/${role}/search-author`)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                  bg-[#4F8CFF] text-white hover:bg-[#5B99FF] transition-all duration-200"
+                  bg-accent-blue text-white hover:bg-accent-blue/80 transition-all duration-200"
               >
                 <UserSearch size={12} /> Find Authors
               </button>
@@ -386,7 +386,7 @@ export default function UserOverviewPage() {
                 }}
                 disabled={authorsLoading}
               >
-                <SelectTrigger className="w-[200px] shrink-0 bg-[#0F0F0F] border-primary/10 text-foreground h-9 text-xs rounded-xl">
+                <SelectTrigger className="w-[200px] shrink-0 bg-card border-primary/10 text-foreground h-9 text-xs rounded-xl">
                   <SelectValue placeholder={authorsLoading ? 'Loading...' : 'My Dashboard'} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-primary/10 text-foreground shadow-lg shadow-black/40">
@@ -397,7 +397,7 @@ export default function UserOverviewPage() {
                     My Dashboard
                   </SelectItem>
                   {!hasFollowedAuthors && (
-                    <div className="px-2 py-3 text-xs text-gray-500 text-center">
+                    <div className="px-2 py-3 text-xs text-muted-foreground text-center">
                       No authors followed yet
                     </div>
                   )}
@@ -420,14 +420,14 @@ export default function UserOverviewPage() {
         {isAuthorView && currentAuthor && (
           <>
             {/* Author name banner — Tier 1 elevated */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 rounded-2xl border bg-card-elevated border-card-elevated-border shadow-[inset_0_1px_0_0_rgba(222,219,200,0.04)]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 rounded-2xl border bg-card-elevated border-card-elevated-border shadow-[inset_0_1px_0_0_var(--border)]">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-primary/10">
                   <User size={18} className="text-primary" />
                 </div>
                 <div>
                   <p className="text-base font-semibold text-foreground">{currentAuthor.authorName}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     h-Index: {authorTimeline?.hIndex ?? hIndex ?? '—'}
                     {' · '}
                     {recentPublications.length} publications listed
@@ -438,17 +438,17 @@ export default function UserOverviewPage() {
                 <div className="flex items-center gap-4 text-xs">
                   <div className="text-center">
                     <p className="font-bold text-foreground font-mono tabular-nums">{authorTimeline.totalPapers?.toLocaleString() || '—'}</p>
-                    <p className="text-[10px] text-gray-500">Papers</p>
+                    <p className="text-[10px] text-muted-foreground">Papers</p>
                   </div>
                   <div className="w-px h-6 bg-primary/10" />
                   <div className="text-center">
-                    <p className="font-bold text-[#4F8CFF] font-mono tabular-nums">{authorTimeline.totalCitations?.toLocaleString() || '—'}</p>
-                    <p className="text-[10px] text-gray-500">Citations</p>
+                    <p className="font-bold text-accent-blue font-mono tabular-nums">{authorTimeline.totalCitations?.toLocaleString() || '—'}</p>
+                    <p className="text-[10px] text-muted-foreground">Citations</p>
                   </div>
                   <div className="w-px h-6 bg-primary/10" />
                   <div className="text-center">
-                    <p className="font-bold text-[#00D1B2] font-mono tabular-nums">{authorCoAuthors?.coAuthors?.length ?? '—'}</p>
-                    <p className="text-[10px] text-gray-500">Co-Authors</p>
+                    <p className="font-bold text-accent-teal font-mono tabular-nums">{authorCoAuthors?.coAuthors?.length ?? '—'}</p>
+                    <p className="text-[10px] text-muted-foreground">Co-Authors</p>
                   </div>
                 </div>
               )}
@@ -484,22 +484,22 @@ export default function UserOverviewPage() {
                     </div>
                     <div>
                       <h4 className="text-xs font-bold text-foreground">Search Quota</h4>
-                      <p className="text-[10px] text-gray-500">Monthly usage limit</p>
+                      <p className="text-[10px] text-muted-foreground">Monthly usage limit</p>
                     </div>
                   </div>
                   <span className="text-sm font-bold font-mono tabular-nums text-foreground">
-                    {searchesLeft} <span className="text-[10px] text-gray-500 font-normal">/ {searchLimit} remaining</span>
+                    {searchesLeft} <span className="text-[10px] text-muted-foreground font-normal">/ {searchLimit} remaining</span>
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-primary/8 overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-[#DEDBC8] to-[#C5BFA0]"
+                    className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.max(0, Math.min(100, ((searchLimit - searchesLeft) / searchLimit) * 100))}%` }}
                     transition={{ delay: 0.5, ...spring }}
                   />
                 </div>
-                <p className="text-[10px] text-gray-500 mt-2">
+                <p className="text-[10px] text-muted-foreground mt-2">
                   Used {searchLimit - searchesLeft} of {searchLimit} searches this month
                   {searchesLeft <= 3 && searchesLeft > 0 && (
                     <span className="text-primary ml-1">— Running low</span>
@@ -527,19 +527,19 @@ export default function UserOverviewPage() {
                   {ud.papersViewed != null && (
                     <div>
                       <p className="text-lg font-bold text-foreground font-mono tabular-nums">{ud.papersViewed}</p>
-                      <p className="text-[10px] text-gray-500">Papers Viewed</p>
+                      <p className="text-[10px] text-muted-foreground">Papers Viewed</p>
                     </div>
                   )}
                   {ud.bookmarksThisMonth != null && (
                     <div>
-                      <p className="text-lg font-bold text-[#4F8CFF] font-mono tabular-nums">{ud.bookmarksThisMonth}</p>
-                      <p className="text-[10px] text-gray-500">Bookmarks Added</p>
+                      <p className="text-lg font-bold text-accent-blue font-mono tabular-nums">{ud.bookmarksThisMonth}</p>
+                      <p className="text-[10px] text-muted-foreground">Bookmarks Added</p>
                     </div>
                   )}
                   {ud.searchesThisMonth != null && (
                     <div>
-                      <p className="text-lg font-bold text-[#00D1B2] font-mono tabular-nums">{ud.searchesThisMonth}</p>
-                      <p className="text-[10px] text-gray-500">Searches Run</p>
+                      <p className="text-lg font-bold text-accent-teal font-mono tabular-nums">{ud.searchesThisMonth}</p>
+                      <p className="text-[10px] text-muted-foreground">Searches Run</p>
                     </div>
                   )}
                 </div>
@@ -558,15 +558,15 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <TrendingUpIcon size={15} className="text-[#00D1B2]" /> Trending Topics
+                      <TrendingUpIcon size={15} className="text-accent-teal" /> Trending Topics
                     </h3>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Hot research keywords right now</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Hot research keywords right now</p>
                   </div>
                 </div>
                 {extrasLoading ? (
                   <div className="flex flex-wrap gap-2">
                     {Array.from({ length: 8 }).map((_, i) => (
-                      <Skeleton key={i} className="h-8 w-24 rounded-xl bg-white/5" />
+                      <Skeleton key={i} className="h-8 w-24 rounded-xl bg-muted/40" />
                     ))}
                   </div>
                 ) : trendingKeywords.length > 0 ? (
@@ -586,13 +586,13 @@ export default function UserOverviewPage() {
                       >
                         {kw.keywordText}
                         {kw.paperCount != null && (
-                          <span className="ml-1.5 text-[10px] text-gray-500">{kw.paperCount.toLocaleString()}</span>
+                          <span className="ml-1.5 text-[10px] text-muted-foreground">{kw.paperCount.toLocaleString()}</span>
                         )}
                       </motion.button>
                     ))}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center h-20 text-gray-500 text-xs">
+                  <div className="flex items-center justify-center h-20 text-muted-foreground text-xs">
                     No trending topics yet
                   </div>
                 )}
@@ -610,7 +610,7 @@ export default function UserOverviewPage() {
                 </h3>
                 {extrasLoading ? (
                   <div className="flex-1 flex items-center justify-center">
-                    <Skeleton className="w-28 h-28 rounded-full bg-white/5" />
+                    <Skeleton className="w-28 h-28 rounded-full bg-muted/40" />
                   </div>
                 ) : researchFields.length > 0 ? (
                   <>
@@ -639,15 +639,15 @@ export default function UserOverviewPage() {
                         <div key={f.name || i} className="flex items-center justify-between text-[10px]">
                           <div className="flex items-center gap-1.5 min-w-0">
                             <span className="w-2 h-2 rounded-full shrink-0" style={{ background: CHART_COLORS[i % CHART_COLORS.length] }} />
-                            <span className="text-gray-400 truncate">{f.name}</span>
+                            <span className="text-muted-foreground truncate">{f.name}</span>
                           </div>
-                          <span className="text-gray-500 ml-1 shrink-0">{f.value}%</span>
+                          <span className="text-muted-foreground ml-1 shrink-0">{f.value}%</span>
                         </div>
                       ))}
                     </div>
                   </>
                 ) : (
-                  <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">No data</div>
+                  <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">No data</div>
                 )}
               </motion.div>
             </div>
@@ -666,13 +666,13 @@ export default function UserOverviewPage() {
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                       <Lightbulb size={15} className="text-primary" /> For You
                     </h3>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Recommended based on your interests</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Recommended based on your interests</p>
                   </div>
                 </div>
                 {extrasLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-14 w-full rounded-xl bg-white/5" />
+                      <Skeleton key={i} className="h-14 w-full rounded-xl bg-muted/40" />
                     ))}
                   </div>
                 ) : recommendations.length > 0 ? (
@@ -697,10 +697,10 @@ export default function UserOverviewPage() {
                               <Lightbulb size={12} className="text-primary" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-foreground line-clamp-1 group-hover:text-[#4F8CFF] transition-colors">
+                              <p className="text-xs font-semibold text-foreground line-clamp-1 group-hover:text-accent-blue transition-colors">
                                 {p.title || 'Untitled'}
                               </p>
-                              <div className="flex items-center gap-3 text-[10px] text-gray-500 mt-1">
+                              <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-1">
                                 {p.journal && <span className="truncate">{p.journal}</span>}
                                 {p.pubYear && <span>{p.pubYear}</span>}
                                 {(p.citationCount != null) && (
@@ -708,7 +708,7 @@ export default function UserOverviewPage() {
                                 )}
                               </div>
                               {rec.reasonDetail && (
-                                <p className="text-[9px] text-gray-600 mt-1 flex items-center gap-1">
+                                <p className="text-[9px] text-muted-foreground mt-1 flex items-center gap-1">
                                   <MessageSquareText size={9} /> {rec.reasonDetail}
                                 </p>
                               )}
@@ -720,8 +720,8 @@ export default function UserOverviewPage() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
-                    <Lightbulb size={20} className="text-gray-700" />
-                    <p className="text-xs text-gray-500">Search for papers to get recommendations</p>
+                    <Lightbulb size={20} className="text-foreground/80" />
+                    <p className="text-xs text-muted-foreground">Search for papers to get recommendations</p>
                   </div>
                 )}
               </motion.div>
@@ -731,17 +731,17 @@ export default function UserOverviewPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.42, ...spring }}
-                className="lg:col-span-1 rounded-2xl border p-5 bg-transparent border-dashed border-primary/5 flex flex-col"
+                className="lg:col-span-1 rounded-2xl border p-5 bg-transparent border-dashed border-border flex flex-col"
               >
                 <div className="mb-4">
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                    <Bookmark size={15} className="text-[#4F8CFF]" /> Bookmarks
+                    <Bookmark size={15} className="text-accent-blue" /> Bookmarks
                   </h3>
                 </div>
                 {extrasLoading ? (
                   <div className="space-y-3 flex-1">
                     {[1, 2, 3].map((i) => (
-                      <Skeleton key={i} className="h-12 w-full rounded-xl bg-white/5" />
+                      <Skeleton key={i} className="h-12 w-full rounded-xl bg-muted/40" />
                     ))}
                   </div>
                 ) : recentBookmarks.length > 0 ? (
@@ -759,10 +759,10 @@ export default function UserOverviewPage() {
                         className="w-full text-left p-2.5 rounded-xl border border-primary/6 hover:border-primary/15
                           bg-transparent hover:bg-primary/3 transition-all duration-200 group"
                       >
-                        <p className="text-xs font-medium text-foreground truncate group-hover:text-[#4F8CFF] transition-colors">
+                        <p className="text-xs font-medium text-foreground truncate group-hover:text-accent-blue transition-colors">
                           {bm.paperTitle || bm.keywordText || 'Untitled'}
                         </p>
-                        <p className="text-[10px] text-gray-600 mt-0.5">
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
                           {bm.collectionName || 'General'}
                           {bm.createdAt && ` · ${new Date(bm.createdAt).toLocaleDateString()}`}
                         </p>
@@ -771,8 +771,8 @@ export default function UserOverviewPage() {
                   </div>
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-center gap-2">
-                    <Bookmark size={20} className="text-gray-700" />
-                    <p className="text-xs text-gray-500">No bookmarks yet</p>
+                    <Bookmark size={20} className="text-foreground/80" />
+                    <p className="text-xs text-muted-foreground">No bookmarks yet</p>
                   </div>
                 )}
                 {recentBookmarks.length > 0 && (
@@ -792,14 +792,14 @@ export default function UserOverviewPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.44, ...spring }}
-              className="rounded-2xl border p-6 bg-transparent border-dashed border-primary/5"
+              className="rounded-2xl border p-6 bg-transparent border-dashed border-border"
             >
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                    <Clock size={15} className="text-[#00D1B2]" /> Recently Viewed
+                    <Clock size={15} className="text-accent-teal" /> Recently Viewed
                   </h3>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Pick up where you left off</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Pick up where you left off</p>
                 </div>
                 <button
                   onClick={() => navigate(`/${role}/reading-history`)}
@@ -811,10 +811,10 @@ export default function UserOverviewPage() {
               {extrasLoading ? (
                 <div className="flex gap-4 overflow-hidden">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="min-w-[220px] p-4 rounded-xl border border-primary/5 space-y-2">
-                      <Skeleton className="h-3 w-3/4 rounded bg-white/5" />
-                      <Skeleton className="h-3 w-1/2 rounded bg-white/5" />
-                      <Skeleton className="h-3 w-1/3 rounded bg-white/5" />
+                    <div key={i} className="min-w-[220px] p-4 rounded-xl border border-border space-y-2">
+                      <Skeleton className="h-3 w-3/4 rounded bg-muted/40" />
+                      <Skeleton className="h-3 w-1/2 rounded bg-muted/40" />
+                      <Skeleton className="h-3 w-1/3 rounded bg-muted/40" />
                     </div>
                   ))}
                 </div>
@@ -832,14 +832,14 @@ export default function UserOverviewPage() {
                         bg-transparent hover:bg-primary/3 transition-all duration-200 text-left group"
                     >
                       <div className="flex items-start gap-2 mb-2">
-                        <div className="p-1 rounded-md bg-[#00D1B2]/10 shrink-0 mt-0.5">
-                          <BookOpen size={12} className="text-[#00D1B2]" />
+                        <div className="p-1 rounded-md bg-accent-teal/10 shrink-0 mt-0.5">
+                          <BookOpen size={12} className="text-accent-teal" />
                         </div>
-                        <p className="text-xs font-semibold text-foreground line-clamp-2 leading-snug group-hover:text-[#00D1B2] transition-colors">
+                        <p className="text-xs font-semibold text-foreground line-clamp-2 leading-snug group-hover:text-accent-teal transition-colors">
                           {p.paperTitle || 'Untitled'}
                         </p>
                       </div>
-                      <div className="flex items-center gap-3 text-[10px] text-gray-500">
+                      <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                         {p.journalName && <span className="truncate">{p.journalName}</span>}
                         {p.pubYear && <span>{p.pubYear}</span>}
                         {p.citationCount != null && (
@@ -849,7 +849,7 @@ export default function UserOverviewPage() {
                         )}
                       </div>
                       {p.viewedAt && (
-                        <p className="text-[9px] text-gray-600 mt-2">
+                        <p className="text-[9px] text-muted-foreground mt-2">
                           Viewed {new Date(p.viewedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </p>
                       )}
@@ -858,11 +858,11 @@ export default function UserOverviewPage() {
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-10 text-center gap-2">
-                  <Clock size={20} className="text-gray-700" />
-                  <p className="text-xs text-gray-500">No papers viewed yet</p>
+                  <Clock size={20} className="text-foreground/80" />
+                  <p className="text-xs text-muted-foreground">No papers viewed yet</p>
                   <button
                     onClick={() => navigate(`/${role}/search`)}
-                    className="text-[10px] text-[#4F8CFF] hover:underline"
+                    className="text-[10px] text-accent-blue hover:underline"
                   >
                     Search for papers to get started
                   </button>
@@ -897,28 +897,28 @@ export default function UserOverviewPage() {
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <Calendar size={15} className="text-primary" /> Publication Timeline
                       </h3>
-                      <p className="text-[11px] text-gray-400 mt-0.5">Research output & impact per year</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Research output & impact per year</p>
                     </div>
                     <div className="flex items-center gap-3 text-[10px]">
                       <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-primary" />Papers</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-[#4F8CFF]" style={{ borderTop: '2px dashed #4F8CFF', height: 0 }} />Citations</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-accent-blue" style={{ borderTop: '2px dashed #4F8CFF', height: 0 }} />Citations</span>
                     </div>
                   </div>
                   {authorDetailLoading ? (
                     <div className="flex items-center justify-center h-[260px]">
-                      <Skeleton className="w-full h-full rounded-xl bg-white/5" />
+                      <Skeleton className="w-full h-full rounded-xl bg-muted/40" />
                     </div>
                   ) : authorTimeline?.timeline?.length > 0 ? (
                     <ResponsiveContainer width="100%" height={220}>
                         <ComposedChart data={authorTimeline.timeline} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.06} vertical={false} />
-                          <XAxis dataKey="year" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} />
-                          <YAxis yAxisId="left" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
-                          <YAxis yAxisId="right" orientation="right" tick={{ fill: '#6B7280', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.4} vertical={false} />
+                          <XAxis dataKey="year" tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} />
+                          <YAxis yAxisId="left" tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
+                          <YAxis yAxisId="right" orientation="right" tick={{ fill: 'var(--muted-foreground)', fontSize: 10 }} tickLine={false} axisLine={false} tickCount={4} width={40} />
                           <Tooltip
-                            contentStyle={{ background: '#1a1a1a', border: '1px solid #333', borderRadius: 12, fontSize: 12 }}
-                            labelStyle={{ color: '#E1E0CC', fontWeight: 600 }}
-                            itemStyle={{ color: '#E1E0CC' }}
+                            contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: 12 }}
+                            labelStyle={{ color: 'var(--foreground)', fontWeight: 600 }}
+                            itemStyle={{ color: 'var(--foreground)' }}
                           />
                           <Legend content={() => null} />
                           <Bar yAxisId="left" dataKey="worksCount" name="Papers" fill="#DEDBC8" radius={[4, 4, 0, 0]} maxBarSize={36} opacity={0.8} />
@@ -926,7 +926,7 @@ export default function UserOverviewPage() {
                         </ComposedChart>
                       </ResponsiveContainer>
                   ) : (
-                    <div className="flex items-center justify-center h-[260px] text-gray-500 text-sm">No timeline data available</div>
+                    <div className="flex items-center justify-center h-[260px] text-muted-foreground text-sm">No timeline data available</div>
                   )}
                 </motion.div>
 
@@ -969,7 +969,7 @@ export default function UserOverviewPage() {
                                 className="w-2.5 h-2.5 rounded-full shrink-0"
                                 style={{ background: f.color || CHART_COLORS[i % CHART_COLORS.length] }}
                               />
-                              <span className="text-gray-400 truncate">{f.name}</span>
+                              <span className="text-muted-foreground truncate">{f.name}</span>
                             </div>
                             <span
                               className="font-bold ml-2 shrink-0"
@@ -982,7 +982,7 @@ export default function UserOverviewPage() {
                       </div>
                     </>
                   ) : (
-                    <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">No field data</div>
+                    <div className="flex-1 flex items-center justify-center text-muted-foreground text-sm">No field data</div>
                   )}
                 </motion.div>
               </div>
@@ -1001,10 +1001,10 @@ export default function UserOverviewPage() {
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <Network size={15} className="text-primary" /> Co-Authors
                       </h3>
-                      <p className="text-[11px] text-gray-400 mt-0.5">Frequent collaborators</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Frequent collaborators</p>
                     </div>
                     {authorCoAuthors && (
-                      <span className="text-[10px] text-gray-500">
+                      <span className="text-[10px] text-muted-foreground">
                         {authorCoAuthors.totalCoAuthors || authorCoAuthors.coAuthors?.length || 0} co-authors
                       </span>
                     )}
@@ -1012,7 +1012,7 @@ export default function UserOverviewPage() {
                   {authorDetailLoading ? (
                     <div className="flex flex-wrap gap-2.5">
                       {Array.from({ length: 8 }).map((_, i) => (
-                        <Skeleton key={i} className="h-16 w-36 rounded-xl bg-white/5" />
+                        <Skeleton key={i} className="h-16 w-36 rounded-xl bg-muted/40" />
                       ))}
                     </div>
                   ) : authorCoAuthors?.coAuthors?.length > 0 ? (
@@ -1029,18 +1029,18 @@ export default function UserOverviewPage() {
                         >
                           <p className="text-xs font-semibold text-foreground">{ca.name}</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="text-[10px] text-gray-500">
+                            <span className="text-[10px] text-muted-foreground">
                               {ca.collaborationCount} collaboration{ca.collaborationCount > 1 ? 's' : ''}
                             </span>
                             {ca.lastInstitution && (
-                              <span className="text-[9px] text-gray-600 truncate max-w-[120px]">{ca.lastInstitution}</span>
+                              <span className="text-[9px] text-muted-foreground truncate max-w-[120px]">{ca.lastInstitution}</span>
                             )}
                           </div>
                         </motion.div>
                       ))}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center h-[180px] text-gray-500 text-xs">
+                    <div className="flex items-center justify-center h-[180px] text-muted-foreground text-xs">
                       No co-author data available
                     </div>
                   )}
@@ -1058,13 +1058,13 @@ export default function UserOverviewPage() {
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                         <Trophy size={15} className="text-primary" /> Top Cited Papers
                       </h3>
-                      <p className="text-[11px] text-gray-400 mt-0.5">Most influential works</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Most influential works</p>
                     </div>
                   </div>
                   {authorDetailLoading ? (
                     <div className="space-y-3 flex-1">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Skeleton key={i} className="h-10 w-full rounded-xl bg-white/5" />
+                        <Skeleton key={i} className="h-10 w-full rounded-xl bg-muted/40" />
                       ))}
                     </div>
                   ) : authorTopPapers.length > 0 ? (
@@ -1083,14 +1083,14 @@ export default function UserOverviewPage() {
                             bg-transparent hover:bg-primary/3 transition-all duration-200 group"
                         >
                           <div className="flex items-start justify-between gap-2">
-                            <p className="text-xs font-medium text-foreground line-clamp-1 group-hover:text-[#4F8CFF] transition-colors flex-1">
+                            <p className="text-xs font-medium text-foreground line-clamp-1 group-hover:text-accent-blue transition-colors flex-1">
                               {p.title || 'Untitled'}
                             </p>
                             <span className="text-xs font-bold text-primary font-mono tabular-nums shrink-0">
                               {(p.citationCount ?? p.citations ?? 0).toLocaleString()}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 text-[10px] text-gray-500 mt-1">
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1">
                             {p.journal && <span className="truncate">{p.journal}</span>}
                             {p.pubYear && <span>{p.pubYear}</span>}
                           </div>
@@ -1098,7 +1098,7 @@ export default function UserOverviewPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex-1 flex items-center justify-center text-gray-500 text-xs">
+                    <div className="flex-1 flex items-center justify-center text-muted-foreground text-xs">
                       No top papers data
                     </div>
                   )}
@@ -1112,21 +1112,21 @@ export default function UserOverviewPage() {
                 transition={{ delay: 0.28, ...spring }}
                 className="rounded-2xl border overflow-hidden bg-card-recessed border-card-recessed-border"
               >
-                <div className="flex items-center justify-between px-6 py-5 border-b border-primary/5">
+                <div className="flex items-center justify-between px-6 py-5 border-b border-border">
                   <div>
                     <h3 className="text-base font-semibold text-foreground">
                       {t('user.recentPublications') || 'Recent Publications'}
                     </h3>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Latest published research</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Latest published research</p>
                   </div>
                 </div>
                 {recentPublications.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-primary/5">
+                        <tr className="border-b border-border">
                           {['Title', 'Journal', 'Year', 'Role', 'Citations'].map((h) => (
-                            <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+                            <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                               {h}
                             </th>
                           ))}
@@ -1139,7 +1139,7 @@ export default function UserOverviewPage() {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.35 + i * 0.05, ...spring }}
-                            className="border-b border-primary/5 hover:bg-white/[0.02] transition-colors"
+                            className="border-b border-border hover:bg-muted/10 transition-colors"
                           >
                             <td className="px-6 py-4">
                               <span className="text-sm font-semibold text-foreground block max-w-xs truncate">
@@ -1149,7 +1149,7 @@ export default function UserOverviewPage() {
                             <td className="px-6 py-4 text-xs text-primary font-medium">
                               {p.journal || '—'}
                             </td>
-                            <td className="px-6 py-4 text-xs text-gray-400">{p.year || '—'}</td>
+                            <td className="px-6 py-4 text-xs text-muted-foreground">{p.year || '—'}</td>
                             <td className="px-6 py-4">
                               <GlowBadge
                                 color={
@@ -1170,7 +1170,7 @@ export default function UserOverviewPage() {
                     </table>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center py-12 text-gray-500 text-sm">
+                  <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
                     No publications to display
                   </div>
                 )}
@@ -1188,13 +1188,13 @@ export default function UserOverviewPage() {
             className="flex flex-col items-center gap-3 px-5 py-12 rounded-2xl border border-dashed bg-transparent border-primary/10 text-center"
           >
             <div className="p-3 rounded-xl bg-primary/5">
-              <UserPlus size={24} className="text-gray-500" />
+              <UserPlus size={24} className="text-muted-foreground" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">
                 Follow authors to unlock research insights
               </p>
-              <p className="text-xs text-gray-500 mt-1 max-w-md">
+              <p className="text-xs text-muted-foreground mt-1 max-w-md">
                 Search for authors, follow them, then switch the dropdown above to see their citation history, research fields, and publications.
               </p>
             </div>

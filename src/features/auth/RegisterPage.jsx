@@ -223,14 +223,14 @@ export default function RegisterPage() {
   <motion.div layout>
   <Link
    to="/auth"
-   className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-foreground mb-4 transition-colors active:scale-[0.97]"
+   className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground mb-4 transition-colors active:scale-[0.97]"
   >
    <ArrowLeft size={13} /> {t('roleSelect.heading')}
   </Link>
-  <h2 className="text-2xl lg:text-3xl font-bold text-white mb-1 font-display tracking-tight">
+  <h2 className="text-2xl lg:text-3xl font-bold text-foreground mb-1 font-display tracking-tight">
    {t('register.createAccount')}
   </h2>
-  <p className="text-sm mb-8 text-gray-300">
+  <p className="text-sm mb-8 text-foreground/80">
    {t('register.createFor')}{' '}
    <span className="font-bold text-primary uppercase tracking-wider">
    {incomingRole}
@@ -259,8 +259,8 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.fullName
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
-    } text-foreground placeholder:text-gray-400`}
+     : 'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-muted-foreground/50`}
    />
    </div>
    {errors.fullName && (
@@ -295,8 +295,8 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.institution
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
-    } text-foreground placeholder:text-gray-400`}
+     : 'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-muted-foreground/50`}
    />
    {loadingUnis && (
     <RefreshCw
@@ -312,7 +312,7 @@ export default function RegisterPage() {
    )}
 
    {showSuggestions && suggestions.length > 0 && (
-   <ul className="absolute z-50 w-full mt-1.5 rounded-2xl border border-primary/20 bg-card overflow-hidden shadow-2xl">
+   <ul className="absolute z-50 w-full mt-1.5 rounded-2xl border border-border0 bg-card overflow-hidden shadow-2xl">
     {suggestions.map((uni, idx) => (
     <li
      key={idx}
@@ -320,7 +320,7 @@ export default function RegisterPage() {
      handleChange('institution', uni.name);
      setShowSuggestions(false);
      }}
-     className="px-4 py-2.5 text-xs text-foreground hover:bg-primary/10 cursor-pointer border-b border-primary/5 last:border-b-0 transition-colors active:scale-[0.98] active:bg-primary/15"
+     className="px-4 py-2.5 text-xs text-foreground hover:bg-primary/10 cursor-pointer border-b border-primary/15 last:border-b-0 transition-colors active:scale-[0.98] active:bg-primary/15"
     >
      {uni.name}
     </li>
@@ -349,8 +349,8 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
     errors.email || errors.emailFormat
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
-    } text-foreground placeholder:text-gray-400`}
+     : 'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-muted-foreground/50`}
    />
    </div>
    {errors.email && (
@@ -386,13 +386,13 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.password
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
-    } text-foreground placeholder:text-gray-400`}
+     : 'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-muted-foreground/50`}
     />
     <button
     type="button"
     onClick={() => setShowPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-muted/40 active:scale-[0.95]"
     >
     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -423,13 +423,13 @@ export default function RegisterPage() {
     className={`relative w-full pl-11 pr-10 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 ${
      errors.confirmPassword
      ? 'border-red-500/50 bg-red-500/[0.08]'
-     : 'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
-    } text-foreground placeholder:text-gray-400`}
+     : 'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20'
+    } text-foreground placeholder:text-muted-foreground/50`}
     />
     <button
     type="button"
     onClick={() => setShowConfirmPassword((v) => !v)}
-    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
+    className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-muted/40 active:scale-[0.95]"
     >
     {showConfirmPassword ? <EyeOff size={15} /> : <Eye size={15} />}
     </button>
@@ -465,7 +465,7 @@ export default function RegisterPage() {
    whileTap={{ scale: 0.98 }}
    type="submit"
    disabled={loading}
-   className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-black hover:border-primary"
+   className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-primary-foreground hover:border-primary"
    style={{ opacity: loading ? 0.7 : 1 }}
   >
    <span className="relative z-10 flex items-center gap-2">
@@ -482,8 +482,8 @@ export default function RegisterPage() {
   </form>
 
   {/* Footer */}
-  <motion.div layout className="mt-7 pt-6 border-t border-primary/10 text-center text-xs">
-  <span className="text-gray-400">
+  <motion.div layout className="mt-7 pt-6 border-t border-primary/25 text-center text-xs">
+  <span className="text-muted-foreground">
    {t('register.haveAccount')}{' '}
    <Link to="/login" className="font-bold transition-colors text-primary hover:text-foreground active:scale-[0.97] inline-block">
    {t('register.signIn')}

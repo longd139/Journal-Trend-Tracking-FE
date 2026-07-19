@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
  Bookmark,
@@ -91,7 +91,7 @@ export function PaperItemCard({
 
  // ── Icon button style: transparent + border → filled on hover ──
  const iconBtn =
-  'w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-300 bg-transparent border-primary/15 text-gray-500 hover:text-primary hover:bg-primary/10 hover:border-primary/30 active:scale-95';
+  'w-9 h-9 flex items-center justify-center rounded-lg border transition-all duration-300 bg-transparent border-input text-muted-foreground hover:text-primary hover:bg-primary/10 hover:border-primary/30 active:scale-95';
 
  return (
   <motion.div
@@ -102,7 +102,7 @@ export function PaperItemCard({
   >
    <Card
     onClick={handleCardClick}
-    className={`bg-card border-primary/5 p-5 transition-all duration-300 hover:border-primary/20 cursor-pointer relative`}
+    className={`bg-card border-border p-5 transition-all duration-300 hover:border-primary/20 cursor-pointer relative`}
    >
     {/* Lock badge for academic users — pinned to top border */}
     {isLocked && (
@@ -115,8 +115,8 @@ export function PaperItemCard({
      {/* ── LEFT CONTENT ── */}
      <div className="flex-1 space-y-2.5 w-full">
       {/* Authors + Badge */}
-      <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500">
-       <span className="font-semibold text-slate-300">{authors}</span>
+      <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
+       <span className="font-semibold text-foreground">{authors}</span>
        {field && (
         <>
          <span className="text-primary/15">•</span>
@@ -151,14 +151,14 @@ export function PaperItemCard({
       {/* Year + Journal */}
       <div className="space-y-1">
        {year && (
-        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-         <Calendar size={13} className="text-gray-500 flex-shrink-0" />
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+         <Calendar size={13} className="text-muted-foreground flex-shrink-0" />
          <span>{year}</span>
         </p>
        )}
        {journal && (
-        <p className="text-xs text-gray-500 flex items-center gap-1.5">
-         <BookOpen size={13} className="text-gray-500 flex-shrink-0" />
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+         <BookOpen size={13} className="text-muted-foreground flex-shrink-0" />
          <span className="italic">{journal}</span>
         </p>
        )}
@@ -166,13 +166,13 @@ export function PaperItemCard({
 
       {/* Abstract */}
       {abstract && (
-       <div className="bg-primary/[0.02] border border-primary/5 p-3 rounded-lg space-y-1.5 mt-1 transition-colors">
+       <div className="bg-muted/30 border border-border p-3 rounded-lg space-y-1.5 mt-1 transition-colors">
         <p
-         className={`text-xs text-gray-400 leading-relaxed transition-all duration-300 ${
+         className={`text-xs text-muted-foreground leading-relaxed transition-all duration-300 ${
           isAbstractExpanded ? '' : 'line-clamp-2'
          }`}
         >
-         <strong className="text-slate-300 font-semibold mr-1">Abstract:</strong>
+         <strong className="text-foreground font-semibold mr-1">Abstract:</strong>
          {abstract}
         </p>
         <button
@@ -205,12 +205,12 @@ export function PaperItemCard({
      </div>
 
      {/* ── RIGHT: Citations + Actions ── */}
-     <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-primary/5 sm:border-t-0 sm:pl-4">
+     <div className="flex sm:flex-col items-end justify-between sm:justify-start gap-3 w-full sm:w-auto shrink-0 pt-3 sm:pt-0 border-t border-border sm:border-t-0 sm:pl-4">
       <div className="text-left sm:text-right">
        <div className="text-2xl font-bold text-foreground font-display tracking-tight">
         {citations.toLocaleString()}
        </div>
-       <div className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
+       <div className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
         Citations
        </div>
        {paper.trend && (
@@ -276,8 +276,8 @@ export function PaperItemCard({
        <span
          className={`${iconBtn} ${
            paper.pdfAvailable
-             ? 'bg-white text-gray-900 border-white hover:bg-gray-100 hover:text-black hover:border-white'
-             : 'text-gray-600 border-gray-600/20'
+             ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20 hover:text-emerald-700 hover:border-emerald-500/30'
+             : 'text-muted-foreground border-input'
          }`}
          title={paper.pdfAvailable ? 'PDF Available' : 'PDF Unavailable'}
        >

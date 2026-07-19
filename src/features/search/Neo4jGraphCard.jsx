@@ -291,7 +291,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
 
  return (
  <div
-  className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-card border-primary/5 `}
+  className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-card border-border `}
  >
   {/* Header */}
   <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
@@ -299,7 +299,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    <h3 className="text-sm font-bold text-foreground">
    {t('title')}
    </h3>
-   <p className="text-xs mt-0.5 text-gray-400">
+   <p className="text-xs mt-0.5 text-muted-foreground">
    {paperCount !== null
     ? t('subtitleWithCount', { count: paperCount })
     : t('subtitle')}
@@ -307,7 +307,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   </div>
   <button
    onClick={() => setExpanded((p) => !p)}
-   className="p-1.5 rounded-lg transition-colors hover:bg-white/5 text-gray-400"
+   className="p-1.5 rounded-lg transition-colors hover:bg-muted/40 text-muted-foreground"
    title={expanded ? t('collapse') : t('expand')}
   >
    {expanded ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
@@ -320,7 +320,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   <div className="relative flex-1">
    <Search
    size={13}
-   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-gray-400"
+   className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
    />
    <input
    type="text"
@@ -328,19 +328,19 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    value={keyword}
    onChange={(e) => setKeyword(e.target.value)}
    disabled={loading}
-   className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary"
+   className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-foreground focus:border-blue-500 dark:focus:border-primary"
    />
   </div>
   {/* Depth selector */}
   <div className="flex items-center gap-1">
-   <label className="text-[10px] text-gray-400 whitespace-nowrap">
+   <label className="text-[10px] text-muted-foreground whitespace-nowrap">
    {t('depth')}
    </label>
    <select
    value={depth}
    onChange={(e) => setDepth(Number(e.target.value))}
    disabled={loading}
-   className="w-12 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary cursor-pointer"
+   className="w-12 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-foreground focus:border-blue-500 dark:focus:border-primary cursor-pointer"
    >
    {[1, 2, 3].map((d) => (
     <option key={d} value={d}>{d}</option>
@@ -352,7 +352,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    whileTap={{ scale: 0.97 }}
    type="submit"
    disabled={loading || !keyword.trim()}
-   className="px-4 py-2.5 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-primary "
+   className="px-4 py-2.5 rounded-lg text-xs font-bold text-primary-foreground transition-opacity disabled:opacity-40 bg-primary "
   >
    {loading ? <Loader2 size={14} className="animate-spin" /> : t('explore')}
   </motion.button>
@@ -360,16 +360,16 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   )}
 
   {/* Graph area */}
-  <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-transparent border border-gray-200 border-primary/5">
+  <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-transparent border border-gray-200 border-border">
   {/* Loading overlay */}
   {loading && (
-   <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 bg-transparent/80 backdrop-blur-sm">
+   <div className="absolute inset-0 z-20 flex items-center justify-center bg-muted/80 backdrop-blur-sm">
    <div className="flex flex-col items-center gap-3">
     <Loader2
     size={28}
     className="animate-spin text-primary dark:text-primary"
     />
-    <span className="text-xs font-medium text-gray-600 text-gray-400">
+    <span className="text-xs font-medium text-muted-foreground">
     {t('loading')}
     </span>
    </div>
@@ -378,15 +378,15 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
 
   {/* Error / empty state */}
   {!loading && error && (
-   <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/90 bg-transparent/90">
+   <div className="absolute inset-0 z-20 flex items-center justify-center bg-muted/90">
    <div className="flex flex-col items-center gap-3 px-6 text-center">
     <AlertCircle size={28} className="text-amber-500" />
-    <span className="text-sm font-medium text-gray-600 text-gray-400">
+    <span className="text-sm font-medium text-muted-foreground">
     {error}
     </span>
     <button
     onClick={handleSubmit}
-    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-primary text-black shadow-md"
+    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-primary text-primary-foreground shadow-md"
     >
     <RefreshCw size={12} /> {t('retry')}
     </button>
@@ -397,7 +397,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   {/* Idle state (no data yet) */}
   {!loading && !error && !dataRef.current && (
    <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-   <p className="text-xs text-gray-500 text-gray-500">
+   <p className="text-xs text-muted-foreground">
     {t('idleHint')}
    </p>
    </div>
@@ -409,10 +409,10 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
 
   {/* Legend */}
   <div className="px-5 pb-4 shrink-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium">
-  <span className="text-gray-500 text-gray-500">{t('legend.title')}</span>
+  <span className="text-muted-foreground">{t('legend.title')}</span>
   <LegendItem color="#DEDBC8" label={t('legend.paper')} shape="●" />
   <LegendItem color="#A09878" label={t('legend.keyword')} shape="◆" />
-  <span className="ml-auto text-gray-500 text-gray-500">
+  <span className="ml-auto text-muted-foreground">
    {t('tip')}
   </span>
   </div>
@@ -422,7 +422,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
 
 function LegendItem({ color, label, shape }) {
  return (
- <span className="inline-flex items-center gap-1.5 text-gray-600 text-gray-400">
+ <span className="inline-flex items-center gap-1.5 text-muted-foreground">
   <span style={{ color, fontSize: 11 }}>{shape}</span>
   {label}
  </span>

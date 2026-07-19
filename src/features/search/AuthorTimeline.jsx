@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import {
   ComposedChart,
@@ -25,14 +25,14 @@ function TimelineSkeleton() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-border bg-card animate-pulse space-y-3"
           >
             <div className="h-3 w-16 bg-primary/8 rounded" />
             <div className="h-6 w-20 bg-primary/8 rounded" />
           </div>
         ))}
       </div>
-      <div className="rounded-xl p-5 border border-primary/5 bg-card animate-pulse">
+      <div className="rounded-xl p-5 border border-border bg-card animate-pulse">
         <div className="h-64 bg-primary/3 rounded-lg" />
       </div>
     </div>
@@ -54,7 +54,7 @@ function CustomTooltip({ active, payload, label }) {
             className="w-2 h-2 rounded-full shrink-0"
             style={{ background: entry.color }}
           />
-          <span className="text-gray-400">{entry.name}:</span>
+          <span className="text-muted-foreground">{entry.name}:</span>
           <span className="font-mono font-semibold text-foreground">
             {entry.value?.toLocaleString()}
           </span>
@@ -137,50 +137,50 @@ export default function AuthorTimeline({ keyword }) {
       {/* Section label */}
       <div className="flex items-center gap-2">
         <div className="w-1 h-4 rounded-full bg-primary/20" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Publication Timeline
         </span>
       </div>
 
       {/* Chart */}
-      <div className="rounded-xl p-5 border border-primary/5 bg-card">
+      <div className="rounded-xl p-5 border border-border bg-card">
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart data={timeline} margin={{ top: 8, right: 8, left: -10, bottom: 4 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.06)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
             <XAxis
               dataKey="year"
-              tick={{ fontSize: 11, fill: '#6B7280' }}
+              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
               tickLine={false}
-              axisLine={{ stroke: 'rgba(222,219,200,0.1)' }}
+              axisLine={{ stroke: 'var(--border)' }}
             />
             <YAxis
               yAxisId="left"
-              tick={{ fontSize: 11, fill: '#6B7280' }}
+              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
               tickLine={false}
               axisLine={false}
               label={{
                 value: 'Papers',
                 angle: -90,
                 position: 'insideLeft',
-                style: { fontSize: 10, fill: '#6B7280' },
+                style: { fontSize: 10, fill: 'var(--muted-foreground)' },
               }}
             />
             <YAxis
               yAxisId="right"
               orientation="right"
-              tick={{ fontSize: 11, fill: '#6B7280' }}
+              tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
               tickLine={false}
               axisLine={false}
               label={{
                 value: 'Citations',
                 angle: 90,
                 position: 'insideRight',
-                style: { fontSize: 10, fill: '#6B7280' },
+                style: { fontSize: 10, fill: 'var(--muted-foreground)' },
               }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend
-              wrapperStyle={{ fontSize: 11, color: '#9CA3AF' }}
+              wrapperStyle={{ fontSize: 11, color: 'var(--muted-foreground)' }}
               iconType="circle"
               iconSize={8}
             />
@@ -188,7 +188,7 @@ export default function AuthorTimeline({ keyword }) {
               yAxisId="left"
               dataKey="worksCount"
               name="Papers"
-              fill="#DEDBC8"
+              fill="var(--chart-1)"
               radius={[4, 4, 0, 0]}
               barSize={20}
               fillOpacity={0.85}
@@ -198,10 +198,10 @@ export default function AuthorTimeline({ keyword }) {
               type="monotone"
               dataKey="citedByCount"
               name="Citations"
-              stroke="#A09878"
+              stroke="var(--chart-4)"
               strokeWidth={2.5}
-              dot={{ fill: '#A09878', r: 3, strokeWidth: 0 }}
-              activeDot={{ fill: '#A09878', r: 5, strokeWidth: 2, stroke: '#0B1020' }}
+              dot={{ fill: 'var(--chart-4)', r: 3, strokeWidth: 0 }}
+              activeDot={{ fill: 'var(--chart-4)', r: 5, strokeWidth: 2, stroke: 'var(--background)' }}
             />
           </ComposedChart>
         </ResponsiveContainer>

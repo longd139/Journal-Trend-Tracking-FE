@@ -9,7 +9,7 @@ import { trendAPI } from './trend.api';
 
 const GREEN = '#34D399';
 const RED = '#EF4444';
-const NEUTRAL = '#DEDBC8';
+const NEUTRAL = '#9CA3AF';
 
 /**
  * Determine accent color from growth rate.
@@ -95,7 +95,7 @@ function BreakoutSkeleton() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="bg-card border border-primary/5 rounded-2xl p-5 space-y-3 animate-pulse"
+            className="bg-card border border-border rounded-2xl p-5 space-y-3 animate-pulse"
           >
             <div className="h-4 w-2/3 bg-primary/8 rounded" />
             <div className="h-10 w-full bg-primary/5 rounded-lg" />
@@ -125,7 +125,7 @@ function TrendingChips({ keywords, onKeywordClick }) {
       transition={{ delay: 0.45, duration: 0.35 }}
       className="flex items-center gap-2.5 flex-wrap"
     >
-      <Tag size={13} className="text-primary/30 shrink-0" />
+      <Tag size={13} className="text-primary/50 shrink-0" />
       {keywords.map((kw, i) => (
         <motion.button
           key={kw.keywordText}
@@ -211,7 +211,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
         <div className="space-y-2.5">
           <div className="flex items-center gap-2">
             <TrendingUp size={13} className="text-primary/40" />
-            <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
               Trending Now
             </span>
           </div>
@@ -224,7 +224,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Sparkles size={14} className="text-primary/50" />
-            <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+            <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
               Weekly Breakout Topics
             </span>
           </div>
@@ -240,10 +240,10 @@ export default function WeeklyBreakout({ onKeywordClick }) {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -4, borderColor: isNeutral ? 'rgba(222,219,200,0.12)' : `${color}30` }}
+                  whileHover={{ y: -4, borderColor: isNeutral ? 'var(--border)' : `${color}30` }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => onKeywordClick?.(topic.keywordText)}
-                  className="relative bg-card border border-primary/5 rounded-2xl p-5 text-left transition-all duration-300 group cursor-pointer overflow-hidden"
+                  className="relative bg-card border border-border rounded-2xl p-5 text-left transition-all duration-300 group cursor-pointer overflow-hidden"
                 >
                   {/* Ambient glow orb — only for growth/decline */}
                   {!isNeutral && (
@@ -273,13 +273,13 @@ export default function WeeklyBreakout({ onKeywordClick }) {
 
                   {/* Stats row */}
                   <div className="flex items-center justify-between mb-2.5">
-                    <span className="text-[11px] text-gray-500 font-medium">
+                    <span className="text-[11px] text-muted-foreground font-medium">
                       {(topic.totalPapers ?? 0).toLocaleString()} papers
                     </span>
 
                     {/* Growth rate */}
                     {isNeutral ? (
-                      <span className="text-[11px] font-semibold flex items-center gap-0.5 text-gray-500">
+                      <span className="text-[11px] font-semibold flex items-center gap-0.5 text-muted-foreground">
                         <Minus size={10} />
                         {(topic.growthRate ?? 0).toFixed(1)}%
                       </span>
@@ -300,9 +300,9 @@ export default function WeeklyBreakout({ onKeywordClick }) {
                     style={
                       isNeutral
                         ? {
-                            background: 'rgba(222,219,200,0.06)',
-                            color: '#9CA3AF',
-                            border: '1px solid rgba(222,219,200,0.10)',
+                            background: 'var(--muted)',
+                            color: 'var(--muted-foreground)',
+                            border: '1px solid var(--border)',
                           }
                         : {
                             background: `${color}14`,

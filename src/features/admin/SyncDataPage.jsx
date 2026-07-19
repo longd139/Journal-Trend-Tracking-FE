@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+﻿import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
@@ -21,7 +21,7 @@ import {
  DialogTitle,
 } from '../../components/ui/dialog';
 
-const card = 'bg-card border border-primary/5 rounded-xl';
+const card = 'bg-card border border-border rounded-xl';
 
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => 1900 + i).reverse();
@@ -66,7 +66,7 @@ function ResultCard({ result }) {
    )}
   </div>
   {result.timestamp && (
-   <span className="text-[10px] text-gray-500 dark:text-slate-400 flex items-center gap-1">
+   <span className="text-[10px] text-muted-foreground dark:text-muted-foreground flex items-center gap-1">
    <Clock size={10} />
    {new Date(result.timestamp).toLocaleString()}
    </span>
@@ -78,14 +78,14 @@ function ResultCard({ result }) {
   ) : isError ? (
   <p className="text-xs text-red-600 dark:text-red-400">{result.error}</p>
   ) : (
-  <p className="text-xs text-gray-700 dark:text-slate-300">
+  <p className="text-xs text-foreground/80 dark:text-foreground">
    {result.message || 'Sync completed'}
   </p>
   )}
 
   {result.data && Object.keys(result.data).length > 0 && (
   <div className="space-y-1.5">
-   <div className="bg-transparent/50 border border-gray-200 border-primary/5 rounded-lg p-3">
+   <div className="bg-transparent/50 border border-gray-200 border-border rounded-lg p-3">
    <table className="w-full text-xs">
     <tbody>
     {Object.entries(result.data).map(([key, value]) => (
@@ -93,10 +93,10 @@ function ResultCard({ result }) {
      key={key}
      className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0"
      >
-     <td className="py-1.5 pr-3 font-semibold text-gray-700 dark:text-slate-300 whitespace-nowrap capitalize">
+     <td className="py-1.5 pr-3 font-semibold text-foreground/80 dark:text-foreground whitespace-nowrap capitalize">
       {key.replace(/([A-Z])/g, ' $1').trim()}
      </td>
-     <td className="py-1.5 text-gray-600 dark:text-slate-400 break-all font-mono text-[11px]">
+     <td className="py-1.5 text-muted-foreground dark:text-muted-foreground break-all font-mono text-[11px]">
       {String(value ?? '—')}
      </td>
      </tr>
@@ -110,13 +110,13 @@ function ResultCard({ result }) {
   <button
   type="button"
   onClick={() => setRawOpen(!rawOpen)}
-  className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white transition-colors flex items-center gap-1"
+  className="text-[10px] text-muted-foreground dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground transition-colors flex items-center gap-1"
   >
   {rawOpen ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
   Raw response
   </button>
   {rawOpen && (
-  <pre className="p-3 rounded-lg bg-transparent/50 border border-gray-200 border-primary/5 text-gray-700 dark:text-slate-300 text-[11px] overflow-x-auto font-mono max-h-40 overflow-y-auto">
+  <pre className="p-3 rounded-lg bg-transparent/50 border border-gray-200 border-border text-foreground/80 dark:text-foreground text-[11px] overflow-x-auto font-mono max-h-40 overflow-y-auto">
    {JSON.stringify(result, null, 2)}
   </pre>
   )}
@@ -458,7 +458,7 @@ export default function SyncDataPage() {
   <motion.div
    initial={{ opacity: 0, y: -8 }}
    animate={{ opacity: 1, y: 0 }}
-   className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
+   className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-card dark:from-[#101010] via-card dark:via-[#141414] to-card dark:to-[#101010] border-primary/10"
   >
    <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent" />
    <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3">
@@ -468,7 +468,7 @@ export default function SyncDataPage() {
      </div>
      <div>
       <h2 className="text-sm font-bold text-foreground font-display">Sync Data</h2>
-      <p className="text-[11px] text-gray-500">Fetch and import academic papers from OpenAlex & external sources</p>
+      <p className="text-[11px] text-muted-foreground">Fetch and import academic papers from OpenAlex & external sources</p>
      </div>
     </div>
    </div>
@@ -483,13 +483,13 @@ export default function SyncDataPage() {
   {/* Query + Limit row */}
   <div className="flex flex-col sm:flex-row gap-3">
    <div className="flex-1 space-y-1.5">
-   <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
     Search Query
    </label>
    <div className="relative">
     <Search
     size={14}
-    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500"
+    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-slate-500"
     />
     <Input
     type="text"
@@ -497,13 +497,13 @@ export default function SyncDataPage() {
     value={query}
     onChange={(e) => setQuery(e.target.value)}
     onKeyDown={(e) => e.key === 'Enter' && canSync && handleSync()}
-    className="pl-9 pr-4 py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-primary/10 text-slate-200"
+    className="pl-9 pr-4 py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground"
     />
    </div>
    </div>
 
    <div className="w-full sm:w-28 space-y-1.5">
-   <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
     Limit
    </label>
    <Input
@@ -512,20 +512,20 @@ export default function SyncDataPage() {
     max={100}
     value={limit}
     onChange={(e) => setLimit(parseInt(e.target.value, 10) || 10)}
-    className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-primary/10 text-slate-200"
+    className="py-2.5 rounded-lg text-sm text-center bg-card border-primary/10 text-foreground"
    />
    </div>
   </div>
 
   {/* Year range */}
   <div className="flex items-center gap-3">
-   <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 shrink-0">
+   <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
    Year
    </span>
    <select
    value={yearFrom}
    onChange={(e) => setYearFrom(e.target.value)}
-   className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-primary/10 text-slate-200 outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
+   className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
    style={{ colorScheme: 'dark' }}
    >
    <option value="">From</option>
@@ -533,11 +533,11 @@ export default function SyncDataPage() {
     <option key={y} value={y}>{y}</option>
    ))}
    </select>
-   <span className="text-xs text-gray-400 dark:text-slate-500">–</span>
+   <span className="text-xs text-muted-foreground dark:text-slate-500">–</span>
    <select
    value={yearTo}
    onChange={(e) => setYearTo(e.target.value)}
-   className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-primary/10 text-slate-200 outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
+   className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-emerald-500/50 transition-colors cursor-pointer"
    style={{ colorScheme: 'dark' }}
    >
    <option value="">To</option>
@@ -550,13 +550,13 @@ export default function SyncDataPage() {
   {/* Source selection — icon buttons */}
   <div className="space-y-2">
    <div className="flex items-center justify-between">
-   <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
     Data Sources
    </label>
    <button
     type="button"
     onClick={toggleAll}
-    className="text-[10px] font-medium text-gray-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.97] transition-all duration-150"
+    className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.97] transition-all duration-150"
    >
     {allSelected ? 'Deselect All' : 'Select All'}
    </button>
@@ -573,7 +573,7 @@ export default function SyncDataPage() {
      className={`flex items-center gap-2 px-3.5 py-2.5 rounded-lg border text-xs font-semibold transition-all ${
      isSelected
       ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 shadow-sm shadow-emerald-500/10'
-      : 'bg-gray-50 dark:bg-white/[0.03] border-primary/10 text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:border-gray-300 dark:hover:border-white/20'
+      : 'bg-gray-50 dark:bg-muted/20 border-primary/10 text-muted-foreground dark:text-slate-500 hover:text-muted-foreground dark:hover:text-foreground hover:border-gray-300 dark:hover:border-white/20'
      }`}
     >
      <Icon size={16} />
@@ -601,11 +601,11 @@ export default function SyncDataPage() {
   {isRunning && (
   <div className="text-center py-8">
    <RefreshCw size={24} className="animate-spin mx-auto text-emerald-500 mb-2" />
-   <p className="text-xs text-gray-500 dark:text-slate-400">
+   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
    Syncing {runningTasks.length}/{allTasks.length} source(s) for{' '}
    <strong className="text-foreground">"{query}"</strong>...
    </p>
-   <p className="text-[10px] text-gray-400 dark:text-slate-500 mt-1">
+   <p className="text-[10px] text-muted-foreground dark:text-slate-500 mt-1">
    You can navigate to other pages — sync continues in the background.
    </p>
   </div>
@@ -617,7 +617,7 @@ export default function SyncDataPage() {
    <div className="space-y-3">
    <div className="flex items-center justify-between">
     <div className="flex items-center gap-2">
-    <Database size={14} className="text-gray-500 dark:text-slate-400" />
+    <Database size={14} className="text-muted-foreground dark:text-muted-foreground" />
     <h4 className="text-sm font-bold text-foreground">
      Results ({doneTasks.length} done{errorTasks.length > 0 ? `, ${errorTasks.length} failed` : ''})
     </h4>
@@ -626,7 +626,7 @@ export default function SyncDataPage() {
     <button
      type="button"
      onClick={clearCompleted}
-     className="text-[10px] text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white active:scale-[0.97] transition-all duration-150"
+     className="text-[10px] text-muted-foreground dark:text-muted-foreground hover:text-gray-900 dark:hover:text-foreground active:scale-[0.97] transition-all duration-150"
     >
      Clear all
     </button>
@@ -650,7 +650,7 @@ export default function SyncDataPage() {
   </AnimatePresence>
 
   {/* -- Auto Sync -- */}
-  <div className={`border-t border-gray-200 border-primary/5 pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
+  <div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
    animate={{ opacity: 1 }}
@@ -663,7 +663,7 @@ export default function SyncDataPage() {
     </div>
     <div>
     <h4 className="text-sm font-bold text-foreground">Auto Sync</h4>
-    <p className="text-xs text-gray-500 dark:text-slate-400">
+    <p className="text-xs text-muted-foreground dark:text-muted-foreground">
      Automatically sync new papers from all sources on a schedule.
     </p>
     </div>
@@ -681,7 +681,7 @@ export default function SyncDataPage() {
     } ${isToggling ? 'opacity-60' : ''}`}
    >
     <span
-    className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+    className={`inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform ${
      autoSyncEnabled ? 'translate-x-6' : 'translate-x-1'
     }`}
     />
@@ -690,31 +690,31 @@ export default function SyncDataPage() {
 
    {/* Status indicator */}
    {!isLoadingAutoSync && autoSyncEnabled !== null && (
-   <div className="mt-4 pt-4 border-t border-primary/5">
+   <div className="mt-4 pt-4 border-t border-border">
     <div className="flex items-center gap-2 mb-3">
      <div className={`w-1.5 h-1.5 rounded-full ${autoSyncEnabled ? 'bg-emerald-500 animate-pulse' : 'bg-gray-500'}`} />
-     <span className={`text-[11px] font-semibold ${autoSyncEnabled ? 'text-emerald-400' : 'text-gray-400'}`}>
+     <span className={`text-[11px] font-semibold ${autoSyncEnabled ? 'text-emerald-400' : 'text-muted-foreground'}`}>
      {autoSyncEnabled ? 'Active — running on schedule' : 'Paused'}
      </span>
     </div>
 
     {autoSyncStats && (
      <div className="grid grid-cols-2 gap-3">
-     <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+     <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
       <div className="text-lg font-bold text-foreground font-display">
       {(autoSyncStats.lastPapersCount ?? 0).toLocaleString()}
       </div>
-      <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
       Papers Last Sync
       </div>
      </div>
-     <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+     <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
       <div className="text-sm font-bold text-primary/80 font-mono tabular-nums">
       {autoSyncStats.lastSyncTime
        ? new Date(autoSyncStats.lastSyncTime).toLocaleString()
        : 'Never'}
       </div>
-      <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
       Last Sync Time
       </div>
      </div>
@@ -725,7 +725,7 @@ export default function SyncDataPage() {
 
    {/* Loading state for auto-sync */}
    {isLoadingAutoSync && (
-   <div className="mt-4 pt-4 border-t border-primary/5 animate-pulse">
+   <div className="mt-4 pt-4 border-t border-border animate-pulse">
     <div className="flex items-center gap-2 mb-3">
      <div className="w-1.5 h-1.5 rounded-full bg-primary/20" />
      <div className="h-3 w-28 bg-primary/8 rounded" />
@@ -740,7 +740,7 @@ export default function SyncDataPage() {
   </div>
 
   {/* -- Bulk Sync -- */}
-  <div className={`border-t border-gray-200 border-primary/5 pt-6 mt-2 ${isRunning || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
+  <div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
    animate={{ opacity: 1 }}
@@ -753,14 +753,14 @@ export default function SyncDataPage() {
     </div>
     <div>
      <h4 className="text-sm font-bold text-foreground">Bulk Sync</h4>
-     <p className="text-xs text-gray-500 dark:text-slate-400">
+     <p className="text-xs text-muted-foreground dark:text-muted-foreground">
       Sync multiple keywords at once from OpenAlex or CORE with real-time progress tracking.
      </p>
     </div>
    </div>
 
    {/* Tab buttons */}
-   <div className="flex gap-1.5 mb-4 p-1 rounded-lg bg-primary/[0.03] border border-primary/5">
+   <div className="flex gap-1.5 mb-4 p-1 rounded-lg bg-primary/[0.03] border border-border">
     {BULK_TABS.map(({ key, label, color }) => {
      const isActive = bulkSource === key;
      return (
@@ -771,8 +771,8 @@ export default function SyncDataPage() {
        disabled={isBulkSyncing}
        className={`flex-1 py-2 rounded-md text-xs font-semibold transition-all ${
         isActive
-         ? 'text-white shadow-sm'
-         : 'text-gray-500 hover:text-gray-300'
+         ? 'text-foreground shadow-sm'
+         : 'text-muted-foreground hover:text-foreground/80'
        }`}
        style={isActive ? { backgroundColor: color } : {}}
       >
@@ -784,7 +784,7 @@ export default function SyncDataPage() {
 
    {/* Keyword input mode toggle */}
    <div className="flex items-center gap-2 mb-4">
-    <span className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 shrink-0">
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
      Keywords
     </span>
     <div className="flex rounded-lg bg-primary/[0.04] border border-primary/8 p-0.5">
@@ -794,8 +794,8 @@ export default function SyncDataPage() {
       disabled={isBulkSyncing}
       className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
        keywordInputMode === 'trending'
-        ? 'text-white shadow-sm'
-        : 'text-gray-500 hover:text-gray-300'
+        ? 'text-foreground shadow-sm'
+        : 'text-muted-foreground hover:text-foreground/80'
       }`}
       style={keywordInputMode === 'trending' ? { backgroundColor: activeTab.color } : {}}
      >
@@ -807,8 +807,8 @@ export default function SyncDataPage() {
       disabled={isBulkSyncing}
       className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
        keywordInputMode === 'manual'
-        ? 'text-white shadow-sm'
-        : 'text-gray-500 hover:text-gray-300'
+        ? 'text-foreground shadow-sm'
+        : 'text-muted-foreground hover:text-foreground/80'
       }`}
       style={keywordInputMode === 'manual' ? { backgroundColor: activeTab.color } : {}}
      >
@@ -826,7 +826,7 @@ export default function SyncDataPage() {
       onChange={(e) => setBulkKeywords(e.target.value)}
       disabled={isBulkSyncing}
       rows={4}
-      className="w-full p-3 rounded-lg text-xs bg-[#1a1a1a] border border-primary/10 text-slate-200 outline-none focus:border-current transition-colors resize-none"
+      className="w-full p-3 rounded-lg text-xs bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors resize-none"
      />
     </div>
    )}
@@ -835,28 +835,28 @@ export default function SyncDataPage() {
    {keywordInputMode === 'trending' && (
    <div className="space-y-3 mb-4">
     <div className="flex items-center justify-between">
-     <span className="text-[10px] text-gray-500">
+     <span className="text-[10px] text-muted-foreground">
       {selectedKeywords.length} selected
      </span>
      <div className="flex items-center gap-2">
       {isLoadingTrending ? (
-       <span className="text-[10px] text-gray-500 animate-pulse">Loading…</span>
+       <span className="text-[10px] text-muted-foreground animate-pulse">Loading…</span>
       ) : (
        <>
         <button
          type="button"
          onClick={() => setSelectedKeywords(trendingKeywords.map((k) => k.keywordText))}
          disabled={isBulkSyncing}
-         className="text-[10px] font-medium text-gray-500 hover:text-gray-300 transition-colors"
+         className="text-[10px] font-medium text-muted-foreground hover:text-foreground/80 transition-colors"
         >
          Select All
         </button>
-        <span className="text-gray-600 text-[10px]">·</span>
+        <span className="text-muted-foreground text-[10px]">·</span>
         <button
          type="button"
          onClick={() => setSelectedKeywords([])}
          disabled={isBulkSyncing}
-         className="text-[10px] font-medium text-gray-500 hover:text-gray-300 transition-colors"
+         className="text-[10px] font-medium text-muted-foreground hover:text-foreground/80 transition-colors"
         >
          Clear
         </button>
@@ -872,7 +872,7 @@ export default function SyncDataPage() {
       ))}
      </div>
     ) : trendingKeywords.length === 0 ? (
-     <p className="text-xs text-gray-500 py-2">No trending keywords available. Try again later.</p>
+     <p className="text-xs text-muted-foreground py-2">No trending keywords available. Try again later.</p>
     ) : (
      <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
       {trendingKeywords.map((kw) => {
@@ -891,14 +891,14 @@ export default function SyncDataPage() {
          disabled={isBulkSyncing}
          className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
           isSelected
-           ? 'text-white border-current'
-           : 'bg-primary/[0.03] border-primary/10 text-gray-400 hover:text-gray-200 hover:border-primary/20'
+           ? 'text-foreground border-current'
+           : 'bg-primary/[0.03] border-primary/10 text-muted-foreground hover:text-gray-200 hover:border-primary/20'
          }`}
          style={isSelected ? { backgroundColor: activeTab.color, borderColor: activeTab.color } : {}}
         >
          {kw.keywordText}
          {kw.paperCount > 0 && (
-          <span className={`text-[9px] ${isSelected ? 'text-white/70' : 'text-gray-600'}`}>
+          <span className={`text-[9px] ${isSelected ? 'text-foreground/70' : 'text-muted-foreground'}`}>
            {kw.paperCount}
           </span>
          )}
@@ -914,7 +914,7 @@ export default function SyncDataPage() {
    <div className="space-y-3 mb-4">
     <div className="flex flex-col sm:flex-row gap-3">
     <div className="w-full sm:w-40 space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
      Papers per keyword
      </label>
      <Input
@@ -924,19 +924,19 @@ export default function SyncDataPage() {
      value={bulkPapersPerKeyword}
      onChange={(e) => setBulkPapersPerKeyword(parseInt(e.target.value, 10) || 500)}
      disabled={isBulkSyncing}
-     className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-primary/10 text-slate-200"
+     className="py-2.5 rounded-lg text-sm text-center bg-card border-primary/10 text-foreground"
      />
     </div>
     <div className="flex items-end gap-2">
      <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       Year From
      </label>
      <select
       value={bulkYearFrom}
       onChange={(e) => setBulkYearFrom(e.target.value)}
       disabled={isBulkSyncing}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-primary/10 text-slate-200 outline-none focus:border-current transition-colors cursor-pointer"
+      className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors cursor-pointer"
       style={{ colorScheme: 'dark' }}
      >
       <option value="">Any</option>
@@ -945,16 +945,16 @@ export default function SyncDataPage() {
       ))}
      </select>
      </div>
-     <span className="text-xs text-gray-400 dark:text-slate-500 pb-2">–</span>
+     <span className="text-xs text-muted-foreground dark:text-slate-500 pb-2">–</span>
      <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
       Year To
      </label>
      <select
       value={bulkYearTo}
       onChange={(e) => setBulkYearTo(e.target.value)}
       disabled={isBulkSyncing}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-[#1a1a1a] border border-primary/10 text-slate-200 outline-none focus:border-current transition-colors cursor-pointer"
+      className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors cursor-pointer"
       style={{ colorScheme: 'dark' }}
      >
       <option value="">Any</option>
@@ -971,13 +971,13 @@ export default function SyncDataPage() {
     {bulkSource === 'openalex' && (
     <>
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-      OpenAlex API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+      OpenAlex API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
       <a
        href="https://openalex.org/settings/api"
        target="_blank"
        rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-blue-400 transition-colors"
+       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-blue-400 transition-colors"
       >
        <Info size={12} />
        <ExternalLink size={9} />
@@ -989,12 +989,12 @@ export default function SyncDataPage() {
       value={openAlexApiKey}
       onChange={(e) => setOpenAlexApiKey(e.target.value)}
       disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-primary/10 text-slate-200 font-mono"
+      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
      />
     </div>
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-      Polite Pool Email <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+      Polite Pool Email <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
      </label>
      <Input
       type="email"
@@ -1002,7 +1002,7 @@ export default function SyncDataPage() {
       value={bulkMailto}
       onChange={(e) => setBulkMailto(e.target.value)}
       disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-primary/10 text-slate-200"
+      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground"
      />
     </div>
     </>
@@ -1011,13 +1011,13 @@ export default function SyncDataPage() {
     {/* Semantic Scholar API Key (only for Semantic Scholar tab) */}
     {bulkSource === 'semanticScholar' && (
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-      Semantic Scholar API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+      Semantic Scholar API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
       <a
        href="https://www.semanticscholar.org/product/api"
        target="_blank"
        rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-emerald-400 transition-colors"
+       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-emerald-400 transition-colors"
       >
        <Info size={12} />
        <ExternalLink size={9} />
@@ -1029,7 +1029,7 @@ export default function SyncDataPage() {
       value={semanticScholarApiKey}
       onChange={(e) => setSemanticScholarApiKey(e.target.value)}
       disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-primary/10 text-slate-200 font-mono"
+      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
      />
     </div>
     )}
@@ -1037,13 +1037,13 @@ export default function SyncDataPage() {
     {/* CORE API Key (only for CORE tab) */}
     {bulkSource === 'core' && (
     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-      CORE API Key <span className="text-[10px] font-normal text-gray-500">(optional)</span>
+     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+      CORE API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
       <a
        href="https://core.ac.uk/api-v2"
        target="_blank"
        rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-gray-500 hover:text-violet-400 transition-colors"
+       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-violet-400 transition-colors"
       >
        <Info size={12} />
        <ExternalLink size={9} />
@@ -1055,7 +1055,7 @@ export default function SyncDataPage() {
       value={coreApiKey}
       onChange={(e) => setCoreApiKey(e.target.value)}
       disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-[#1a1a1a] border-primary/10 text-slate-200 font-mono"
+      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
      />
     </div>
     )}
@@ -1064,7 +1064,7 @@ export default function SyncDataPage() {
    type="button"
    disabled={isBulkSyncing || isRunning || isClearing}
    onClick={handleBulkSync}
-   className="w-full flex items-center justify-center gap-2 text-white text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+   className="w-full flex items-center justify-center gap-2 text-foreground text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
    style={{ backgroundColor: activeTab.color }}
    >
    <RefreshCw size={15} className={isBulkSyncing ? 'animate-spin' : ''} />
@@ -1080,7 +1080,7 @@ export default function SyncDataPage() {
    <motion.div
     initial={{ opacity: 0, y: -6 }}
     animate={{ opacity: 1, y: 0 }}
-    className="mt-4 space-y-3 border-t border-gray-100 border-primary/5 pt-4"
+    className="mt-4 space-y-3 border-t border-gray-100 border-border pt-4"
    >
     {/* Percent + status */}
     <div className="flex items-center justify-between">
@@ -1093,13 +1093,13 @@ export default function SyncDataPage() {
      {bulkProgress.status || 'RUNNING'}
      </span>
     </div>
-    <span className="text-[10px] text-gray-500 dark:text-slate-400">
+    <span className="text-[10px] text-muted-foreground dark:text-muted-foreground">
      {bulkProgress.completedKeywords ?? 0}/{bulkProgress.totalKeywords ?? '?'} keywords
     </span>
     </div>
 
     {/* Progress bar */}
-    <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
+    <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-muted/30 overflow-hidden">
     <motion.div
      className="h-full rounded-full"
      style={{ backgroundColor: activeTab.color }}
@@ -1111,41 +1111,41 @@ export default function SyncDataPage() {
 
     {/* Detail stats */}
     <div className="grid grid-cols-3 gap-2 text-center">
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
+    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
      <div className="text-sm font-bold text-foreground font-mono">
      {bulkProgress.currentKeyword || '—'}
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Current</div>
+     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Current</div>
     </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
+    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
      <div className="text-sm font-bold text-blue-400 font-mono">
      {bulkProgress.totalFetched ?? 0}
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Fetched</div>
+     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Fetched</div>
     </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-white/[0.02]">
+    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
      <div className="text-sm font-bold text-emerald-400 font-mono">
      {bulkProgress.totalInserted ?? 0}
      </div>
-     <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</div>
+     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</div>
     </div>
     </div>
 
     {/* Per-keyword stats (if available) */}
     {bulkProgress.keywordStats && Object.keys(bulkProgress.keywordStats).length > 0 && (
-    <div className="bg-transparent/50 border border-gray-200 border-primary/5 rounded-lg p-3 max-h-48 overflow-y-auto">
+    <div className="bg-transparent/50 border border-gray-200 border-border rounded-lg p-3 max-h-48 overflow-y-auto">
      <table className="w-full text-xs">
      <thead>
-      <tr className="border-b border-gray-200 border-primary/5">
-      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
+      <tr className="border-b border-gray-200 border-border">
+      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Keyword</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Scanned</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</th>
       </tr>
      </thead>
      <tbody>
       {Object.entries(bulkProgress.keywordStats).map(([kw, stats]) => (
       <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
-       <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">
+       <td className="py-1.5 font-medium text-foreground/80 dark:text-foreground">
        {kw}
        {bulkProgress.currentKeyword === kw && (
         <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full animate-pulse align-middle" style={{ backgroundColor: activeTab.color }} />
@@ -1188,7 +1188,7 @@ export default function SyncDataPage() {
 
    {/* Bulk result (on completion) */}
    {bulkResult && !isBulkSyncing && (
-   <div className="mt-4 space-y-3 border-t border-gray-100 border-primary/5 pt-4">
+   <div className="mt-4 space-y-3 border-t border-gray-100 border-border pt-4">
     <div className="flex items-center gap-2">
     <CheckCircle2 size={14} className="text-emerald-500" />
     <span className="text-xs font-bold text-foreground">
@@ -1198,31 +1198,31 @@ export default function SyncDataPage() {
      && `${bulkResult.totalInserted ?? bulkResult.result?.totalInserted} inserted`}
     </span>
     {bulkResult.completedAt && (
-     <span className="text-[10px] text-gray-500 dark:text-slate-400 ml-auto">
+     <span className="text-[10px] text-muted-foreground dark:text-muted-foreground ml-auto">
      {new Date(bulkResult.completedAt).toLocaleString()}
      </span>
     )}
     {bulkResult.yearRange && (
-     <span className="text-[10px] text-gray-500 dark:text-slate-400 ml-auto">
+     <span className="text-[10px] text-muted-foreground dark:text-muted-foreground ml-auto">
      {bulkResult.yearRange}
      </span>
     )}
     </div>
 
     {(bulkResult.keywordStats || bulkProgress?.keywordStats) && (
-    <div className="bg-transparent/50 border border-gray-200 border-primary/5 rounded-lg p-3 max-h-48 overflow-y-auto">
+    <div className="bg-transparent/50 border border-gray-200 border-border rounded-lg p-3 max-h-48 overflow-y-auto">
      <table className="w-full text-xs">
      <thead>
-      <tr className="border-b border-gray-200 border-primary/5">
-      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Scanned</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400">Inserted</th>
+      <tr className="border-b border-gray-200 border-border">
+      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Keyword</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Scanned</th>
+      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</th>
       </tr>
      </thead>
      <tbody>
       {Object.entries(bulkResult.keywordStats || bulkProgress?.keywordStats || {}).map(([kw, stats]) => (
       <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
-       <td className="py-1.5 font-medium text-gray-700 dark:text-slate-300">{kw}</td>
+       <td className="py-1.5 font-medium text-foreground/80 dark:text-foreground">{kw}</td>
        <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
        <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
       </tr>
@@ -1255,7 +1255,7 @@ export default function SyncDataPage() {
 
 
 {/* -- Clear All Data -- */}
-  <div className={`border-t border-gray-200 border-primary/5 pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
+  <div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
    initial={{ opacity: 0 }}
    animate={{ opacity: 1 }}
@@ -1303,7 +1303,7 @@ export default function SyncDataPage() {
   </div>
 
   {/* -- Backfill Author Metrics -- */}
-	<div className={`border-t border-gray-200 border-primary/5 pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
+	<div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
 	<motion.div
 	 initial={{ opacity: 0 }}
 	 animate={{ opacity: 1 }}
@@ -1316,7 +1316,7 @@ export default function SyncDataPage() {
 	  </div>
 	  <div>
 	   <h4 className="text-sm font-bold text-foreground">Backfill Author Metrics</h4>
-	   <p className="text-xs text-gray-500 mt-0.5">
+	   <p className="text-xs text-muted-foreground mt-0.5">
 	    Fetch h-index and citation metrics from OpenAlex for authors missing metrics data.
 	    Only processes authors with externalAuthorId and hIndex=0.
 	   </p>
@@ -1325,7 +1325,7 @@ export default function SyncDataPage() {
 
 	 <div className="flex flex-col sm:flex-row gap-3 mb-4">
 	  <div className="w-full sm:w-36 space-y-1.5">
-	   <label className="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+	   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
 	    Limit
 	   </label>
 	   <Input
@@ -1335,7 +1335,7 @@ export default function SyncDataPage() {
 	    value={backfillLimit}
 	    onChange={(e) => setBackfillLimit(parseInt(e.target.value, 10) || 100)}
 	    disabled={backfillLoading}
-	    className="py-2.5 rounded-lg text-sm text-center bg-[#1a1a1a] border-primary/10 text-slate-200"
+	    className="py-2.5 rounded-lg text-sm text-center bg-card border-primary/10 text-foreground"
 	   />
 	  </div>
 	  <div className="flex items-end">
@@ -1343,7 +1343,7 @@ export default function SyncDataPage() {
 	    type="button"
 	    onClick={handleBackfillAuthorMetrics}
 	    disabled={backfillLoading || isRunning || isBulkSyncing || isClearing}
-	    className="flex items-center gap-2 text-white text-sm font-semibold py-2.5 px-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+	    className="flex items-center gap-2 text-foreground text-sm font-semibold py-2.5 px-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
 	    style={{ backgroundColor: '#4F8CFF' }}
 	   >
 	    <RefreshCw size={15} className={backfillLoading ? 'animate-spin' : ''} />
@@ -1352,13 +1352,13 @@ export default function SyncDataPage() {
 	  </div>
 	 </div>
 
-	 <p className="text-[10px] text-gray-500 mb-4">
+	 <p className="text-[10px] text-muted-foreground mb-4">
 	  Rate: ~3 req/s (polite pool). Set limit=0 to process all authors.
 	 </p>
 
 	 {/* Backfill result */}
 	 {backfillResult && (
-	  <div className="space-y-2 border-t border-primary/5 pt-4">
+	  <div className="space-y-2 border-t border-border pt-4">
 	   <div className="flex items-center gap-2">
 	    <CheckCircle2 size={14} className="text-emerald-500" />
 	    <span className="text-xs font-bold text-foreground">
@@ -1367,21 +1367,21 @@ export default function SyncDataPage() {
 	    </span>
 	   </div>
 	   <div className="grid grid-cols-4 gap-3">
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
 	     <div className="text-lg font-bold text-foreground font-display">{backfillResult.totalProcessed}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Processed</div>
+	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Processed</div>
 	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
 	     <div className="text-lg font-bold text-emerald-400 font-display">{backfillResult.updated}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Updated</div>
+	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Updated</div>
 	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
 	     <div className="text-lg font-bold text-primary font-display">{backfillResult.skipped}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Skipped</div>
+	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Skipped</div>
 	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
 	     <div className="text-lg font-bold text-red-400 font-display">{backfillResult.errors ?? 0}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">Errors</div>
+	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Errors</div>
 	    </div>
 	   </div>
 	  </div>
@@ -1398,7 +1398,7 @@ export default function SyncDataPage() {
 	</div>
 
 	{/* -- SCImago Journal Quartile Enrichment -- */}
-	<div className="border-t border-gray-200 border-primary/5 pt-6 mt-2">
+	<div className="border-t border-gray-200 border-border pt-6 mt-2">
 	<motion.div
 	 initial={{ opacity: 0 }}
 	 animate={{ opacity: 1 }}
@@ -1411,7 +1411,7 @@ export default function SyncDataPage() {
 	  </div>
 	  <div>
 	   <h4 className="text-sm font-bold text-foreground">SCImago Journal Quartile Enrichment</h4>
-	   <p className="text-xs text-gray-500 mt-0.5">
+	   <p className="text-xs text-muted-foreground mt-0.5">
 	    Upload the SCImago Journal Rank CSV to populate journal quartile rankings (Q1–Q4).
 	   </p>
 	  </div>
@@ -1421,7 +1421,7 @@ export default function SyncDataPage() {
 	 <div className="mb-4 p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
 	  <div className="flex items-start gap-2">
 	   <Info size={14} className="text-blue-400 shrink-0 mt-0.5" />
-	   <div className="text-xs text-gray-400">
+	   <div className="text-xs text-muted-foreground">
 	    <p>
 	     <a
 	      href="https://www.scimagojr.com/journalrank.php?out=csv"
@@ -1447,11 +1447,11 @@ export default function SyncDataPage() {
 	    </div>
 	    <div className="flex-1 min-w-0">
 	     <p className="text-xs text-foreground font-medium truncate">{scimagoFile.name}</p>
-	     <p className="text-[10px] text-gray-500">{(scimagoFile.size / 1024).toFixed(1)} KB</p>
+	     <p className="text-[10px] text-muted-foreground">{(scimagoFile.size / 1024).toFixed(1)} KB</p>
 	    </div>
 	    <button
 	     onClick={() => { setScimagoFile(null); if (scimagoInputRef.current) scimagoInputRef.current.value = ""; }}
-	     className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+	     className="p-1 rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
 	    >
 	     <X size={14} />
 	    </button>
@@ -1459,7 +1459,7 @@ export default function SyncDataPage() {
 	   <button
 	    onClick={handleScimagoUpload}
 	    disabled={scimagoUploading}
-	    className="mt-3 w-full py-2.5 rounded-xl text-xs font-bold text-black bg-emerald-400 hover:bg-emerald-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+	    className="mt-3 w-full py-2.5 rounded-xl text-xs font-bold text-primary-foreground bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
 	   >
 	    {scimagoUploading ? (
 	     <>
@@ -1479,16 +1479,16 @@ export default function SyncDataPage() {
 	   onDrop={handleScimagoDrop}
 	   onDragOver={(e) => e.preventDefault()}
 	   onClick={() => scimagoInputRef.current?.click()}
-	   className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/20 bg-black/20 cursor-pointer hover:border-primary/40 hover:bg-black/30 transition-all group"
+	   className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/20 bg-card cursor-pointer hover:border-primary/40 hover:bg-primary/[0.04] transition-all group"
 	  >
-	   <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-primary transition-colors">
+	   <div className="p-2.5 rounded-xl bg-muted/25 text-muted-foreground group-hover:text-primary transition-colors">
 	    <Upload size={22} />
 	   </div>
 	   <div className="text-center">
-	    <p className="text-xs text-gray-400 group-hover:text-primary transition-colors">
+	    <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
 	     <span className="text-primary font-medium">Click to browse</span> or drag & drop
 	    </p>
-	    <p className="text-[10px] text-gray-600 mt-0.5">CSV only · scimagojr.csv</p>
+	    <p className="text-[10px] text-muted-foreground mt-0.5">CSV only · scimagojr.csv</p>
 	   </div>
 	   <input
 	    ref={scimagoInputRef}
@@ -1531,7 +1531,7 @@ export default function SyncDataPage() {
     <AlertTriangle size={18} className="text-red-500" />
     Clear All Synced Data
    </DialogTitle>
-   <DialogDescription className="text-xs text-gray-500 dark:text-slate-400">
+   <DialogDescription className="text-xs text-muted-foreground dark:text-muted-foreground">
     This action cannot be undone. All synced papers, authors, keywords, journals, and related data will be permanently deleted from the database.
    </DialogDescription>
    </DialogHeader>
@@ -1541,7 +1541,7 @@ export default function SyncDataPage() {
     variant="outline"
     onClick={() => setShowClearDialog(false)}
     disabled={isClearing || isRunning || isBulkSyncing}
-    className="text-xs bg-white dark:bg-white/[0.02] border-primary/10 text-gray-700 dark:text-slate-300"
+    className="text-xs bg-white dark:bg-muted/15 border-primary/10 text-foreground/80 dark:text-foreground"
    >
     Cancel
    </Button>

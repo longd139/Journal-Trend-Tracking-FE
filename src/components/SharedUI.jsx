@@ -46,7 +46,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
   whileHover={{ y: -4 }}
   transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
   className="rounded-xl p-5 border relative overflow-hidden cursor-default group"
-  style={{ background: '#101010', borderColor: 'rgba(222,219,200,0.06)' }}
+  style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
  >
   <div
    className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-[0.06] group-hover:opacity-[0.10] transition-opacity duration-700"
@@ -72,7 +72,7 @@ export function StatCard({ label, value, change, Icon, accent }) {
   <div className="text-2xl font-bold text-foreground mb-0.5 font-display tracking-[-0.02em]">
    {value}
   </div>
-  <div className="text-[11px] text-gray-500 font-medium uppercase tracking-wider">
+  <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
    {label}
   </div>
  </motion.div>

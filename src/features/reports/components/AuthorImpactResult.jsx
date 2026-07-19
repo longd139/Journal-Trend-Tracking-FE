@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+﻿import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Hash, MapPin, Users, Lightbulb, Trophy,
@@ -38,9 +38,9 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
   const statusColors = {
     'Đang sung sức': '#34D399',
     'Đã dừng nghiên cứu': '#F59E0B',
-    'Không có dữ liệu': '#6B7280',
+    'Không có dữ liệu': 'var(--muted-foreground)',
   };
-  const statusColor = statusColors[status] || '#6B7280';
+  const statusColor = statusColors[status] || 'var(--muted-foreground)';
 
   return (
     <motion.div
@@ -51,22 +51,22 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
       className="rounded-2xl border border-primary/10 bg-card overflow-hidden"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between p-5 border-b border-primary/5">
+      <div className="flex items-center justify-between p-5 border-b border-border">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
             Author Impact Report
           </p>
           <h3 className="text-base font-bold text-foreground">
             {reportTitle || `Hồ sơ năng lực học thuật: ${authorName}`}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-sm text-[#A09878] font-mono">
+            <p className="text-sm text-muted-foreground font-mono">
               {authorName}
             </p>
             {affiliation && (
               <>
-                <span className="text-gray-600">—</span>
-                <span className="text-xs text-gray-400">{affiliation}</span>
+                <span className="text-muted-foreground">—</span>
+                <span className="text-xs text-muted-foreground">{affiliation}</span>
               </>
             )}
           </div>
@@ -74,7 +74,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
         {onClose && (
           <button
             onClick={onClose}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors px-2 py-1"
+            className="text-xs text-muted-foreground hover:text-foreground/80 transition-colors px-2 py-1"
           >
             ✕
           </button>
@@ -98,21 +98,21 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Stat Cards ── */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-border bg-card">
             <div className="flex items-center gap-2 mb-2">
-              <Trophy size={13} className="text-[#F59E0B]" />
-              <span className="text-[10px] uppercase tracking-wider text-gray-500">
+              <Trophy size={13} className="text-amber-600 dark:text-amber-500" />
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 h-Index
               </span>
             </div>
-            <p className="text-xl font-bold text-[#F59E0B] font-mono tabular-nums">
+            <p className="text-xl font-bold text-amber-600 dark:text-amber-500 font-mono tabular-nums">
               {hIndex != null ? hIndex : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-border bg-card">
             <div className="flex items-center gap-2 mb-2">
-              <Hash size={13} className="text-[#4F8CFF]" />
-              <span className="text-[10px] uppercase tracking-wider text-gray-500">
+              <Hash size={13} className="text-accent-blue" />
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Total Papers
               </span>
             </div>
@@ -120,10 +120,10 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
               {totalPapers != null ? totalPapers.toLocaleString() : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-border bg-card">
             <div className="flex items-center gap-2 mb-2">
-              <MapPin size={13} className="text-[#A78BFA]" />
-              <span className="text-[10px] uppercase tracking-wider text-gray-500">
+              <MapPin size={13} className="text-violet-600 dark:text-violet-500" />
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
                 Top Field
               </span>
             </div>
@@ -135,7 +135,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Top Collaborators ── */}
         {topCollaborators.length > 0 && (
-          <div className="rounded-xl p-5 border border-primary/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-5 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-3 flex items-center gap-2">
               <Users size={13} className="text-primary" />
               Top Collaborators
@@ -148,11 +148,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                      style={{
-                        background: '#DEDBC8' + '1A',
-                        color: '#DEDBC8',
-                      }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold bg-primary/10 text-primary"
                     >
                       {(collab.name || '?')[0].toUpperCase()}
                     </div>
@@ -161,14 +157,14 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
                         {collab.name}
                       </p>
                       {collab.affiliation && (
-                        <p className="text-[10px] text-gray-500">
+                        <p className="text-[10px] text-muted-foreground">
                           {collab.affiliation}
                         </p>
                       )}
                     </div>
                   </div>
                   {collab.collaborationCount != null && (
-                    <span className="text-xs font-mono text-gray-400">
+                    <span className="text-xs font-mono text-muted-foreground">
                       {collab.collaborationCount} paper{collab.collaborationCount !== 1 ? 's' : ''}
                     </span>
                   )}
@@ -180,12 +176,12 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Insight ── */}
         {insight && (
-          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
-              <Lightbulb size={13} className="text-[#F59E0B]" />
+              <Lightbulb size={13} className="text-amber-600 dark:text-amber-500" />
               Insight
             </h4>
-            <p className="text-sm text-gray-300 leading-relaxed">{insight}</p>
+            <p className="text-sm text-foreground/80 leading-relaxed">{insight}</p>
           </div>
         )}
 
@@ -194,7 +190,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
           contentRef={resultRef}
           jsonData={data}
           filename={`author_impact_${authorName || 'report'}`}
-          accentColor="#A09878"
+          accentColor="var(--muted-foreground)"
           onSave={onSave}
           saving={saving}
         />

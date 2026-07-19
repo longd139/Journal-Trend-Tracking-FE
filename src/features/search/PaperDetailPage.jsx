@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -40,7 +40,7 @@ function hashFieldColor(fieldName) {
 /* ═══════════════════════════════════════════════════════════════════════════
    Stat Chip
    ═══════════════════════════════════════════════════════════════════════════ */
-function StatChip({ icon: Icon, label, value, color = '#DEDBC8' }) {
+function StatChip({ icon: Icon, label, value, color = 'var(--chart-1)' }) {
   return (
     <div
       className="flex items-center gap-2 px-4 py-3 rounded-xl border"
@@ -49,7 +49,7 @@ function StatChip({ icon: Icon, label, value, color = '#DEDBC8' }) {
       <Icon size={16} style={{ color }} />
       <div>
         <div className="text-lg font-bold text-foreground">{value}</div>
-        <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
+        <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{label}</div>
       </div>
     </div>
   );
@@ -61,19 +61,19 @@ function StatChip({ icon: Icon, label, value, color = '#DEDBC8' }) {
 function DetailSkeleton() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6 animate-pulse">
-      <Skeleton className="h-5 w-24 rounded bg-white/5" />
+      <Skeleton className="h-5 w-24 rounded bg-muted/20" />
       <div className="space-y-3">
-        <Skeleton className="h-8 w-3/4 rounded bg-white/5" />
-        <Skeleton className="h-4 w-1/2 rounded bg-white/5" />
+        <Skeleton className="h-8 w-3/4 rounded bg-muted/20" />
+        <Skeleton className="h-4 w-1/2 rounded bg-muted/20" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} className="h-20 rounded-xl bg-white/5" />
+          <Skeleton key={i} className="h-20 rounded-xl bg-muted/20" />
         ))}
       </div>
       <div className="space-y-3">
-        <Skeleton className="h-5 w-24 rounded bg-white/5" />
-        <Skeleton className="h-32 rounded-xl bg-white/5" />
+        <Skeleton className="h-5 w-24 rounded bg-muted/20" />
+        <Skeleton className="h-32 rounded-xl bg-muted/20" />
       </div>
     </div>
   );
@@ -112,7 +112,7 @@ function RequestPdfButton({ paperId, paperTitle, hasRequestedPdf }) {
     return (
       <button
         disabled
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-white text-gray-900 border-white cursor-not-allowed opacity-80"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-muted border-border text-muted-foreground cursor-not-allowed opacity-80"
       >
         <CheckCircle2 size={14} />
         Requested
@@ -125,7 +125,7 @@ function RequestPdfButton({ paperId, paperTitle, hasRequestedPdf }) {
     <button
       onClick={handleRequest}
       disabled={requesting}
-      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white disabled:opacity-60 active:scale-[0.97]"
+      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground disabled:opacity-60 active:scale-[0.97]"
     >
       <FileText size={14} />
       {requesting ? 'Requesting...' : 'Request PDF'}
@@ -195,15 +195,15 @@ function AISummarySection({ paperId }) {
       <div className="rounded-xl border border-primary/10 bg-card p-5 animate-pulse">
         {/* Header */}
         <div className="flex items-center gap-2 mb-5">
-          <div className="w-6 h-6 rounded-lg bg-[#4F8CFF]/20" />
+          <div className="w-6 h-6 rounded-lg bg-accent-blue/20" />
           <div className="h-3 w-20 rounded bg-primary/8" />
-          <div className="h-4 w-16 rounded-md bg-[#4F8CFF]/10 ml-auto" />
+          <div className="h-4 w-16 rounded-md bg-accent-blue/10 ml-auto" />
         </div>
         {/* Section cards */}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-lg bg-primary/[0.02] border border-primary/5 p-4">
-              <div className="h-3 w-24 rounded bg-[#4F8CFF]/10 mb-2.5" />
+            <div key={i} className="rounded-lg bg-primary/[0.02] border border-border p-4">
+              <div className="h-3 w-24 rounded bg-accent-blue/10 mb-2.5" />
               <div className="space-y-1.5">
                 <div className="h-3 w-full rounded bg-primary/5" />
                 <div className="h-3 w-5/6 rounded bg-primary/5" />
@@ -243,19 +243,19 @@ function AISummarySection({ paperId }) {
 
   if (!hasContent && !hasMethodology) {
     return (
-      <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[#4F8CFF]/[0.03] border border-[#4F8CFF]/10">
-        <BrainCircuit size={13} className="text-[#4F8CFF]/50 shrink-0" />
-        <span className="text-[11px] text-[#4F8CFF]/50">{t('aiSummary.unavailable')}</span>
+      <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-accent-blue/[0.03 border border-accent-blue/10">
+        <BrainCircuit size={13} className="text-accent-blue/50 shrink-0" />
+        <span className="text-[11px] text-accent-blue/50">{t('aiSummary.unavailable')}</span>
       </div>
     );
   }
 
   // ── Section accent colors ──
   const SECTION_COLORS = [
-    { bg: 'bg-[#4F8CFF]/8', text: 'text-[#4F8CFF]', border: 'border-[#4F8CFF]/15', dot: 'bg-[#4F8CFF]' },
-    { bg: 'bg-[#8B5CF6]/8', text: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]/15', dot: 'bg-[#8B5CF6]' },
-    { bg: 'bg-[#00D1B2]/8', text: 'text-[#00D1B2]', border: 'border-[#00D1B2]/15', dot: 'bg-[#00D1B2]' },
-    { bg: 'bg-[#F59E0B]/8', text: 'text-[#F59E0B]', border: 'border-[#F59E0B]/15', dot: 'bg-[#F59E0B]' },
+    { bg: 'bg-accent-blue/8', text: 'text-accent-blue', border: 'border-accent-blue/15', dot: 'bg-accent-blue' },
+    { bg: 'bg-violet-500/8', text: 'text-violet-500', border: 'border-violet-500/15', dot: 'bg-violet-500' },
+    { bg: 'bg-accent-teal/8', text: 'text-accent-teal', border: 'border-accent-teal/15', dot: 'bg-accent-teal' },
+    { bg: 'bg-amber-500/8', text: 'text-amber-500', border: 'border-amber-500/15', dot: 'bg-amber-500' },
   ];
 
   // ── Success ──
@@ -264,23 +264,23 @@ function AISummarySection({ paperId }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.14, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-xl border border-primary/10 bg-gradient-to-br from-[#101010] via-[#101010] to-[#4F8CFF]/[0.02] p-5"
+      className="rounded-xl border border-border bg-card p-5"
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-5">
-        <div className="w-6 h-6 rounded-lg bg-[#4F8CFF]/10 flex items-center justify-center">
-          <BrainCircuit size={14} className="text-[#4F8CFF]" />
+        <div className="w-6 h-6 rounded-lg bg-accent-blue/10 flex items-center justify-center">
+          <BrainCircuit size={14} className="text-accent-blue" />
         </div>
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-[#4F8CFF]">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-accent-blue">
           {t('aiSummary.title')}
         </h3>
-        <span className="ml-auto text-[9px] font-bold text-[#4F8CFF]/60 bg-[#4F8CFF]/8 px-2 py-0.5 rounded-md border border-[#4F8CFF]/15">
+        <span className="ml-auto text-[9px] font-bold text-accent-blue/60 bg-accent-blue/8 px-2 py-0.5 rounded-md border border-accent-blue/15">
           {t('aiSummary.aiLabel')}
         </span>
       </div>
 
       {/* Section cards */}
-      <div className={`space-y-3 ${isStructured ? '' : 'pl-5 border-l-2 border-[#4F8CFF]/20'}`}>
+      <div className={`space-y-3 ${isStructured ? '' : 'pl-5 border-l-2 border-accent-blue/20'}`}>
         {sections.map((section, i) => {
           const color = SECTION_COLORS[i % SECTION_COLORS.length];
           return (
@@ -305,17 +305,17 @@ function AISummarySection({ paperId }) {
                       </span>
                     </div>
                   )}
-                  <p className="text-[13px] text-gray-300 leading-relaxed">
+                  <p className="text-[13px] text-foreground/80 leading-relaxed">
                     {section.content}
                   </p>
                 </>
               ) : (
                 <>
                   {/* Fallback: numbered sentence style */}
-                  <span className="text-[10px] font-bold text-[#4F8CFF]/30 bg-[#4F8CFF]/5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:text-[#4F8CFF]/60 group-hover:bg-[#4F8CFF]/10 transition-colors">
+                  <span className="text-[10px] font-bold text-accent-blue/30 bg-accent-blue/5 w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:text-accent-blue/60 group-hover:bg-accent-blue/10 transition-colors">
                     {i + 1}
                   </span>
-                  <p className="text-[13px] text-gray-300 leading-relaxed">
+                  <p className="text-[13px] text-foreground/80 leading-relaxed">
                     {section.content}
                   </p>
                 </>
@@ -331,14 +331,14 @@ function AISummarySection({ paperId }) {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.16 + sections.length * 0.07 + 0.05, duration: 0.3 }}
-          className="mt-5 ml-5 pl-5 border-l-2 border-primary/5"
+          className="mt-5 ml-5 pl-5 border-l-2 border-border"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#00D1B2]/[0.06] border border-[#00D1B2]/15">
-            <Cpu size={13} className="text-[#00D1B2] shrink-0" />
-            <span className="text-[11px] font-semibold text-[#00D1B2]/70 mr-1">
+          <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-accent-teal/[0.06 border border-accent-teal/15">
+            <Cpu size={13} className="text-accent-teal shrink-0" />
+            <span className="text-[11px] font-semibold text-accent-teal/70 mr-1">
               {t('aiSummary.methodologyTitle')}
             </span>
-            <span className="text-[11px] font-bold text-[#00D1B2]">
+            <span className="text-[11px] font-bold text-accent-teal">
               {aiData.methodology}
             </span>
           </div>
@@ -386,7 +386,7 @@ export default function PaperDetailPage() {
     <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/[0.04] border border-primary/10">
       <div className="flex items-center gap-2">
         <Lock size={13} className="text-primary/50 shrink-0" />
-        <span className="text-[11px] text-gray-400">
+        <span className="text-[11px] text-muted-foreground">
           {feature} is available for <strong className="text-foreground">Researcher</strong> accounts.{' '}
           <button
             onClick={() => navigate(`/${role}/settings`)}
@@ -534,7 +534,7 @@ export default function PaperDetailPage() {
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
-          <p className="text-sm text-gray-400">The paper could not be loaded.</p>
+          <p className="text-sm text-muted-foreground">The paper could not be loaded.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -545,7 +545,7 @@ export default function PaperDetailPage() {
           </button>
           <button
             onClick={fetchPaper}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-black hover:opacity-90 transition-all"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all"
           >
             Retry
           </button>
@@ -559,7 +559,7 @@ export default function PaperDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-4 p-8">
         <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
-          <FileText size={28} className="text-gray-500" />
+          <FileText size={28} className="text-muted-foreground" />
         </div>
         <h3 className="text-lg font-bold text-foreground">Paper not found</h3>
         <button
@@ -592,7 +592,7 @@ export default function PaperDetailPage() {
         {/* ── Back button ── */}
         <button
           onClick={goBack}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft size={14} />
           Back to results
@@ -619,7 +619,7 @@ export default function PaperDetailPage() {
               </Badge>
             )}
             {year && (
-              <span className="text-xs text-gray-500 flex items-center gap-1">
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Calendar size={12} />
                 {year}
               </span>
@@ -661,7 +661,7 @@ export default function PaperDetailPage() {
                 href={paper.pdfUrl || paper.downloadUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-white text-gray-900 border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97]"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all bg-foreground text-background border-foreground hover:shadow-sm active:scale-[0.97]"
               >
                 <FileText size={14} />
                 PDF
@@ -675,7 +675,7 @@ export default function PaperDetailPage() {
           {doi && (
             <button
               onClick={() => window.open(`https://doi.org/${doi}`, '_blank')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:shadow-sm active:scale-[0.97] transition-all"
             >
               <ExternalLink size={14} />
               View Source (DOI)
@@ -683,7 +683,7 @@ export default function PaperDetailPage() {
           )}
           <button
             onClick={() => window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`, '_blank')}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white hover:shadow-md hover:shadow-white/10 active:scale-[0.97] transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:shadow-sm active:scale-[0.97] transition-all"
           >
             <Globe size={14} />
             Google Scholar
@@ -693,10 +693,10 @@ export default function PaperDetailPage() {
             disabled={bookmarkLoading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all active:scale-[0.97] ${
               bookmarkLoading
-                ? 'opacity-50 cursor-not-allowed border-white/10 text-white/50'
+                ? 'opacity-50 cursor-not-allowed border-border text-muted-foreground'
                 : isBookmarked
-                  ? 'bg-white border-white text-gray-900 shadow-md shadow-white/10'
-                  : 'border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white'
+                  ? 'bg-foreground border-foreground text-background shadow-sm'
+                  : 'border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground'
             }`}
           >
             {bookmarkLoading ? (
@@ -737,18 +737,18 @@ export default function PaperDetailPage() {
           >
             {journal && (
               <div className="flex items-center gap-2 text-sm">
-                <BookOpen size={16} className="text-gray-500" />
+                <BookOpen size={16} className="text-muted-foreground" />
                 <span className="text-foreground font-semibold">{journal}</span>
               </div>
             )}
             {doi && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Hash size={13} />
                 <span className="font-mono">DOI: {doi}</span>
               </div>
             )}
             {paper.pubDate && (
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Calendar size={13} />
                 <span>Published: {new Date(paper.pubDate).toLocaleDateString()}</span>
               </div>
@@ -764,15 +764,15 @@ export default function PaperDetailPage() {
             transition={{ delay: 0.12 }}
             className="rounded-xl border border-primary/10 bg-card p-5 space-y-3"
           >
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Abstract</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abstract</h3>
             {isAcademic ? (
               <div className="space-y-3">
-                <p className="text-sm text-gray-300 leading-relaxed">
+                <p className="text-sm text-foreground/80 leading-relaxed">
                   {abstract}
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-gray-300 leading-relaxed">{abstract}</p>
+              <p className="text-sm text-foreground/80 leading-relaxed">{abstract}</p>
             )}
           </motion.div>
         )}
@@ -799,8 +799,8 @@ export default function PaperDetailPage() {
             className="rounded-xl border border-primary/10 bg-card p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
-              <Users size={15} className="text-gray-500" />
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              <Users size={15} className="text-muted-foreground" />
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Authors ({authors.length})
               </h3>
             </div>
@@ -823,7 +823,7 @@ export default function PaperDetailPage() {
                       }, 300);
                     }
                   }}
-                  className="w-full text-left flex items-start justify-between gap-4 px-4 py-3 rounded-xl bg-primary/[0.02] border border-primary/5 hover:border-primary/15 hover:bg-primary/[0.04] transition-all group cursor-pointer"
+                  className="w-full text-left flex items-start justify-between gap-4 px-4 py-3 rounded-xl bg-primary/[0.02] border border-border hover:border-primary/15 hover:bg-primary/[0.04] transition-all group cursor-pointer"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -835,10 +835,10 @@ export default function PaperDetailPage() {
                           ✉ Corresponding
                         </span>
                       )}
-                      <span className="text-[10px] text-gray-600">#{author.authorOrder}</span>
+                      <span className="text-[10px] text-muted-foreground">#{author.authorOrder}</span>
                     </div>
                     {author.affiliation && (
-                      <p className="text-xs text-gray-500 truncate">{author.affiliation}</p>
+                      <p className="text-xs text-muted-foreground truncate">{author.affiliation}</p>
                     )}
                   </div>
 
@@ -847,13 +847,13 @@ export default function PaperDetailPage() {
                       <div className="text-xs font-bold text-foreground">
                         {author.totalCitations?.toLocaleString() || 0}
                       </div>
-                      <div className="text-[10px] text-gray-500">Citations</div>
+                      <div className="text-[10px] text-muted-foreground">Citations</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs font-bold text-[#00D1B2]">
+                      <div className="text-xs font-bold text-accent-teal">
                         h-{author.hindex || 0}
                       </div>
-                      <div className="text-[10px] text-gray-500">H-Index</div>
+                      <div className="text-[10px] text-muted-foreground">H-Index</div>
                     </div>
                   </div>
                 </button>
@@ -870,7 +870,7 @@ export default function PaperDetailPage() {
             transition={{ delay: 0.18 }}
             className="rounded-xl border border-primary/10 bg-card p-5 space-y-3"
           >
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Keywords</h3>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Keywords</h3>
             <div className="flex flex-wrap gap-2">
               {keywords.map((kw, i) => {
                 const text = typeof kw === 'string' ? kw : kw.keywordText;
@@ -878,7 +878,7 @@ export default function PaperDetailPage() {
                 return (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg font-bold bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20"
+                    className="inline-flex items-center gap-1.5 text-[11px] px-3 py-1.5 rounded-lg font-bold bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
                   >
                     #{text}
                     {score != null && (
@@ -911,7 +911,7 @@ export default function PaperDetailPage() {
           transition={{ delay: 0.22 }}
           className="text-center pt-4 pb-8"
         >
-          <p className="text-[11px] text-gray-600">
+          <p className="text-[11px] text-muted-foreground">
             Paper ID: {paperId}
             {paper.createdAt && (
               <> · Added {new Date(paper.createdAt).toLocaleDateString()}</>

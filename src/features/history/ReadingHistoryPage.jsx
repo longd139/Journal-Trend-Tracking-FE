@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -59,14 +59,14 @@ function HistoryCardSkeleton() {
   return (
     <div className="rounded-xl border p-5 bg-card border-primary/10">
       <div className="space-y-3">
-        <Skeleton className="h-5 w-3/4 rounded bg-white/5" />
-        <Skeleton className="h-4 w-1/2 rounded bg-white/5" />
+        <Skeleton className="h-5 w-3/4 rounded bg-card" />
+        <Skeleton className="h-4 w-1/2 rounded bg-card" />
         <div className="flex items-center gap-3">
-          <Skeleton className="h-3 w-32 rounded bg-white/5" />
-          <Skeleton className="h-3 w-20 rounded bg-white/5" />
-          <Skeleton className="h-3 w-24 rounded bg-white/5" />
+          <Skeleton className="h-3 w-32 rounded bg-card" />
+          <Skeleton className="h-3 w-20 rounded bg-card" />
+          <Skeleton className="h-3 w-24 rounded bg-card" />
         </div>
-        <Skeleton className="h-3 w-40 rounded bg-white/5" />
+        <Skeleton className="h-3 w-40 rounded bg-card" />
       </div>
     </div>
   );
@@ -116,12 +116,12 @@ export default function ReadingHistoryPage() {
   if (error && !loading && history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent p-8">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-red-400" />
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+          <AlertCircle size={28} className="text-red-600 dark:text-red-400" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{t('headings.readingHistory')}</h3>
-          <p className="text-sm text-gray-400">{error}</p>
+          <p className="text-sm text-muted-foreground">{error}</p>
         </div>
         <button
           onClick={refetch}
@@ -138,8 +138,8 @@ export default function ReadingHistoryPage() {
     return (
       <div className="p-8 space-y-6 min-h-screen bg-transparent">
         <div className="space-y-1">
-          <Skeleton className="h-7 w-40 rounded bg-white/5" />
-          <Skeleton className="h-4 w-64 rounded bg-white/5" />
+          <Skeleton className="h-7 w-40 rounded bg-card" />
+          <Skeleton className="h-4 w-64 rounded bg-card" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -155,15 +155,15 @@ export default function ReadingHistoryPage() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent">
         <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
-          <History size={28} className="text-gray-500" />
+          <History size={28} className="text-muted-foreground" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">No papers viewed yet</h3>
-          <p className="text-sm text-gray-400">Start exploring to build your reading history</p>
+          <p className="text-sm text-muted-foreground">Start exploring to build your reading history</p>
         </div>
         <button
           onClick={() => navigate(`/${currentRole}/search`)}
-          className="px-5 py-2.5 rounded-lg text-sm font-bold bg-[#4F8CFF] text-white hover:bg-[#3A6FE0] transition-all"
+          className="px-5 py-2.5 rounded-lg text-sm font-bold bg-accent-blue text-white hover:bg-accent-blue/80 transition-all"
         >
           Start exploring
         </button>
@@ -192,24 +192,24 @@ export default function ReadingHistoryPage() {
               className="rounded-xl border p-5 bg-card border-primary/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors cursor-pointer"
             >
               {/* Title */}
-              <h4 className="text-sm font-bold text-foreground mb-1.5 hover:text-[#4F8CFF] transition-colors">
+              <h4 className="text-sm font-bold text-foreground mb-1.5 hover:text-accent-blue transition-colors">
                 {item.paperTitle || 'Untitled'}
               </h4>
 
               {/* Journal + Year */}
-              <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                 {journal && <span>{journal}</span>}
                 {journal && year && <span>·</span>}
                 {year && <span>{year}</span>}
-                {!journal && !year && <span className="text-gray-500">—</span>}
+                {!journal && !year && <span className="text-muted-foreground">—</span>}
               </div>
 
               {/* DOI + Citations + Open Access */}
-              <div className="flex items-center gap-3 text-[11px] text-gray-400 mb-2.5 flex-wrap">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-2.5 flex-wrap">
                 {doi && (
                   <button
                     onClick={(e) => handleDoiClick(e, doi)}
-                    className="flex items-center gap-1 text-[#4F8CFF] hover:underline transition-all"
+                    className="flex items-center gap-1 text-accent-blue hover:underline transition-all"
                   >
                     <ExternalLink size={10} />
                     DOI: {doi.length > 40 ? doi.slice(0, 40) + '...' : doi}
@@ -219,14 +219,14 @@ export default function ReadingHistoryPage() {
                 <span>Cited: {citations != null ? citations.toLocaleString() : '—'}</span>
                 {isOA && <span>·</span>}
                 {isOA && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
                     Open Access
                   </span>
                 )}
               </div>
 
               {/* Viewed At */}
-              <div className="text-[11px] text-gray-500" title={formatViewedAt(item.viewedAt)}>
+              <div className="text-[11px] text-muted-foreground" title={formatViewedAt(item.viewedAt)}>
                 Viewed {formatRelativeTime(item.viewedAt)}
               </div>
             </motion.div>

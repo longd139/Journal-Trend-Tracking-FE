@@ -75,12 +75,12 @@ export default function ResetPasswordPage() {
 
  if (!token) {
  return (
-  <div className="min-h-screen flex items-center justify-center bg-black">
+  <div className="min-h-screen flex items-center justify-center bg-background">
   <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
   <div className="text-center space-y-4 relative z-10">
    <AlertCircle size={48} className="text-red-400 mx-auto" />
    <h2 className="text-xl font-bold text-foreground">Invalid Reset Link</h2>
-   <p className="text-sm text-gray-400">The link is invalid or missing a confirmation token.</p>
+   <p className="text-sm text-muted-foreground">The link is invalid or missing a confirmation token.</p>
    <button onClick={() => navigate('/login')} className="text-primary text-sm font-semibold hover:text-foreground transition-colors">
    {t('resetPassword.backToLogin')}
    </button>
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
  }
 
  return (
- <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black">
+ <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background">
   {/* Noise overlay */}
   <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
 
@@ -110,7 +110,7 @@ export default function ResetPasswordPage() {
     height: p.size,
     left: `${p.left}%`,
     top: `${p.top}%`,
-    background: '#DEDBC8',
+    background: 'var(--primary)',
     opacity: 0.08,
    }}
    animate={{ y: [0, -20, 0] }}
@@ -125,17 +125,17 @@ export default function ResetPasswordPage() {
    <span className="text-lg font-black text-foreground tracking-[0.05em] font-outfit">CITRACK</span>
   </div>
 
-  <div className="rounded-2xl border border-primary/5 p-8 bg-card">
+  <div className="rounded-2xl border border-primary/15 p-8 bg-card">
    {isSuccess ? (
    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
     <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
     <CheckCircle2 size={32} className="text-emerald-400" />
     </div>
     <h2 className="text-xl font-bold text-foreground mb-2 font-display">{t('resetPassword.success')}</h2>
-    <p className="text-sm mb-6 text-gray-400">Your password has been successfully changed. Please log in again.</p>
+    <p className="text-sm mb-6 text-muted-foreground">Your password has been successfully changed. Please log in again.</p>
     <button
     onClick={() => navigate('/login')}
-    className="w-full py-3 rounded-full text-sm font-bold text-black transition-colors bg-primary hover:bg-foreground"
+    className="w-full py-3 rounded-full text-sm font-bold text-primary-foreground transition-colors bg-primary hover:bg-foreground"
     >
     {t('resetPassword.backToLogin')}
     </button>
@@ -143,7 +143,7 @@ export default function ResetPasswordPage() {
    ) : (
    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
     <h2 className="text-2xl font-black text-foreground mb-1 font-display">{t('resetPassword.title')}</h2>
-    <p className="text-sm mb-6 text-gray-400">Enter a new password for your account.</p>
+    <p className="text-sm mb-6 text-muted-foreground">Enter a new password for your account.</p>
 
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
     <div>
@@ -158,7 +158,7 @@ export default function ResetPasswordPage() {
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.password
        ? 'border-red-500/30 bg-red-500/[0.04]'
-       : 'border-primary/10 bg-white/[0.03] focus:border-primary/50'
+       : 'border-primary/35 bg-muted/20 focus:border-primary/150'
       } text-foreground`}
      />
      </div>
@@ -179,7 +179,7 @@ export default function ResetPasswordPage() {
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.confirmPassword
        ? 'border-red-500/30 bg-red-500/[0.04]'
-       : 'border-primary/10 bg-white/[0.03] focus:border-primary/50'
+       : 'border-primary/35 bg-muted/20 focus:border-primary/150'
       } text-foreground`}
      />
      </div>
@@ -197,7 +197,7 @@ export default function ResetPasswordPage() {
     <button
      type="submit"
      disabled={loading}
-     className="w-full py-3 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2 mt-4 transition-colors bg-primary hover:bg-foreground"
+     className="w-full py-3 rounded-full text-sm font-bold text-primary-foreground flex items-center justify-center gap-2 mt-4 transition-colors bg-primary hover:bg-foreground"
      style={{ opacity: loading ? 0.7 : 1 }}
     >
      {loading ? <><RefreshCw size={14} className="animate-spin" /> {t('resetPassword.submitting')}</> : t('resetPassword.submitButton')}
@@ -208,7 +208,7 @@ export default function ResetPasswordPage() {
   </div>
 
   {!isSuccess && (
-   <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 transition-colors hover:text-primary">
+   <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-primary">
    <ArrowLeft size={12} /> {t('resetPassword.backToLogin')}
    </button>
   )}

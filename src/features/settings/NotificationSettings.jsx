@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+﻿import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Mail, Smartphone, Bell, FileText, Quote, TrendingUp, Newspaper } from 'lucide-react';
@@ -46,15 +46,15 @@ function ToggleRow({ icon: Icon, label, description, checked, onToggle, disabled
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${checked && !disabled ? 'bg-primary/10' : 'bg-white/[0.03]'}`}>
-          <Icon size={14} className={checked && !disabled ? 'text-primary' : 'text-gray-500'} />
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${checked && !disabled ? 'bg-primary/10' : 'bg-muted/20'}`}>
+          <Icon size={14} className={checked && !disabled ? 'text-primary' : 'text-muted-foreground'} />
         </div>
         <div className="min-w-0">
-          <p className={`text-xs font-semibold truncate ${disabled ? 'text-gray-500' : 'text-foreground'}`}>
+          <p className={`text-xs font-semibold truncate ${disabled ? 'text-muted-foreground' : 'text-foreground'}`}>
             {label}
           </p>
           {description && (
-            <p className="text-[10px] text-gray-500 truncate">{description}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{description}</p>
           )}
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function NotificationSettings() {
       <div className="flex items-center justify-between gap-4 pb-5 border-b border-primary/6">
         <div>
           <h4 className="text-sm font-bold text-foreground">{t('notifications.title')}</h4>
-          <p className="text-[11px] text-gray-400 mt-0.5">{t('notifications.description')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{t('notifications.description')}</p>
         </div>
         <Switch checked={prefs.enabled} onCheckedChange={toggleEnabled} className="shrink-0" />
       </div>

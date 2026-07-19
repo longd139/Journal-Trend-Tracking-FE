@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+﻿import { useState, useMemo, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import {
@@ -49,7 +49,7 @@ function StatusBadge({ isActive, size = 'sm' }) {
   const s = size === 'lg' ? 'px-2.5 py-1 text-[11px]' : 'px-2 py-0.5 text-[9px]';
   const cls = isActive
     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-    : 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+    : 'bg-slate-500/10 text-muted-foreground border-slate-500/20';
   return (
     <span className={`${s} rounded-md font-bold uppercase tracking-wider border ${cls} transition-colors`}>
       {isActive ? tc('status.active') : tc('status.inactive')}
@@ -87,8 +87,8 @@ function FilterDropdown({ value, onChange, options }) {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 pl-3.5 pr-2.5 py-2.5 rounded-2xl bg-card border border-primary/10 text-[13px] outline-none hover:border-primary/20 focus:border-indigo-500/40 transition-all"
       >
-        <span className="text-[13px] text-slate-200">{activeLabel}</span>
-        <ChevronDown size={13} className={`text-slate-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <span className="text-[13px] text-foreground">{activeLabel}</span>
+        <ChevronDown size={13} className={`text-muted-foreground transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       <AnimatePresence>
         {open && (
@@ -97,7 +97,7 @@ function FilterDropdown({ value, onChange, options }) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 top-full mt-1.5 z-50 min-w-full rounded-2xl border border-primary/10 bg-[#151515] shadow-2xl backdrop-blur-xl p-1.5"
+            className="absolute left-0 top-full mt-1.5 z-50 min-w-full rounded-2xl border border-primary/10 bg-card shadow-2xl backdrop-blur-xl p-1.5"
           >
             {options.map((opt) => (
               <button
@@ -106,8 +106,8 @@ function FilterDropdown({ value, onChange, options }) {
                 onClick={() => { onChange(opt.value); setOpen(false); }}
                 className={`w-full text-left px-3 py-2 rounded-xl text-[13px] transition-all flex items-center justify-between gap-3 whitespace-nowrap
                   ${opt.value === value
-                    ? 'text-white bg-primary/8 font-semibold'
-                    : 'text-slate-400 hover:text-white hover:bg-primary/5'}`}
+                    ? 'text-foreground bg-primary/8 font-semibold'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-primary/5'}`}
               >
                 {opt.label}
                 {opt.value === value && <CheckCircle2 size={12} className="text-indigo-400 shrink-0" />}
@@ -130,7 +130,7 @@ function StatCard({ label, value, icon: Icon, color, isActive, onClick }) {
       className={`relative overflow-hidden rounded-2xl border bg-card p-5 group text-left w-full transition-all duration-300
         ${isActive
           ? 'border-primary/30 shadow-lg shadow-primary/5 ring-1 ring-primary/10'
-          : 'border-primary/5 hover:border-primary/15 cursor-pointer'}`}
+          : 'border-border hover:border-primary/15 cursor-pointer'}`}
     >
       {/* hover gradient reveal */}
       <div
@@ -150,14 +150,14 @@ function StatCard({ label, value, icon: Icon, color, isActive, onClick }) {
             >
               <Icon size={18} />
             </div>
-            <p className={`text-[12px] font-medium truncate transition-colors ${isActive ? 'text-foreground' : 'text-slate-400'}`}>{label}</p>
+            <p className={`text-[12px] font-medium truncate transition-colors ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</p>
           </div>
           <div className="flex items-baseline gap-3">
             <motion.p
               key={value}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-[28px] font-bold leading-none text-white tracking-tight font-mono tabular-nums"
+              className="text-[28px] font-bold leading-none text-foreground tracking-tight font-mono tabular-nums"
             >
               {value}
             </motion.p>
@@ -186,7 +186,7 @@ function ViewUserModal({ user, onClose }) {
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <motion.div
@@ -194,29 +194,29 @@ function ViewUserModal({ user, onClose }) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.92, opacity: 0, y: 20 }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="w-full max-w-md rounded-2xl border border-primary/5 bg-[#0d0d0d] shadow-2xl overflow-hidden"
+        className="w-full max-w-md rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
-        <div className="relative px-6 pt-6 pb-5 border-b border-primary/5">
+        <div className="relative px-6 pt-6 pb-5 border-b border-border">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-white flex items-center gap-2.5">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-2.5">
               <span className="w-1.5 h-5 rounded-full bg-indigo-400" />
               {t('userManagement.userDetails')}
             </h3>
-            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-primary/5 text-slate-500 hover:text-white transition-colors">
+            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-primary/5 text-muted-foreground hover:text-foreground transition-colors">
               <X size={16} />
             </button>
           </div>
           <div className="flex items-center gap-4 mt-4">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black text-white shrink-0"
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-black text-foreground shrink-0"
               style={{ background: `linear-gradient(135deg, ${avatarGradient(0)[0]}, ${avatarGradient(0)[1]})` }}
             >
               {user.fullName?.split(' ').pop()?.[0] || tc('actions.unknown')}
             </div>
             <div>
-              <h4 className="text-[15px] font-bold text-white">{user.fullName}</h4>
+              <h4 className="text-[15px] font-bold text-foreground">{user.fullName}</h4>
               <div className="flex items-center gap-2 mt-1">
                 <RoleBadge roleName={user.roleName} />
                 <StatusBadge isActive={user.isActive} />
@@ -231,8 +231,8 @@ function ViewUserModal({ user, onClose }) {
               <div className="p-1.5 rounded-lg bg-primary/5 group-hover:bg-primary/10 transition-colors" style={{ color: r.color }}>
                 <r.icon size={14} />
               </div>
-              <span className="text-[11px] text-slate-500 uppercase tracking-wider w-36 shrink-0">{r.label}</span>
-              <span className="text-[13px] text-slate-200 font-medium truncate ml-auto text-right">{r.value}</span>
+              <span className="text-[11px] text-muted-foreground uppercase tracking-wider w-36 shrink-0">{r.label}</span>
+              <span className="text-[13px] text-foreground font-medium truncate ml-auto text-right">{r.value}</span>
             </div>
           ))}
         </div>
@@ -252,7 +252,7 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
       onClick={onCancel}
     >
       <motion.div
@@ -260,7 +260,7 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.92, opacity: 0, y: 20 }}
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-        className="w-full max-w-sm rounded-2xl border border-white/[0.06] bg-[#0d0d0d] shadow-2xl overflow-hidden"
+        className="w-full max-w-sm rounded-2xl border border-border bg-card shadow-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-6 pt-6 pb-5">
@@ -269,8 +269,8 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
               <AlertTriangle size={20} className="text-rose-400" />
             </div>
             <div>
-              <h3 className="text-[15px] font-bold text-white">{t('userManagement.promoteToAdmin')}</h3>
-              <p className="text-[13px] text-slate-400 mt-2 leading-relaxed">
+              <h3 className="text-[15px] font-bold text-foreground">{t('userManagement.promoteToAdmin')}</h3>
+              <p className="text-[13px] text-muted-foreground mt-2 leading-relaxed">
                 {t('userManagement.promoteConfirmText')}
               </p>
             </div>
@@ -278,11 +278,11 @@ function ConfirmAdminModal({ user, loading, onConfirm, onCancel }) {
         </div>
         <div className="px-6 pb-5 flex gap-2.5 justify-end">
           <button onClick={onCancel}
-            className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-slate-400 hover:bg-primary/5 hover:text-white transition-colors">
+            className="px-5 py-2.5 rounded-xl text-[13px] font-semibold text-muted-foreground hover:bg-primary/5 hover:text-foreground transition-colors">
             {tc('actions.cancel')}
           </button>
           <button onClick={onConfirm} disabled={loading}
-            className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-white bg-rose-500 hover:bg-rose-600 flex items-center gap-2 transition-colors disabled:opacity-60"
+            className="px-5 py-2.5 rounded-xl text-[13px] font-bold text-foreground bg-rose-500 hover:bg-rose-600 flex items-center gap-2 transition-colors disabled:opacity-60"
           >
             {loading && <RefreshCw size={13} className="animate-spin" />}
             {t('userManagement.confirmPromote')}
@@ -332,9 +332,9 @@ function RolePopover({ user, onClose, onPromoteAdmin, anchorRect }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       style={style}
-      className="w-40 rounded-2xl border border-white/[0.06] bg-[#151515] shadow-2xl p-1.5 backdrop-blur-xl"
+      className="w-40 rounded-2xl border border-border bg-card shadow-2xl p-1.5 backdrop-blur-xl"
     >
-      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-widest px-2.5 pt-1 pb-2">{t('userManagement.changeRole')}</p>
+      <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-2.5 pt-1 pb-2">{t('userManagement.changeRole')}</p>
       {loading ? (
         <div className="flex items-center justify-center py-4">
           <RefreshCw size={16} className="animate-spin text-indigo-400" />
@@ -345,7 +345,7 @@ function RolePopover({ user, onClose, onPromoteAdmin, anchorRect }) {
             className={`w-full text-left px-3 py-2.5 rounded-xl text-[13px] font-semibold transition-all flex items-center justify-between
               ${role === 'admin'
                 ? 'text-rose-400 hover:bg-rose-500/10'
-                : 'text-slate-400 hover:bg-primary/5 hover:text-white'}`}
+                : 'text-muted-foreground hover:bg-primary/5 hover:text-foreground'}`}
           >
             {DISPLAY_ROLE(role)}
             {changingRole === role && <RefreshCw size={12} className="animate-spin text-indigo-400" />}
@@ -442,7 +442,7 @@ export default function UserManagement() {
   };
 
   /* ── Shared styles ── */
-  const thCls = 'text-left px-5 py-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest select-none';
+  const thCls = 'text-left px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest select-none';
   const tdCls = 'px-5 py-3.5';
 
   return (
@@ -489,13 +489,13 @@ export default function UserManagement() {
           onChange={setSearch}
           onSearch={setSearch}
           placeholder={t('userManagement.searchPlaceholder') || 'Search users...'}
-          className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-card border border-primary/10 text-[13px] text-white placeholder:text-slate-600 outline-none focus:border-indigo-500/40 transition-all"
+          className="w-full pl-10 pr-4 py-2.5 rounded-2xl bg-card border border-primary/10 text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:border-indigo-500/40 transition-all"
           wrapperClassName="relative flex-1 min-w-[220px] max-w-xs"
-          icon={<Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-slate-400" />}
+          icon={<Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground" />}
         />
         {/* Filters */}
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={13} className="text-slate-400" />
+          <SlidersHorizontal size={13} className="text-muted-foreground" />
           <FilterDropdown
             value={roleFilter}
             onChange={setRoleFilter}
@@ -519,7 +519,7 @@ export default function UserManagement() {
         <div className="flex items-center gap-2 ml-auto">
           {actionLoading && <RefreshCw size={15} className="animate-spin text-indigo-400" />}
           <button onClick={fetchUsers}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold text-white bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/20 transition-all active:scale-[0.97]"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-[13px] font-semibold text-foreground bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/20 transition-all active:scale-[0.97]"
           >
             <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
             {tc('actions.refresh')}
@@ -532,12 +532,12 @@ export default function UserManagement() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.05 }}
-        className="rounded-2xl border border-primary/5 bg-card"
+        className="rounded-2xl border border-border bg-card"
       >
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-primary/5 bg-[#0d0d0d]">
+              <tr className="border-b border-border bg-card">
                 {[
                   { col: 'fullName', label: t('userManagement.table.user') },
                   { col: 'email', label: t('userManagement.table.email') },
@@ -545,10 +545,10 @@ export default function UserManagement() {
                   { col: 'institution', label: t('userManagement.table.institution') },
                   { col: 'isActive', label: t('userManagement.table.status') },
                 ].map((h) => (
-                  <th key={h.col} onClick={() => toggleSort(h.col)} className={`${thCls} cursor-pointer hover:text-slate-300 transition-colors`}>
+                  <th key={h.col} onClick={() => toggleSort(h.col)} className={`${thCls} cursor-pointer hover:text-foreground transition-colors`}>
                     <span className="inline-flex items-center gap-1.5">
                       {h.label}
-                      <ArrowUpDown size={10} className={sortBy === h.col ? 'text-indigo-400' : 'text-slate-500'} />
+                      <ArrowUpDown size={10} className={sortBy === h.col ? 'text-indigo-400' : 'text-muted-foreground'} />
                     </span>
                   </th>
                 ))}
@@ -560,14 +560,14 @@ export default function UserManagement() {
                 <tr>
                   <td colSpan={6} className="text-center py-20">
                     <RefreshCw size={28} className="animate-spin mx-auto text-indigo-400 mb-3" />
-                    <p className="text-[13px] text-slate-500">{t('userManagement.loadingUsers')}</p>
+                    <p className="text-[13px] text-muted-foreground">{t('userManagement.loadingUsers')}</p>
                   </td>
                 </tr>
               ) : paged.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-20">
-                    <Users size={28} className="mx-auto text-slate-700 mb-3" />
-                    <p className="text-[13px] text-slate-500">{t('userManagement.noUsersFound')}</p>
+                    <Users size={28} className="mx-auto text-muted-foreground mb-3" />
+                    <p className="text-[13px] text-muted-foreground">{t('userManagement.noUsersFound')}</p>
                   </td>
                 </tr>
               ) : (
@@ -580,7 +580,7 @@ export default function UserManagement() {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="border-b border-primary/5 hover:bg-primary/[0.02] transition-colors group"
+                      className="border-b border-border hover:bg-primary/[0.02] transition-colors group"
                     >
                       {/* User */}
                       <td className={tdCls}>
@@ -589,33 +589,33 @@ export default function UserManagement() {
                           onClick={() => setViewUser(u)}
                         >
                           <div
-                            className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shrink-0 group-hover:scale-105 transition-transform"
+                            className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-foreground shrink-0 group-hover:scale-105 transition-transform"
                             style={{ background: `linear-gradient(135deg, ${avatarGradient(i)[0]}, ${avatarGradient(i)[1]})` }}
                           >
                             {u.fullName?.split(' ').pop()?.[0]?.toUpperCase() || tc('actions.unknown')}
                           </div>
                           <div>
-                            <p className="text-[13px] font-semibold text-white group-hover:text-indigo-300 transition-colors truncate max-w-[140px]">
+                            <p className="text-[13px] font-semibold text-foreground group-hover:text-indigo-300 transition-colors truncate max-w-[140px]">
                               {u.fullName}
                             </p>
                           </div>
                         </div>
                       </td>
                       {/* Email */}
-                      <td className={`${tdCls} text-[13px] text-slate-500 truncate max-w-[180px]`}>
+                      <td className={`${tdCls} text-[13px] text-muted-foreground truncate max-w-[180px]`}>
                         {u.email}
                       </td>
                       {/* Role */}
                       <td className={tdCls}><RoleBadge roleName={u.roleName} /></td>
                       {/* Institution */}
-                      <td className={`${tdCls} text-[13px] text-slate-500 truncate max-w-[140px]`}>
+                      <td className={`${tdCls} text-[13px] text-muted-foreground truncate max-w-[140px]`}>
                         {u.institution || '—'}
                       </td>
                       {/* Status */}
                       <td className={tdCls}>
                         <StatusBadge isActive={u.isActive} />
                         {togglingId === u.userId && (
-                          <RefreshCw size={11} className="animate-spin inline-block ml-2 text-slate-400" />
+                          <RefreshCw size={11} className="animate-spin inline-block ml-2 text-muted-foreground" />
                         )}
                       </td>
                       {/* Actions */}
@@ -629,7 +629,7 @@ export default function UserManagement() {
                                 setRolePopoverAnchor(rect);
                                 setRolePopoverUserId(rolePopoverUserId === u.userId ? null : u.userId);
                               }}
-                              className="p-2 rounded-xl text-slate-400 hover:text-indigo-400 hover:bg-indigo-500/10 transition-all active:scale-90"
+                              className="p-2 rounded-xl text-muted-foreground hover:text-indigo-400 hover:bg-indigo-500/10 transition-all active:scale-90"
                               title={t('userManagement.changeRole')}
                             >
                               <Shield size={14} />
@@ -642,8 +642,8 @@ export default function UserManagement() {
                           <button
                             onClick={() => handleToggleActive(u)}
                             className={`p-2 rounded-xl transition-all active:scale-90 ${u.isActive
-                              ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10'
-                              : 'text-slate-400 hover:text-emerald-400 hover:bg-emerald-500/10'
+                              ? 'text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10'
+                              : 'text-muted-foreground hover:text-emerald-400 hover:bg-emerald-500/10'
                               }`}
                             title={u.isActive ? t('userManagement.deactivate') : t('userManagement.activate')}
                           >
@@ -661,15 +661,15 @@ export default function UserManagement() {
 
         {/* ─── Pagination ─── */}
         {totalPages > 1 && (
-          <div className="px-5 py-3 border-t border-primary/5 flex items-center justify-between text-[13px]">
-            <span className="text-slate-500 font-mono tabular-nums">
+          <div className="px-5 py-3 border-t border-border flex items-center justify-between text-[13px]">
+            <span className="text-muted-foreground font-mono tabular-nums">
               {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}
             </span>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-2 rounded-xl text-slate-500 hover:bg-primary/5 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                className="p-2 rounded-xl text-muted-foreground hover:bg-primary/5 hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 <ChevronLeft size={15} />
               </button>
@@ -685,7 +685,7 @@ export default function UserManagement() {
                     className={`w-8 h-8 rounded-xl text-[13px] font-semibold transition-all active:scale-90
                       ${isActive
                         ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/20'
-                        : 'text-slate-500 hover:bg-primary/5 hover:text-white'}`}
+                        : 'text-muted-foreground hover:bg-primary/5 hover:text-foreground'}`}
                   >
                     {pn}
                   </button>
@@ -694,7 +694,7 @@ export default function UserManagement() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-2 rounded-xl text-slate-500 hover:bg-primary/5 hover:text-white transition-all disabled:opacity-20 disabled:cursor-not-allowed"
+                className="p-2 rounded-xl text-muted-foreground hover:bg-primary/5 hover:text-foreground transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               >
                 <ChevronRight size={15} />
               </button>

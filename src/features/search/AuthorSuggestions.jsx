@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { authorAPI } from './author.api';
@@ -49,7 +49,7 @@ function Skeleton() {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/5 w-44 h-16"
+          className="px-4 py-3 rounded-xl bg-primary/5 border border-border w-44 h-16"
         />
       ))}
     </div>
@@ -100,13 +100,13 @@ export default function AuthorSuggestions({ onAuthorClick }) {
       {/* Header */}
       <div className="flex items-center gap-2.5">
         <Sparkles size={14} className="text-primary/50" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Suggested Authors
         </span>
       </div>
 
       {/* Subtitle */}
-      <p className="text-[12px] text-gray-500 leading-relaxed">
+      <p className="text-[12px] text-muted-foreground leading-relaxed">
         Click a name below to instantly explore an author's academic profile, publication timeline,
         research focus, and collaboration network.
       </p>
@@ -143,8 +143,8 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onAuthorClick?.(author.fullName)}
                 className="group relative px-4 py-3 rounded-xl text-left transition-all
-                           bg-card border border-primary/5
-                           hover:border-primary/15 hover:bg-[#1A1F2E]"
+                           bg-card border border-border
+                           hover:border-primary/15 hover:bg-card"
               >
                 {/* Field color dot + name */}
                 <div className="flex items-center gap-2.5">
@@ -157,7 +157,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                       {author.fullName}
                     </div>
                     {author.topField && (
-                      <div className="text-[10px] text-gray-500 mt-0.5 leading-tight">
+                      <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
                         {author.topField}
                       </div>
                     )}
@@ -165,7 +165,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                 </div>
 
                 {/* Stats row */}
-                <div className="flex items-center gap-3 mt-2 text-[10px] text-gray-600">
+                <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
                   {author.hIndex != null && (
                     <span title="h-index">h-index {author.hIndex}</span>
                   )}
@@ -184,11 +184,11 @@ export default function AuthorSuggestions({ onAuthorClick }) {
 
       {/* Empty state (API returned no authors) */}
       {!loading && !error && authors.length === 0 && (
-        <p className="text-xs text-gray-500">No suggested authors available right now.</p>
+        <p className="text-xs text-muted-foreground">No suggested authors available right now.</p>
       )}
 
       {/* Footer hint */}
-      <div className="flex items-center gap-2 text-[11px] text-gray-500">
+      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
         <Users size={12} className="text-primary/30" />
         <span>Data sourced from OpenAlex — click any author to view their full academic profile.</span>
       </div>

@@ -126,17 +126,17 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
   aria-label={t('topbar.profileSettings') || 'Select language'}
   className={`
    group flex items-center gap-2 rounded-lg transition-all duration-200
-   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DEDBC8] focus-visible:ring-offset-1 focus-visible:ring-offset-[#0B1020]
+   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-background
    ${variant === 'sidebar'
-   ? 'w-full px-3 py-2 text-xs font-medium text-gray-600 text-gray-400 hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
-   : 'px-3 py-2 text-xs font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white border border-primary/10 rounded-lg hover:bg-white/[0.04] hover:bg-white/5'
+   ? 'w-full px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-muted/40 hover:text-gray-900 dark:hover:text-foreground'
+   : 'px-3 py-2 text-xs font-medium text-muted-foreground hover:text-gray-900 dark:hover:text-foreground border border-primary/10 rounded-lg hover:bg-muted/40'
    }
-   ${open ? 'bg-gray-100 dark:bg-white/10 text-foreground' : ''}
+   ${open ? 'bg-gray-100 dark:bg-muted/10 text-foreground' : ''}
    ${isLoading ? 'opacity-60 cursor-wait' : ''}
   `}
   >
   {isLoading ? (
-   <span className="w-4 h-4 rounded-full border-2 border-[#DEDBC8] border-t-transparent animate-spin" />
+   <span className="w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
   ) : (
    <Globe size={14} className="shrink-0" />
   )}
@@ -182,8 +182,8 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
       ${isSelected
       ? 'bg-primary/10 text-blue-600 dark:text-primary font-semibold'
       : isFocused
-       ? 'bg-white/[0.04] text-foreground'
-       : 'text-gray-700 text-gray-400'
+       ? 'bg-muted/25 text-foreground'
+       : 'text-foreground/80'
       }
       ${isFocused ? 'outline-none ring-1 ring-inset ring-primary/30' : ''}
      `}

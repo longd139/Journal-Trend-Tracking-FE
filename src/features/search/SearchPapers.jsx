@@ -43,6 +43,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [historyIndex, setHistoryIndex] = useState(-1); // keyboard nav in history dropdown
   const [draftFilters, setDraftFilters] = useState({
     fields: [],
     pubYearFrom: '',
@@ -162,12 +163,8 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
     })();
   }, [isAcademic]);
 
-  // Use user-specific key for search history (per account, not per role)
-  const userId = user?.id || user?.email || currentRole;
-  const historyKey = useMemo(
-    () => `scitrack_search_history_${userId}`,
-    [userId],
-  );
+  // Use role-based key for search history — always available, never changes.
+  const historyKey = `scitrack_search_history_${currentRole}`;
 
   // Map UI sort value → API sortBy + sortDirection
   const SORT_MAP = {
@@ -192,12 +189,12 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Reset search state when leaving this page (KeepAlive keeps it mounted)
+  // Keep search results when navigating away — KeepAlive preserves state.
+  // Only clear the input text and dropdown UI when leaving the page.
   const isSearchRoute = location.pathname.endsWith('/search');
   useEffect(() => {
     if (!isSearchRoute) {
       setQuery('');
-      setSearchedKeyword('');
       setApiSuggestions([]);
       setShowSuggestions(false);
       setShowHistory(false);
@@ -350,9 +347,39 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
               }
               value={query}
               disabled={quotaExhausted}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); setHistoryIndex(-1); }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && query.trim()) handleSearch(query);
+                if (e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  // Close suggestions if open, open history dropdown
+                  setShowSuggestions(false);
+                  if (!showHistory) {
+                    setShowHistory(true);
+                    setHistoryIndex(0);
+                  } else {
+                    setHistoryIndex((prev) => Math.min(prev + 1, searchHistory.length - 1));
+                  }
+                } else if (e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  if (showHistory) {
+                    setHistoryIndex((prev) => Math.max(prev - 1, -1));
+                  }
+                } else if (e.key === 'Enter') {
+                  if (showHistory && historyIndex >= 0 && historyIndex < searchHistory.length) {
+                    e.preventDefault();
+                    handleSearch(searchHistory[historyIndex]);
+                    setShowHistory(false);
+                    setHistoryIndex(-1);
+                  } else if (query.trim()) {
+                    handleSearch(query);
+                    setShowHistory(false);
+                    setHistoryIndex(-1);
+                  }
+                } else if (e.key === 'Escape') {
+                  setShowHistory(false);
+                  setShowSuggestions(false);
+                  setHistoryIndex(-1);
+                }
               }}
               onFocus={() => {
                 if (
@@ -362,10 +389,10 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   setShowSuggestions(true);
               }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
                 quotaExhausted
                   ? 'border-red-500/20 opacity-50 cursor-not-allowed'
-                  : 'border-primary/10'
+                  : 'border-input'
               }`}
             />
             {query && (
@@ -406,7 +433,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-border shadow-xl overflow-hidden"
               >
                 {allSuggestions.slice(0, 10).map((kw) => {
                   const isFromApi = apiSuggestions.some(
@@ -420,7 +447,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                         e.preventDefault();
                         handleSearch(kw);
                       }}
-                      className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-white/5 transition-colors text-slate-300"
+                      className="w-full flex items-center gap-3 px-5 py-3 text-xs text-left hover:bg-muted/40 transition-colors text-muted-foreground"
                     >
                       {isFromApi ? (
                         <Search
@@ -428,7 +455,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                           className="text-primary/40 shrink-0"
                         />
                       ) : (
-                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <Clock size={12} className="text-muted-foreground shrink-0" />
                       )}
                       <span className="flex-1 truncate">{kw}</span>
                       {!isFromApi && (
@@ -439,7 +466,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                             e.stopPropagation();
                             removeSearchHistoryItem(kw);
                           }}
-                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0"
+                          className="p-0.5 rounded hover:bg-muted/40 text-muted-foreground hover:text-red-400 shrink-0"
                         >
                           <X size={11} />
                         </button>
@@ -448,14 +475,14 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   );
                 })}
                 {historyExtras.length > 0 && (
-                  <div className="border-t border-primary/5">
+                  <div className="border-t border-border">
                     <button
                       type="button"
                       onMouseDown={(e) => {
                         e.preventDefault();
                         clearSearchHistory();
                       }}
-                      className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-gray-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+                      className="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-medium text-muted-foreground hover:text-red-400 hover:bg-muted/40 transition-colors"
                     >
                       <Trash2 size={11} /> Clear search history
                     </button>
@@ -472,17 +499,17 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-border shadow-xl overflow-hidden"
               >
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
-                    <Clock size={24} className="mx-auto text-gray-600 mb-2" />
-                    <p className="text-xs text-gray-500">No recent searches</p>
+                    <Clock size={24} className="mx-auto text-muted-foreground/50 mb-2" />
+                    <p className="text-xs text-muted-foreground">No recent searches</p>
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2.5 border-b border-primary/5 flex items-center justify-between">
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
+                    <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground flex items-center gap-1.5">
                         <History size={11} />
                         Recent Searches
                       </span>
@@ -493,12 +520,12 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                           clearSearchHistory();
                           setShowHistory(false);
                         }}
-                        className="text-[10px] font-medium text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                        className="text-[10px] font-medium text-muted-foreground hover:text-red-400 transition-colors flex items-center gap-1"
                       >
                         <Trash2 size={10} /> Clear all
                       </button>
                     </div>
-                    {searchHistory.map((kw) => (
+                    {searchHistory.map((kw, idx) => (
                       <button
                         key={kw}
                         type="button"
@@ -507,9 +534,13 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                           handleSearch(kw);
                           setShowHistory(false);
                         }}
-                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors text-slate-300 group"
+                        className={`w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left transition-colors text-muted-foreground group ${
+                          idx === historyIndex
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-muted/40'
+                        }`}
                       >
-                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <Clock size={12} className="text-muted-foreground shrink-0" />
                         <span className="flex-1 truncate">{kw}</span>
                         <button
                           type="button"
@@ -518,7 +549,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                             e.stopPropagation();
                             removeSearchHistoryItem(kw);
                           }}
-                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="p-0.5 rounded hover:bg-muted/40 text-muted-foreground hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X size={11} />
                         </button>
@@ -536,7 +567,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-primary/10 bg-card p-4"
+            className="rounded-xl border border-border bg-card p-4"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -561,7 +592,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   {searchesLeft} / {searchLimit}
                 </span>
                 {resetDate && (
-                  <span className="text-[10px] text-gray-500">
+                  <span className="text-[10px] text-muted-foreground">
                     · Resets{' '}
                     {new Date(resetDate).toLocaleDateString('en-US', {
                       month: 'short',
@@ -571,7 +602,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 )}
               </div>
             </div>
-            <div className="h-1.5 rounded-full bg-primary/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{
@@ -582,7 +613,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
               />
             </div>
             {quotaExhausted && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/5">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
                   <span>
@@ -611,11 +642,11 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
             <div className="flex items-center gap-2">
               {/* Sort Dropdown — moved first */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-primary/10 bg-card text-gray-500 hover:text-foreground hover:border-primary/20 focus:ring-0">
+                <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-input bg-card text-muted-foreground hover:text-foreground hover:border-primary/20 focus:ring-0">
                   <ArrowUpDown size={12} className="text-primary/40" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-card border-primary/10 text-foreground rounded-xl">
+                <SelectContent className="bg-card border-border text-foreground rounded-xl">
                   <SelectItem
                     value="relevance"
                     className="text-[11px] cursor-pointer"
@@ -667,7 +698,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                   showFilters
                     ? 'bg-primary/10 text-primary border-primary/30'
-                    : 'text-gray-500 border-primary/10 hover:text-foreground hover:border-primary/20'
+                    : 'text-muted-foreground border-input hover:text-foreground hover:border-primary/20'
                 }`}
               >
                 <SlidersHorizontal size={13} />

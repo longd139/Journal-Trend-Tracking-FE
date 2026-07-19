@@ -49,11 +49,11 @@ function LeftPanelCard({ mode, selectedRole, t }) {
   if (mode === 'select-role') {
     return (
       <div>
-        <div className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm">
-          <div className="text-sm font-bold text-white mb-1 font-display">
+        <div className="rounded-2xl border border-primary/35 bg-muted/25 p-6 backdrop-blur-sm">
+          <div className="text-sm font-bold text-foreground mb-1 font-display">
             {t('roleSelect.heading')}
           </div>
-          <div className="text-xs text-gray-300">
+          <div className="text-xs text-foreground/80">
             {t('roleSelect.subtitle')}
           </div>
         </div>
@@ -72,12 +72,12 @@ function LeftPanelCard({ mode, selectedRole, t }) {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -30, opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm"
+              className="rounded-2xl border border-primary/35 bg-muted/25 p-6 backdrop-blur-sm"
             >
-              <div className="text-3xl font-black text-white font-outfit drop-shadow-md">
+              <div className="text-3xl font-black text-foreground font-outfit drop-shadow-md">
                 {stats[currentStat].value}
               </div>
-              <div className="text-xs mt-1 text-gray-300 font-medium">
+              <div className="text-xs mt-1 text-foreground/80 font-medium">
                 {stats[currentStat].label}
               </div>
             </motion.div>
@@ -102,14 +102,14 @@ function LeftPanelCard({ mode, selectedRole, t }) {
 
   if (mode === 'register') {
     return (
-      <div className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm">
-        <div className="text-sm font-bold text-white mb-1 font-display">
+      <div className="rounded-2xl border border-primary/35 bg-muted/25 p-6 backdrop-blur-sm">
+        <div className="text-sm font-bold text-foreground mb-1 font-display">
           {t('register.createFor')}{' '}
           <span className="text-primary uppercase tracking-wider">
             {selectedRole}
           </span>
         </div>
-        <div className="text-xs text-gray-300">
+        <div className="text-xs text-foreground/80">
           {selectedRole === 'researcher'
             ? t('register.roleDescResearcher')
             : t('register.roleDescAcademic')}
@@ -139,19 +139,20 @@ export default function AuthLayout() {
   const selectedRole = location.state?.role || null;
 
   return (
-    <div className="min-h-screen flex relative overflow-hidden bg-black">
+    <div className="min-h-screen flex relative overflow-hidden bg-background">
       {/* ─── Background image ─────────────────────────────────────────── */}
       <img
         className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none"
         src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1400&h=900&fit=crop"
         alt=""
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
+      {/* Overlays: subtle in light mode to keep image visible, darker in dark mode */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/60 dark:from-background/60 dark:via-transparent dark:to-background/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-background/10 to-transparent dark:from-background/40 dark:via-background/10 dark:to-transparent pointer-events-none" />
 
-      {/* ─── Left panel dark overlay — form side deeper black ──────────── */}
-      <div className="absolute left-0 top-0 bottom-0 w-[55%] lg:w-[55%] bg-black/50 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+      {/* ─── Left panel overlay — form side slightly shaded ──────────── */}
+      <div className="absolute left-0 top-0 bottom-0 w-[55%] lg:w-[55%] bg-background/40 dark:bg-background/60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-transparent dark:from-background/80 dark:via-background/30 dark:to-transparent pointer-events-none" />
 
       {/* ─── Noise overlay ────────────────────────────────────────────── */}
       <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
@@ -172,7 +173,7 @@ export default function AuthLayout() {
               height: p.size,
               left: `${p.left}%`,
               top: `${p.top}%`,
-              background: '#DEDBC8',
+              background: 'var(--primary)',
               opacity: 0.08,
             }}
             animate={{ y: [0, -24, 0], opacity: [0.04, 0.12, 0.04] }}
@@ -184,7 +185,7 @@ export default function AuthLayout() {
       {/* ─── Theme Toggle ─────────────────────────────────────────────── */}
       <button
         onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/20 border border-primary/20"
+        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-primary/10 text-muted-foreground hover:text-foreground hover:bg-primary/20 border border-primary/35"
         title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       >
         {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -219,18 +220,18 @@ export default function AuthLayout() {
          RIGHT — Branding (SCITRACK + stats)
          ═════════════════════════════════════════════════════════════════ */}
       <div className="hidden lg:flex w-[45%] relative flex-col justify-center p-10 xl:p-14 overflow-hidden">
-        {/* Light gradient — keep right side brighter */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-transparent" />
+        {/* Gradient — subtle vignette */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background/30 dark:from-background/10 dark:via-transparent dark:to-background/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/20 via-transparent to-transparent dark:from-background/20" />
 
         <div className="relative z-10 text-center">
           <div className="flex items-center justify-center mb-8">
             <ScitrackSLogo className="text-primary -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
-            <span className="text-4xl xl:text-5xl font-black text-white font-outfit tracking-[0.05em] drop-shadow-lg">
+            <span className="text-4xl xl:text-5xl font-black text-foreground font-outfit tracking-[0.05em] drop-shadow-lg">
               CITRACK
             </span>
           </div>
-          <p className="text-sm text-gray-300 mb-10 leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-foreground/80 mb-10 leading-relaxed max-w-sm mx-auto">
             {t('login.platformDesc')}
           </p>
 
@@ -241,7 +242,7 @@ export default function AuthLayout() {
       {/* Back to landing */}
       <button
         onClick={() => navigate('/')}
-        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-primary transition-colors flex items-center gap-1.5"
+        className="absolute bottom-6 left-6 z-20 text-xs text-foreground/60 hover:text-primary transition-colors flex items-center gap-1.5"
       >
         <ArrowLeft size={11} /> Back to home
       </button>

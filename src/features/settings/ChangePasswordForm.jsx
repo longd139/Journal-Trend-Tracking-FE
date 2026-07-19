@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, Eye, EyeOff, RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -99,7 +99,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
     `w-full pl-10 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-all duration-300 ${
       fieldErr
         ? 'border-red-500/30 bg-red-500/[0.04] text-red-300'
-        : 'border-primary/10 bg-[#0A0D14] text-foreground placeholder:text-gray-500 focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15'
+        : 'border-primary/10 bg-card-recessed text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15'
     }`;
 
   return (
@@ -121,7 +121,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                 <h4 className="text-sm font-bold text-foreground font-display">
                   {t('password.title')}
                 </h4>
-                <p className="text-[11px] text-gray-400">{t('password.description')}</p>
+                <p className="text-[11px] text-muted-foreground">{t('password.description')}</p>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <Lock
                       size={13}
                       className={`absolute left-3.5 top-1/2 -translate-y-1/2 z-10 ${
-                        errors.currentPassword ? 'text-red-400' : 'text-gray-500'
+                        errors.currentPassword ? 'text-red-400' : 'text-muted-foreground'
                       }`}
                     />
                     <input
@@ -160,7 +160,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('current')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                     >
                       {show.current ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -181,7 +181,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <Lock
                       size={13}
                       className={`absolute left-3.5 top-1/2 -translate-y-1/2 z-10 ${
-                        errors.newPassword ? 'text-red-400' : 'text-gray-500'
+                        errors.newPassword ? 'text-red-400' : 'text-muted-foreground'
                       }`}
                     />
                     <input
@@ -194,7 +194,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('new')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                     >
                       {show.new ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -215,7 +215,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <Lock
                       size={13}
                       className={`absolute left-3.5 top-1/2 -translate-y-1/2 z-10 ${
-                        errors.confirmPassword ? 'text-red-400' : 'text-gray-500'
+                        errors.confirmPassword ? 'text-red-400' : 'text-muted-foreground'
                       }`}
                     />
                     <input
@@ -228,7 +228,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <button
                       type="button"
                       onClick={() => toggleShow('confirm')}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                     >
                       {show.confirm ? <EyeOff size={14} /> : <Eye size={14} />}
                     </button>
@@ -283,7 +283,7 @@ export default function ChangePasswordForm({ visible, onClose }) {
                       setIsSuccess(false);
                       onClose();
                     }}
-                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all border border-transparent hover:border-primary/10"
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all border border-transparent hover:border-primary/10"
                   >
                     Cancel
                   </button>

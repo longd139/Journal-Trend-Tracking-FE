@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   User,
@@ -72,7 +72,7 @@ function FormField({ icon: Icon, label, name, value, onChange, type = 'text', pl
         {Icon && (
           <Icon
             size={14}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-gray-500 group-focus-within:text-primary transition-colors duration-300"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-muted-foreground group-focus-within:text-primary transition-colors duration-300"
           />
         )}
         {children || (
@@ -87,8 +87,8 @@ function FormField({ icon: Icon, label, name, value, onChange, type = 'text', pl
             disabled={disabled}
             className={`w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all duration-300
               ${readOnly || disabled
-                ? 'bg-card-recessed/50 border-primary/5 text-gray-500 cursor-not-allowed'
-                : 'bg-card-recessed border-primary/10 text-foreground placeholder:text-gray-500 focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15'
+                ? 'bg-card-recessed/50 border-border text-muted-foreground cursor-not-allowed'
+                : 'bg-card-recessed border-primary/10 text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15'
               }`}
             {...rest}
           />
@@ -100,7 +100,7 @@ function FormField({ icon: Icon, label, name, value, onChange, type = 'text', pl
         </p>
       )}
       {hint && !error && (
-        <p className="text-[10px] text-gray-500 ml-1">{hint}</p>
+        <p className="text-[10px] text-muted-foreground ml-1">{hint}</p>
       )}
     </div>
   );
@@ -128,7 +128,7 @@ function SectionCard({ icon: Icon, title, description, children, delay = 0 }) {
             {title}
           </h3>
           {description && (
-            <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">{description}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">{description}</p>
           )}
         </div>
       </div>
@@ -373,36 +373,54 @@ export default function SettingsPage() {
     }
   };
 
+  const [selectedColor, setSelectedColor] = useState('#1B2235');
+
   const handlePresetColor = async (color) => {
-    // Generate a solid-color PNG blob via canvas
-    const canvas = document.createElement('canvas');
-    canvas.width = 1440;
-    canvas.height = 320;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, 1440, 320);
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-    const file = new File([blob], `bg-${color.replace('#', '')}.png`, { type: 'image/png' });
-    const reader = new FileReader();
-    reader.onload = () => {
-      setBackgroundPreview(reader.result);
-      setBackgroundFile(file);
-      setBackgroundChanged(true);
-    };
-    reader.readAsDataURL(file);
+    setSelectedColor(color);
+    setBackgroundUploading(true);
+    try {
+      // Generate a solid-color PNG blob via canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = 1440;
+      canvas.height = 320;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = color;
+      ctx.fillRect(0, 0, 1440, 320);
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      const file = new File([blob], `bg-${color.replace('#', '')}.png`, { type: 'image/png' });
+
+      // Show preview immediately
+      const reader = new FileReader();
+      reader.onload = () => setBackgroundPreview(reader.result);
+      reader.readAsDataURL(file);
+
+      // Upload and apply background immediately
+      const result = await userAPI.uploadBackground(file);
+      setBackgroundPreview(result.url);
+      setFormData((prev) => ({ ...prev, backgroundUrl: result.url }));
+      setBackgroundFile(null);
+      setBackgroundChanged(false);
+      // Sync to Zustand so MainLayout picks it up immediately
+      useAuthStore.getState().setBackground(result.url);
+      toast.success('Background updated');
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to apply background');
+    } finally {
+      setBackgroundUploading(false);
+    }
   };
 
   const PRESET_COLORS = [
-    { color: '#0B1020', label: 'Deep Navy' },
-    { color: '#1a1a2e', label: 'Midnight' },
-    { color: '#0f2027', label: 'Dark Teal' },
-    { color: '#1a1124', label: 'Aubergine' },
-    { color: '#1B2235', label: 'Steel Blue' },
-    { color: '#0d1117', label: 'GitHub Dark' },
-    { color: '#1c1c1c', label: 'Charcoal' },
-    { color: '#2d1b2e', label: 'Plum' },
-    { color: '#0a1628', label: 'Ocean' },
-    { color: '#1a0a0a', label: 'Deep Red' },
+    { color: '#F7F6F1', label: 'Warm Ivory' },
+    { color: '#FFFFFF', label: 'Pure White' },
+    { color: '#E8E4D4', label: 'Cream' },
+    { color: '#D4E6F1', label: 'Sky Blue' },
+    { color: '#E8F0E3', label: 'Sage Green' },
+    { color: '#F5E6E0', label: 'Rose' },
+    { color: '#E0E8F0', label: 'Steel' },
+    { color: '#F0E8F0', label: 'Lavender' },
+    { color: '#1B2235', label: 'Deep Navy' },
+    { color: '#0B1020', label: 'Midnight' },
   ];
 
   const handleSaveBackground = async () => {
@@ -516,7 +534,7 @@ export default function SettingsPage() {
           <User size={13} className="text-primary" />
           <span className="text-xs font-bold text-primary">Profile</span>
         </div>
-        <span className="text-[11px] text-gray-500">Manage your personal information, preferences, and appearance</span>
+        <span className="text-[11px] text-muted-foreground">Manage your personal information, preferences, and appearance</span>
       </motion.div>
 
       {/* ═════════════════════════════════════════════════════════════════
@@ -572,7 +590,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={handleRemoveAvatar}
-              className="text-[10px] font-semibold text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+              className="text-[10px] font-semibold text-muted-foreground hover:text-red-400 transition-colors flex items-center gap-1"
             >
               <X size={12} />
               Remove
@@ -631,7 +649,7 @@ export default function SettingsPage() {
                 {loadingUnis && (
                   <RefreshCw
                     size={12}
-                    className="absolute right-3 top-[34px] z-10 animate-spin text-gray-500"
+                    className="absolute right-3 top-[34px] z-10 animate-spin text-muted-foreground"
                   />
                 )}
 
@@ -652,9 +670,9 @@ export default function SettingsPage() {
                             setEditForm((prev) => ({ ...prev, institution: uni.name }));
                             setShowUniSuggestions(false);
                           }}
-                          className="px-4 py-2.5 text-xs text-foreground hover:bg-primary/8 cursor-pointer border-b border-primary/5 last:border-b-0 transition-colors flex items-center gap-2.5"
+                          className="px-4 py-2.5 text-xs text-foreground hover:bg-primary/8 cursor-pointer border-b border-border last:border-b-0 transition-colors flex items-center gap-2.5"
                         >
-                          <Building size={12} className="text-gray-500" />
+                          <Building size={12} className="text-muted-foreground" />
                           {uni.name}
                         </li>
                       ))}
@@ -674,16 +692,16 @@ export default function SettingsPage() {
                 readOnly
               />
 
-              <div className="mt-4 pt-4 border-t border-primary/6 flex-1 flex flex-col justify-end">
+              <div className="mt-4 pt-4 border-t border-border flex-1 flex flex-col justify-end">
                 {!formData.isVerified ? (
                   <>
-                    <p className="text-[11px] text-gray-400 leading-relaxed mb-3">
+                    <p className="text-[11px] text-foreground/70 font-medium leading-relaxed mb-3">
                       {t('profile.verifyEmail')}
                     </p>
                     <button
                       type="button"
                       onClick={handleVerifyEmail}
-                      className="w-full py-2.5 rounded-xl text-xs font-bold text-amber-50 bg-amber-500/15 border border-amber-500/25 hover:bg-amber-500/25 hover:border-amber-500/40 transition-all flex items-center justify-center gap-2 group"
+                      className="w-full py-2.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-50 bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 group"
                     >
                       {t('profile.verifyNow')}
                       <ArrowRight
@@ -711,7 +729,7 @@ export default function SettingsPage() {
               onChange={handleChange}
               rows={3}
               placeholder={t('profile.bioPlaceholder')}
-              className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all duration-300 resize-none bg-card-recessed border-primary/10 text-foreground placeholder:text-gray-500 focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15"
+              className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all duration-300 resize-none bg-card-recessed border-primary/10 text-foreground placeholder:text-muted-foreground focus:border-primary/40 focus:bg-card focus:shadow-primary/5 focus:ring-1 focus:ring-primary/15"
             />
           </FormField>
 
@@ -772,7 +790,7 @@ export default function SettingsPage() {
                     setAvatarPreview(formData.avatarUrl || null);
                     setAvatarChanged(false);
                   }}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all border border-transparent hover:border-primary/10"
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all border border-transparent hover:border-primary/10"
                 >
                   Discard
                 </motion.button>
@@ -787,8 +805,8 @@ export default function SettingsPage() {
               whileTap={isDirty && !loading ? { scale: 0.97 } : {}}
               className={`relative px-6 py-2.5 rounded-xl text-sm font-bold flex items-center gap-2 transition-all duration-300 overflow-hidden
                 ${isDirty && !loading
-                  ? 'bg-primary text-black shadow-primary/20 hover:shadow-primary/30 hover:bg-[#E8E4D4]'
-                  : 'bg-primary/10 text-gray-500 cursor-not-allowed border border-primary/10'
+                  ? 'bg-primary text-primary-foreground shadow-primary/20 hover:shadow-primary/30 hover:bg-[#E8E4D4]'
+                  : 'bg-primary/10 text-muted-foreground cursor-not-allowed border border-primary/10'
                 }`}
             >
               {loading ? (
@@ -843,7 +861,7 @@ export default function SettingsPage() {
             />
           ) : (
             <div className="w-full h-40 bg-gradient-to-br from-card via-card-recessed to-card flex items-center justify-center">
-              <span className="text-xs text-gray-600">No background set</span>
+              <span className="text-xs text-muted-foreground">No background set</span>
             </div>
           )}
           {/* Click overlay */}
@@ -874,7 +892,7 @@ export default function SettingsPage() {
               type="button"
               onClick={handleRemoveBackground}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
-                text-gray-500 hover:text-red-400 transition-colors"
+                text-muted-foreground hover:text-red-400 transition-colors"
             >
               <X size={13} /> Remove
             </button>
@@ -883,7 +901,7 @@ export default function SettingsPage() {
             type="button"
             onClick={handleResetBackground}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
-              text-gray-400 hover:text-foreground hover:bg-primary/8 transition-all"
+              text-muted-foreground hover:text-foreground hover:bg-primary/8 transition-all"
             title="Reset to default video background"
           >
             <RotateCcw size={13} /> Reset to default
@@ -894,7 +912,7 @@ export default function SettingsPage() {
               onClick={handleSaveBackground}
               disabled={backgroundUploading}
               className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold
-                bg-[#4F8CFF] text-white hover:bg-[#3B6FDB] disabled:opacity-50 transition-all"
+                bg-accent-blue text-white hover:bg-accent-blue/80 disabled:opacity-50 transition-all"
             >
               {backgroundUploading ? (
                 <RefreshCw size={13} className="animate-spin" />
@@ -905,21 +923,74 @@ export default function SettingsPage() {
             </button>
           )}
         </div>
-        <p className="text-[10px] text-gray-500 mt-3">
+        <p className="text-[10px] text-muted-foreground mt-3">
           Recommended size: 1440×320px. JPG, PNG or WebP. Max 5MB.
         </p>
 
-        {/* Preset colors */}
-        <div className="mt-4 pt-4 border-t border-primary/6">
-          <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider mb-2.5">Or pick a solid color</p>
+        {/* Custom color picker + slider */}
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Or pick a solid color</p>
+
+          {/* Color preview + hex input + picker */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative w-12 h-12 rounded-xl border-2 border-border shadow-sm shrink-0 overflow-hidden" style={{ background: selectedColor }}>
+              {backgroundUploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <RefreshCw size={16} className="animate-spin text-white" />
+                </div>
+              )}
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  value={selectedColor}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                      setSelectedColor(val);
+                      if (val.length === 7) handlePresetColor(val);
+                    }
+                  }}
+                  placeholder="#1B2235"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-lg text-sm font-mono bg-card border border-input text-foreground placeholder:text-muted-foreground/50 focus:border-primary/30 focus:ring-1 focus:ring-primary/10 outline-none transition-all"
+                />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">#</span>
+              </div>
+              <label className="w-10 h-10 rounded-lg border-2 border-input hover:border-primary/30 cursor-pointer transition-all flex items-center justify-center overflow-hidden shrink-0"
+                style={{ background: selectedColor }}
+                title="Open color picker"
+              >
+                <input
+                  type="color"
+                  value={selectedColor}
+                  onChange={(e) => {
+                    setSelectedColor(e.target.value);
+                    handlePresetColor(e.target.value);
+                  }}
+                  className="opacity-0 absolute w-0 h-0"
+                />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.9">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                </svg>
+              </label>
+            </div>
+          </div>
+
+          {/* Preset color chips */}
           <div className="flex flex-wrap gap-2">
             {PRESET_COLORS.map(({ color, label }) => (
               <button
                 key={color}
                 type="button"
-                onClick={() => handlePresetColor(color)}
+                onClick={() => {
+                  setSelectedColor(color);
+                  handlePresetColor(color);
+                }}
                 title={label}
-                className="w-8 h-8 rounded-lg border-2 border-primary/10 hover:border-primary/40 hover:scale-110 transition-all shadow-sm"
+                className={`w-9 h-9 rounded-lg border-2 transition-all hover:scale-110 shadow-sm ${
+                  selectedColor === color ? 'border-primary ring-2 ring-primary/20 scale-110' : 'border-border hover:border-primary/40'
+                }`}
                 style={{ background: color }}
               />
             ))}
@@ -950,7 +1021,7 @@ export default function SettingsPage() {
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               theme === 'light'
                 ? 'bg-[#3A5BA0] text-white shadow-lg shadow-[#3A5BA0]/25'
-                : 'bg-white/[0.06] text-gray-400 dark:bg-white/[0.06]'
+                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
             }`}>
               <Sun size={20} />
             </div>
@@ -958,7 +1029,7 @@ export default function SettingsPage() {
               <div className={`text-sm font-bold transition-colors ${
                 theme === 'light' ? 'text-[#3A5BA0]' : 'text-foreground'
               }`}>Light</div>
-              <div className="text-[10px] text-gray-500">Warm ivory tone</div>
+              <div className="text-[10px] text-muted-foreground">Warm ivory tone</div>
             </div>
           </button>
 
@@ -974,8 +1045,8 @@ export default function SettingsPage() {
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               theme === 'dark'
-                ? 'bg-primary text-black shadow-lg shadow-primary/25'
-                : 'bg-white/[0.06] text-gray-400 dark:bg-white/[0.06]'
+                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
+                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
             }`}>
               <Moon size={20} />
             </div>
@@ -983,7 +1054,7 @@ export default function SettingsPage() {
               <div className={`text-sm font-bold transition-colors ${
                 theme === 'dark' ? 'text-primary' : 'text-foreground'
               }`}>Dark</div>
-              <div className="text-[10px] text-gray-500">Deep observatory</div>
+              <div className="text-[10px] text-muted-foreground">Deep observatory</div>
             </div>
           </button>
 
@@ -993,22 +1064,22 @@ export default function SettingsPage() {
             onClick={() => setTheme('system')}
             className={`flex items-center gap-3 px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
               theme === 'system'
-                ? 'border-[#9CA3AF] bg-white/[0.04] shadow-[0_0_0_1px_rgba(156,163,175,0.3)]'
+                ? 'border-[#9CA3AF] bg-muted/25 shadow-[0_0_0_1px_rgba(156,163,175,0.3)]'
                 : 'border-primary/10 bg-transparent hover:border-primary/25 dark:border-primary/10 dark:hover:border-primary/25'
             }`}
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               theme === 'system'
-                ? 'bg-[#9CA3AF] text-white shadow-lg shadow-[#9CA3AF]/20'
-                : 'bg-white/[0.06] text-gray-400 dark:bg-white/[0.06]'
+                ? 'bg-muted-foreground text-white shadow-lg shadow-[#9CA3AF]/20'
+                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
             }`}>
               <Monitor size={20} />
             </div>
             <div className="text-left">
               <div className={`text-sm font-bold transition-colors ${
-                theme === 'system' ? 'text-[#9CA3AF]' : 'text-foreground'
+                theme === 'system' ? 'text-muted-foreground' : 'text-foreground'
               }`}>System</div>
-              <div className="text-[10px] text-gray-500">Follow OS setting</div>
+              <div className="text-[10px] text-muted-foreground">Follow OS setting</div>
             </div>
           </button>
         </div>
@@ -1032,7 +1103,7 @@ export default function SettingsPage() {
             <div className="max-w-[260px]">
               <LanguageSwitcher variant="inline" />
             </div>
-            <p className="text-[11px] text-gray-500 leading-relaxed">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
               {t('language.description')}
             </p>
           </div>
@@ -1043,14 +1114,14 @@ export default function SettingsPage() {
               {t('language.preview')}
             </label>
             <div className="space-y-2.5">
-              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-primary/5">
-                <span className="text-gray-400">{t('language.dateSample')}</span>
+              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-border">
+                <span className="text-muted-foreground">{t('language.dateSample')}</span>
                 <span className="font-bold text-foreground font-mono text-[11px]">
                   {langPreview.date}
                 </span>
               </div>
-              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-primary/5">
-                <span className="text-gray-400">{t('language.numberSample')}</span>
+              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-border">
+                <span className="text-muted-foreground">{t('language.numberSample')}</span>
                 <span className="font-bold text-foreground font-mono text-[11px]">
                   {langPreview.number}
                 </span>
@@ -1065,7 +1136,7 @@ export default function SettingsPage() {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={handleSaveLanguagePreference}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-black shadow-primary/15 hover:shadow-primary/25 transition-all flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-primary-foreground shadow-primary/15 hover:shadow-primary/25 transition-all flex items-center gap-2"
           >
             <Save size={13} /> {t('language.savePreference')}
           </motion.button>
@@ -1075,7 +1146,7 @@ export default function SettingsPage() {
               localStorage.setItem('preferredLanguage', 'en');
               toast.success(t('language.saved'), { duration: 2000 });
             }}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all border border-transparent hover:border-primary/10"
+            className="px-4 py-2.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all border border-transparent hover:border-primary/10"
           >
             {t('language.resetDefault')}
           </button>
@@ -1108,7 +1179,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h4 className="text-sm font-bold text-foreground">Change your password</h4>
-              <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                 Use a strong password that you haven't used before.
               </p>
             </div>
@@ -1139,7 +1210,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <h4 className="text-sm font-bold text-foreground">Sign out of your account</h4>
-              <p className="text-[11px] text-gray-400 mt-0.5 leading-relaxed">
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
                 You will be redirected to the login page.
               </p>
             </div>
@@ -1166,7 +1237,7 @@ export default function SettingsPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-center text-[10px] text-gray-600 pt-2"
+        className="text-center text-[10px] text-muted-foreground pt-2"
       >
         SCITRACK Settings · Changes are saved per session
       </motion.p>

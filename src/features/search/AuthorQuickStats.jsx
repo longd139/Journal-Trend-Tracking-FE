@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -26,7 +26,7 @@ function StatsSkeleton() {
   return (
     <div className="space-y-5">
       {/* Author identity skeleton */}
-      <div className="flex items-center gap-4 p-5 rounded-xl border border-primary/5 bg-card animate-pulse">
+      <div className="flex items-center gap-4 p-5 rounded-xl border border-border bg-card animate-pulse">
         <div className="w-14 h-14 rounded-full bg-primary/8" />
         <div className="space-y-2 flex-1">
           <div className="h-5 w-48 bg-primary/8 rounded" />
@@ -38,7 +38,7 @@ function StatsSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-border bg-card animate-pulse space-y-3"
           >
             <div className="flex items-center justify-between">
               <div className="h-3 w-16 bg-primary/8 rounded" />
@@ -133,7 +133,7 @@ export default function AuthorQuickStats({ keyword }) {
       {/* Section label */}
       <div className="flex items-center gap-2">
         <div className="w-1 h-4 rounded-full bg-primary/20" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Author Profile
         </span>
       </div>
@@ -157,13 +157,13 @@ export default function AuthorQuickStats({ keyword }) {
               </h3>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5">
                 {stats.academicTitle && (
-                  <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
+                  <span className="text-[12px] text-muted-foreground flex items-center gap-1.5">
                     <GraduationCap size={12} className="text-primary/50" />
                     {stats.academicTitle}
                   </span>
                 )}
                 {stats.currentAffiliation && (
-                  <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
+                  <span className="text-[12px] text-muted-foreground flex items-center gap-1.5">
                     <Building2 size={12} className="text-primary/50" />
                     {stats.currentAffiliation}
                   </span>
@@ -178,7 +178,7 @@ export default function AuthorQuickStats({ keyword }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium
-                               bg-[#A6CE39]/10 text-[#A6CE39] border border-[#A6CE39]/20
+                               bg-lime-500/10 text-lime-500 border border-lime-500/20
                                hover:bg-[#A6CE39]/15 hover:border-[#A6CE39]/30 transition-all"
                   >
                     <IdCard size={12} />
@@ -219,7 +219,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={(stats.totalPapers ?? 0).toLocaleString()}
           change=""
           Icon={FileText}
-          accent="#DEDBC8"
+          accent="var(--chart-1)"
         />
 
         {/* Total Citations */}
@@ -228,7 +228,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={(stats.totalCitations ?? 0).toLocaleString()}
           change=""
           Icon={Star}
-          accent="#C5BFA0"
+          accent="var(--chart-3)"
         />
 
         {/* h-Index */}
@@ -237,7 +237,7 @@ export default function AuthorQuickStats({ keyword }) {
           value={((stats.hIndex ?? stats.hindex) != null) ? (stats.hIndex ?? stats.hindex).toLocaleString() : '—'}
           change=""
           Icon={Hash}
-          accent="#A09878"
+          accent="var(--chart-4)"
         />
 
         {/* i10-Index */}
@@ -246,13 +246,13 @@ export default function AuthorQuickStats({ keyword }) {
           value={stats.i10Index != null ? stats.i10Index.toLocaleString() : '—'}
           change=""
           Icon={BarChart3}
-          accent="#8A8468"
+          accent="var(--chart-5)"
         />
       </div>
 
       {/* Two-year mean citedness */}
       {stats.twoYearMeanCitedness != null && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-primary/5 text-[11px] text-gray-400">
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-border text-[11px] text-muted-foreground">
           <TrendingUp size={12} className="text-primary/50" />
           <span>2-Year Mean Citedness:</span>
           <span className="font-semibold text-foreground">{stats.twoYearMeanCitedness.toFixed(1)}</span>
