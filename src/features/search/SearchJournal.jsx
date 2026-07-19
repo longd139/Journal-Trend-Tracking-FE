@@ -43,14 +43,14 @@ function JournalHeader({ journal }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
+      className="rounded-2xl border border-primary/5 bg-card-recessed p-6 space-y-4"
     >
       {/* Journal name */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <Library size={18} className="text-[#DEDBC8]/40" />
-            <h2 className="text-lg font-bold text-[#E1E0CC] font-display">
+            <Library size={18} className="text-primary/40" />
+            <h2 className="text-lg font-bold text-foreground font-display">
               {journal.journalName}
             </h2>
           </div>
@@ -112,10 +112,10 @@ function TimelineChart({ timeline }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
+      className="rounded-2xl border border-primary/5 bg-card-recessed p-6 space-y-4"
     >
       <div className="flex items-center gap-2">
-        <TrendingUp size={14} className="text-[#DEDBC8]/40" />
+        <TrendingUp size={14} className="text-primary/40" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Publication Timeline
         </span>
@@ -179,7 +179,7 @@ function TimelineChart({ timeline }) {
       {/* Legend */}
       <div className="flex items-center justify-center gap-6 text-[11px] text-gray-500">
         <span className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#DEDBC8]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-primary" />
           Papers
         </span>
         <span className="flex items-center gap-1.5">
@@ -203,10 +203,10 @@ function TopAuthors({ authors, isAcademic }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-6 space-y-4"
+      className="rounded-2xl border border-primary/5 bg-card-recessed p-6 space-y-4"
     >
       <div className="flex items-center gap-2">
-        <User size={14} className="text-[#DEDBC8]/40" />
+        <User size={14} className="text-primary/40" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Top Authors
         </span>
@@ -222,7 +222,7 @@ function TopAuthors({ authors, isAcademic }) {
               initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.05, duration: 0.3 }}
-              className={`relative flex items-center gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.03] border border-[#DEDBC8]/5 hover:bg-[#DEDBC8]/[0.06] transition-colors ${
+              className={`relative flex items-center gap-4 px-4 py-3 rounded-xl bg-primary/[0.03] border border-primary/5 hover:bg-primary/[0.06] transition-colors ${
                 isBlurred ? 'blur-[4px] select-none pointer-events-none' : ''
               }`}
             >
@@ -231,17 +231,17 @@ function TopAuthors({ authors, isAcademic }) {
 
               {/* Author name */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#E1E0CC] truncate">{author.authorName}</p>
+                <p className="text-sm font-medium text-foreground truncate">{author.authorName}</p>
               </div>
 
               {/* Stats */}
               <div className="flex items-center gap-4 shrink-0">
                 <div className="text-right">
-                  <p className="text-xs font-bold text-[#E1E0CC]">{author.paperCount}</p>
+                  <p className="text-xs font-bold text-foreground">{author.paperCount}</p>
                   <p className="text-[10px] text-gray-500">Papers</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold text-[#E1E0CC]">{author.totalCitations?.toLocaleString()}</p>
+                  <p className="text-xs font-bold text-foreground">{author.totalCitations?.toLocaleString()}</p>
                   <p className="text-[10px] text-gray-500">Citations</p>
                 </div>
                 <div className="text-right">
@@ -266,7 +266,7 @@ function TopKeywords({ keywords }) {
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <Hash size={12} className="text-[#DEDBC8]/30" />
+      <Hash size={12} className="text-primary/30" />
       {keywords.map((kw) => (
         <span
           key={kw}
@@ -287,24 +287,24 @@ function JournalSkeleton() {
   return (
     <div className="space-y-5 animate-pulse">
       {/* Header skeleton */}
-      <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-6 space-y-3">
-        <div className="h-5 w-64 bg-[#DEDBC8]/8 rounded" />
-        <div className="h-3 w-48 bg-[#DEDBC8]/5 rounded" />
+      <div className="rounded-2xl border border-primary/5 bg-card p-6 space-y-3">
+        <div className="h-5 w-64 bg-primary/8 rounded" />
+        <div className="h-3 w-48 bg-primary/5 rounded" />
       </div>
       {/* Stat cards skeleton */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] space-y-3">
-            <div className="h-3 w-14 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-6 w-20 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-3 w-10 bg-[#DEDBC8]/5 rounded" />
+          <div key={i} className="rounded-xl p-5 border border-primary/5 bg-card space-y-3">
+            <div className="h-3 w-14 bg-primary/8 rounded" />
+            <div className="h-6 w-20 bg-primary/8 rounded" />
+            <div className="h-3 w-10 bg-primary/5 rounded" />
           </div>
         ))}
       </div>
       {/* Timeline skeleton */}
-      <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-6">
-        <div className="h-3 w-32 bg-[#DEDBC8]/8 rounded mb-4" />
-        <div className="h-48 bg-[#DEDBC8]/3 rounded-lg" />
+      <div className="rounded-2xl border border-primary/5 bg-card p-6">
+        <div className="h-3 w-32 bg-primary/8 rounded mb-4" />
+        <div className="h-48 bg-primary/3 rounded-lg" />
       </div>
     </div>
   );
@@ -667,7 +667,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
         {/* ─── Journal Search Bar ─── */}
         <div className={embedded ? 'hidden' : 'relative'}>
           <div className="relative">
-            <BookOpen size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
+            <BookOpen size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 z-10" />
             <input
               ref={searchInputRef}
               type="text"
@@ -678,17 +678,17 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               onKeyDown={handleKeyDown}
               onFocus={() => { if (!quotaExhausted && query.trim().length >= 2) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#0F0F0F] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#0F0F0F] border text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
                 quotaExhausted
                   ? 'border-red-500/20 opacity-50 cursor-not-allowed'
-                  : 'border-[#DEDBC8]/10'
+                  : 'border-primary/10'
               }`}
             />
             {query && (
               <button
                 type="button"
                 onClick={() => { setQuery(''); setSearchedKeyword(''); setJournalStats(null); setTimeline(null); setTopAuthors([]); setError(null); }}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-primary/10 text-primary/60 hover:bg-primary/20 hover:text-primary transition-all"
               >
                 <X size={14} />
               </button>
@@ -702,8 +702,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               }}
               className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
                 showHistory
-                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
-                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-transparent text-primary/40 hover:bg-primary/10 hover:text-primary'
               }`}
               title="Search history"
             >
@@ -718,7 +718,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-[#DEDBC8]/10 shadow-xl shadow-black/40 overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-primary/10 shadow-xl shadow-black/40 overflow-hidden"
               >
                 {apiSuggestions.length > 0 ? (
                   apiSuggestions.map((s) => (
@@ -726,8 +726,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                       onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); handleSearch(s.name); }}
                       className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
                     >
-                      <BookOpen size={12} className="text-[#DEDBC8]/50 shrink-0" />
-                      <span className="text-[#E1E0CC] truncate">{s.name}</span>
+                      <BookOpen size={12} className="text-primary/50 shrink-0" />
+                      <span className="text-foreground truncate">{s.name}</span>
                       {s.issn && <span className="text-[10px] text-gray-500 ml-auto shrink-0">ISSN {s.issn}</span>}
                     </button>
                   ))
@@ -748,7 +748,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-[#DEDBC8]/10 shadow-xl shadow-black/40 overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#0F0F0F] border-primary/10 shadow-xl shadow-black/40 overflow-hidden"
               >
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
@@ -757,7 +757,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                    <div className="px-4 py-2.5 border-b border-primary/5 flex items-center justify-between">
                       <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
                         <History size={11} />
                         Recent Searches
@@ -812,15 +812,15 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-4"
+            className="rounded-xl border border-primary/10 bg-card p-4"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]/50'} />
-                <span className="text-xs font-semibold text-[#E1E0CC]">Search Quota</span>
+                <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary/50'} />
+                <span className="text-xs font-semibold text-foreground">Search Quota</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]'}`}>
+                <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary'}`}>
                   {searchesLeft} / {searchLimit}
                 </span>
                 {resetDate && (
@@ -830,23 +830,23 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 )}
               </div>
             </div>
-            <div className="h-1.5 rounded-full bg-[#DEDBC8]/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-primary/5 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.max(0, Math.min(100, ((searchLimit - searchesLeft) / searchLimit) * 100))}%` }}
                 transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-[#DEDBC8]/30'}`}
+                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-primary/30'}`}
               />
             </div>
             {quotaExhausted && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#DEDBC8]/5">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/5">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
                   <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors shrink-0 ml-3"
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
                 </button>
@@ -863,7 +863,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             className="space-y-3"
           >
             <div className="flex items-center gap-2">
-              <Search size={13} className="text-[#DEDBC8]/50" />
+              <Search size={13} className="text-primary/50" />
               <span className="text-xs text-gray-400">
                 {apiSuggestions.length > 0
                   ? `Found ${apiSuggestions.length} journal${apiSuggestions.length > 1 ? 's' : ''} matching "${query.trim()}"`
@@ -886,13 +886,13 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={() => { setShowSuggestionList(false); handleSearch(s.name); }}
-                    className="w-full text-left rounded-xl border border-[#DEDBC8]/8 bg-[#0F0F0F] hover:bg-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 p-4 transition-all group"
+                    className="w-full text-left rounded-xl border border-primary/8 bg-[#0F0F0F] hover:bg-primary/5 hover:border-primary/15 p-4 transition-all group"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <BookOpen size={13} className="text-[#DEDBC8]/50 shrink-0 group-hover:text-[#DEDBC8] transition-colors" />
-                          <span className="text-sm font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
+                          <BookOpen size={13} className="text-primary/50 shrink-0 group-hover:text-primary transition-colors" />
+                          <span className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                             {s.name}
                           </span>
                         </div>
@@ -903,7 +903,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                       </div>
                       <div className="flex items-center gap-3 shrink-0 text-right">
                         <div>
-                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{(s.totalWorks ?? 0).toLocaleString()}</p>
+                          <p className="text-xs font-bold text-foreground font-mono">{(s.totalWorks ?? 0).toLocaleString()}</p>
                           <p className="text-[10px] text-gray-500">papers</p>
                         </div>
                         <div>
@@ -931,7 +931,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               <div className="space-y-4">
                 <div className="flex gap-2 overflow-hidden">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-9 w-36 rounded-full bg-[#DEDBC8]/5 animate-pulse shrink-0" />
+                    <div key={i} className="h-9 w-36 rounded-full bg-primary/5 animate-pulse shrink-0" />
                   ))}
                 </div>
                 <JournalSkeleton />
@@ -948,10 +948,10 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
 
             {/* Categories loaded */}
             {!loadingCategories && categories.length > 0 && (
-              <div className="rounded-2xl border border-[#DEDBC8]/5 bg-[#0F0F0F] p-5 space-y-5">
+              <div className="rounded-2xl border border-primary/5 bg-[#0F0F0F] p-5 space-y-5">
                 {/* ── Section Header ── */}
                 <div>
-                  <h3 className="text-base font-semibold text-[#E1E0CC]">Browse by Research Field</h3>
+                  <h3 className="text-base font-semibold text-foreground">Browse by Research Field</h3>
                   <p className="text-[11px] text-gray-400 mt-0.5">Explore top journals across {categories.length} academic disciplines</p>
                 </div>
 
@@ -979,8 +979,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                         disabled={loadingField}
                         className={`relative shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all border whitespace-nowrap ${
                           active
-                            ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/25 shadow-[inset_0_1px_0_0_rgba(222,219,200,0.06)]'
-                            : 'text-gray-400 border-[#DEDBC8]/8 hover:bg-[#DEDBC8]/5 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/15'
+                            ? 'bg-primary/10 text-primary border-primary/25 shadow-[inset_0_1px_0_0_rgba(222,219,200,0.06)]'
+                            : 'text-gray-400 border-primary/8 hover:bg-primary/5 hover:text-foreground hover:border-primary/15'
                         }`}
                       >
                         {/* Rank badge — top 5 only, positioned on top border */}
@@ -1005,7 +1005,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25 }}
-                    className="text-[11px] text-gray-400 leading-relaxed px-1 border-l-2 border-[#DEDBC8]/20 pl-3"
+                    className="text-[11px] text-gray-400 leading-relaxed px-1 border-l-2 border-primary/20 pl-3"
                   >
                     {fieldData.description}
                   </motion.p>
@@ -1036,12 +1036,12 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                             setQuery(journal.journalName);
                             handleSearch(journal.journalName);
                           }}
-                          className="rounded-2xl border border-[#DEDBC8]/5 bg-card-recessed p-5 space-y-3 hover:border-[#DEDBC8]/15 hover:bg-[#0F0F0F] transition-all duration-200 cursor-pointer group shadow-sm"
+                          className="rounded-2xl border border-primary/5 bg-card-recessed p-5 space-y-3 hover:border-primary/15 hover:bg-[#0F0F0F] transition-all duration-200 cursor-pointer group shadow-sm"
                         >
                           {/* Journal name + quartile */}
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-1 min-w-0">
-                              <h3 className="text-sm font-bold text-[#E1E0CC] font-display truncate group-hover:text-[#DEDBC8] transition-colors">
+                              <h3 className="text-sm font-bold text-foreground font-display truncate group-hover:text-primary transition-colors">
                                 {journal.journalName}
                               </h3>
                               {journal.publisher && (
@@ -1098,8 +1098,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                     animate={{ opacity: 1 }}
                     className="flex flex-col items-center justify-center py-12 text-center"
                   >
-                    <div className="p-3 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-3">
-                      <Newspaper size={24} className="text-[#DEDBC8]/20" />
+                    <div className="p-3 rounded-2xl bg-primary/5 border border-primary/10 mb-3">
+                      <Newspaper size={24} className="text-primary/20" />
                     </div>
                     <p className="text-xs text-gray-500">
                       No journals found in this category yet.
@@ -1116,8 +1116,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col items-center justify-center py-16 text-center"
               >
-                <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
-                  <Newspaper size={32} className="text-[#DEDBC8]/30" />
+                <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 mb-4">
+                  <Newspaper size={32} className="text-primary/30" />
                 </div>
                 <p className="text-sm text-gray-500 max-w-sm">
                   Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
@@ -1219,11 +1219,11 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               exit={{ scale: 0.96, opacity: 0, y: 24 }}
               transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
+              className="relative w-full max-w-sm rounded-2xl border border-primary/10 bg-card p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
             >
               <button
                 onClick={() => setUpgradeOpen(false)}
-                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-[#DEDBC8]/5 text-gray-500 hover:bg-[#DEDBC8]/10 hover:text-[#E1E0CC] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 text-gray-500 hover:bg-primary/10 hover:text-foreground transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
               >
                 <X size={14} />
               </button>
@@ -1232,9 +1232,9 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.1, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="mx-auto w-14 h-14 rounded-2xl bg-[#DEDBC8]/[0.06] border border-[#DEDBC8]/10 flex items-center justify-center"
+                  className="mx-auto w-14 h-14 rounded-2xl bg-primary/[0.06] border border-primary/10 flex items-center justify-center"
                 >
-                  <Lock size={22} className="text-[#DEDBC8]" />
+                  <Lock size={22} className="text-primary" />
                 </motion.div>
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
@@ -1242,7 +1242,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   transition={{ delay: 0.15, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
                   className="space-y-2"
                 >
-                  <h3 className="text-xl font-black text-[#E1E0CC] font-display tracking-[-0.02em]">Upgrade to Researcher</h3>
+                  <h3 className="text-xl font-black text-foreground font-display tracking-[-0.02em]">Upgrade to Researcher</h3>
                   <p className="text-[13px] text-gray-400 leading-relaxed max-w-[260px] mx-auto">
                     Unlock full paper details, AI summaries, citation exports, and unlimited searches.
                   </p>
@@ -1251,17 +1251,17 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="rounded-xl bg-[#0F0F0F] border border-[#DEDBC8]/5 p-4 space-y-0"
+                  className="rounded-xl bg-[#0F0F0F] border border-primary/5 p-4 space-y-0"
                 >
                   {['Full abstract & paper details', 'AI-powered paper summaries', 'Similar paper recommendations', 'Citation export (BibTeX, RIS, APA)', 'Unlimited searches & bookmarks'].map((f, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-[#DEDBC8]/5 last:border-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]/50 shrink-0" />
+                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-primary/5 last:border-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary/50 shrink-0" />
                       <span className="text-xs text-gray-300">{f}</span>
                     </motion.div>
                   ))}
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="text-center">
-                  <span className="text-3xl font-black text-[#E1E0CC] font-display tracking-[-0.03em]">$999</span>
+                  <span className="text-3xl font-black text-foreground font-display tracking-[-0.03em]">$999</span>
                   <span className="text-sm text-gray-500 ml-1">/year</span>
                 </motion.div>
                 <motion.button
@@ -1269,11 +1269,11 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
                   onClick={() => { setUpgradeOpen(false); navigate(`/${currentRole}/settings`); }}
-                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-[#0B1020] bg-[#DEDBC8] hover:bg-[#E1E0CC] shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-background bg-primary hover:bg-foreground shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
                   <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
                   <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#0B1020]"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-background"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
                   </span>
                 </motion.button>
                 <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} onClick={() => setUpgradeOpen(false)} className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">Maybe later</motion.button>

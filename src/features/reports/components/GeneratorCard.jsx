@@ -43,7 +43,7 @@ export default function GeneratorCard({
     <motion.div
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      className="p-5 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 flex flex-col"
+      className="p-5 rounded-xl border bg-card border-primary/10 flex flex-col"
     >
       {/* Icon */}
       <div
@@ -54,7 +54,7 @@ export default function GeneratorCard({
       </div>
 
       {/* Title + Description */}
-      <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{title}</h3>
+      <h3 className="text-sm font-bold text-foreground mb-1">{title}</h3>
       <p className="text-xs text-gray-400 mb-4 line-clamp-2">{description}</p>
 
       {/* Input + Button */}
@@ -66,12 +66,12 @@ export default function GeneratorCard({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={loading}
-          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-[#0A0A0A] border border-[#DEDBC8]/10 text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 transition-colors disabled:opacity-50"
+          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-[#0A0A0A] border border-primary/10 text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 transition-colors disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-[#DEDBC8] text-black hover:opacity-90"
+          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-primary text-black hover:opacity-90"
         >
           {loading ? (
             <>

@@ -26,11 +26,11 @@ function StatsSkeleton() {
   return (
     <div className="space-y-5">
       {/* Author identity skeleton */}
-      <div className="flex items-center gap-4 p-5 rounded-xl border border-[#DEDBC8]/5 bg-[#101010] animate-pulse">
-        <div className="w-14 h-14 rounded-full bg-[#DEDBC8]/8" />
+      <div className="flex items-center gap-4 p-5 rounded-xl border border-primary/5 bg-card animate-pulse">
+        <div className="w-14 h-14 rounded-full bg-primary/8" />
         <div className="space-y-2 flex-1">
-          <div className="h-5 w-48 bg-[#DEDBC8]/8 rounded" />
-          <div className="h-3 w-64 bg-[#DEDBC8]/5 rounded" />
+          <div className="h-5 w-48 bg-primary/8 rounded" />
+          <div className="h-3 w-64 bg-primary/5 rounded" />
         </div>
       </div>
       {/* Stat cards skeleton */}
@@ -38,14 +38,14 @@ function StatsSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010] animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
           >
             <div className="flex items-center justify-between">
-              <div className="h-3 w-16 bg-[#DEDBC8]/8 rounded" />
-              <div className="h-8 w-8 bg-[#DEDBC8]/5 rounded-lg" />
+              <div className="h-3 w-16 bg-primary/8 rounded" />
+              <div className="h-8 w-8 bg-primary/5 rounded-lg" />
             </div>
-            <div className="h-6 w-20 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-3 w-12 bg-[#DEDBC8]/5 rounded-full" />
+            <div className="h-6 w-20 bg-primary/8 rounded" />
+            <div className="h-3 w-12 bg-primary/5 rounded-full" />
           </div>
         ))}
       </div>
@@ -132,39 +132,39 @@ export default function AuthorQuickStats({ keyword }) {
     >
       {/* Section label */}
       <div className="flex items-center gap-2">
-        <div className="w-1 h-4 rounded-full bg-[#DEDBC8]/20" />
+        <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Author Profile
         </span>
       </div>
 
       {/* ─── Author Profile Card ─── */}
-      <div className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden">
+      <div className="rounded-2xl border border-primary/10 bg-card overflow-hidden">
         {/* Top accent line */}
-        <div className="h-0.5 bg-[#DEDBC8]/30" />
+        <div className="h-0.5 bg-primary/30" />
 
         <div className="p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             {/* Avatar */}
-            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-[#DEDBC8]/[0.08] border border-[#DEDBC8]/10 text-[#DEDBC8] shrink-0">
+            <div className="w-14 h-14 rounded-full flex items-center justify-center bg-primary/[0.08] border border-primary/10 text-primary shrink-0">
               <User size={24} />
             </div>
 
             {/* Identity */}
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg font-bold text-[#E1E0CC] truncate font-display">
+              <h3 className="text-lg font-bold text-foreground truncate font-display">
                 {stats.fullName || keyword}
               </h3>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-1.5">
                 {stats.academicTitle && (
                   <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
-                    <GraduationCap size={12} className="text-[#DEDBC8]/50" />
+                    <GraduationCap size={12} className="text-primary/50" />
                     {stats.academicTitle}
                   </span>
                 )}
                 {stats.currentAffiliation && (
                   <span className="text-[12px] text-gray-400 flex items-center gap-1.5">
-                    <Building2 size={12} className="text-[#DEDBC8]/50" />
+                    <Building2 size={12} className="text-primary/50" />
                     {stats.currentAffiliation}
                   </span>
                 )}
@@ -192,8 +192,8 @@ export default function AuthorQuickStats({ keyword }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-medium
-                               bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20
-                               hover:bg-[#DEDBC8]/15 hover:border-[#DEDBC8]/30 transition-all"
+                               bg-primary/10 text-primary border border-primary/20
+                               hover:bg-primary/15 hover:border-primary/30 transition-all"
                   >
                     <ExternalLink size={12} />
                     View on OpenAlex
@@ -252,10 +252,10 @@ export default function AuthorQuickStats({ keyword }) {
 
       {/* Two-year mean citedness */}
       {stats.twoYearMeanCitedness != null && (
-        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#DEDBC8]/3 border border-[#DEDBC8]/5 text-[11px] text-gray-400">
-          <TrendingUp size={12} className="text-[#DEDBC8]/50" />
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-primary/5 text-[11px] text-gray-400">
+          <TrendingUp size={12} className="text-primary/50" />
           <span>2-Year Mean Citedness:</span>
-          <span className="font-semibold text-[#E1E0CC]">{stats.twoYearMeanCitedness.toFixed(1)}</span>
+          <span className="font-semibold text-foreground">{stats.twoYearMeanCitedness.toFixed(1)}</span>
         </div>
       )}
     </motion.div>

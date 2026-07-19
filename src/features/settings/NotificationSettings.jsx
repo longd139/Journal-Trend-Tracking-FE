@@ -46,11 +46,11 @@ function ToggleRow({ icon: Icon, label, description, checked, onToggle, disabled
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <div className="flex items-center gap-3 min-w-0">
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${checked && !disabled ? 'bg-[#DEDBC8]/10' : 'bg-white/[0.03]'}`}>
-          <Icon size={14} className={checked && !disabled ? 'text-[#DEDBC8]' : 'text-gray-500'} />
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${checked && !disabled ? 'bg-primary/10' : 'bg-white/[0.03]'}`}>
+          <Icon size={14} className={checked && !disabled ? 'text-primary' : 'text-gray-500'} />
         </div>
         <div className="min-w-0">
-          <p className={`text-xs font-semibold truncate ${disabled ? 'text-gray-500' : 'text-[#E1E0CC]'}`}>
+          <p className={`text-xs font-semibold truncate ${disabled ? 'text-gray-500' : 'text-foreground'}`}>
             {label}
           </p>
           {description && (
@@ -115,9 +115,9 @@ export default function NotificationSettings() {
       className="space-y-6"
     >
       {/* Master toggle */}
-      <div className="flex items-center justify-between gap-4 pb-5 border-b border-[#DEDBC8]/6">
+      <div className="flex items-center justify-between gap-4 pb-5 border-b border-primary/6">
         <div>
-          <h4 className="text-sm font-bold text-[#E1E0CC]">{t('notifications.title')}</h4>
+          <h4 className="text-sm font-bold text-foreground">{t('notifications.title')}</h4>
           <p className="text-[11px] text-gray-400 mt-0.5">{t('notifications.description')}</p>
         </div>
         <Switch checked={prefs.enabled} onCheckedChange={toggleEnabled} className="shrink-0" />
@@ -125,7 +125,7 @@ export default function NotificationSettings() {
 
       {/* Channel toggles */}
       <div>
-        <p className="text-[10px] font-bold text-[#DEDBC8]/60 uppercase tracking-wider mb-2">
+        <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider mb-2">
           Delivery Channels
         </p>
         <div className="space-y-0.5">
@@ -144,8 +144,8 @@ export default function NotificationSettings() {
       </div>
 
       {/* Category toggles */}
-      <div className="pt-2 border-t border-[#DEDBC8]/6">
-        <p className="text-[10px] font-bold text-[#DEDBC8]/60 uppercase tracking-wider mb-2">
+      <div className="pt-2 border-t border-primary/6">
+        <p className="text-[10px] font-bold text-primary/60 uppercase tracking-wider mb-2">
           Alert Types
         </p>
         <div className="space-y-0.5">

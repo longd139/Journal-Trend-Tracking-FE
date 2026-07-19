@@ -25,15 +25,15 @@ function TimelineSkeleton() {
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010] animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
           >
-            <div className="h-3 w-16 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-6 w-20 bg-[#DEDBC8]/8 rounded" />
+            <div className="h-3 w-16 bg-primary/8 rounded" />
+            <div className="h-6 w-20 bg-primary/8 rounded" />
           </div>
         ))}
       </div>
-      <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010] animate-pulse">
-        <div className="h-64 bg-[#DEDBC8]/3 rounded-lg" />
+      <div className="rounded-xl p-5 border border-primary/5 bg-card animate-pulse">
+        <div className="h-64 bg-primary/3 rounded-lg" />
       </div>
     </div>
   );
@@ -46,8 +46,8 @@ function TimelineSkeleton() {
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload || !payload.length) return null;
   return (
-    <div className="rounded-lg border border-[#DEDBC8]/10 bg-[#101010]/95 backdrop-blur-sm p-3 shadow-xl">
-      <p className="text-xs font-semibold text-[#E1E0CC] mb-1.5">{label}</p>
+    <div className="rounded-lg border border-primary/10 bg-card/95 backdrop-blur-sm p-3 shadow-xl">
+      <p className="text-xs font-semibold text-foreground mb-1.5">{label}</p>
       {payload.map((entry, i) => (
         <div key={i} className="flex items-center gap-2 text-[11px]">
           <span
@@ -55,7 +55,7 @@ function CustomTooltip({ active, payload, label }) {
             style={{ background: entry.color }}
           />
           <span className="text-gray-400">{entry.name}:</span>
-          <span className="font-mono font-semibold text-[#E1E0CC]">
+          <span className="font-mono font-semibold text-foreground">
             {entry.value?.toLocaleString()}
           </span>
         </div>
@@ -136,14 +136,14 @@ export default function AuthorTimeline({ keyword }) {
     >
       {/* Section label */}
       <div className="flex items-center gap-2">
-        <div className="w-1 h-4 rounded-full bg-[#DEDBC8]/20" />
+        <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Publication Timeline
         </span>
       </div>
 
       {/* Chart */}
-      <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#101010]">
+      <div className="rounded-xl p-5 border border-primary/5 bg-card">
         <ResponsiveContainer width="100%" height={320}>
           <ComposedChart data={timeline} margin={{ top: 8, right: 8, left: -10, bottom: 4 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.06)" />

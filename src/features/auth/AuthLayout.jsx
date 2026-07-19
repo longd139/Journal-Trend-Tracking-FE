@@ -49,7 +49,7 @@ function LeftPanelCard({ mode, selectedRole, t }) {
   if (mode === 'select-role') {
     return (
       <div>
-        <div className="rounded-2xl border border-[#DEDBC8]/20 bg-white/[0.04] p-6 backdrop-blur-sm">
+        <div className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm">
           <div className="text-sm font-bold text-white mb-1 font-display">
             {t('roleSelect.heading')}
           </div>
@@ -72,7 +72,7 @@ function LeftPanelCard({ mode, selectedRole, t }) {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -30, opacity: 0 }}
               transition={{ duration: 0.5 }}
-              className="rounded-2xl border border-[#DEDBC8]/20 bg-white/[0.04] p-6 backdrop-blur-sm"
+              className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm"
             >
               <div className="text-3xl font-black text-white font-outfit drop-shadow-md">
                 {stats[currentStat].value}
@@ -90,8 +90,8 @@ function LeftPanelCard({ mode, selectedRole, t }) {
               onClick={() => setCurrentStat(i)}
               className={`rounded-full transition-all duration-300 ${
                 i === currentStat
-                  ? 'w-6 h-2 bg-[#DEDBC8]'
-                  : 'w-2 h-2 bg-[#DEDBC8]/20 hover:bg-[#DEDBC8]/40'
+                  ? 'w-6 h-2 bg-primary'
+                  : 'w-2 h-2 bg-primary/20 hover:bg-primary/40'
               }`}
             />
           ))}
@@ -102,10 +102,10 @@ function LeftPanelCard({ mode, selectedRole, t }) {
 
   if (mode === 'register') {
     return (
-      <div className="rounded-2xl border border-[#DEDBC8]/20 bg-white/[0.04] p-6 backdrop-blur-sm">
+      <div className="rounded-2xl border border-primary/20 bg-white/[0.04] p-6 backdrop-blur-sm">
         <div className="text-sm font-bold text-white mb-1 font-display">
           {t('register.createFor')}{' '}
-          <span className="text-[#DEDBC8] uppercase tracking-wider">
+          <span className="text-primary uppercase tracking-wider">
             {selectedRole}
           </span>
         </div>
@@ -158,7 +158,7 @@ export default function AuthLayout() {
 
       {/* ─── Single subtle cream ambient glow ──────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-40 -right-20 w-[600px] h-[600px] rounded-full blur-[140px] opacity-[0.04] bg-[#DEDBC8]" />
+        <div className="absolute -top-40 -right-20 w-[600px] h-[600px] rounded-full blur-[140px] opacity-[0.04] bg-primary" />
       </div>
 
       {/* ─── Floating cream particles ─────────────────────────────────── */}
@@ -184,7 +184,7 @@ export default function AuthLayout() {
       {/* ─── Theme Toggle ─────────────────────────────────────────────── */}
       <button
         onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-[#DEDBC8]/10 text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/20 border border-[#DEDBC8]/20"
+        className="absolute top-5 right-5 z-50 flex items-center justify-center w-10 h-10 rounded-xl transition-all hover:scale-105 bg-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/20 border border-primary/20"
         title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       >
         {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
@@ -197,8 +197,8 @@ export default function AuthLayout() {
         <div className="w-full max-w-[420px] relative z-10">
           {/* Mobile logo */}
           <div className="flex items-center gap-1 mb-8 lg:hidden">
-            <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-7 h-10" />
-            <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em] font-outfit">CITRACK</span>
+            <ScitrackSLogo className="text-primary -mr-1 w-7 h-10" />
+            <span className="text-lg font-black text-foreground tracking-[0.05em] font-outfit">CITRACK</span>
           </div>
 
           <AnimatePresence mode="wait">
@@ -225,7 +225,7 @@ export default function AuthLayout() {
 
         <div className="relative z-10 text-center">
           <div className="flex items-center justify-center mb-8">
-            <ScitrackSLogo className="text-[#DEDBC8] -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
+            <ScitrackSLogo className="text-primary -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
             <span className="text-4xl xl:text-5xl font-black text-white font-outfit tracking-[0.05em] drop-shadow-lg">
               CITRACK
             </span>
@@ -241,7 +241,7 @@ export default function AuthLayout() {
       {/* Back to landing */}
       <button
         onClick={() => navigate('/')}
-        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-[#DEDBC8] transition-colors flex items-center gap-1.5"
+        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-primary transition-colors flex items-center gap-1.5"
       >
         <ArrowLeft size={11} /> Back to home
       </button>

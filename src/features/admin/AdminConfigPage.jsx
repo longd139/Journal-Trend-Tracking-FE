@@ -239,18 +239,18 @@ export default function AdminConfigPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-[#DEDBC8]/10"
+        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
       >
         <div
-          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#DEDBC8]/60 to-transparent"
+          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent"
         />
 
         <div className="px-5 py-4 flex flex-wrap items-center justify-between gap-3 relative z-10">
           <div className="flex items-center gap-3">
             <div
-              className="p-2 rounded-xl bg-[#DEDBC8]/10"
+              className="p-2 rounded-xl bg-primary/10"
             >
-              <Sliders size={15} className="text-[#DEDBC8]" />
+              <Sliders size={15} className="text-primary" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-white font-display tracking-wide">
@@ -312,7 +312,7 @@ export default function AdminConfigPage() {
           onChange={setSearch}
           onSearch={setSearch}
           placeholder="Search configs..."
-          className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-white/[0.03] text-gray-300 placeholder:text-gray-600 border border-white/5 focus:border-[#DEDBC8]/30"
+          className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-white/[0.03] text-gray-300 placeholder:text-gray-600 border border-white/5 focus:border-primary/30"
           wrapperClassName="relative flex-1 max-w-xs w-full"
           icon={<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-gray-500" />}
           inputStyle={{ boxShadow: search ? '0 0 20px rgba(222,219,200,0.04)' : 'none' }}
@@ -377,7 +377,7 @@ export default function AdminConfigPage() {
                 className="flex items-center gap-4 rounded-xl px-4 py-3"
                 style={{ background: 'rgba(13,13,26,0.3)' }}
               >
-                <div className="h-3 w-32 bg-[#DEDBC8]/8 rounded" />
+                <div className="h-3 w-32 bg-primary/8 rounded" />
                 <div className="h-3 w-48 bg-white/5 rounded flex-1" />
                 <div className="h-7 w-28 bg-white/5 rounded-lg" />
               </div>
@@ -389,7 +389,7 @@ export default function AdminConfigPage() {
               className="p-4 rounded-2xl mb-4"
               style={{ background: 'rgba(222,219,200,0.05)', border: '1px solid rgba(222,219,200,0.1)' }}
             >
-              <Settings size={28} className="text-[#DEDBC8]/30" />
+              <Settings size={28} className="text-primary/30" />
             </div>
             <p className="text-sm text-gray-500">
               {search ? 'No configs match your search' : t('configs.noConfigsFound')}
@@ -447,10 +447,10 @@ export default function AdminConfigPage() {
 
                   {/* Dirty badge in header */}
                   {isExpanded && items.some((cfg) => editing[cfg.configKey] !== undefined) && (
-                    <span className="ml-auto flex items-center gap-1 text-[9px] text-[#DEDBC8] font-semibold">
+                    <span className="ml-auto flex items-center gap-1 text-[9px] text-primary font-semibold">
                       <span className="flex h-1.5 w-1.5">
-                        <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full opacity-75 bg-[#DEDBC8]" />
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#DEDBC8]" />
+                        <span className="animate-ping absolute inline-flex h-1.5 w-1.5 rounded-full opacity-75 bg-primary" />
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
                       </span>
                       edited
                     </span>

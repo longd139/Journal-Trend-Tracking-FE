@@ -75,7 +75,7 @@ function Step1IdeaInput({ ideaText, setIdeaText, onSubmit, loading, t }) {
       className="space-y-4"
     >
       <div>
-        <h3 className="text-lg font-bold text-[#E1E0CC]">
+        <h3 className="text-lg font-bold text-foreground">
           {t('idea:newAnalysis.step1.title')}
         </h3>
         <p className="text-sm text-gray-400 mt-1">
@@ -89,7 +89,7 @@ function Step1IdeaInput({ ideaText, setIdeaText, onSubmit, loading, t }) {
           onChange={(e) => setIdeaText(e.target.value.slice(0, MAX_CHARS))}
           placeholder={t('idea:newAnalysis.step1.placeholder')}
           rows={10}
-          className="w-full bg-[#1B2235]/80 border border-[#DEDBC8]/15 rounded-xl p-4 text-sm text-[#E1E0CC] placeholder-gray-500 resize-none focus:outline-none focus:border-[#4F8CFF]/50 focus:ring-1 focus:ring-[#4F8CFF]/30 transition-all"
+          className="w-full bg-[#1B2235]/80 border border-primary/15 rounded-xl p-4 text-sm text-foreground placeholder-gray-500 resize-none focus:outline-none focus:border-[#4F8CFF]/50 focus:ring-1 focus:ring-[#4F8CFF]/30 transition-all"
         />
         <div className="absolute bottom-3 right-3 text-[11px] text-gray-500">
           {t('idea:newAnalysis.step1.charCount', {
@@ -164,7 +164,7 @@ function Step2KeywordSelection({
       className="space-y-5"
     >
       <div>
-        <h3 className="text-lg font-bold text-[#E1E0CC]">
+        <h3 className="text-lg font-bold text-foreground">
           {t('idea:newAnalysis.step2.title')}
         </h3>
         <p className="text-sm text-gray-400 mt-1">
@@ -236,7 +236,7 @@ function Step2KeywordSelection({
       <div>
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {t('idea:newAnalysis.step2.yourKeywordsLabel')}{' '}
-          <span className="text-[#E1E0CC]">({selectedKeywords.length})</span>
+          <span className="text-foreground">({selectedKeywords.length})</span>
         </p>
         {selectedKeywords.length === 0 ? (
           <p className="text-xs text-gray-500 italic">
@@ -266,7 +266,7 @@ function Step2KeywordSelection({
           onChange={(e) => setManualInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={t('idea:newAnalysis.step2.addPlaceholder')}
-          className="flex-1 bg-[#1B2235]/80 border border-[#DEDBC8]/15 rounded-lg px-3 py-2 text-sm text-[#E1E0CC] placeholder-gray-500 focus:outline-none focus:border-[#4F8CFF]/50 transition-all"
+          className="flex-1 bg-[#1B2235]/80 border border-primary/15 rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-500 focus:outline-none focus:border-[#4F8CFF]/50 transition-all"
         />
         <button
           onClick={addManualKeyword}
@@ -283,7 +283,7 @@ function Step2KeywordSelection({
         <button
           onClick={onRegenerate}
           disabled={loading}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 hover:text-[#E1E0CC] disabled:opacity-30 transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 hover:text-foreground disabled:opacity-30 transition-all"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />
@@ -341,7 +341,7 @@ function Step3Loading({ t }) {
         <div className="absolute -inset-1 rounded-2xl bg-[#4F8CFF]/5 animate-pulse" />
       </div>
 
-      <h3 className="text-lg font-bold text-[#E1E0CC]">
+      <h3 className="text-lg font-bold text-foreground">
         {t('idea:newAnalysis.step3.title')}
       </h3>
 
@@ -403,7 +403,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
     <div className="space-y-5">
       <div className="flex items-center gap-2">
         <TrendingUp size={18} className="text-[#00D1B2]" />
-        <h3 className="text-base font-bold text-[#E1E0CC]">
+        <h3 className="text-base font-bold text-foreground">
           {t('idea:newAnalysis.step4.gapAnalysisTitle')}
         </h3>
       </div>
@@ -418,7 +418,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
           <div className="space-y-2">
             {solvedAreas.map((item, i) => (
               <div key={i} className="text-sm">
-                <p className="text-[#E1E0CC] font-medium">• {item.area}</p>
+                <p className="text-foreground font-medium">• {item.area}</p>
                 <p className="text-gray-500 text-xs mt-0.5 ml-4">
                   <span className="text-gray-400">
                     {item.papers?.join(', ')}
@@ -442,7 +442,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
           <div className="space-y-2">
             {partiallyAddressed.map((item, i) => (
               <div key={i} className="text-sm">
-                <p className="text-[#E1E0CC] font-medium">• {item.area}</p>
+                <p className="text-foreground font-medium">• {item.area}</p>
                 <p className="text-gray-500 text-xs mt-0.5 ml-4">
                   <span className="text-gray-400">
                     {item.papers?.join(', ')}
@@ -466,7 +466,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
           <div className="space-y-3">
             {researchGaps.map((item, i) => (
               <div key={i} className="text-sm">
-                <p className="text-[#E1E0CC] font-medium">
+                <p className="text-foreground font-medium">
                   🔴 {item.gap}
                 </p>
                 <p className="text-gray-500 text-xs mt-0.5 ml-5">
@@ -492,7 +492,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
           </h4>
           <ol className="space-y-1.5 list-decimal list-inside">
             {suggestedDirections.map((dir, i) => (
-              <li key={i} className="text-sm text-[#E1E0CC]">
+              <li key={i} className="text-sm text-foreground">
                 {dir}
               </li>
             ))}
@@ -503,7 +503,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
       {/* Novelty Score */}
       <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-bold text-[#E1E0CC]">
+          <span className="text-sm font-bold text-foreground">
             {t('idea:newAnalysis.step4.noveltyScore')}
           </span>
           <span className="text-lg font-black text-[#00D1B2]">
@@ -575,7 +575,7 @@ function LiteratureReviewPanel({ literatureReview, t }) {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <FileText size={18} className="text-[#4F8CFF]" />
-        <h3 className="text-base font-bold text-[#E1E0CC]">
+        <h3 className="text-base font-bold text-foreground">
           {t('idea:newAnalysis.step4.literatureReviewTitle')}
         </h3>
       </div>
@@ -653,8 +653,8 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Hash size={18} className="text-[#E1E0CC]" />
-        <h3 className="text-base font-bold text-[#E1E0CC]">
+        <Hash size={18} className="text-foreground" />
+        <h3 className="text-base font-bold text-foreground">
           {t('idea:newAnalysis.step4.paperEvaluationTitle')}
         </h3>
       </div>
@@ -697,7 +697,7 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
                             href={paper.pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-[#E1E0CC] hover:text-[#4F8CFF] transition-colors inline-flex items-center gap-1"
+                            className="text-sm font-medium text-foreground hover:text-[#4F8CFF] transition-colors inline-flex items-center gap-1"
                           >
                             {paper.title}
                             <ExternalLink size={11} />
@@ -803,7 +803,7 @@ function EvidenceContent({ paper, criterion, t, onClose }) {
         {paper.title}
       </p>
       {evidence ? (
-        <blockquote className="text-sm text-[#E1E0CC] leading-relaxed border-l-2 border-[#4F8CFF]/40 pl-3 py-1">
+        <blockquote className="text-sm text-foreground leading-relaxed border-l-2 border-[#4F8CFF]/40 pl-3 py-1">
           "{evidence}"
         </blockquote>
       ) : (
@@ -849,7 +849,7 @@ function HistoryTab({
         <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
           <Clock size={24} className="text-gray-500" />
         </div>
-        <h3 className="text-base font-bold text-[#E1E0CC] mb-1">
+        <h3 className="text-base font-bold text-foreground mb-1">
           {t('idea:history.empty.title')}
         </h3>
         <p className="text-sm text-gray-500 max-w-sm">
@@ -872,7 +872,7 @@ function HistoryTab({
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
               {/* Idea text preview */}
-              <p className="text-sm font-medium text-[#E1E0CC] line-clamp-2 mb-2">
+              <p className="text-sm font-medium text-foreground line-clamp-2 mb-2">
                 "{item.ideaText}"
               </p>
 
@@ -980,7 +980,7 @@ function HistoryDetail({ detail, onBack, t }) {
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-[#E1E0CC] transition-colors"
+          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={15} />
           {t('idea:history.detail.back')}
@@ -1002,7 +1002,7 @@ function HistoryDetail({ detail, onBack, t }) {
         <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
           {t('idea:history.detail.originalIdea')}
         </h4>
-        <p className="text-sm text-[#E1E0CC] leading-relaxed">{detail.ideaText}</p>
+        <p className="text-sm text-foreground leading-relaxed">{detail.ideaText}</p>
       </div>
 
       {/* Keywords */}
@@ -1249,7 +1249,7 @@ export default function IdeaPage() {
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             activeTab === 'new'
               ? 'bg-[#4F8CFF] text-white shadow-lg shadow-[#4F8CFF]/20'
-              : 'text-gray-400 hover:text-[#E1E0CC]'
+              : 'text-gray-400 hover:text-foreground'
           }`}
         >
           <Lightbulb size={15} />
@@ -1263,7 +1263,7 @@ export default function IdeaPage() {
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             activeTab === 'history'
               ? 'bg-[#4F8CFF] text-white shadow-lg shadow-[#4F8CFF]/20'
-              : 'text-gray-400 hover:text-[#E1E0CC]'
+              : 'text-gray-400 hover:text-foreground'
           }`}
         >
           <Clock size={15} />
@@ -1302,7 +1302,7 @@ export default function IdeaPage() {
                     </div>
                     <span
                       className={`text-xs font-semibold ${
-                        step >= s ? 'text-[#E1E0CC]' : 'text-gray-500'
+                        step >= s ? 'text-foreground' : 'text-gray-500'
                       }`}
                     >
                       {s === 1
@@ -1425,14 +1425,14 @@ export default function IdeaPage() {
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className="bg-[#1B2235] border border-[#DEDBC8]/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              className="bg-[#1B2235] border border-primary/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
                   <AlertTriangle size={18} className="text-red-400" />
                 </div>
-                <h3 className="text-base font-bold text-[#E1E0CC]">
+                <h3 className="text-base font-bold text-foreground">
                   {t('idea:history.delete.title')}
                 </h3>
               </div>
@@ -1442,7 +1442,7 @@ export default function IdeaPage() {
               <div className="flex items-center gap-3 justify-end">
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-[#E1E0CC] bg-white/5 hover:bg-white/10 transition-all"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-foreground bg-white/5 hover:bg-white/10 transition-all"
                 >
                   {t('idea:history.delete.cancel')}
                 </button>

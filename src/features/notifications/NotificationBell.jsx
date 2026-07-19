@@ -123,13 +123,13 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
       onClick={() => onClick(notif)}
       className={`group relative p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
         isSelected
-          ? 'bg-[#DEDBC8]/[0.06] border-[#DEDBC8]/30 shadow-[0_0_20px_rgba(222,219,200,0.05)]'
+          ? 'bg-primary/[0.06] border-primary/30 shadow-[0_0_20px_rgba(222,219,200,0.05)]'
           : 'bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:border-white/[0.06]'
       }`}
     >
       {/* Unread dot */}
       {!notif.read && (
-        <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-[#DEDBC8] shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
+        <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
       )}
 
       <div className="flex items-start gap-3.5">
@@ -142,7 +142,7 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
           <div className="flex items-center justify-between gap-2 mb-1">
             <h4
               className={`text-sm font-bold truncate ${
-                !notif.read ? 'text-[#E1E0CC]' : 'text-gray-400'
+                !notif.read ? 'text-foreground' : 'text-gray-400'
               }`}
             >
               {notif.title}
@@ -190,7 +190,7 @@ function NotificationDetail({ notif, onBack }) {
       {/* Back button */}
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-[#DEDBC8] transition-colors mb-5 self-start"
+        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-primary transition-colors mb-5 self-start"
       >
         <ChevronLeft size={14} />
         Back to notifications
@@ -203,7 +203,7 @@ function NotificationDetail({ notif, onBack }) {
 
       {/* Title & time */}
       <div className="mb-5">
-        <h2 className="text-lg font-black text-[#E1E0CC] mb-1.5 font-display tracking-tight">
+        <h2 className="text-lg font-black text-foreground mb-1.5 font-display tracking-tight">
           {notif.title}
         </h2>
         <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-500">
@@ -220,10 +220,10 @@ function NotificationDetail({ notif, onBack }) {
       </div>
 
       {/* Actions */}
-      <div className="pt-6 border-t border-[#DEDBC8]/10">
+      <div className="pt-6 border-t border-primary/10">
         <button
           onClick={onBack}
-          className="w-full py-3 rounded-xl text-sm font-bold text-black bg-[#DEDBC8] hover:bg-[#E1E0CC] transition-all duration-300 hover:shadow-[0_0_24px_rgba(222,219,200,0.25)]"
+          className="w-full py-3 rounded-xl text-sm font-bold text-black bg-primary hover:bg-foreground transition-all duration-300 hover:shadow-[0_0_24px_rgba(222,219,200,0.25)]"
         >
           Got it
         </button>
@@ -243,10 +243,10 @@ function EmptyState({ t }) {
       animate={{ opacity: 1, scale: 1 }}
       className="flex flex-col items-center justify-center py-16 px-6"
     >
-      <div className="w-20 h-20 rounded-full bg-[#DEDBC8]/5 flex items-center justify-center mb-5">
+      <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-5">
         <Inbox size={32} className="text-gray-500" />
       </div>
-      <h3 className="text-base font-bold text-[#E1E0CC] mb-1.5">
+      <h3 className="text-base font-bold text-foreground mb-1.5">
         {t('notifications.emptyTitle')}
       </h3>
       <p className="text-xs text-gray-500 text-center max-w-[240px] leading-relaxed">
@@ -438,10 +438,10 @@ export default function NotificationBell() {
           setSelectedNotif(null);
           setFilter('all');
         }}
-        className="relative p-2.5 rounded-xl bg-[#101010] border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/20 transition-all duration-300 shadow-sm"
+        className="relative p-2.5 rounded-xl bg-card border border-primary/5 hover:border-primary/20 transition-all duration-300 shadow-sm"
       >
         {unreadCount > 0 ? (
-          <BellRing size={18} className="text-[#DEDBC8]" />
+          <BellRing size={18} className="text-primary" />
         ) : (
           <Bell size={18} className="text-gray-400" />
         )}
@@ -449,7 +449,7 @@ export default function NotificationBell() {
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center px-1 bg-[#DEDBC8] text-[10px] font-black text-black rounded-full shadow-[0_0_12px_rgba(222,219,200,0.4)]"
+            className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center px-1 bg-primary text-[10px] font-black text-black rounded-full shadow-[0_0_12px_rgba(222,219,200,0.4)]"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.span>
@@ -483,10 +483,10 @@ export default function NotificationBell() {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 80, scale: 0.97 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="relative h-full w-full max-w-[480px] bg-[#0A0D14]/95 backdrop-blur-2xl border-l border-[#DEDBC8]/10 shadow-2xl flex flex-col overflow-hidden"
+                className="relative h-full w-full max-w-[480px] bg-[#0A0D14]/95 backdrop-blur-2xl border-l border-primary/10 shadow-2xl flex flex-col overflow-hidden"
               >
                 {/* ─── Header ────────────────────────────────────────── */}
-                <div className="shrink-0 px-6 pt-6 pb-4 border-b border-[#DEDBC8]/8">
+                <div className="shrink-0 px-6 pt-6 pb-4 border-b border-primary/8">
                   <AnimatePresence mode="wait">
                     {!selectedNotif ? (
                       <motion.div
@@ -498,11 +498,11 @@ export default function NotificationBell() {
                         {/* Top row */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-[#DEDBC8]/10 flex items-center justify-center">
-                              <BellRing size={18} className="text-[#DEDBC8]" />
+                            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                              <BellRing size={18} className="text-primary" />
                             </div>
                             <div>
-                              <h2 className="text-base font-black text-[#E1E0CC] font-display tracking-tight">
+                              <h2 className="text-base font-black text-foreground font-display tracking-tight">
                                 {t('notifications.title')}
                               </h2>
                               {unreadCount > 0 && (
@@ -518,7 +518,7 @@ export default function NotificationBell() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={markAllAsRead}
-                                className="p-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-[#DEDBC8] hover:bg-[#DEDBC8]/5 transition-all flex items-center gap-1"
+                                className="p-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center gap-1"
                                 title="Mark all as read"
                               >
                                 <CheckCheck size={15} />
@@ -536,7 +536,7 @@ export default function NotificationBell() {
                         </div>
 
                         {/* Filter tabs */}
-                        <div className="flex gap-1.5 p-1 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/5">
+                        <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-primary/5">
                           {[
                             { key: 'all', label: 'All' },
                             { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
@@ -546,8 +546,8 @@ export default function NotificationBell() {
                               onClick={() => setFilter(key)}
                               className={`flex-1 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
                                 filter === key
-                                  ? 'bg-[#DEDBC8] text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                                  : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.03]'
+                                  ? 'bg-primary text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
+                                  : 'text-gray-400 hover:text-foreground hover:bg-white/[0.03]'
                               }`}
                             >
                               {label}
@@ -579,7 +579,7 @@ export default function NotificationBell() {
                               );
                             })()}
                           </div>
-                          <h2 className="text-sm font-black text-[#E1E0CC] font-display tracking-tight truncate max-w-[280px]">
+                          <h2 className="text-sm font-black text-foreground font-display tracking-tight truncate max-w-[280px]">
                             {selectedNotif.title}
                           </h2>
                         </div>
@@ -634,7 +634,7 @@ export default function NotificationBell() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="shrink-0 px-6 py-4 border-t border-[#DEDBC8]/8 bg-[#0A0D14]/90 backdrop-blur-xl"
+                    className="shrink-0 px-6 py-4 border-t border-primary/8 bg-[#0A0D14]/90 backdrop-blur-xl"
                   >
                     <p className="text-[11px] text-gray-500 text-center font-medium">
                       {filter === 'unread'

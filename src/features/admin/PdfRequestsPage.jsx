@@ -64,10 +64,10 @@ function Modal({ open, onClose, title, children }) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-lg rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] shadow-2xl max-h-[85vh] flex flex-col"
+            className="w-full max-w-lg rounded-2xl border border-primary/10 bg-card shadow-2xl max-h-[85vh] flex flex-col"
           >
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#DEDBC8]/10 shrink-0">
-              <h2 className="text-sm font-bold text-[#E1E0CC]">{title}</h2>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-primary/10 shrink-0">
+              <h2 className="text-sm font-bold text-foreground">{title}</h2>
               <button onClick={onClose} className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
                 <X size={16} />
               </button>
@@ -328,7 +328,7 @@ export default function PdfRequestsPage() {
         <button
           onClick={fetchRequests}
           disabled={loading}
-          className="p-2.5 rounded-xl bg-white/[0.04] border border-[#DEDBC8]/10 text-gray-400 hover:text-white active:scale-[0.97] transition-all duration-150"
+          className="p-2.5 rounded-xl bg-white/[0.04] border border-primary/10 text-gray-400 hover:text-white active:scale-[0.97] transition-all duration-150"
         >
           <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
         </button>
@@ -342,7 +342,7 @@ export default function PdfRequestsPage() {
             onClick={() => setFilter(tab.key)}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
               filter === tab.key
-                ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
+                ? 'bg-primary/10 text-primary border-primary/30'
                 : 'text-gray-400 border-transparent hover:text-white hover:bg-white/5'
             }`}
           >
@@ -352,11 +352,11 @@ export default function PdfRequestsPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-[#DEDBC8]/10 bg-[#151922] overflow-hidden">
+      <div className="rounded-2xl border border-primary/10 bg-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#DEDBC8]/10 text-left">
+              <tr className="border-b border-primary/10 text-left">
                 <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Requestor</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Paper</th>
                 <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Journal</th>
@@ -387,12 +387,12 @@ export default function PdfRequestsPage() {
                   return (
                     <tr
                       key={req.requestId}
-                      className="border-b border-[#DEDBC8]/5 hover:bg-white/[0.02] transition-colors"
+                      className="border-b border-primary/5 hover:bg-white/[0.02] transition-colors"
                     >
                       {/* Requestor */}
                       <td className="px-4 py-3">
                         <div className="flex flex-col">
-                          <span className="text-xs text-[#E1E0CC] font-medium">
+                          <span className="text-xs text-foreground font-medium">
                             {req.requestedByName || req.requestedByEmail || 'Unknown'}
                           </span>
                           {req.requestedByName && (
@@ -403,7 +403,7 @@ export default function PdfRequestsPage() {
 
                       {/* Paper */}
                       <td className="px-4 py-3 max-w-[220px]">
-                        <div className="text-xs text-[#E1E0CC] font-medium leading-relaxed line-clamp-2">
+                        <div className="text-xs text-foreground font-medium leading-relaxed line-clamp-2">
                           {req.paperTitle || '—'}
                         </div>
                         {req.doi && (
@@ -469,7 +469,7 @@ export default function PdfRequestsPage() {
                             href={req.pdfUrl.startsWith('http') ? req.pdfUrl : `${API_BASE}${req.pdfUrl}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-[#DEDBC8] hover:underline"
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                           >
                             <ExternalLink size={12} />
                             View PDF
@@ -488,7 +488,7 @@ export default function PdfRequestsPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-[#DEDBC8]/10">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10">
             <span className="text-xs text-gray-500">
               Page {page + 1} of {totalPages} ({totalElements} total)
             </span>
@@ -520,8 +520,8 @@ export default function PdfRequestsPage() {
       >
         <div className="space-y-4">
           {candidatesModal.request && (
-            <div className="p-3 rounded-xl bg-black/30 border border-[#DEDBC8]/10">
-              <p className="text-xs text-[#E1E0CC] font-medium line-clamp-2">
+            <div className="p-3 rounded-xl bg-black/30 border border-primary/10">
+              <p className="text-xs text-foreground font-medium line-clamp-2">
                 {candidatesModal.request.paperTitle}
               </p>
               {candidatesModal.request.doi && (
@@ -551,14 +551,14 @@ export default function PdfRequestsPage() {
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-[#DEDBC8]/10 bg-black/20"
+                    className="flex items-center gap-3 p-3 rounded-xl border border-primary/10 bg-black/20"
                   >
                     <div className="flex-1 min-w-0">
                       <a
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs text-[#DEDBC8] hover:underline break-all line-clamp-1"
+                        className="text-xs text-primary hover:underline break-all line-clamp-1"
                       >
                         {url}
                       </a>
@@ -580,9 +580,9 @@ export default function PdfRequestsPage() {
 
           {/* ── Divider ── */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <div className="flex-1 h-px bg-primary/10" />
             <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">or upload your own PDF</span>
-            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <div className="flex-1 h-px bg-primary/10" />
           </div>
 
           {/* ── Upload drop zone ── */}
@@ -592,7 +592,7 @@ export default function PdfRequestsPage() {
                 <FileText size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-[#E1E0CC] font-medium truncate">{uploadFile.name}</p>
+                <p className="text-xs text-foreground font-medium truncate">{uploadFile.name}</p>
                 <p className="text-[10px] text-gray-500">
                   {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
                 </p>
@@ -609,14 +609,14 @@ export default function PdfRequestsPage() {
               onDrop={handleDrop}
               onDragOver={(e) => e.preventDefault()}
               onClick={() => fileInputRef.current?.click()}
-              className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[#DEDBC8]/20 bg-black/20 cursor-pointer hover:border-[#DEDBC8]/40 hover:bg-black/30 transition-all group"
+              className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/20 bg-black/20 cursor-pointer hover:border-primary/40 hover:bg-black/30 transition-all group"
             >
-              <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-[#DEDBC8] transition-colors">
+              <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-primary transition-colors">
                 <Upload size={22} />
               </div>
               <div className="text-center">
-                <p className="text-xs text-gray-400 group-hover:text-[#DEDBC8] transition-colors">
-                  <span className="text-[#DEDBC8] font-medium">Click to browse</span> or drag & drop
+                <p className="text-xs text-gray-400 group-hover:text-primary transition-colors">
+                  <span className="text-primary font-medium">Click to browse</span> or drag & drop
                 </p>
                 <p className="text-[10px] text-gray-600 mt-0.5">PDF only · Max 20 MB</p>
               </div>
@@ -662,8 +662,8 @@ export default function PdfRequestsPage() {
       >
         <div className="space-y-4">
           {fulfillModal.request && (
-            <div className="p-3 rounded-xl bg-black/30 border border-[#DEDBC8]/10">
-              <p className="text-xs text-[#E1E0CC] font-medium line-clamp-2">
+            <div className="p-3 rounded-xl bg-black/30 border border-primary/10">
+              <p className="text-xs text-foreground font-medium line-clamp-2">
                 {fulfillModal.request.paperTitle}
               </p>
               <p className="text-[10px] text-gray-500 mt-1">
@@ -685,7 +685,7 @@ export default function PdfRequestsPage() {
                   <FileText size={18} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-[#E1E0CC] font-medium truncate">{uploadFile.name}</p>
+                  <p className="text-xs text-foreground font-medium truncate">{uploadFile.name}</p>
                   <p className="text-[10px] text-gray-500">
                     {(uploadFile.size / (1024 * 1024)).toFixed(2)} MB
                   </p>
@@ -703,14 +703,14 @@ export default function PdfRequestsPage() {
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
-                className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-[#DEDBC8]/20 bg-black/20 cursor-pointer hover:border-[#DEDBC8]/40 hover:bg-black/30 transition-all group"
+                className="relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-primary/20 bg-black/20 cursor-pointer hover:border-primary/40 hover:bg-black/30 transition-all group"
               >
-                <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-[#DEDBC8] transition-colors">
+                <div className="p-2.5 rounded-xl bg-white/[0.04] text-gray-500 group-hover:text-primary transition-colors">
                   <Upload size={22} />
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-400 group-hover:text-[#DEDBC8] transition-colors">
-                    <span className="text-[#DEDBC8] font-medium">Click to browse</span> or drag & drop
+                  <p className="text-xs text-gray-400 group-hover:text-primary transition-colors">
+                    <span className="text-primary font-medium">Click to browse</span> or drag & drop
                   </p>
                   <p className="text-[10px] text-gray-600 mt-0.5">PDF only · Max 20 MB</p>
                 </div>
@@ -748,9 +748,9 @@ export default function PdfRequestsPage() {
 
           {/* ── Divider ── */}
           <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <div className="flex-1 h-px bg-primary/10" />
             <span className="text-[10px] font-medium text-gray-600 uppercase tracking-wider">or paste URL</span>
-            <div className="flex-1 h-px bg-[#DEDBC8]/10" />
+            <div className="flex-1 h-px bg-primary/10" />
           </div>
 
           {/* ── URL input ── */}
@@ -763,7 +763,7 @@ export default function PdfRequestsPage() {
               value={fulfillUrl}
               onChange={(e) => { setFulfillUrl(e.target.value); setUploadFile(null); }}
               placeholder="https://example.com/paper.pdf"
-              className="w-full px-3 py-2.5 rounded-lg border border-[#DEDBC8]/20 bg-black/40 text-xs text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/40 transition-colors"
+              className="w-full px-3 py-2.5 rounded-lg border border-primary/20 bg-black/40 text-xs text-foreground placeholder:text-gray-600 outline-none focus:border-primary/40 transition-colors"
             />
           </div>
 
@@ -777,7 +777,7 @@ export default function PdfRequestsPage() {
               onChange={(e) => setFulfillNote(e.target.value)}
               placeholder="Add a note for the user..."
               rows={3}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#DEDBC8]/20 bg-black/40 text-xs text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/40 transition-colors resize-none"
+              className="w-full px-3 py-2.5 rounded-lg border border-primary/20 bg-black/40 text-xs text-foreground placeholder:text-gray-600 outline-none focus:border-primary/40 transition-colors resize-none"
             />
           </div>
 
@@ -810,8 +810,8 @@ export default function PdfRequestsPage() {
       >
         <div className="space-y-4">
           {rejectModal.request && (
-            <div className="p-3 rounded-xl bg-black/30 border border-[#DEDBC8]/10">
-              <p className="text-xs text-[#E1E0CC] font-medium line-clamp-2">
+            <div className="p-3 rounded-xl bg-black/30 border border-primary/10">
+              <p className="text-xs text-foreground font-medium line-clamp-2">
                 {rejectModal.request.paperTitle}
               </p>
               <p className="text-[10px] text-gray-500 mt-1">
@@ -828,7 +828,7 @@ export default function PdfRequestsPage() {
               onChange={(e) => setRejectNote(e.target.value)}
               placeholder="Explain why the PDF is not available..."
               rows={3}
-              className="w-full px-3 py-2.5 rounded-lg border border-[#DEDBC8]/20 bg-black/40 text-xs text-[#E1E0CC] placeholder:text-gray-600 outline-none focus:border-[#DEDBC8]/40 transition-colors resize-none"
+              className="w-full px-3 py-2.5 rounded-lg border border-primary/20 bg-black/40 text-xs text-foreground placeholder:text-gray-600 outline-none focus:border-primary/40 transition-colors resize-none"
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

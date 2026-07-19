@@ -10,7 +10,7 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
  <motion.div
   whileHover={{ y: -4 }}
   transition={{ duration: 0.2 }}
-  className="p-5 rounded-xl border flex flex-col justify-between bg-[#101010] border-[#DEDBC8]/5 group"
+  className="p-5 rounded-xl border flex flex-col justify-between bg-card border-primary/5 group"
  >
   <div className="flex items-start justify-between mb-2">
   <div
@@ -29,7 +29,7 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
   </div>
   <div>
   <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-400">{label}</h4>
-  <div className="text-2xl font-bold text-[#E1E0CC]">{value}</div>
+  <div className="text-2xl font-bold text-foreground">{value}</div>
   </div>
  </motion.div>
  );
@@ -86,7 +86,7 @@ export default function AnalyticsView() {
     onChange={setSearchInput}
     onSearch={commitSearch}
     placeholder={t('searchPlaceholder')}
-    className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-[#101010] border-[#DEDBC8]/5 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#DEDBC8]"
+    className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-card border-primary/5 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary"
     wrapperClassName="relative w-full max-w-xl"
     icon={<Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400" />}
   >
@@ -95,7 +95,7 @@ export default function AnalyticsView() {
       whileTap={{ scale: 0.98 }}
       type="submit"
       disabled={!searchInput.trim()}
-      className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8]"
+      className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-primary"
     >
       {t('searchButton')}
     </motion.button>
@@ -112,8 +112,8 @@ export default function AnalyticsView() {
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
   <Neo4jGraphCard keyword={searchKeyword} />
 
-  <div className="rounded-xl border p-5 bg-[#101010] border-[#DEDBC8]/5 ">
-   <h3 className="text-sm font-bold text-[#E1E0CC] mb-1">{t('cards.hotKeywords')}</h3>
+  <div className="rounded-xl border p-5 bg-card border-primary/5 ">
+   <h3 className="text-sm font-bold text-foreground mb-1">{t('cards.hotKeywords')}</h3>
    <p className="text-xs mb-4 text-gray-400">{t('charts.trendingKeywords')}</p>
 
    {/* Loading */}

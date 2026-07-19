@@ -291,12 +291,12 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
 
  return (
  <div
-  className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-[#101010] border-[#DEDBC8]/5 `}
+  className={`rounded-xl border flex flex-col ${cardHeight} transition-all duration-300 bg-card border-primary/5 `}
  >
   {/* Header */}
   <div className="flex items-center justify-between px-5 pt-5 pb-2 shrink-0">
   <div>
-   <h3 className="text-sm font-bold text-[#E1E0CC]">
+   <h3 className="text-sm font-bold text-foreground">
    {t('title')}
    </h3>
    <p className="text-xs mt-0.5 text-gray-400">
@@ -328,7 +328,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    value={keyword}
    onChange={(e) => setKeyword(e.target.value)}
    disabled={loading}
-   className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-[#DEDBC8]/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#DEDBC8]"
+   className="w-full pl-9 pr-3 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary"
    />
   </div>
   {/* Depth selector */}
@@ -340,7 +340,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    value={depth}
    onChange={(e) => setDepth(Number(e.target.value))}
    disabled={loading}
-   className="w-12 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-[#DEDBC8]/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-[#DEDBC8] cursor-pointer"
+   className="w-12 py-2.5 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary cursor-pointer"
    >
    {[1, 2, 3].map((d) => (
     <option key={d} value={d}>{d}</option>
@@ -352,7 +352,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
    whileTap={{ scale: 0.97 }}
    type="submit"
    disabled={loading || !keyword.trim()}
-   className="px-4 py-2.5 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8] "
+   className="px-4 py-2.5 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-primary "
   >
    {loading ? <Loader2 size={14} className="animate-spin" /> : t('explore')}
   </motion.button>
@@ -360,14 +360,14 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
   )}
 
   {/* Graph area */}
-  <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-transparent border border-gray-200 border-[#DEDBC8]/5">
+  <div className="flex-1 min-h-0 mx-5 mb-5 rounded-lg overflow-hidden relative bg-transparent border border-gray-200 border-primary/5">
   {/* Loading overlay */}
   {loading && (
    <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 bg-transparent/80 backdrop-blur-sm">
    <div className="flex flex-col items-center gap-3">
     <Loader2
     size={28}
-    className="animate-spin text-[#DEDBC8] dark:text-[#DEDBC8]"
+    className="animate-spin text-primary dark:text-primary"
     />
     <span className="text-xs font-medium text-gray-600 text-gray-400">
     {t('loading')}
@@ -386,7 +386,7 @@ export default function Neo4jGraphCard({ keyword: externalKeyword }) {
     </span>
     <button
     onClick={handleSubmit}
-    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-[#DEDBC8] text-black shadow-md"
+    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition-colors hover:opacity-90 bg-primary text-black shadow-md"
     >
     <RefreshCw size={12} /> {t('retry')}
     </button>

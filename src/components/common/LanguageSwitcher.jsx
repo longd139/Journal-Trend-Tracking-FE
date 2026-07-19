@@ -129,9 +129,9 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#DEDBC8] focus-visible:ring-offset-1 focus-visible:ring-offset-[#0B1020]
    ${variant === 'sidebar'
    ? 'w-full px-3 py-2 text-xs font-medium text-gray-600 text-gray-400 hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
-   : 'px-3 py-2 text-xs font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white border border-[#DEDBC8]/10 rounded-lg hover:bg-white/[0.04] hover:bg-white/5'
+   : 'px-3 py-2 text-xs font-medium text-gray-400 hover:text-gray-900 dark:hover:text-white border border-primary/10 rounded-lg hover:bg-white/[0.04] hover:bg-white/5'
    }
-   ${open ? 'bg-gray-100 dark:bg-white/10 text-[#E1E0CC]' : ''}
+   ${open ? 'bg-gray-100 dark:bg-white/10 text-foreground' : ''}
    ${isLoading ? 'opacity-60 cursor-wait' : ''}
   `}
   >
@@ -159,7 +159,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
    animate={{ opacity: 1, y: 0, scale: 1 }}
    exit={{ opacity: 0, y: -8, scale: 0.96 }}
    transition={{ duration: 0.15, ease: 'easeOut' }}
-   className="absolute z-50 mt-2 w-full min-w-[200px] rounded-xl border border-[#DEDBC8]/10 bg-[#101010] shadow-xl shadow-black/20 dark:shadow-black/40 overflow-hidden"
+   className="absolute z-50 mt-2 w-full min-w-[200px] rounded-xl border border-primary/10 bg-card shadow-xl shadow-black/20 dark:shadow-black/40 overflow-hidden"
    role="listbox"
    aria-label="Select language"
    ref={listRef}
@@ -180,12 +180,12 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
      className={`
       flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 text-sm
       ${isSelected
-      ? 'bg-[#DEDBC8]/10 text-blue-600 dark:text-[#DEDBC8] font-semibold'
+      ? 'bg-primary/10 text-blue-600 dark:text-primary font-semibold'
       : isFocused
-       ? 'bg-white/[0.04] text-[#E1E0CC]'
+       ? 'bg-white/[0.04] text-foreground'
        : 'text-gray-700 text-gray-400'
       }
-      ${isFocused ? 'outline-none ring-1 ring-inset ring-[#DEDBC8]/30' : ''}
+      ${isFocused ? 'outline-none ring-1 ring-inset ring-primary/30' : ''}
      `}
      >
      <span className="text-lg shrink-0">{lang.flag}</span>
@@ -196,7 +196,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
       )}
      </div>
      {isSelected && (
-      <Check size={16} className="shrink-0 text-[#DEDBC8]" />
+      <Check size={16} className="shrink-0 text-primary" />
      )}
      </div>
     );

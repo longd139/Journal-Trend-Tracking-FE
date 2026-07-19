@@ -49,7 +49,7 @@ function Skeleton() {
       {Array.from({ length: 9 }).map((_, i) => (
         <div
           key={i}
-          className="px-4 py-3 rounded-xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/5 w-44 h-16"
+          className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/5 w-44 h-16"
         />
       ))}
     </div>
@@ -99,7 +99,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
     >
       {/* Header */}
       <div className="flex items-center gap-2.5">
-        <Sparkles size={14} className="text-[#DEDBC8]/50" />
+        <Sparkles size={14} className="text-primary/50" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Suggested Authors
         </span>
@@ -143,8 +143,8 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => onAuthorClick?.(author.fullName)}
                 className="group relative px-4 py-3 rounded-xl text-left transition-all
-                           bg-[#101010] border border-[#DEDBC8]/5
-                           hover:border-[#DEDBC8]/15 hover:bg-[#1A1F2E]"
+                           bg-card border border-primary/5
+                           hover:border-primary/15 hover:bg-[#1A1F2E]"
               >
                 {/* Field color dot + name */}
                 <div className="flex items-center gap-2.5">
@@ -153,7 +153,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                     style={{ background: fieldColor }}
                   />
                   <div>
-                    <div className="text-[12px] font-semibold text-[#E1E0CC] group-hover:text-[#DEDBC8] transition-colors leading-tight">
+                    <div className="text-[12px] font-semibold text-foreground group-hover:text-primary transition-colors leading-tight">
                       {author.fullName}
                     </div>
                     {author.topField && (
@@ -189,7 +189,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
 
       {/* Footer hint */}
       <div className="flex items-center gap-2 text-[11px] text-gray-500">
-        <Users size={12} className="text-[#DEDBC8]/30" />
+        <Users size={12} className="text-primary/30" />
         <span>Data sourced from OpenAlex — click any author to view their full academic profile.</span>
       </div>
     </motion.div>

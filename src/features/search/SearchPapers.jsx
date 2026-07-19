@@ -338,7 +338,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
           <div className="relative">
             <Search
               size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10"
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 z-10"
             />
             <input
               ref={searchInputRef}
@@ -362,10 +362,10 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   setShowSuggestions(true);
               }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
                 quotaExhausted
                   ? 'border-red-500/20 opacity-50 cursor-not-allowed'
-                  : 'border-[#DEDBC8]/10'
+                  : 'border-primary/10'
               }`}
             />
             {query && (
@@ -376,7 +376,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   setSearchedKeyword('');
                   setApiSuggestions([]);
                 }}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-primary/10 text-primary/60 hover:bg-primary/20 hover:text-primary transition-all"
               >
                 <X size={14} />
               </button>
@@ -390,8 +390,8 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
               }}
               className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
                 showHistory
-                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
-                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-transparent text-primary/40 hover:bg-primary/10 hover:text-primary'
               }`}
               title="Search history"
             >
@@ -406,7 +406,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
               >
                 {allSuggestions.slice(0, 10).map((kw) => {
                   const isFromApi = apiSuggestions.some(
@@ -425,7 +425,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                       {isFromApi ? (
                         <Search
                           size={12}
-                          className="text-[#DEDBC8]/40 shrink-0"
+                          className="text-primary/40 shrink-0"
                         />
                       ) : (
                         <Clock size={12} className="text-gray-500 shrink-0" />
@@ -448,7 +448,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   );
                 })}
                 {historyExtras.length > 0 && (
-                  <div className="border-t border-[#DEDBC8]/5">
+                  <div className="border-t border-primary/5">
                     <button
                       type="button"
                       onMouseDown={(e) => {
@@ -472,7 +472,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
               >
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
@@ -481,7 +481,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                    <div className="px-4 py-2.5 border-b border-primary/5 flex items-center justify-between">
                       <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
                         <History size={11} />
                         Recent Searches
@@ -536,7 +536,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-4"
+            className="rounded-xl border border-primary/10 bg-card p-4"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
@@ -547,16 +547,16 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                       ? 'text-red-400'
                       : searchesLeft <= 3
                         ? 'text-amber-400'
-                        : 'text-[#DEDBC8]/50'
+                        : 'text-primary/50'
                   }
                 />
-                <span className="text-xs font-semibold text-[#E1E0CC]">
+                <span className="text-xs font-semibold text-foreground">
                   Search Quota
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <span
-                  className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]'}`}
+                  className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary'}`}
                 >
                   {searchesLeft} / {searchLimit}
                 </span>
@@ -571,18 +571,18 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 )}
               </div>
             </div>
-            <div className="h-1.5 rounded-full bg-[#DEDBC8]/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-primary/5 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{
                   width: `${Math.max(0, Math.min(100, ((searchLimit - searchesLeft) / searchLimit) * 100))}%`,
                 }}
                 transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-[#DEDBC8]/30'}`}
+                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-primary/30'}`}
               />
             </div>
             {quotaExhausted && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#DEDBC8]/5">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/5">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
                   <span>
@@ -592,7 +592,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors shrink-0 ml-3"
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
                 </button>
@@ -611,11 +611,11 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
             <div className="flex items-center gap-2">
               {/* Sort Dropdown — moved first */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-[#DEDBC8]/10 bg-[#101010] text-gray-500 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20 focus:ring-0">
-                  <ArrowUpDown size={12} className="text-[#DEDBC8]/40" />
+                <SelectTrigger className="w-[170px] h-[30px] text-[11px] font-semibold rounded-lg border-primary/10 bg-card text-gray-500 hover:text-foreground hover:border-primary/20 focus:ring-0">
+                  <ArrowUpDown size={12} className="text-primary/40" />
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC] rounded-xl">
+                <SelectContent className="bg-card border-primary/10 text-foreground rounded-xl">
                   <SelectItem
                     value="relevance"
                     className="text-[11px] cursor-pointer"
@@ -666,8 +666,8 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                   showFilters
-                    ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
-                    : 'text-gray-500 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+                    ? 'bg-primary/10 text-primary border-primary/30'
+                    : 'text-gray-500 border-primary/10 hover:text-foreground hover:border-primary/20'
                 }`}
               >
                 <SlidersHorizontal size={13} />
@@ -675,20 +675,20 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                 {Object.values(draftFilters).some(
                   (v) =>
                     v && (!Array.isArray(v) || v.length > 0) && v !== false,
-                ) && <span className="w-1.5 h-1.5 rounded-full bg-[#DEDBC8]" />}
+                ) && <span className="w-1.5 h-1.5 rounded-full bg-primary" />}
               </button>
 
               {/* ── Active Filter Chips ── */}
               {activeFilterChips.map((chip) => (
                 <span
                   key={chip.key}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-[#DEDBC8]/8 text-[#DEDBC8] border border-[#DEDBC8]/15"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-primary/8 text-primary border border-primary/15"
                 >
                   {chip.label}
                   <button
                     type="button"
                     onClick={chip.onRemove}
-                    className="p-0.5 rounded-full hover:bg-[#DEDBC8]/15 transition-colors"
+                    className="p-0.5 rounded-full hover:bg-primary/15 transition-colors"
                   >
                     <X size={10} />
                   </button>

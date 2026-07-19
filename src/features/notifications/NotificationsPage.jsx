@@ -117,12 +117,12 @@ function NotificationCard({ notif, onClick, onDismiss }) {
       onClick={() => onClick(notif)}
       className={`group relative p-5 rounded-2xl cursor-pointer transition-all duration-300 border ${
         !notif.read
-          ? 'bg-[#DEDBC8]/[0.04] border-[#DEDBC8]/15'
+          ? 'bg-primary/[0.04] border-primary/15'
           : 'bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:border-white/[0.06]'
       }`}
     >
       {!notif.read && (
-        <div className="absolute top-3.5 left-5 w-2.5 h-2.5 rounded-full bg-[#DEDBC8] shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
+        <div className="absolute top-3.5 left-5 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
       )}
 
       <div className="flex items-start gap-4">
@@ -134,7 +134,7 @@ function NotificationCard({ notif, onClick, onDismiss }) {
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <h4
               className={`text-sm font-bold truncate ${
-                !notif.read ? 'text-[#E1E0CC]' : 'text-gray-400'
+                !notif.read ? 'text-foreground' : 'text-gray-400'
               }`}
             >
               {notif.title}
@@ -174,7 +174,7 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-6 space-y-5"
+      className="rounded-2xl border border-primary/10 bg-card p-6 space-y-5"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
@@ -182,7 +182,7 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
             <Icon size={22} className={colors.text} />
           </div>
           <div>
-            <h3 className="text-base font-bold text-[#E1E0CC]">{notif.title}</h3>
+            <h3 className="text-base font-bold text-foreground">{notif.title}</h3>
             <span className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
               <Clock size={10} />
               {formatRelativeTime(notif)}
@@ -204,7 +204,7 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
         <div className="flex items-center gap-2 pt-1">
           <button
             onClick={() => onViewPaper(notif.relatedPaperId)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-black bg-[#DEDBC8] hover:bg-[#DEDBC8]/90 active:scale-[0.97] transition-all duration-150"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-black bg-primary hover:bg-primary/90 active:scale-[0.97] transition-all duration-150"
           >
             <ExternalLink size={14} />
             View Paper
@@ -229,12 +229,12 @@ function NotificationSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-[#DEDBC8]/5 bg-[#101010] p-5 animate-pulse">
+        <div key={i} className="rounded-2xl border border-primary/5 bg-card p-5 animate-pulse">
           <div className="flex items-start gap-4">
-            <div className="w-11 h-11 rounded-xl bg-[#DEDBC8]/8" />
+            <div className="w-11 h-11 rounded-xl bg-primary/8" />
             <div className="flex-1 space-y-2">
-              <div className="h-4 w-48 bg-[#DEDBC8]/8 rounded" />
-              <div className="h-3 w-full bg-[#DEDBC8]/5 rounded" />
+              <div className="h-4 w-48 bg-primary/8 rounded" />
+              <div className="h-3 w-full bg-primary/5 rounded" />
             </div>
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function NotificationsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-[#E1E0CC]">{t('notifications.title')}</h2>
+          <h2 className="text-lg font-bold text-foreground">{t('notifications.title')}</h2>
           <p className="text-sm text-gray-400">
             {unreadCount > 0
               ? `${unreadCount} unread · ${notifs.length} total`
@@ -432,7 +432,7 @@ export default function NotificationsPage() {
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all border ${
               autoRefresh
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                : 'text-gray-400 border-[#DEDBC8]/10 hover:text-[#E1E0CC] hover:border-[#DEDBC8]/20'
+                : 'text-gray-400 border-primary/10 hover:text-foreground hover:border-primary/20'
             }`}
             title={autoRefresh ? 'Auto-refresh active (30s)' : 'Enable auto-refresh'}
           >
@@ -442,7 +442,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-[#DEDBC8] hover:bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-primary hover:bg-primary/5 border border-primary/10 transition-all"
             >
               <CheckCheck size={14} />
               Mark all read
@@ -452,7 +452,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1.5 p-1 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/5 w-fit">
+      <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-primary/5 w-fit">
         {[
           { key: 'all', label: 'All' },
           { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
@@ -465,8 +465,8 @@ export default function NotificationsPage() {
             }}
             className={`px-4 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
               filter === key
-                ? 'bg-[#DEDBC8] text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                : 'text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.03]'
+                ? 'bg-primary text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
+                : 'text-gray-400 hover:text-foreground hover:bg-white/[0.03]'
             }`}
           >
             {label}
@@ -518,10 +518,10 @@ export default function NotificationsPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center justify-center py-16 px-6"
         >
-          <div className="w-20 h-20 rounded-full bg-[#DEDBC8]/5 flex items-center justify-center mb-5">
+          <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-5">
             <Inbox size={32} className="text-gray-500" />
           </div>
-          <h3 className="text-base font-bold text-[#E1E0CC] mb-1.5">
+          <h3 className="text-base font-bold text-foreground mb-1.5">
             {filter === 'unread' ? 'No unread notifications' : t('notifications.emptyTitle')}
           </h3>
           <p className="text-xs text-gray-500 text-center max-w-[280px] leading-relaxed">

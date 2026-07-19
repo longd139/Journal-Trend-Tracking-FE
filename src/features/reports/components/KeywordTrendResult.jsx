@@ -77,7 +77,7 @@ function StatCard({ icon: Icon, iconColor, label, value, sub }) {
           {label}
         </span>
       </div>
-      <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">
+      <p className="text-xl font-bold text-foreground font-mono tabular-nums">
         {value}
       </p>
       {sub && (
@@ -92,7 +92,7 @@ function StatCard({ icon: Icon, iconColor, label, value, sub }) {
 /** Section header */
 function SectionHeader({ icon: Icon, iconColor, title }) {
   return (
-    <h4 className="text-xs font-semibold text-[#E1E0CC] mb-3 flex items-center gap-2">
+    <h4 className="text-xs font-semibold text-foreground mb-3 flex items-center gap-2">
       <Icon size={13} style={{ color: iconColor }} />
       {title}
     </h4>
@@ -215,15 +215,15 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden"
+      className="rounded-2xl border border-primary/10 bg-card overflow-hidden"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
+      <div className="flex items-center justify-between p-5 border-b border-primary/5">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
             {t('templates.trendAnalysis.name') || 'Keyword Trend Report'}
           </p>
-          <h3 className="text-base font-bold text-[#E1E0CC]">
+          <h3 className="text-base font-bold text-foreground">
             {reportTitle || `Báo cáo phân tích: ${keyword}`}
           </h3>
           <p className="text-sm text-[#4F8CFF] font-mono mt-0.5">
@@ -494,8 +494,8 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                     key={kw.keyword}
                     onClick={() => goToSearch(kw.keyword)}
                     className="px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200
-                      bg-[#DEDBC8]/5 border-[#DEDBC8]/10 text-[#DEDBC8]
-                      hover:bg-[#DEDBC8]/12 hover:border-[#DEDBC8]/25 hover:text-[#E1E0CC]"
+                      bg-primary/5 border-primary/10 text-primary
+                      hover:bg-primary/12 hover:border-primary/25 hover:text-foreground"
                   >
                     {kw.keyword}
                     {kw.count > 0 && (
@@ -552,7 +552,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 </ResponsiveContainer>
                 {/* Center label — total papers */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-[22px] font-bold text-[#E1E0CC] font-mono tabular-nums">
+                  <span className="text-[22px] font-bold text-foreground font-mono tabular-nums">
                     {donutData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                   </span>
                   <span className="text-[10px] text-gray-500 mt-0.5">papers</span>
@@ -566,7 +566,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                       className="w-2.5 h-2.5 rounded-full shrink-0"
                       style={{ background: DONUT_COLORS[index % DONUT_COLORS.length] }}
                     />
-                    <span className="text-[#E1E0CC] truncate max-w-[140px]" title={entry.name}>
+                    <span className="text-foreground truncate max-w-[140px]" title={entry.name}>
                       {entry.name}
                     </span>
                     <span className="text-gray-500 tabular-nums">

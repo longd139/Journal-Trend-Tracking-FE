@@ -26,7 +26,70 @@
      elements like the SCITRACK logo. Do NOT use for bilingual content.        */
   --font-outfit: 'Outfit', 'Be Vietnam Pro', system-ui, sans-serif;
 
-  /* ─── Landing Page Color System ────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════════════════════════
+     LIGHT MODE — "Warm Library"
+     Ấm áp như đọc journal học thuật dưới ánh sáng tự nhiên.
+     Không dùng pure white #FFF cho background — dùng ivory ấm để đỡ chói.
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  --background: #F7F6F1;
+  --foreground: #1E2028;
+  --card: #FFFFFF;
+  --card-foreground: #1E2028;
+  --popover: #FFFFFF;
+  --popover-foreground: #1E2028;
+  --primary: #3A5BA0;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EFE8;
+  --secondary-foreground: #1E2028;
+  --muted: #F0EFE8;
+  --muted-foreground: #6F7378;
+  --accent: #9B7B3C;
+  --accent-foreground: #FFFFFF;
+  --destructive: #DC2626;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.06);
+  --input: rgba(0, 0, 0, 0.08);
+  --input-background: #FFFFFF;
+  --switch-background: #D1D5DB;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #3A5BA0;
+  --chart-1: #3A5BA0;
+  --chart-2: #9B7B3C;
+  --chart-3: #0D9488;
+  --chart-4: #6366F1;
+  --chart-5: #D97706;
+  --radius: 0.75rem;
+  --sidebar: #F2F0EA;
+  --sidebar-foreground: #1E2028;
+  --sidebar-primary: #3A5BA0;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFFFFF;
+  --sidebar-accent-foreground: #1E2028;
+  --sidebar-border: rgba(0, 0, 0, 0.06);
+  --sidebar-ring: #3A5BA0;
+
+  /* ─── Card Surface Tiers ────────────────────────────────────────────────── */
+  --card-elevated: #FFFFFF;
+  --card-elevated-border: rgba(0, 0, 0, 0.08);
+  --card-recessed: #F3F1EB;
+  --card-recessed-border: rgba(0, 0, 0, 0.05);
+
+  /* ─── Functional Accent Colors ──────────────────────────────────────────── */
+  --accent-blue: #3A5BA0;
+  --accent-teal: #0D9488;
+
+  /* ─── Misc theme helpers ────────────────────────────────────────────────── */
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --overlay-bg: rgba(255, 255, 255, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE — "Deep Observatory"
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.dark {
   --background: #0A0A0A;
   --foreground: #E1E0CC;
   --card: #101010;
@@ -55,7 +118,6 @@
   --chart-3: #C5BFA0;
   --chart-4: #A09878;
   --chart-5: #8A8468;
-  --radius: 0.75rem;
   --sidebar: #0A0A0A;
   --sidebar-foreground: #E1E0CC;
   --sidebar-primary: #DEDBC8;
@@ -74,54 +136,15 @@
   /* ─── Functional Accent Colors ──────────────────────────────────────────── */
   --accent-blue: #4F8CFF;
   --accent-teal: #00D1B2;
+
+  /* ─── Misc theme helpers ────────────────────────────────────────────────── */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
 }
 
-.dark {
-  --background: #0A0A0A;
-  --foreground: #E1E0CC;
-  --card: #101010;
-  --card-foreground: #E1E0CC;
-  --popover: #101010;
-  --popover-foreground: #E1E0CC;
-  --primary: #DEDBC8;
-  --primary-foreground: #000000;
-  --secondary: #0A0A0A;
-  --secondary-foreground: #E1E0CC;
-  --muted: #1A1A1A;
-  --muted-foreground: #9CA3AF;
-  --accent: #DEDBC8;
-  --accent-foreground: #000000;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: rgba(222, 219, 200, 0.05);
-  --input: rgba(222, 219, 200, 0.10);
-  --ring: #DEDBC8;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: #DEDBC8;
-  --chart-2: #E1E0CC;
-  --chart-3: #C5BFA0;
-  --chart-4: #A09878;
-  --chart-5: #8A8468;
-  --sidebar: #0A0A0A;
-  --sidebar-foreground: #E1E0CC;
-  --sidebar-primary: #DEDBC8;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #101010;
-  --sidebar-accent-foreground: #E1E0CC;
-  --sidebar-border: rgba(222, 219, 200, 0.05);
-  --sidebar-ring: #DEDBC8;
-
-  /* ─── Card Surface Tiers ────────────────────────────────────────────────── */
-  --card-elevated: #0F0F0F;
-  --card-elevated-border: rgba(222, 219, 200, 0.10);
-  --card-recessed: #0C0C0C;
-  --card-recessed-border: rgba(222, 219, 200, 0.05);
-
-  /* ─── Functional Accent Colors ──────────────────────────────────────────── */
-  --accent-blue: #4F8CFF;
-  --accent-teal: #00D1B2;
-}
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAILWIND v4 @theme — maps CSS variables to Tailwind color tokens
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme inline {
   --color-background: var(--background);
@@ -173,12 +196,33 @@
   --color-accent-blue: var(--accent-blue);
   --color-accent-teal: var(--accent-teal);
 
+  /* ─── Theme helpers ─────────────────────────────────────────────────────── */
+  --color-shadow: var(--shadow-color);
+  --color-overlay: var(--overlay-bg);
+
   /* ─── Font family theme tokens ────────────────────────────────────────── */
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
   --font-mono: var(--font-mono);
   --font-outfit: var(--font-outfit);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCROLLBAR — theme-aware
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+html {
+  --scrollbar-thumb: rgba(0, 0, 0, 0.12);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.22);
+}
+html.dark {
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
 @layer base {
   * {
@@ -188,6 +232,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   h1, h2, h3, h4, h5, h6 {

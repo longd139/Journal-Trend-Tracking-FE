@@ -129,7 +129,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
       animate={deleting ? { opacity: 0, y: -20, height: 0 } : { opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.25 }}
-      className="rounded-xl border p-4 sm:p-5 bg-[#101010] border-[#DEDBC8]/10 hover:border-[#DEDBC8]/20 transition-colors"
+      className="rounded-xl border p-4 sm:p-5 bg-card border-primary/10 hover:border-primary/20 transition-colors"
     >
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
         {/* Left: icon + info */}
@@ -147,7 +147,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 {t(`label.${type}`)}
               </span>
             </div>
-            <h4 className="text-sm font-bold text-[#E1E0CC] truncate">{name}</h4>
+            <h4 className="text-sm font-bold text-foreground truncate">{name}</h4>
             <p className="text-xs text-gray-500 mt-1">
               {formatDate(follow.createdAt, t)}
             </p>
@@ -184,9 +184,9 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 )}
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="bg-[#101010] border-[#DEDBC8]/10 text-[#E1E0CC]">
+            <AlertDialogContent className="bg-card border-primary/10 text-foreground">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-[#E1E0CC]">
+                <AlertDialogTitle className="text-foreground">
                   {t('button.unfollow')} "{name}"?
                 </AlertDialogTitle>
                 <AlertDialogDescription className="text-gray-400">
@@ -194,7 +194,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel className="border-[#DEDBC8]/10 text-gray-400 hover:text-[#E1E0CC] hover:bg-[#DEDBC8]/10">
+                <AlertDialogCancel className="border-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/10">
                   {t('button.cancel')}
                 </AlertDialogCancel>
                 <AlertDialogAction

@@ -106,12 +106,12 @@ export default function IdeaAnalysisFloatingPanel() {
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-lg border text-xs font-semibold transition-all cursor-pointer active:scale-[0.97] bg-[#101010] hover:shadow-xl ${
+          className={`flex items-center gap-2.5 px-4 py-2.5 rounded-full shadow-lg border text-xs font-semibold transition-all cursor-pointer active:scale-[0.97] bg-card hover:shadow-xl ${
             isDone
-              ? 'border-emerald-500/30 text-[#E1E0CC]'
+              ? 'border-emerald-500/30 text-foreground'
               : isError
-                ? 'border-red-500/30 text-[#E1E0CC]'
-                : 'border-[#DEDBC8]/10 text-[#E1E0CC]'
+                ? 'border-red-500/30 text-foreground'
+                : 'border-primary/10 text-foreground'
           }`}
         >
           {isRunning && (
@@ -135,9 +135,9 @@ export default function IdeaAnalysisFloatingPanel() {
         /* ══════════════════════════════════════════════════════════════════
            Expanded card
            ══════════════════════════════════════════════════════════════════ */
-        <div className="w-72 rounded-xl shadow-xl border overflow-hidden bg-[#101010] border-[#DEDBC8]/10">
+        <div className="w-72 rounded-xl shadow-xl border overflow-hidden bg-card border-primary/10">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#DEDBC8]/5 bg-white/[0.02]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-primary/5 bg-white/[0.02]">
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-2">
               {isRunning && (
                 <RefreshCw size={12} className="animate-spin text-[#4F8CFF]" />

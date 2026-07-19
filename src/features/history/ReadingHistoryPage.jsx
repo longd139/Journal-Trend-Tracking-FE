@@ -57,7 +57,7 @@ function formatViewedAt(dateStr) {
 
 function HistoryCardSkeleton() {
   return (
-    <div className="rounded-xl border p-5 bg-[#101010] border-[#DEDBC8]/10">
+    <div className="rounded-xl border p-5 bg-card border-primary/10">
       <div className="space-y-3">
         <Skeleton className="h-5 w-3/4 rounded bg-white/5" />
         <Skeleton className="h-4 w-1/2 rounded bg-white/5" />
@@ -120,12 +120,12 @@ export default function ReadingHistoryPage() {
           <AlertCircle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">{t('headings.readingHistory')}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{t('headings.readingHistory')}</h3>
           <p className="text-sm text-gray-400">{error}</p>
         </div>
         <button
           onClick={refetch}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           {t('bulk.retry', 'Retry')}
         </button>
@@ -154,11 +154,11 @@ export default function ReadingHistoryPage() {
   if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent">
-        <div className="w-16 h-16 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
           <History size={28} className="text-gray-500" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">No papers viewed yet</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">No papers viewed yet</h3>
           <p className="text-sm text-gray-400">Start exploring to build your reading history</p>
         </div>
         <button
@@ -189,10 +189,10 @@ export default function ReadingHistoryPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04 }}
               onClick={() => handlePaperClick(item)}
-              className="rounded-xl border p-5 bg-[#101010] border-[#DEDBC8]/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors cursor-pointer"
+              className="rounded-xl border p-5 bg-card border-primary/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors cursor-pointer"
             >
               {/* Title */}
-              <h4 className="text-sm font-bold text-[#E1E0CC] mb-1.5 hover:text-[#4F8CFF] transition-colors">
+              <h4 className="text-sm font-bold text-foreground mb-1.5 hover:text-[#4F8CFF] transition-colors">
                 {item.paperTitle || 'Untitled'}
               </h4>
 

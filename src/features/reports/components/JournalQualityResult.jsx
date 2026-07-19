@@ -57,19 +57,19 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden"
+      className="rounded-2xl border border-primary/10 bg-card overflow-hidden"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
+      <div className="flex items-center justify-between p-5 border-b border-primary/5">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
             Journal Quality Report
           </p>
-          <h3 className="text-base font-bold text-[#E1E0CC]">
+          <h3 className="text-base font-bold text-foreground">
             {reportTitle || `Đánh giá chất lượng tạp chí: ${journalName}`}
           </h3>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
-            <p className="text-sm text-[#DEDBC8] font-mono">{journalName}</p>
+            <p className="text-sm text-primary font-mono">{journalName}</p>
             {publisher && (
               <span className="text-xs text-gray-500 flex items-center gap-1">
                 <Building2 size={10} />
@@ -126,36 +126,36 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
 
         {/* ── Stat Cards ── */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <Hash size={13} className="text-[#4F8CFF]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
                 Total Papers
               </span>
             </div>
-            <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">
+            <p className="text-xl font-bold text-foreground font-mono tabular-nums">
               {totalPapers != null ? totalPapers.toLocaleString() : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <Quote size={13} className="text-[#00D1B2]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
                 Citations
               </span>
             </div>
-            <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">
+            <p className="text-xl font-bold text-foreground font-mono tabular-nums">
               {totalCitations != null ? totalCitations.toLocaleString() : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <Award size={13} className="text-[#F59E0B]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
                 Score
               </span>
             </div>
-            <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">
+            <p className="text-xl font-bold text-foreground font-mono tabular-nums">
               {formattedScore}
             </p>
           </div>
@@ -163,9 +163,9 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
 
         {/* ── Editorial Taste ── */}
         {taste && (
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
-            <h4 className="text-xs font-semibold text-[#E1E0CC] mb-2 flex items-center gap-2">
-              <BookOpen size={13} className="text-[#DEDBC8]" />
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+            <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
+              <BookOpen size={13} className="text-primary" />
               Editorial Focus
             </h4>
             <p className="text-sm text-gray-300 leading-relaxed">{taste}</p>
@@ -175,8 +175,8 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
         {/* ── Top Keywords ── */}
         {topKeywords.length > 0 && (
           <div>
-            <h4 className="text-xs font-semibold text-[#E1E0CC] mb-2.5 flex items-center gap-2">
-              <Tag size={13} className="text-[#DEDBC8]" />
+            <h4 className="text-xs font-semibold text-foreground mb-2.5 flex items-center gap-2">
+              <Tag size={13} className="text-primary" />
               Recent Keywords
             </h4>
             <div className="flex flex-wrap gap-2">
@@ -184,7 +184,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
                 <span
                   key={kw}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium border
-                    bg-[#DEDBC8]/5 border-[#DEDBC8]/10 text-[#DEDBC8]"
+                    bg-primary/5 border-primary/10 text-primary"
                 >
                   {kw}
                 </span>
@@ -195,8 +195,8 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
 
         {/* ── Insight ── */}
         {insight && (
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
-            <h4 className="text-xs font-semibold text-[#E1E0CC] mb-2 flex items-center gap-2">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+            <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
               <Lightbulb size={13} className="text-[#F59E0B]" />
               Insight
             </h4>
