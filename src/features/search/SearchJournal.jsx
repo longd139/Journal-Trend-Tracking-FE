@@ -314,7 +314,7 @@ function JournalSkeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function SearchJournal() {
+export default function SearchJournal({ embedded = false, initialQuery = '' }) {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const location = useLocation();
@@ -621,6 +621,14 @@ export default function SearchJournal() {
     return () => { cancelled = true; };
   }, [query]);
 
+  // ── Embedded mode: show journal suggestion list for the query ──
+  useEffect(() => {
+    if (embedded && initialQuery) {
+      setQuery(initialQuery);
+      setShowSuggestionList(true);
+    }
+  }, [initialQuery, embedded]);
+
   /* ─── Browse mode: fetch journals for a specific field ─── */
   const handleFieldClick = async (fieldId) => {
     if (!fieldId) return;
@@ -657,7 +665,7 @@ export default function SearchJournal() {
     <div className="min-h-screen bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         {/* ─── Journal Search Bar ─── */}
-        <div className="relative">
+        <div className={embedded ? 'hidden' : 'relative'}>
           <div className="relative">
             <BookOpen size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
             <input

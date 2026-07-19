@@ -34,7 +34,7 @@ import { trendAPI } from './trend.api.js';
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function SearchPapers() {
+export default function SearchPapers({ embedded = false, initialQuery = '' }) {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -236,6 +236,13 @@ export default function SearchPapers() {
     };
   }, [query]);
 
+  // ── Embedded mode: auto-search when parent provides query ──
+  useEffect(() => {
+    if (embedded && initialQuery) {
+      handleSearch(initialQuery);
+    }
+  }, [initialQuery, embedded]);
+
   // ─── Helpers ───
   const saveToSearchHistory = (keyword) => {
     const trimmed = keyword.trim();
@@ -327,7 +334,7 @@ export default function SearchPapers() {
     <div className="min-h-screen bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         {/* ─── Search Bar ─── */}
-        <div className="relative">
+        <div className={embedded ? 'hidden' : 'relative'}>
           <div className="relative">
             <Search
               size={18}
@@ -595,7 +602,7 @@ export default function SearchPapers() {
         )}
 
         {/* ─── Pre-search: Weekly Breakout + Trending ─── */}
-        {!searchedKeyword && <WeeklyBreakout onKeywordClick={handleSearch} />}
+        {!embedded && !searchedKeyword && <WeeklyBreakout onKeywordClick={handleSearch} />}
 
         {/* ─── Post-search: Quick Stats + Graph ─── */}
         {searchedKeyword && (

@@ -17,7 +17,7 @@ import AuthorSuggestions from './AuthorSuggestions';
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function SearchAuthor() {
+export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,6 +124,15 @@ export default function SearchAuthor() {
     };
   }, [query]);
 
+  // ── Embedded mode: show author suggestion list for the query ──
+  useEffect(() => {
+    if (embedded && initialQuery) {
+      setQuery(initialQuery);
+      setShowSuggestionList(true);
+      setShowSuggestions(false);
+    }
+  }, [initialQuery, embedded]);
+
   // ─── Load more authors ───
   const loadMoreAuthors = async () => {
     const nextPage = suggestPage + 1;
@@ -220,7 +229,7 @@ export default function SearchAuthor() {
     <div className="min-h-screen bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         {/* ─── Search Bar ─── */}
-        <div className="relative">
+        <div className={embedded ? 'hidden' : 'relative'}>
           <div className="relative">
             <UserSearch size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
             <input
@@ -503,7 +512,7 @@ export default function SearchAuthor() {
         )}
 
         {/* ─── Pre-search: Suggested authors ─── */}
-        {!searchedAuthor && !showSuggestionList && (
+        {!embedded && !searchedAuthor && !showSuggestionList && (
           <AuthorSuggestions onAuthorClick={handleSearch} />
         )}
 

@@ -8,6 +8,7 @@ import {
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
 import { useSyncStore } from '../../store/useSyncStore';
+import GapCrawlSection from './GapCrawlSection';
 import { adminAPI } from './api';
 import { trendAPI } from '../search/trend.api';
 import { toast } from 'sonner';
@@ -1556,6 +1557,9 @@ export default function SyncDataPage() {
    </DialogFooter>
   </DialogContent>
   </Dialog>
+
+  {/* Research Gap Crawl */}
+  <GapCrawlSection />
  </div>
  );
 }

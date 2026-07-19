@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2 } from 'lucide-react';
+import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2, ExternalLink } from 'lucide-react';
 import { StatCard } from '../../components/SharedUI';
 import { paperAPI } from './paper.api';
+import PaperListSidebar from './PaperListSidebar';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -129,6 +130,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPaperList, setShowPaperList] = useState(false);
 
   useEffect(() => {
     if (!keyword || !keyword.trim()) {
@@ -230,14 +232,16 @@ export default function KeywordQuickStats({ keyword, filters }) {
 
       {/* 4 stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Total Papers */}
-        <StatCard
-          label="Total Papers"
-          value={(stats.totalPapers ?? 0).toLocaleString()}
-          change=""
-          Icon={FileText}
-          accent="#4F8CFF"
-        />
+        {/* Total Papers — clickable */}
+        <button onClick={() => setShowPaperList(true)} className="text-left">
+          <StatCard
+            label="Total Papers"
+            value={(stats.totalPapers ?? 0).toLocaleString()}
+            change=""
+            Icon={FileText}
+            accent="#4F8CFF"
+          />
+        </button>
 
         {/* Total Citations */}
         <StatCard
@@ -269,6 +273,13 @@ export default function KeywordQuickStats({ keyword, filters }) {
 
       {/* Top Journals bar chart */}
       <TopJournalBars journals={stats.topJournals} />
+
+      {/* Paper List Sidebar */}
+      <PaperListSidebar
+        keyword={stats.keyword || keyword}
+        open={showPaperList}
+        onClose={() => setShowPaperList(false)}
+      />
     </motion.div>
   );
 }
