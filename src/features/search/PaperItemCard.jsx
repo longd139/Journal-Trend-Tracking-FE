@@ -10,11 +10,13 @@ import {
  FileText,
  Lock,
  Loader2,
+ AlertTriangle,
 } from 'lucide-react';
 import { Card, CardContent } from '../../components/ui/card';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
 import FollowButton from '../follows/FollowButton';
+import { ReportPaperDialog } from './ReportPaperDialog';
 
 export function PaperItemCard({
   paper,
@@ -27,6 +29,7 @@ export function PaperItemCard({
 }) {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+ const [showReportDialog, setShowReportDialog] = useState(false);
 
   if (!paper) return null;
 
@@ -243,6 +246,16 @@ export function PaperItemCard({
       </span>
 
       <div className="flex gap-2 sm:mt-1">
+       {/* Report button */}
+       <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setShowReportDialog(true); }}
+        className={`${iconBtn} hover:text-amber-400 hover:bg-amber-400/10 hover:border-amber-400/30`}
+        title="Report paper"
+       >
+        <AlertTriangle size={15} />
+       </button>
+
        {/* Bookmark — only when onToggleBookmark is provided */}
        {onToggleBookmark && (
        <button
@@ -287,6 +300,13 @@ export function PaperItemCard({
      </div>
     </CardContent>
    </Card>
+
+   {/* Report paper dialog */}
+   <ReportPaperDialog
+     paper={paper}
+     open={showReportDialog}
+     onOpenChange={setShowReportDialog}
+   />
   </motion.div>
  );
 }

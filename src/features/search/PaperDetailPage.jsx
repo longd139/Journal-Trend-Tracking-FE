@@ -6,7 +6,7 @@ import {
   ArrowLeft, BookOpen, ExternalLink, FileText,
   Quote, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
-  BrainCircuit, Cpu, RefreshCw, Lock,
+  BrainCircuit, Cpu, RefreshCw, Lock, AlertTriangle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
@@ -19,6 +19,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import CitationExport from './CitationExport';
 import SimilarPapers from './SimilarPapers';
 import FollowButton from '../follows/FollowButton';
+import { ReportPaperDialog } from './ReportPaperDialog';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Helpers
@@ -376,6 +377,7 @@ export default function PaperDetailPage() {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [bookmarkId, setBookmarkId] = useState(null);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
 
   // Role check for academic restrictions
   const role = sessionStorage.getItem('userRole') || 'researcher';
@@ -725,6 +727,13 @@ export default function PaperDetailPage() {
                 : null
             }
           />
+          <button
+            onClick={() => setShowReportDialog(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 active:scale-[0.97]"
+          >
+            <AlertTriangle size={14} />
+            Report
+          </button>
         </motion.div>
 
         {/* ── Journal ── */}
@@ -918,6 +927,13 @@ export default function PaperDetailPage() {
             )}
           </p>
         </motion.div>
+
+        {/* Report paper dialog */}
+        <ReportPaperDialog
+          paper={paper}
+          open={showReportDialog}
+          onOpenChange={setShowReportDialog}
+        />
       </div>
     </div>
   );

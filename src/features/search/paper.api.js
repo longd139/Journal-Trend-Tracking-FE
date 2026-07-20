@@ -353,4 +353,26 @@ export const paperAPI = {
     const { data } = await axiosClient.get('/api/search/fields/distribution');
     return data.data || data;
   },
+
+  // ─── Paper Report ─────────────────────────────────────────────────────────
+
+  /**
+   * Report/flag a paper with reason, description, and optional images.
+   * POST /api/v1/papers/{paperId}/reports (multipart/form-data)
+   *
+   * @param {string} paperId - Paper UUID
+   * @param {{ reason: string, description?: string }} data - Report data
+   * @param {File[]} images - Optional image files (max 5, 5MB each)
+   */
+  async reportPaper(paperId, data, images = []) {
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    images.forEach((file) => formData.append('images', file));
+    const { data: response } = await axiosClient.post(
+      `/api/v1/papers/${paperId}/reports`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response;
+  },
 };
