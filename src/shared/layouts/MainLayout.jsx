@@ -6,6 +6,7 @@ import ThemeToggle from '../../components/common/ThemeToggle';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
+import NotificationBell from '../../features/notifications/NotificationBell';
 import {
   Home,
   Search,
@@ -76,6 +77,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
+    { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
   ];
@@ -226,6 +228,9 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
 
         {/* Language Switcher */}
         <LanguageSwitcher />
+
+        {/* Notification Bell */}
+        <NotificationBell />
 
         {/* User avatar + settings */}
         <button

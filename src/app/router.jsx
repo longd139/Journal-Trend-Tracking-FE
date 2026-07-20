@@ -160,7 +160,7 @@ export const router = createBrowserRouter([
       {
         path: 'notifications',
         element: (
-          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user', 'admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <NotificationsPage />
             </Suspense>
