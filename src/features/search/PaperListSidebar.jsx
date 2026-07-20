@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Loader2, ExternalLink, FileText, Quote } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -91,22 +91,22 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-[420px] max-w-[90vw] bg-[#0B1020] border-l border-[#DEDBC8]/10 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 z-50 w-[420px] max-w-[90vw] bg-background border-l border-primary/10 flex flex-col shadow-2xl"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#DEDBC8]/5 shrink-0">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
               <div>
-                <h3 className="text-sm font-bold text-[#E1E0CC] flex items-center gap-2">
-                  <FileText size={14} className="text-[#4F8CFF]" />
+                <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                  <FileText size={14} className="text-accent-blue" />
                   Papers for "{keyword}"
                 </h3>
-                <p className="text-[10px] text-gray-500 mt-0.5">
+                <p className="text-[10px] text-muted-foreground mt-0.5">
                   {total > 0 ? `${papers.length} of ${total} papers` : ''}
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+                className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={16} />
               </button>
@@ -117,7 +117,7 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
               {/* Loading */}
               {loading && (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 size={24} className="animate-spin text-[#DEDBC8]" />
+                  <Loader2 size={24} className="animate-spin text-primary" />
                 </div>
               )}
 
@@ -130,7 +130,7 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
 
               {/* Paper list */}
               {!loading && !error && papers.length === 0 && (
-                <p className="text-xs text-gray-500 text-center py-12">
+                <p className="text-xs text-muted-foreground text-center py-12">
                   No papers found for this keyword.
                 </p>
               )}
@@ -142,17 +142,17 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="p-3 rounded-lg bg-[#101010] border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-colors group cursor-pointer"
+                    className="p-3 rounded-lg bg-card border border-border hover:border-primary/15 transition-colors group cursor-pointer"
                     onClick={() => {
                       navigate(`/${role}/papers/${paper.paperId}`);
                       onClose();
                     }}
                   >
-                    <p className="text-xs font-medium text-[#E1E0CC] leading-snug group-hover:text-white transition-colors line-clamp-2">
+                    <p className="text-xs font-medium text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">
                       {paper.title}
                     </p>
 
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-gray-500">
+                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
                       {/* Authors */}
                       {paper.authors && paper.authors.length > 0 && (
                         <span className="truncate max-w-[200px]">
@@ -177,7 +177,7 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
 
                     {/* Journal */}
                     {paper.journalName && (
-                      <p className="text-[10px] text-gray-600 mt-0.5 truncate">
+                      <p className="text-[10px] text-muted-foreground/70 mt-0.5 truncate">
                         {paper.journalName}
                       </p>
                     )}
@@ -191,7 +191,7 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
                 <button
                   onClick={loadMore}
                   disabled={loading}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-[#DEDBC8] bg-[#DEDBC8]/5 hover:bg-[#DEDBC8]/10 border border-[#DEDBC8]/10 transition-all"
+                  className="px-4 py-2 rounded-lg text-xs font-semibold text-foreground bg-muted hover:bg-muted/60 border border-border transition-all"
                 >
                   {loading ? 'Loading...' : `Load more (${total - papers.length} remaining)`}
                 </button>
@@ -199,8 +199,8 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
             )}
 
             {/* Footer */}
-            <div className="px-5 py-3 border-t border-[#DEDBC8]/5 shrink-0">
-              <p className="text-[10px] text-gray-600 text-center">
+            <div className="px-5 py-3 border-t border-border shrink-0">
+              <p className="text-[10px] text-muted-foreground/70 text-center">
                 Click a paper to view details
               </p>
             </div>

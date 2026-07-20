@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Download, FileJson, Loader2, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -22,7 +22,7 @@ export default function ExportButtons({
   contentRef,
   jsonData,
   filename,
-  accentColor = '#DEDBC8',
+  accentColor = 'var(--primary)',
   onSave,
   saving = false,
 }) {
@@ -157,7 +157,7 @@ export default function ExportButtons({
       <button
         onClick={handleExportPDF}
         disabled={pdfLoading}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 hover:bg-[#EF4444]/20 transition-all disabled:opacity-50"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 transition-all disabled:opacity-50"
       >
         {pdfLoading ? (
           <>
@@ -177,12 +177,7 @@ export default function ExportButtons({
         <button
           onClick={() => onSave(jsonData)}
           disabled={saving}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-50"
-          style={{
-            background: `${accentColor}1A`,
-            color: accentColor,
-            border: `1px solid ${accentColor}44`,
-          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98]"
         >
           {saving ? 'Saving...' : 'Save Report'}
         </button>

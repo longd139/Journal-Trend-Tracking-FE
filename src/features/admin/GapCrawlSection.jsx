@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Network, Plus, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import axiosClient from '../../lib/apiClient.js';
@@ -68,19 +68,19 @@ export default function GapCrawlSection() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-[#101010] border border-[#DEDBC8]/5 rounded-xl p-5 space-y-4"
+      className="bg-card border border-border rounded-xl p-5 space-y-4"
     >
       <div className="flex items-center gap-2">
-        <Network size={16} className="text-[#00D1B2]" />
-        <h3 className="text-sm font-bold text-[#E1E0CC]">Research Gap Crawl</h3>
-        <span className="text-[10px] text-gray-500 ml-auto">
+        <Network size={16} className="text-accent-teal" />
+        <h3 className="text-sm font-bold text-foreground">Research Gap Crawl</h3>
+        <span className="text-[10px] text-muted-foreground ml-auto">
           Crawls papers with quality filtering + AI enrichment for the Graph Explorer
         </span>
       </div>
 
       {/* Keyword inputs */}
       <div className="space-y-2">
-        <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+        <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
           Keywords to crawl (OpenAlex → quality filter ≥ 40 → AI enrich → Neo4j)
         </label>
         {keywords.map((kw, i) => (
@@ -92,11 +92,11 @@ export default function GapCrawlSection() {
               placeholder={`Keyword ${i + 1}...`}
               disabled={loading}
               list="ai-keywords-list"
-              className="flex-1 px-3 py-2 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-[#DEDBC8]/10 text-[#E2E8F0] focus:border-[#DEDBC8]/30"
+              className="flex-1 px-3 py-2 rounded-lg text-xs outline-none border transition-colors disabled:opacity-50 bg-transparent border-primary/10 text-foreground focus:border-primary/30"
             />
             {keywords.length > 1 && (
               <button onClick={() => removeKeyword(i)} disabled={loading}
-                className="p-2 rounded-lg hover:bg-red-500/10 text-gray-400 hover:text-red-400">
+                className="p-2 rounded-lg hover:bg-red-500/10 text-muted-foreground hover:text-red-400">
                 <X size={12} />
               </button>
             )}
@@ -106,7 +106,7 @@ export default function GapCrawlSection() {
           {AI_KEYWORDS.map((k) => <option key={k} value={k} />)}
         </datalist>
         <button onClick={addKeyword} disabled={loading}
-          className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#DEDBC8] transition-colors">
+          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
           <Plus size={10} /> Add keyword
         </button>
       </div>
@@ -115,7 +115,7 @@ export default function GapCrawlSection() {
       <button
         onClick={startCrawl}
         disabled={loading || keywords.every((k) => !k.trim())}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8] hover:opacity-90"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-primary-foreground transition-opacity disabled:opacity-40 bg-primary hover:opacity-90"
       >
         {loading ? <Loader2 size={14} className="animate-spin" /> : <Network size={14} />}
         Start Gap Crawl
@@ -123,21 +123,21 @@ export default function GapCrawlSection() {
 
       {/* Progress */}
       {progress && (
-        <div className="p-3 rounded-lg bg-[#0A0A0A] border border-[#DEDBC8]/5 space-y-2">
+        <div className="p-3 rounded-lg bg-card border border-border space-y-2">
           <div className="flex items-center justify-between">
-            <span className={`text-xs font-semibold ${statusColor[progress.status] || 'text-gray-400'}`}>
+            <span className={`text-xs font-semibold ${statusColor[progress.status] || 'text-muted-foreground'}`}>
               {progress.status}
             </span>
             {progress.status === 'DONE' && <CheckCircle2 size={14} className="text-emerald-400" />}
             {progress.status === 'FAILED' && <AlertCircle size={14} className="text-red-400" />}
           </div>
           {progress.currentKeyword && (
-            <p className="text-[10px] text-gray-500">Keyword: {progress.currentKeyword}</p>
+            <p className="text-[10px] text-muted-foreground">Keyword: {progress.currentKeyword}</p>
           )}
           <div className="grid grid-cols-3 gap-2 text-[10px]">
-            <span className="text-gray-500">Total: <b className="text-[#E1E0CC]">{progress.totalPapers || 0}</b></span>
-            <span className="text-gray-500">Quality: <b className="text-[#E1E0CC]">{progress.qualityPapers || 0}</b></span>
-            <span className="text-gray-500">Enriched: <b className="text-[#00D1B2]">{progress.enrichedPapers || 0}</b></span>
+            <span className="text-muted-foreground">Total: <b className="text-foreground">{progress.totalPapers || 0}</b></span>
+            <span className="text-muted-foreground">Quality: <b className="text-foreground">{progress.qualityPapers || 0}</b></span>
+            <span className="text-muted-foreground">Enriched: <b className="text-accent-teal">{progress.enrichedPapers || 0}</b></span>
           </div>
           {progress.error && <p className="text-[10px] text-red-400">{progress.error}</p>}
         </div>

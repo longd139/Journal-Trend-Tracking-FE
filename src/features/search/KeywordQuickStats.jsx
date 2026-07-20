@@ -30,7 +30,7 @@ function TopJournalBars({ journals }) {
     <div className="space-y-2">
       <div className="flex items-center gap-2 mb-3">
         <BookOpen size={13} className="text-primary/40" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Top Journals
         </span>
       </div>
@@ -48,7 +48,7 @@ function TopJournalBars({ journals }) {
               className="flex items-center gap-2 group"
             >
               {/* Journal name */}
-              <span className="w-44 text-[11px] text-gray-400 truncate shrink-0 text-right group-hover:text-primary/80 transition-colors">
+              <span className="w-44 text-[11px] text-muted-foreground truncate shrink-0 text-right group-hover:text-primary/80 transition-colors">
                 {journal.journalName}
               </span>
 
@@ -96,7 +96,7 @@ function QuickStatsSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-border bg-card animate-pulse space-y-3"
           >
             <div className="flex items-center justify-between">
               <div className="h-3 w-16 bg-primary/8 rounded" />
@@ -207,9 +207,9 @@ export default function KeywordQuickStats({ keyword, filters }) {
       {/* Section label */}
       <div className="flex items-center gap-2">
         <div className="w-1 h-4 rounded-full bg-primary/20" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Quick Stats
-          <span className="text-primary/60 ml-1.5 font-normal normal-case">
+          <span className="text-primary/80 ml-1.5 font-semibold normal-case">
             for "{stats.keyword || keyword}"
           </span>
         </span>
@@ -223,7 +223,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
             if (filters?.pubYearTo) params.set('endYear', filters.pubYearTo);
             navigate(`/${role}/reports?${params.toString()}`);
           }}
-          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 hover:bg-[#3B82F6]/20 transition-all"
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-accent-blue/10 text-accent-blue border border-accent-blue/20 hover:bg-accent-blue/20 transition-all"
         >
           <BarChart2 size={12} />
           Generate Report

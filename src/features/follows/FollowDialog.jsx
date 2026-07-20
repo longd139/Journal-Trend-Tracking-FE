@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Building2, Bookmark, Hash, User } from 'lucide-react';
 import {
@@ -66,7 +66,7 @@ export default function FollowDialog({
           <DialogTitle className="text-foreground">
             {t('dialog.title')}
           </DialogTitle>
-          <DialogDescription className="text-gray-400">
+          <DialogDescription className="text-muted-foreground">
             {t('page.subtitle')}
           </DialogDescription>
         </DialogHeader>
@@ -86,7 +86,7 @@ export default function FollowDialog({
                   className={cn(
                     'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all',
                     selected === key
-                      ? 'border-[#4F8CFF] bg-[#4F8CFF]/10'
+                      ? 'border-accent-blue bg-accent-blue/10'
                       : 'border-primary/10 bg-primary/5 hover:border-primary/20',
                   )}
                 >
@@ -95,8 +95,8 @@ export default function FollowDialog({
                     className={cn(
                       'w-9 h-9 rounded-lg flex items-center justify-center transition-colors',
                       selected === key
-                        ? 'bg-[#4F8CFF]/20 text-[#4F8CFF]'
-                        : 'bg-primary/10 text-gray-400',
+                        ? 'bg-accent-blue/20 text-accent-blue'
+                        : 'bg-primary/10 text-muted-foreground',
                     )}
                   >
                     <Icon size={16} />
@@ -105,7 +105,7 @@ export default function FollowDialog({
                     <div className="text-sm font-semibold text-foreground">
                       {option.name}
                     </div>
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-muted-foreground">
                       {t(targetLabelKeys[option.type] || 'label.keyword')}
                     </div>
                   </div>
@@ -134,14 +134,14 @@ export default function FollowDialog({
           <Button
             variant="outline"
             onClick={onClose}
-            className="border-primary/10 text-gray-400 hover:text-foreground hover:bg-primary/10"
+            className="border-primary/10 text-muted-foreground hover:text-foreground hover:bg-primary/10"
           >
             {t('button.cancel')}
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={!selected}
-            className="bg-[#4F8CFF] text-white hover:bg-[#4F8CFF]/90"
+            className="bg-accent-blue text-white hover:bg-accent-blue/90"
           >
             {t('button.follow')}
           </Button>

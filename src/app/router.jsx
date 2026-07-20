@@ -18,8 +18,6 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 
 // Trang User / Researcher
 const SearchPapers = lazy(() => import('../features/search/SearchPapers.jsx'));
-const SearchJournal = lazy(() => import('../features/search/SearchJournal.jsx'));
-const SearchAuthor = lazy(() => import('../features/search/SearchAuthor.jsx'));
 const UnifiedSearch = lazy(() => import('../features/search/UnifiedSearch.jsx'));
 const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.jsx'));
 
@@ -43,8 +41,8 @@ const PdfRequestsPage = lazy(() => import('../features/admin/PdfRequestsPage.jsx
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
 // ==========================================
 const FallbackLoading = () => (
-  <div className="flex h-screen w-full items-center justify-center bg-[#0B1020]">
-    <div className="text-sm font-semibold text-white animate-pulse">
+  <div className="flex h-screen w-full items-center justify-center bg-background">
+    <div className="text-sm font-semibold text-foreground animate-pulse">
       Loading system...
     </div>
   </div>
@@ -193,7 +191,6 @@ export const router = createBrowserRouter([
         path: 'search-author',
         element: <Navigate to="../search" replace />,
       },
-
       {
         path: 'papers/:paperId', // -> URL thực tế: /:roleName/papers/:paperId
         element: (

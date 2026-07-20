@@ -117,12 +117,12 @@ function NotificationCard({ notif, onClick, onDismiss }) {
       onClick={() => onClick(notif)}
       className={`group relative p-5 rounded-2xl cursor-pointer transition-all duration-300 border ${
         !notif.read
-          ? 'bg-primary/[0.04] border-primary/15'
-          : 'bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:border-white/[0.06]'
+          ? 'bg-primary/[0.06] border-primary/30 shadow-sm'
+          : 'bg-card border-primary/15 hover:bg-primary/[0.03] hover:border-primary/25'
       }`}
     >
       {!notif.read && (
-        <div className="absolute top-3.5 left-5 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
+        <div className="absolute top-3.5 left-5 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
       )}
 
       <div className="flex items-start gap-4">
@@ -134,17 +134,17 @@ function NotificationCard({ notif, onClick, onDismiss }) {
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <h4
               className={`text-sm font-bold truncate ${
-                !notif.read ? 'text-foreground' : 'text-gray-400'
+                !notif.read ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
               {notif.title}
             </h4>
-            <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap flex items-center gap-1">
+            <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap flex items-center gap-1">
               <Clock size={10} />
               {formatRelativeTime(notif)}
             </span>
           </div>
-          <p className="text-xs text-gray-400 leading-relaxed">{notif.desc}</p>
+          <p className="text-xs text-muted-foreground leading-relaxed">{notif.desc}</p>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ function NotificationCard({ notif, onClick, onDismiss }) {
           e.stopPropagation();
           onDismiss(notif.id);
         }}
-        className="absolute bottom-4 right-4 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+        className="absolute bottom-4 right-4 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
       >
         <Trash2 size={14} />
       </button>
@@ -174,7 +174,7 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="rounded-2xl border border-primary/10 bg-card p-6 space-y-5"
+      className="rounded-2xl border border-primary/15 bg-card p-6 space-y-5"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
@@ -183,7 +183,7 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
           </div>
           <div>
             <h3 className="text-base font-bold text-foreground">{notif.title}</h3>
-            <span className="text-[11px] text-gray-500 flex items-center gap-1 mt-0.5">
+            <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
               <Clock size={10} />
               {formatRelativeTime(notif)}
             </span>
@@ -191,27 +191,27 @@ function DetailSheet({ notif, onClose, onViewPaper }) {
         </div>
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition-all"
+          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
         >
           ✕
         </button>
       </div>
 
-      <p className="text-sm text-gray-300 leading-relaxed">{notif.detail}</p>
+      <p className="text-sm text-foreground/80 leading-relaxed">{notif.detail}</p>
 
       {/* Action buttons */}
       {notif.actionable && notif.relatedPaperId && (
         <div className="flex items-center gap-2 pt-1">
           <button
             onClick={() => onViewPaper(notif.relatedPaperId)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-black bg-primary hover:bg-primary/90 active:scale-[0.97] transition-all duration-150"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 active:scale-[0.97] transition-all duration-150"
           >
             <ExternalLink size={14} />
             View Paper
             <ArrowRight size={14} />
           </button>
           {notif.relatedPaperTitle && (
-            <span className="text-xs text-gray-500 truncate max-w-[200px]">
+            <span className="text-xs text-muted-foreground truncate max-w-[200px]">
               {notif.relatedPaperTitle}
             </span>
           )}
@@ -229,7 +229,7 @@ function NotificationSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-primary/5 bg-card p-5 animate-pulse">
+        <div key={i} className="rounded-2xl border border-primary/15 bg-card p-5 animate-pulse">
           <div className="flex items-start gap-4">
             <div className="w-11 h-11 rounded-xl bg-primary/8" />
             <div className="flex-1 space-y-2">
@@ -417,7 +417,7 @@ export default function NotificationsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-lg font-bold text-foreground">{t('notifications.title')}</h2>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {unreadCount > 0
               ? `${unreadCount} unread · ${notifs.length} total`
               : `${notifs.length} notification${notifs.length !== 1 ? 's' : ''}`}
@@ -432,7 +432,7 @@ export default function NotificationsPage() {
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all border ${
               autoRefresh
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                : 'text-gray-400 border-primary/10 hover:text-foreground hover:border-primary/20'
+                : 'text-muted-foreground border-border hover:text-foreground hover:border-primary/20'
             }`}
             title={autoRefresh ? 'Auto-refresh active (30s)' : 'Enable auto-refresh'}
           >
@@ -442,7 +442,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-gray-400 hover:text-primary hover:bg-primary/5 border border-primary/10 transition-all"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 border border-border transition-all"
             >
               <CheckCheck size={14} />
               Mark all read
@@ -452,7 +452,7 @@ export default function NotificationsPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-primary/5 w-fit">
+      <div className="flex gap-1.5 p-1 rounded-xl bg-muted/40 border border-border w-fit">
         {[
           { key: 'all', label: 'All' },
           { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
@@ -465,8 +465,8 @@ export default function NotificationsPage() {
             }}
             className={`px-4 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
               filter === key
-                ? 'bg-primary text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                : 'text-gray-400 hover:text-foreground hover:bg-white/[0.03]'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
             }`}
           >
             {label}
@@ -494,7 +494,7 @@ export default function NotificationsPage() {
           <AnimatePresence>
             {groupedNotifs.map(([group, items]) => (
               <div key={group} className="space-y-2">
-                <span className="text-[10px] uppercase tracking-wider font-bold text-gray-600 px-1">
+                <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground px-1">
                   {group}
                 </span>
                 {items.map((n) => (
@@ -518,13 +518,13 @@ export default function NotificationsPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center justify-center py-16 px-6"
         >
-          <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-5">
-            <Inbox size={32} className="text-gray-500" />
+          <div className="w-20 h-20 rounded-full bg-muted/40 flex items-center justify-center mb-5">
+            <Inbox size={32} className="text-muted-foreground" />
           </div>
           <h3 className="text-base font-bold text-foreground mb-1.5">
             {filter === 'unread' ? 'No unread notifications' : t('notifications.emptyTitle')}
           </h3>
-          <p className="text-xs text-gray-500 text-center max-w-[280px] leading-relaxed">
+          <p className="text-xs text-muted-foreground text-center max-w-[280px] leading-relaxed">
             {filter === 'unread'
               ? "You're all caught up! Switch to 'All' to see previous notifications."
               : t('notifications.emptyDesc')}

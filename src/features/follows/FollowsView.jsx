@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,7 +30,7 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
             activeTab === tab.key
               ? 'bg-primary/10 text-primary border-primary/30'
-              : 'text-gray-400 border-transparent hover:bg-white/5 hover:text-foreground'
+              : 'text-muted-foreground border-transparent hover:bg-muted/40 hover:text-foreground'
           }`}
         >
           {tab.label}
@@ -39,7 +39,7 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
               className={`ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
                 activeTab === tab.key
                   ? 'bg-primary/20 text-primary'
-                  : 'bg-white/5 text-gray-500'
+                  : 'bg-muted/20 text-muted-foreground'
               }`}
             >
               {counts[tab.countKey]}
@@ -156,12 +156,12 @@ export default function FollowsView() {
   if (error && !loading && follows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent p-8">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-red-400" />
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+          <AlertCircle size={28} className="text-red-600 dark:text-red-400" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
-          <p className="text-sm text-gray-400">{t('toast.loadError')}</p>
+          <p className="text-sm text-muted-foreground">{t('toast.loadError')}</p>
         </div>
         <button
           onClick={fetchFollows}
@@ -178,12 +178,12 @@ export default function FollowsView() {
     return (
       <div className="p-4 sm:p-8 space-y-6 min-h-screen bg-transparent">
         <div className="space-y-1">
-          <Skeleton className="h-7 w-40 rounded bg-white/5" />
-          <Skeleton className="h-4 w-64 rounded bg-white/5" />
+          <Skeleton className="h-7 w-40 rounded bg-muted/20" />
+          <Skeleton className="h-4 w-64 rounded bg-muted/20" />
         </div>
         <div className="flex items-center gap-2">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-8 w-20 rounded-lg bg-white/5" />
+            <Skeleton key={i} className="h-8 w-20 rounded-lg bg-muted/20" />
           ))}
         </div>
         <div className="space-y-3">
@@ -200,13 +200,13 @@ export default function FollowsView() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent p-8">
         <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
-          <BellOff size={28} className="text-gray-500" />
+          <BellOff size={28} className="text-muted-foreground" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">
             {t('page.empty.title')}
           </h3>
-          <p className="text-sm text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {t('page.empty.description')}
           </p>
         </div>
@@ -222,7 +222,7 @@ export default function FollowsView() {
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
           <Bell size={13} className="text-primary" />
           <span className="text-xs font-bold text-primary">{follows.length}</span>
-          <span className="text-[11px] text-gray-400">{follows.length === 1 ? 'follow' : 'follows'}</span>
+          <span className="text-[11px] text-muted-foreground">{follows.length === 1 ? 'follow' : 'follows'}</span>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ export default function FollowsView() {
             className="p-3 rounded-xl border bg-card border-primary/10 text-center"
           >
             <div className="text-xl font-bold text-foreground">{stat.count}</div>
-            <div className="text-[10px] uppercase tracking-wider font-bold text-gray-500">{stat.label}</div>
+            <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">{stat.label}</div>
           </motion.div>
         ))}
       </div>

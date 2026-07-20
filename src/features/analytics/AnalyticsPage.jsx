@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   BarChart3, TrendingUp, Star, FileText, Hash, Activity,
@@ -31,13 +31,13 @@ function StatChip({ icon: Icon, label, value, change, color = '#4F8CFF' }) {
       className="p-4 rounded-xl border bg-card border-primary/10 flex flex-col gap-2"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[10px] uppercase tracking-wider font-bold text-gray-500">{label}</span>
+        <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">{label}</span>
         <Icon size={16} style={{ color }} />
       </div>
       <div className="flex items-baseline gap-2">
         <span className="text-xl font-bold text-foreground">{value}</span>
         {change && (
-          <span className={`text-[11px] font-bold ${String(change).startsWith('+') ? 'text-emerald-400' : String(change).startsWith('-') ? 'text-red-400' : 'text-gray-500'}`}>
+          <span className={`text-[11px] font-bold ${String(change).startsWith('+') ? 'text-emerald-600 dark:text-emerald-400' : String(change).startsWith('-') ? 'text-red-600 dark:text-red-400' : 'text-muted-foreground'}`}>
             {change}
           </span>
         )}
@@ -112,7 +112,7 @@ function KeywordComparison() {
       {/* Keyword input */}
       <div className="flex items-center gap-2">
         <div className="flex-1 relative">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={input}
@@ -120,7 +120,7 @@ function KeywordComparison() {
             onKeyDown={(e) => { if (e.key === 'Enter') addKeyword(); }}
             placeholder="Add keyword to compare..."
             disabled={keywords.length >= 4}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-[#0A0A0A] border border-primary/10 text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 transition-colors"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm bg-card border border-primary/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 transition-colors"
           />
         </div>
         <button
@@ -139,14 +139,14 @@ function KeywordComparison() {
           {keywords.map((kw) => (
             <span
               key={kw}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
             >
               <Hash size={11} />
               {kw}
               <button
                 type="button"
                 onClick={() => removeKeyword(kw)}
-                className="ml-0.5 p-0.5 rounded-full hover:bg-[#4F8CFF]/20 transition-colors"
+                className="ml-0.5 p-0.5 rounded-full hover:bg-accent-blue/20 transition-colors"
               >
                 <X size={11} />
               </button>
@@ -157,7 +157,7 @@ function KeywordComparison() {
               type="button"
               onClick={handleCompare}
               disabled={loading}
-              className="ml-2 px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary text-black hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              className="ml-2 px-3 py-1.5 rounded-full text-[11px] font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-50"
             >
               {loading ? <Loader2 size={12} className="animate-spin" /> : <Activity size={12} />}
               Compare
@@ -175,13 +175,13 @@ function KeywordComparison() {
         >
           {/* Bar chart comparison */}
           <div className="rounded-xl border border-primary/10 bg-card p-5">
-            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4">Total Papers Comparison</h4>
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Total Papers Comparison</h4>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={comparisonData.keywords} layout="vertical" margin={{ left: 80 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.05)" horizontal={false} />
-                <XAxis type="number" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis type="category" dataKey="keyword" tick={{ fill: '#E1E0CC', fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
-                <Tooltip contentStyle={{ background: '#1B2235', border: '1px solid rgba(222,219,200,0.1)', borderRadius: 12, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                <XAxis type="number" tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="keyword" tick={{ fill: 'var(--foreground)', fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
+                <Tooltip contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: 12 }} />
                 <Bar dataKey="totalPapers" fill="#4F8CFF" radius={[0, 6, 6, 0]} maxBarSize={32} name="Papers" />
               </BarChart>
             </ResponsiveContainer>
@@ -191,17 +191,17 @@ function KeywordComparison() {
           <div className="rounded-xl border border-primary/10 bg-card overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-primary/5">
-                  <th className="text-left px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Keyword</th>
-                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Papers</th>
-                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Citations</th>
-                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">Avg/Ppr</th>
-                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-gray-500">YoY</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Keyword</th>
+                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Papers</th>
+                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Citations</th>
+                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Avg/Ppr</th>
+                  <th className="text-right px-5 py-3 text-[10px] uppercase tracking-wider font-bold text-muted-foreground">YoY</th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonData.keywords.map((k, i) => (
-                  <tr key={k.keyword} className="border-b border-primary/5 last:border-b-0">
+                  <tr key={k.keyword} className="border-b border-border last:border-b-0">
                     <td className="px-5 py-3">
                       <span className="text-xs font-semibold" style={{ color: COLORS[i % COLORS.length] }}>
                         {k.keyword}
@@ -210,7 +210,7 @@ function KeywordComparison() {
                     <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.totalPapers ?? 0).toLocaleString()}</td>
                     <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.totalCitations ?? 0).toLocaleString()}</td>
                     <td className="px-5 py-3 text-right text-xs text-foreground font-mono">{(k.avgCitationsPerPaper ?? 0).toFixed(1)}</td>
-                    <td className="px-5 py-3 text-right text-xs font-mono font-bold" style={{ color: (k.yoyGrowthRate ?? 0) >= 0 ? '#34D399' : '#EF4444' }}>
+                    <td className="px-5 py-3 text-right text-xs font-mono font-bold" style={{ color: (k.yoyGrowthRate ?? 0) >= 0 ? 'var(--accent-teal)' : 'var(--destructive)' }}>
                       {(k.yoyGrowthRate ?? 0) >= 0 ? '+' : ''}{(k.yoyGrowthRate ?? 0).toFixed(1)}%
                     </td>
                   </tr>
@@ -233,12 +233,12 @@ function AnalyticsSkeleton() {
     <div className="space-y-6 animate-pulse">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-24 rounded-xl border bg-card border-primary/5" />
+          <div key={i} className="h-24 rounded-xl border bg-card border-border" />
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <div className="h-72 rounded-xl border bg-card border-primary/5" />
-        <div className="h-72 rounded-xl border bg-card border-primary/5" />
+        <div className="h-72 rounded-xl border bg-card border-border" />
+        <div className="h-72 rounded-xl border bg-card border-border" />
       </div>
     </div>
   );
@@ -308,8 +308,8 @@ export default function AnalyticsPage() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-4 p-8">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-red-400" />
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+          <AlertCircle size={28} className="text-red-600 dark:text-red-400" />
         </div>
         <h3 className="text-lg font-bold text-foreground">{error}</h3>
         <button
@@ -332,7 +332,7 @@ export default function AnalyticsPage() {
             <span className="text-[11px] font-bold uppercase tracking-widest text-primary/70">Analytics</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Research Analytics</h1>
-          <p className="text-sm text-gray-500 mt-1.5 max-w-lg">
+          <p className="text-sm text-muted-foreground mt-1.5 max-w-lg">
             Deep insights into your research impact, publication trends, and keyword performance.
           </p>
         </motion.div>
@@ -363,7 +363,7 @@ export default function AnalyticsPage() {
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-foreground">Publication Trends</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Your research output over time</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Your research output over time</p>
               </div>
               <div className="flex items-center gap-1 p-1 rounded-lg bg-primary/5">
                 {['yearly', 'monthly'].map((p) => (
@@ -372,7 +372,7 @@ export default function AnalyticsPage() {
                     type="button"
                     onClick={() => setPeriod(p)}
                     className={`px-3 py-1.5 rounded-md text-[10px] font-bold capitalize transition-all ${
-                      period === p ? 'bg-primary text-black' : 'text-gray-400 hover:text-foreground'
+                      period === p ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {p}
@@ -392,10 +392,10 @@ export default function AnalyticsPage() {
                     <stop offset="95%" stopColor="#00D1B2" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(222,219,200,0.05)" />
-                <XAxis dataKey={period === 'yearly' ? 'year' : 'month'} tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={{ background: '#1B2235', border: '1px solid rgba(222,219,200,0.1)', borderRadius: 12, fontSize: 12 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey={period === 'yearly' ? 'year' : 'month'} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                <Tooltip contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, fontSize: 12 }} />
                 <Area type="monotone" dataKey="paperCount" stroke="#4F8CFF" strokeWidth={2} fill="url(#paperGrad)" name="Papers" />
                 <Area type="monotone" dataKey="citationCount" stroke="#00D1B2" strokeWidth={2} fill="url(#citeGrad)" name="Citations" />
               </AreaChart>
@@ -415,7 +415,7 @@ export default function AnalyticsPage() {
             >
               <div className="flex items-center gap-2 mb-5">
                 <Layers size={14} className="text-primary/40" />
-                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Your Top Keywords</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Your Top Keywords</h3>
               </div>
               <div className="space-y-2">
                 {keywords.slice(0, 8).map((kw, i) => {
@@ -424,7 +424,7 @@ export default function AnalyticsPage() {
                     : 0;
                   return (
                     <div key={kw.keyword || i} className="flex items-center gap-3">
-                      <span className="w-24 text-[11px] text-gray-400 truncate text-right">{kw.keyword}</span>
+                      <span className="w-24 text-[11px] text-muted-foreground truncate text-right">{kw.keyword}</span>
                       <div className="flex-1 h-5 bg-primary/3 rounded-full overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
@@ -451,7 +451,7 @@ export default function AnalyticsPage() {
           >
             <div className="flex items-center gap-2 mb-5">
               <ArrowUpRight size={14} className="text-primary/40" />
-              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Keyword Comparison</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Keyword Comparison</h3>
             </div>
             <KeywordComparison />
           </motion.div>
@@ -466,24 +466,24 @@ export default function AnalyticsPage() {
         >
           <div className="flex items-center gap-2 mb-5">
             <TrendingUp size={14} className="text-primary/40" />
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Hot Keywords</h3>
-            <span className="text-[10px] text-gray-600 ml-auto">Trending across the platform</span>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Hot Keywords</h3>
+            <span className="text-[10px] text-muted-foreground ml-auto">Trending across the platform</span>
           </div>
 
           {hotLoading && (
             <div className="space-y-2.5 py-2">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="w-5 h-5 rounded-md bg-white/10" />
-                  <div className="flex-1 h-4 rounded bg-white/10" />
-                  <div className="w-12 h-4 rounded bg-white/10" />
+                  <div className="w-5 h-5 rounded-md bg-muted/10" />
+                  <div className="flex-1 h-4 rounded bg-muted/10" />
+                  <div className="w-12 h-4 rounded bg-muted/10" />
                 </div>
               ))}
             </div>
           )}
 
           {!hotLoading && hotKeywords.length === 0 && (
-            <p className="text-xs text-gray-500 py-4 text-center">No trending keywords available right now.</p>
+            <p className="text-xs text-muted-foreground py-4 text-center">No trending keywords available right now.</p>
           )}
 
           {!hotLoading && hotKeywords.length > 0 && (
@@ -491,19 +491,19 @@ export default function AnalyticsPage() {
               {hotKeywords.map((kw, i) => {
                 const rank = i + 1;
                 const rankColor =
-                  rank === 1 ? '#E1E0CC' :
-                  rank === 2 ? '#94A3B8' :
+                  rank === 1 ? 'var(--foreground)' :
+                  rank === 2 ? 'var(--muted-foreground)' :
                   rank === 3 ? '#D97706' : undefined;
                 return (
                   <li
                     key={kw.keywordText || i}
-                    className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-white/5 transition-colors"
+                    className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-muted/40 transition-colors"
                   >
                     <span
                       className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold shrink-0"
                       style={{
                         background: rankColor ? `${rankColor}20` : 'transparent',
-                        color: rankColor || '#6B7280',
+                        color: rankColor || 'var(--muted-foreground)',
                       }}
                     >
                       {rank}
@@ -511,7 +511,7 @@ export default function AnalyticsPage() {
                     <span className="flex-1 text-xs font-medium text-foreground truncate">
                       {kw.keywordText}
                     </span>
-                    <span className="text-[10px] font-semibold text-gray-400 shrink-0">
+                    <span className="text-[10px] font-semibold text-muted-foreground shrink-0">
                       {kw.searchCount?.toLocaleString()} searches
                     </span>
                   </li>
@@ -527,7 +527,7 @@ export default function AnalyticsPage() {
             <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 mb-4">
               <BarChart3 size={32} className="text-primary/30" />
             </div>
-            <p className="text-sm text-gray-500 max-w-sm">
+            <p className="text-sm text-muted-foreground max-w-sm">
               Start searching and bookmarking papers to see your personalized analytics here.
             </p>
           </div>

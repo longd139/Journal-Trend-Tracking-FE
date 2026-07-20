@@ -1,4 +1,4 @@
-// import AppRoutes from './routes/AppRoutes';
+﻿// import AppRoutes from './routes/AppRoutes';
 
 export default function App() {
   return (
@@ -106,7 +106,7 @@ function Sidebar({ role, activeTab, setTab, navigate }) {
         </div>
         <button
           onClick={() => navigate('landing')}
-          className="w-full text-xs py-2 rounded-lg font-medium transition-all hover:text-white"
+          className="w-full text-xs py-2 rounded-lg font-medium transition-all hover:text-foreground"
           style={{ color: '#A0AEC0', background: 'rgba(255,255,255,0.04)' }}
         >
           Sign Out

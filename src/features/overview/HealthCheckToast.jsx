@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Loader2, CheckCircle2, XCircle, Server, X } from 'lucide-react';
 import { healthAPI } from '../../lib/api/health.api';
@@ -110,18 +110,6 @@ export default function HealthCheckToast() {
                   ? 'bg-red-500/10 border-red-500/30'
                   : 'bg-amber-500/10 border-amber-500/30'
               }`}
-            style={{
-              background: isGood
-                ? '#101010'
-                : isError
-                  ? '#101010'
-                  : '#101010',
-              borderColor: isGood
-                ? 'rgba(52, 211, 153, 0.3)'
-                : isError
-                  ? 'rgba(239, 68, 68, 0.3)'
-                  : 'rgba(245, 158, 11, 0.3)',
-            }}
           >
             {/* Icon */}
             <div className="shrink-0">
@@ -149,7 +137,7 @@ export default function HealthCheckToast() {
                 </p>
               )}
               {phase === 'degraded' && statusData?.uptime && (
-                <p className="text-[10px] mt-0.5 text-gray-500">
+                <p className="text-[10px] mt-0.5 text-muted-foreground">
                   Uptime: {statusData.uptime}
                 </p>
               )}
@@ -163,7 +151,7 @@ export default function HealthCheckToast() {
                   stopPolling();
                   setVisible(false);
                 }}
-                className="shrink-0 p-0.5 rounded text-gray-500 hover:text-gray-300 transition-colors"
+                className="shrink-0 p-0.5 rounded text-muted-foreground hover:text-foreground/80 transition-colors"
                 title="Dismiss"
               >
                 <X size={12} />

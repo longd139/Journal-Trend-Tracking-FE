@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'motion/react';
 import {
   AlertTriangle,
@@ -52,13 +52,13 @@ export default function KeywordMatchFeedback() {
             <p className="text-xs font-semibold text-amber-300">
               Some concepts not found
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               Not found:{' '}
               <span className="text-amber-300 font-medium">
                 {unmatchedTerms.join(', ')}
               </span>
             </p>
-            <p className="text-xs text-gray-500 mt-1 italic">
+            <p className="text-xs text-muted-foreground mt-1 italic">
               {guidanceMessage}
             </p>
             {unmatchedTerms.length > 0 && (
@@ -83,16 +83,16 @@ export default function KeywordMatchFeedback() {
         className="flex flex-col gap-3"
       >
         <div className="flex items-center gap-2">
-          <Search size={14} className="text-[#DEDBC8]" />
-          <p className="text-xs font-semibold text-[#E1E0CC]">Did you mean?</p>
+          <Search size={14} className="text-foreground" />
+          <p className="text-xs font-semibold text-foreground">Did you mean?</p>
         </div>
 
-        <p className="text-xs text-gray-400">{guidanceMessage}</p>
+        <p className="text-xs text-muted-foreground">{guidanceMessage}</p>
 
         {fuzzyCandidates.map((fs, i) => (
-          <div key={i} className="rounded-lg border border-[#DEDBC8]/10 bg-[#101010] p-3">
-            <p className="text-xs font-medium text-gray-400 mb-2">
-              For <span className="text-[#DEDBC8] italic">"{fs.originalTerm}"</span>:
+          <div key={i} className="rounded-lg border border-primary/10 bg-card p-3">
+            <p className="text-xs font-medium text-muted-foreground mb-2">
+              For <span className="text-foreground italic">"{fs.originalTerm}"</span>:
             </p>
 
             {fs.candidates && fs.candidates.length > 0 ? (
@@ -113,24 +113,24 @@ export default function KeywordMatchFeedback() {
                       disabled={isConfirmed}
                       className={`flex items-center justify-between rounded-md px-3 py-2 text-left transition-colors ${
                         isConfirmed
-                          ? 'bg-[#00D1B2]/10 border border-[#00D1B2]/30'
-                          : 'bg-white/[0.03] hover:bg-white/[0.06] border border-transparent'
+                          ? 'bg-accent-teal/10 border border-accent-teal/30'
+                          : 'bg-card hover:bg-muted/30 border border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         {isConfirmed ? (
-                          <Check size={12} className="text-[#00D1B2] shrink-0" />
+                          <Check size={12} className="text-accent-teal shrink-0" />
                         ) : (
                           <span className="w-3 shrink-0" />
                         )}
-                        <span className="text-xs text-[#E1E0CC] truncate">
+                        <span className="text-xs text-foreground truncate">
                           {c.keywordText}
                         </span>
-                        <span className="text-[10px] text-gray-500 shrink-0">
+                        <span className="text-[10px] text-muted-foreground shrink-0">
                           ({c.paperCount} papers)
                         </span>
                       </div>
-                      <span className="text-[10px] font-bold text-[#00D1B2] ml-2 shrink-0">
+                      <span className="text-[10px] font-bold text-accent-teal ml-2 shrink-0">
                         {Math.round(c.similarity * 100)}%
                       </span>
                     </button>
@@ -138,7 +138,7 @@ export default function KeywordMatchFeedback() {
                 })}
               </div>
             ) : (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 No similar keywords found. System only indexes Computer Science & AI papers (2024-2026).
               </p>
             )}
@@ -157,7 +157,7 @@ export default function KeywordMatchFeedback() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={reset}
-            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-black bg-[#DEDBC8] hover:opacity-90"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:opacity-90"
           >
             <BookOpen size={12} />
             Explore Available Topics Instead
@@ -176,13 +176,13 @@ export default function KeywordMatchFeedback() {
         className="flex flex-col gap-3"
       >
         <div className="flex items-center gap-2">
-          <BookOpen size={14} className="text-[#DEDBC8]" />
-          <h4 className="text-xs font-semibold text-[#E1E0CC]">
+          <BookOpen size={14} className="text-foreground" />
+          <h4 className="text-xs font-semibold text-foreground">
             Available Knowledge Map
           </h4>
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-muted-foreground">
           {guidanceMessage ||
             'Our system currently indexes Computer Science & AI papers (2024-2026).'}
         </p>
@@ -192,17 +192,17 @@ export default function KeywordMatchFeedback() {
             {availableLandscape.map((item, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-[#DEDBC8]/10 bg-[#101010] p-3"
+                className="rounded-lg border border-primary/10 bg-card p-3"
               >
                 <div className="flex items-center gap-1.5 mb-2">
-                  <TrendingUp size={12} className="text-[#4F8CFF]" />
-                  <span className="text-xs font-semibold text-[#E1E0CC]">
+                  <TrendingUp size={12} className="text-accent-blue" />
+                  <span className="text-xs font-semibold text-foreground">
                     {item.fieldName}
                   </span>
                   {item.topicName && (
                     <>
-                      <ChevronRight size={10} className="text-gray-600" />
-                      <span className="text-xs text-gray-400">{item.topicName}</span>
+                      <ChevronRight size={10} className="text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">{item.topicName}</span>
                     </>
                   )}
                 </div>
@@ -212,10 +212,10 @@ export default function KeywordMatchFeedback() {
                     {item.topKeywords.map((kw) => (
                       <span
                         key={kw.text}
-                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-[#DEDBC8]/5 text-[#DEDBC8] border border-[#DEDBC8]/10"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-primary/5 text-foreground border border-primary/10"
                       >
                         {kw.text}
-                        <span className="text-gray-500">({kw.paperCount})</span>
+                        <span className="text-muted-foreground">({kw.paperCount})</span>
                       </span>
                     ))}
                   </div>
@@ -224,7 +224,7 @@ export default function KeywordMatchFeedback() {
             ))}
           </div>
         ) : (
-          <p className="text-xs text-gray-500 italic">
+          <p className="text-xs text-muted-foreground italic">
             No indexed data available yet. Run a crawl to populate the knowledge graph.
           </p>
         )}
@@ -241,7 +241,7 @@ export default function KeywordMatchFeedback() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={reset}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-black bg-[#DEDBC8] hover:opacity-90"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:opacity-90"
           >
             <BookOpen size={12} />
             View Full Knowledge Map
@@ -270,8 +270,8 @@ function CrawlButton({ keywords, isCrawling, onClick }) {
       disabled={isCrawling}
       className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold transition-opacity ${
         isCrawling
-          ? 'bg-[#4F8CFF]/20 text-[#4F8CFF] cursor-not-allowed'
-          : 'bg-[#4F8CFF] text-white hover:opacity-90'
+          ? 'bg-accent-blue/20 text-accent-blue cursor-not-allowed'
+          : 'bg-accent-blue text-white hover:opacity-90'
       }`}
     >
       {isCrawling ? (

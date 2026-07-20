@@ -13,7 +13,7 @@ function Skeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="shrink-0 w-44 bg-card border border-primary/5 rounded-2xl p-4 space-y-3 animate-pulse"
+          className="shrink-0 w-44 bg-card border border-border rounded-2xl p-4 space-y-3 animate-pulse"
         >
           <div className="h-4 w-20 bg-primary/8 rounded" />
           <div className="h-3 w-16 bg-primary/5 rounded-full" />
@@ -94,7 +94,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
       {/* Header */}
       <div className="flex items-center gap-2">
         <Hash size={13} className="text-primary/40" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Related Research Trends
         </span>
       </div>
@@ -123,7 +123,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.96 }}
               onClick={() => onKeywordClick?.(trend.keyword)}
-              className="relative bg-card border border-primary/5 rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-[#141414] hover:border-primary/15"
+              className="relative bg-card border border-border rounded-2xl p-4 text-left transition-all duration-300 group cursor-pointer hover:bg-muted/40 hover:border-primary/15"
             >
               {/* Rank badge */}
               <span
@@ -134,21 +134,21 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
               </span>
 
               {/* Keyword name */}
-              <h4 className="text-[13px] font-semibold text-foreground mb-2.5 truncate group-hover:text-white transition-colors">
+              <h4 className="text-[13px] font-semibold text-foreground mb-2.5 truncate group-hover:text-primary transition-colors">
                 {trend.keyword}
               </h4>
 
               {/* Co-occurrence count */}
               <div className="flex items-center gap-1.5 mb-2.5">
-                <Hash size={11} className="text-gray-500" />
-                <span className="text-[11px] text-gray-500">
+                <Hash size={11} className="text-muted-foreground" />
+                <span className="text-[11px] text-muted-foreground">
                   {trend.cooccurrenceCount ?? 0} co-occurrences
                 </span>
               </div>
 
               {/* This year / Last year */}
               <div className="flex items-center">
-                <span className="text-[10px] text-gray-500">
+                <span className="text-[10px] text-muted-foreground">
                   {trend.thisYearCount ?? 0} this yr / {trend.lastYearCount ?? 0} last yr
                 </span>
               </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Users, ExternalLink, AlertCircle, ArrowRight } from 'lucide-react';
 import { authorAPI } from './author.api';
@@ -16,7 +16,7 @@ function CoAuthorsSkeleton() {
       </div>
       <div className="space-y-2">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-primary/5 bg-card animate-pulse">
+          <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card animate-pulse">
             <div className="w-7 h-7 rounded-full bg-primary/8 shrink-0" />
             <div className="flex-1 space-y-1.5">
               <div className="h-3 w-32 bg-primary/8 rounded" />
@@ -103,7 +103,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
       {/* Section label */}
       <div className="flex items-center gap-2">
         <div className="w-1 h-4 rounded-full bg-primary/20" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Co-authors
           <span className="text-primary/60 ml-1.5 font-normal normal-case">
             — analyzed {data.totalPapersAnalyzed ?? '?'} papers, {data.totalCoAuthors ?? '?'} unique co-authors
@@ -112,7 +112,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
       </div>
 
       {/* Summary strip */}
-      <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-primary/5 text-[11px] text-gray-400">
+      <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-border text-[11px] text-muted-foreground">
         <Users size={12} className="text-primary/50" />
         <span>Top {data.coAuthors.length} most frequent collaborators</span>
         {onAuthorClick && (
@@ -135,7 +135,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
               transition={{ delay: 0.1 + i * 0.04, duration: 0.3 }}
               whileHover={onAuthorClick ? { y: -2, borderColor: 'rgba(79,140,255,0.25)' } : {}}
               whileTap={onAuthorClick ? { scale: 0.98 } : {}}
-              className="w-full flex items-center gap-3 p-3 rounded-xl border border-primary/5 bg-card group hover:border-primary/10 transition-all text-left cursor-pointer"
+              className="w-full flex items-center gap-3 p-3 rounded-xl border border-border bg-card group hover:border-primary/10 transition-all text-left cursor-pointer"
             >
               {/* Avatar */}
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-foreground bg-primary/10 shrink-0 group-hover:bg-primary/15 group-hover:text-primary transition-colors">
@@ -156,7 +156,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                     {author.name}
                   </span>
                   {onAuthorClick && (
-                    <ArrowRight size={11} className="shrink-0 text-gray-600 group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" />
+                    <ArrowRight size={11} className="shrink-0 text-muted-foreground group-hover:text-primary transition-colors opacity-0 group-hover:opacity-100" />
                   )}
                   {author.openAlexId && (
                     <a
@@ -164,7 +164,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="shrink-0 text-gray-500 hover:text-primary transition-colors"
+                      className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
                       title="Open in OpenAlex"
                     >
                       <ExternalLink size={11} />
@@ -172,7 +172,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                   )}
                 </div>
                 {author.lastInstitution && (
-                  <div className="text-[10px] text-gray-500 truncate mt-0.5">
+                  <div className="text-[10px] text-muted-foreground truncate mt-0.5">
                     {author.lastInstitution}
                   </div>
                 )}
@@ -187,7 +187,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                     transition={{ delay: 0.2 + i * 0.04, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     className="h-full rounded-full group-hover:opacity-80"
                     style={{
-                      background: `linear-gradient(90deg, #DEDBC840, #DEDBC8)`,
+                      background: `linear-gradient(90deg, color-mix(in srgb, var(--chart-1) 25%, transparent), var(--chart-1))`,
                     }}
                   />
                 </div>

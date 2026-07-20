@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+﻿import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, useInView, useScroll, useTransform } from 'motion/react';
-import { ArrowRight, Check, ChevronDown } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Sun, Moon } from 'lucide-react';
 import WordsPullUp from '../../components/prisma/WordsPullUp';
 import WordsPullUpMultiStyle from '../../components/prisma/WordsPullUpMultiStyle';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
+import { useTheme } from '../../hooks/useTheme';
 
 /* ═══════════════════════════════════════════════════════════════════════════
  Section 1 — Hero
@@ -12,6 +13,7 @@ import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 
 function HeroSection() {
  const navigate = useNavigate();
+ const { resolvedTheme, setTheme } = useTheme();
 
  const scrollTo = (id) => {
  const el = document.getElementById(id);
@@ -35,30 +37,39 @@ function HeroSection() {
   <div className="noise-overlay opacity-[0.7]" style={{ mixBlendMode: 'overlay' }} />
 
   {/* Gradient overlay */}
-  <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 pointer-events-none" />
+  <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-transparent to-background/60 pointer-events-none" />
 
   {/* Auth buttons — top right */}
   <div className="absolute top-10 sm:top-0 right-0 z-20 flex items-center gap-2 p-4 md:p-6">
+   {/* Theme Toggle */}
    <button
-   onClick={() => navigate('/register')}
-   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 active:scale-[0.97]"
-   style={{ color: 'rgba(225, 224, 204, 0.8)' }}
-   onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
-   onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
+    onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+    className="flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full border transition-all duration-200 border-foreground/20 hover:border-foreground/40 hover:scale-105 active:scale-95"
+    title={resolvedTheme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
    >
-   Register
+    {resolvedTheme === 'dark' ? (
+     <Sun size={14} className="text-amber-400" />
+    ) : (
+     <Moon size={14} className="text-foreground/70" />
+    )}
    </button>
    <button
-   onClick={() => navigate('/login')}
-   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary text-black transition-all duration-200 hover:scale-105 active:scale-[0.97]"
+    onClick={() => navigate('/register')}
+    className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full transition-all duration-200 active:scale-[0.97] text-foreground/80 hover:text-foreground"
    >
-   Sign In
+    Register
+   </button>
+   <button
+    onClick={() => navigate('/login')}
+    className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-[0.97]"
+   >
+    Sign In
    </button>
   </div>
 
   {/* Navbar — black pill hanging from top */}
   <nav className="absolute top-0 left-1/2 -translate-x-1/2 z-20">
-   <div className="bg-black rounded-b-2xl md:rounded-b-3xl px-4 py-2 md:px-8">
+   <div className="bg-card/90 backdrop-blur-sm rounded-b-2xl md:rounded-b-3xl px-4 py-2 md:px-8">
    <div className="flex items-center gap-3 sm:gap-6 md:gap-12 lg:gap-14">
     {[
     { label: 'Our story', id: 'about' },
@@ -76,10 +87,7 @@ function HeroSection() {
       scrollTo(item.id);
      }
      }}
-     className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap transition-colors duration-200 active:scale-[0.97]"
-     style={{ color: 'rgba(225, 224, 204, 0.8)' }}
-     onMouseEnter={(e) => { e.target.style.color = '#E1E0CC'; }}
-     onMouseLeave={(e) => { e.target.style.color = 'rgba(225, 224, 204, 0.8)'; }}
+     className="text-[10px] sm:text-xs md:text-sm whitespace-nowrap transition-colors duration-200 active:scale-[0.97] text-foreground/80 hover:text-foreground"
     >
      {item.label}
     </a>
@@ -106,8 +114,7 @@ function HeroSection() {
     initial={{ y: 20, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-    className="text-xs sm:text-sm md:text-base leading-[1.25]"
-    style={{ color: 'rgba(225, 224, 204, 0.7)' }}
+    className="text-xs sm:text-sm md:text-base leading-[1.25] text-foreground/70"
     >
     An academic research platform that helps you discover,
     search by keyword, and track trending papers across 50M+
@@ -119,10 +126,10 @@ function HeroSection() {
 		    animate={{ y: 0, opacity: 1 }}
 		    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
 		    onClick={() => navigate('/register')}
-		    className="group relative flex items-center transition-all duration-500 bg-primary hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit active:scale-[0.98]"
+		    className="group relative flex items-center transition-all duration-500 bg-primary hover:bg-card rounded-full pl-14 pr-8 py-2.5 text-primary-foreground hover:text-foreground font-medium text-sm sm:text-base w-fit active:scale-[0.98]"
 		    >
-		    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-primary rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
-		     <ArrowRight size={16} className="text-primary group-hover:text-black transition-colors duration-500" />
+		    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-card group-hover:bg-primary rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
+		     <ArrowRight size={16} className="text-primary group-hover:text-primary-foreground transition-colors duration-500" />
 		    </span>
 		    <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-8 sm:group-hover:-translate-x-10">
 		     Explore more
@@ -225,7 +232,7 @@ function AboutSection() {
  const overlayOpacity = useTransform(scrollYProgress, [0, 0.4], [0.85, 0.5]);
 
  return (
- <section ref={sectionRef} id="about" className="relative bg-black prisma-page">
+ <section ref={sectionRef} id="about" className="relative bg-background prisma-page">
   {/* ── Hero-style image banner with scroll-driven reveal ──────── */}
   <div className="relative h-[70vh] md:h-[80vh] overflow-hidden">
   <motion.img
@@ -235,10 +242,10 @@ function AboutSection() {
    style={{ scale: imageScale }}
   />
   <motion.div
-   className="absolute inset-0 bg-black"
+   className="absolute inset-0 bg-background"
    style={{ opacity: overlayOpacity }}
   />
-  <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black" />
+  <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
   <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
 
   {/* Story text overlay — left-aligned, NOT centered (anti-center bias) */}
@@ -267,7 +274,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.6, delay: 0.25 }}
-    className="text-sm sm:text-base md:text-lg text-gray-400 mt-4 max-w-2xl leading-relaxed"
+    className="text-sm sm:text-base md:text-lg text-muted-foreground mt-4 max-w-2xl leading-relaxed"
    >
     You spend hours jumping between databases, drowning in thousands of papers,
     wondering if <span className="text-primary">the one paper that changes everything</span> slipped
@@ -289,7 +296,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-    className="relative z-10 group bg-card rounded-2xl border border-primary/5 p-6 md:p-7 hover:border-primary/15 transition-all duration-300 active:scale-[0.98]"
+    className="relative z-10 group bg-card rounded-2xl border border-border p-6 md:p-7 hover:border-primary/15 transition-all duration-300 active:scale-[0.98]"
     >
     <span className="text-4xl sm:text-5xl font-bold text-primary/15 group-hover:text-primary transition-all duration-500 leading-none">
      {item.num}
@@ -297,7 +304,7 @@ function AboutSection() {
     <h3 className="text-lg sm:text-xl font-medium text-foreground mt-3 mb-2">
      {item.title}
     </h3>
-    <p className="text-sm text-gray-400 leading-relaxed">
+    <p className="text-sm text-muted-foreground leading-relaxed">
      {item.desc}
     </p>
     </motion.div>
@@ -315,7 +322,7 @@ function AboutSection() {
    alt=""
    className="w-full h-full object-cover opacity-[0.12]"
    />
-   <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black" />
+   <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background" />
   </div>
 
   <div className="relative z-10 max-w-7xl mx-auto">
@@ -340,7 +347,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.4, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-    className="group bg-card rounded-2xl overflow-hidden border border-primary/5 hover:border-primary/15 transition-all duration-300 flex-shrink-0 w-[280px] sm:w-[320px] snap-start active:scale-[0.98]"
+    className="group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/15 transition-all duration-300 flex-shrink-0 w-[280px] sm:w-[320px] snap-start active:scale-[0.98]"
     >
     <div className="relative h-40 sm:h-44 overflow-hidden">
      <img
@@ -348,8 +355,8 @@ function AboutSection() {
      alt={paper.title}
      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
      />
-     <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-transparent to-transparent" />
-     <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary text-black">
+     <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+     <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary text-primary-foreground">
      {paper.trend}
      </span>
     </div>
@@ -382,7 +389,7 @@ function AboutSection() {
 
 const FEATURE_HEADER_SEGMENTS = [
  { text: 'Powerful tools for serious research.', className: 'text-primary' },
- { text: 'Built for discovery. Driven by data.', className: 'text-gray-500' },
+ { text: 'Built for discovery. Driven by data.', className: 'text-muted-foreground' },
 ];
 
 const RICH_FEATURES = [
@@ -438,7 +445,7 @@ function FeatureCard({ feature, index, isLarge }) {
   initial={{ opacity: 0, y: 40 }}
   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
   transition={{ duration: 0.55, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-  className={`group bg-card rounded-2xl overflow-hidden border border-primary/5 hover:border-primary/20 transition-all duration-500 flex flex-col active:scale-[0.99] ${isLarge ? 'md:flex-row' : ''}`}
+  className={`group bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/20 transition-all duration-500 flex flex-col active:scale-[0.99] ${isLarge ? 'md:flex-row' : ''}`}
  >
   {/* Image */}
   <div className={`relative overflow-hidden ${isLarge ? 'md:w-[45%] md:min-h-full' : 'h-48 sm:h-52'}`}>
@@ -449,15 +456,15 @@ function FeatureCard({ feature, index, isLarge }) {
    whileHover={{ scale: 1.08 }}
    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
   />
-  <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-[#101010]/20 to-transparent" />
+  <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
   {/* ID badge */}
-  <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary text-black">
+  <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary text-primary-foreground">
    {feature.id}
   </span>
   {/* Stat badge */}
   <div className="absolute bottom-3 right-3 text-right">
    <div className="text-xl sm:text-2xl font-bold text-foreground leading-none">{feature.stats}</div>
-   <div className="text-[10px] text-gray-400 mt-0.5">{feature.statsLabel}</div>
+   <div className="text-[10px] text-muted-foreground mt-0.5">{feature.statsLabel}</div>
   </div>
   </div>
 
@@ -469,7 +476,7 @@ function FeatureCard({ feature, index, isLarge }) {
   <h3 className="text-lg sm:text-xl font-medium text-foreground mb-2">
    {feature.title}
   </h3>
-  <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
+  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">
    {feature.desc}
   </p>
 
@@ -478,7 +485,7 @@ function FeatureCard({ feature, index, isLarge }) {
    {feature.points.map((point, i) => (
    <li key={i} className="flex items-start gap-2">
     <Check size={13} className="text-primary mt-0.5 shrink-0" />
-    <span className="text-xs text-gray-400 leading-snug">{point}</span>
+    <span className="text-xs text-muted-foreground leading-snug">{point}</span>
    </li>
    ))}
   </ul>
@@ -498,7 +505,7 @@ function FeatureCard({ feature, index, isLarge }) {
 
 function FeaturesSection() {
  return (
- <section id="features" className="relative min-h-[100dvh] py-20 md:py-28 px-4 md:px-6 prisma-page overflow-hidden" style={{ background: '#0A0A0A' }}>
+ <section id="features" className="relative min-h-[100dvh] py-20 md:py-28 px-4 md:px-6 prisma-page overflow-hidden bg-background">
   {/* Background image — visible academic atmosphere */}
   <div className="absolute inset-0 pointer-events-none">
   <img
@@ -508,7 +515,7 @@ function FeaturesSection() {
   />
   </div>
   {/* Gradient — dark only at very edges */}
-  <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90 pointer-events-none" />
+  <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-transparent to-background/90 pointer-events-none" />
   {/* Noise overlay */}
   <div className="bg-noise opacity-[0.04] pointer-events-none" />
 
@@ -552,7 +559,7 @@ function FeaturesSection() {
 
 function Footer() {
  return (
- <footer className="relative bg-black border-t border-primary/10 prisma-page">
+ <footer className="relative bg-background border-t border-border prisma-page">
   <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14">
   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
    {/* Brand */}
@@ -561,24 +568,24 @@ function Footer() {
     <ScitrackSLogo className="text-primary -mr-1 w-7 h-10" />
     <span className="text-lg font-black text-foreground tracking-[0.05em]">CITRACK</span>
    </div>
-   <p className="text-[10px] text-gray-500">Academic Research Platform</p>
-   <p className="text-[10px] text-gray-600 mt-1">
+   <p className="text-[10px] text-muted-foreground">Academic Research Platform</p>
+   <p className="text-[10px] text-muted-foreground mt-1">
     &copy; 2026 SCITRACK. All rights reserved.
    </p>
    </div>
 
    {/* Nav links */}
    <div className="flex flex-col items-center md:items-start gap-2">
-   <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Navigation</span>
-   <a href="/login" className="text-xs text-gray-400 hover:text-foreground transition-colors">Sign In</a>
-   <a href="/register" className="text-xs text-gray-400 hover:text-foreground transition-colors">Register</a>
+   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Navigation</span>
+   <a href="/login" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Sign In</a>
+   <a href="/register" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Register</a>
    </div>
 
    {/* Legal */}
    <div className="flex flex-col items-center md:items-start gap-2">
-   <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Legal</span>
-   <a href="#" className="text-xs text-gray-400 hover:text-foreground transition-colors">Privacy Policy</a>
-   <a href="#" className="text-xs text-gray-400 hover:text-foreground transition-colors">Terms of Service</a>
+   <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Legal</span>
+   <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a>
+   <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms of Service</a>
    </div>
   </div>
   </div>
@@ -592,7 +599,7 @@ function Footer() {
 
 export default function LandingPage() {
  return (
- <div className="bg-black">
+ <div className="bg-background">
   <HeroSection />
   <AboutSection />
   <FeaturesSection />

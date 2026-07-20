@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'motion/react';
+﻿import { motion, AnimatePresence } from 'motion/react';
 import {
   Loader2,
   Search,
@@ -31,8 +31,8 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
   if (!progress) {
     return (
       <div className="flex flex-col items-center justify-center p-6 gap-3">
-        <Loader2 size={24} className="animate-spin text-[#4F8CFF]" />
-        <p className="text-xs text-gray-400">Starting crawl...</p>
+        <Loader2 size={24} className="animate-spin text-accent-blue" />
+        <p className="text-xs text-muted-foreground">Starting crawl...</p>
       </div>
     );
   }
@@ -101,11 +101,11 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex flex-col gap-3 p-4 rounded-xl border border-[#00D1B2]/20 bg-[#00D1B2]/5"
+        className="flex flex-col gap-3 p-4 rounded-xl border border-accent-teal/20 bg-accent-teal/5"
       >
         <div className="flex items-center gap-2">
-          <CheckCircle2 size={18} className="text-[#00D1B2]" />
-          <h4 className="text-sm font-bold text-[#E1E0CC]">Crawl Complete!</h4>
+          <CheckCircle2 size={18} className="text-accent-teal" />
+          <h4 className="text-sm font-bold text-foreground">Crawl Complete!</h4>
         </div>
 
         <div className="grid grid-cols-2 gap-2 text-xs">
@@ -117,7 +117,7 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
           <Stat label="Duration" value={formatSeconds(progress.getElapsedSeconds?.() || 0)} />
         </div>
 
-        <p className="text-xs text-[#00D1B2] flex items-center gap-1.5">
+        <p className="text-xs text-accent-teal flex items-center gap-1.5">
           <Loader2 size={12} className="animate-spin" />
           Analyzing gaps with new data...
         </p>
@@ -140,7 +140,7 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
         {progress.error && (
           <p className="text-xs text-red-400 bg-red-500/10 rounded-lg p-2">{progress.error}</p>
         )}
-        <p className="text-xs text-gray-400">You can try again or explore available topics.</p>
+        <p className="text-xs text-muted-foreground">You can try again or explore available topics.</p>
       </motion.div>
     );
   }
@@ -150,23 +150,23 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="flex flex-col gap-3 p-4 rounded-xl border border-[#4F8CFF]/20 bg-[#4F8CFF]/5"
+      className="flex flex-col gap-3 p-4 rounded-xl border border-accent-blue/20 bg-accent-blue/5"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Loader2 size={14} className="animate-spin text-[#4F8CFF]" />
-          <h4 className="text-sm font-bold text-[#E1E0CC]">Crawling your idea...</h4>
+          <Loader2 size={14} className="animate-spin text-accent-blue" />
+          <h4 className="text-sm font-bold text-foreground">Crawling your idea...</h4>
         </div>
         {onCancel && (
-          <button onClick={onCancel} className="p-1 rounded hover:bg-white/5 text-gray-500" title="Cancel crawl">
+          <button onClick={onCancel} className="p-1 rounded hover:bg-muted/40 text-muted-foreground" title="Cancel crawl">
             <X size={14} />
           </button>
         )}
       </div>
 
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-muted-foreground">
         Crawling keywords:{' '}
-        <span className="text-[#4F8CFF] font-medium">
+        <span className="text-accent-blue font-medium">
           {keywords.join(', ')}
         </span>
       </p>
@@ -188,7 +188,7 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
                 transition={{ delay: i * 0.05 }}
                 className={`flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
                   state === 'running'
-                    ? 'bg-[#4F8CFF]/10 border border-[#4F8CFF]/20'
+                    ? 'bg-accent-blue/10 border border-accent-blue/20'
                     : state === 'done'
                     ? 'bg-transparent'
                     : 'bg-transparent opacity-40'
@@ -196,11 +196,11 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
               >
                 {/* Stage icon */}
                 {state === 'done' ? (
-                  <CheckCircle2 size={14} className="text-[#00D1B2] shrink-0" />
+                  <CheckCircle2 size={14} className="text-accent-teal shrink-0" />
                 ) : state === 'running' ? (
-                  <Icon size={14} className="text-[#4F8CFF] shrink-0" />
+                  <Icon size={14} className="text-accent-blue shrink-0" />
                 ) : (
-                  <Icon size={14} className="text-gray-600 shrink-0" />
+                  <Icon size={14} className="text-muted-foreground shrink-0" />
                 )}
 
                 {/* Stage label + detail */}
@@ -208,27 +208,27 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
                   <p
                     className={`text-xs ${
                       state === 'running'
-                        ? 'text-[#E1E0CC] font-medium'
+                        ? 'text-foreground font-medium'
                         : state === 'done'
-                        ? 'text-gray-500'
-                        : 'text-gray-600'
+                        ? 'text-muted-foreground'
+                        : 'text-muted-foreground'
                     }`}
                   >
                     {stage.label}
                   </p>
                   {desc && (
-                    <p className="text-[10px] text-[#4F8CFF]/80 mt-0.5">{desc}</p>
+                    <p className="text-[10px] text-accent-blue/80 mt-0.5">{desc}</p>
                   )}
                 </div>
 
                 {/* Count badge */}
                 {detail !== null && state === 'done' && (
-                  <span className="text-[10px] text-[#00D1B2] font-medium shrink-0">
+                  <span className="text-[10px] text-accent-teal font-medium shrink-0">
                     {detail}
                   </span>
                 )}
                 {state === 'running' && detail !== null && (
-                  <span className="text-[10px] text-[#4F8CFF] font-medium shrink-0 animate-pulse">
+                  <span className="text-[10px] text-accent-blue font-medium shrink-0 animate-pulse">
                     {detail}
                   </span>
                 )}
@@ -240,7 +240,7 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
 
       {/* Time estimate */}
       {progress.estimatedSeconds > 0 && (
-        <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <Clock size={10} />
           <span>~{formatSeconds(progress.estimatedSeconds)} remaining</span>
         </div>
@@ -253,9 +253,9 @@ export default function CrawlProgressCard({ progress, keywords, onCancel }) {
 
 function Stat({ label, value }) {
   return (
-    <div className="flex items-center justify-between px-2 py-1 rounded bg-[#101010]">
-      <span className="text-gray-500">{label}</span>
-      <span className="text-[#E1E0CC] font-semibold">{value ?? '–'}</span>
+    <div className="flex items-center justify-between px-2 py-1 rounded bg-card">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="text-foreground font-semibold">{value ?? '–'}</span>
     </div>
   );
 }

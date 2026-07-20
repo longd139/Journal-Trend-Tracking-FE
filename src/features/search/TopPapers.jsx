@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+﻿import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, AlertCircle, Lock, X } from 'lucide-react';
@@ -21,7 +21,7 @@ function Skeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="bg-card border border-primary/5 rounded-2xl p-5 space-y-3 animate-pulse"
+          className="bg-card border border-border rounded-2xl p-5 space-y-3 animate-pulse"
         >
           <div className="flex items-center gap-2">
             <div className="h-3 w-16 bg-primary/10 rounded-full" />
@@ -281,10 +281,10 @@ export default function TopPapers({
       {/* Header */}
       <div className="flex items-center gap-2">
         <Star size={13} className="text-primary/40" />
-        <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
+        <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Top Cited Papers
         </span>
-        <span className="text-[10px] text-gray-500 ml-auto">
+        <span className="text-[10px] text-muted-foreground ml-auto">
           Most influential papers for this topic
         </span>
       </div>
@@ -341,12 +341,12 @@ export default function TopPapers({
               exit={{ scale: 0.96, opacity: 0, y: 24 }}
               transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm rounded-2xl border border-primary/10 bg-card p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
+              className="relative w-full max-w-sm rounded-2xl border border-border bg-card p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
             >
               {/* Close button */}
               <button
                 onClick={() => setUpgradeOpen(false)}
-                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 text-gray-500 hover:bg-primary/10 hover:text-foreground transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/60 hover:text-foreground transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
               >
                 <X size={14} />
               </button>
@@ -380,7 +380,7 @@ export default function TopPapers({
                   <h3 className="text-xl font-black text-foreground font-display tracking-[-0.02em]">
                     Upgrade to Researcher
                   </h3>
-                  <p className="text-[13px] text-gray-400 leading-relaxed max-w-[260px] mx-auto">
+                  <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
                     Unlock full paper details, AI summaries, citation exports,
                     and unlimited searches.
                   </p>
@@ -395,7 +395,7 @@ export default function TopPapers({
                     duration: 0.5,
                     ease: [0.32, 0.72, 0, 1],
                   }}
-                  className="rounded-xl bg-[#0F0F0F] border border-primary/5 p-4 space-y-0"
+                  className="rounded-xl bg-card border border-border p-4 space-y-0"
                 >
                   {[
                     'Full abstract & paper details',
@@ -413,10 +413,10 @@ export default function TopPapers({
                         duration: 0.4,
                         ease: [0.32, 0.72, 0, 1],
                       }}
-                      className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-primary/5 last:border-0"
+                      className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-border last:border-0"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-primary/50 shrink-0" />
-                      <span className="text-xs text-gray-300">{f}</span>
+                      <span className="text-xs text-foreground/80">{f}</span>
                     </motion.div>
                   ))}
                 </motion.div>
@@ -435,7 +435,7 @@ export default function TopPapers({
                   <span className="text-3xl font-black text-foreground font-display tracking-[-0.03em]">
                     $999
                   </span>
-                  <span className="text-sm text-gray-500 ml-1">/year</span>
+                  <span className="text-sm text-muted-foreground ml-1">/year</span>
                 </motion.div>
 
                 {/* CTA — Button-in-Button pattern, no gradient */}
@@ -451,13 +451,13 @@ export default function TopPapers({
                     setUpgradeOpen(false);
                     navigate(`/${role}/settings`);
                   }}
-                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-background bg-primary hover:bg-foreground shadow-[0_4px_24px_-6px_rgba(222,219,200,0.15)] active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-background bg-primary hover:bg-foreground shadow-sm active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
                   <span className="flex-1 text-center pl-6">
                     Upgrade Now — $999/year
                   </span>
                   {/* Nested icon pill */}
-                  <span className="w-8 h-8 rounded-full bg-[#0B1020]/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                  <span className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
                     <svg
                       width="13"
                       height="13"
@@ -484,7 +484,7 @@ export default function TopPapers({
                     ease: [0.32, 0.72, 0, 1],
                   }}
                   onClick={() => setUpgradeOpen(false)}
-                  className="w-full text-xs text-gray-500 hover:text-gray-400 transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
                 >
                   Maybe later
                 </motion.button>

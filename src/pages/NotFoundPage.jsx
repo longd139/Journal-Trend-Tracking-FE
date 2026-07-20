@@ -22,7 +22,7 @@ export default function NotFoundPage() {
   <div>
    <h1 className="text-4xl font-black text-foreground mb-2 tracking-wider font-outfit">404</h1>
    <h2 className="text-xl font-bold text-foreground mb-3">{t('errors.notFound')}</h2>
-   <p className="text-sm text-gray-500 text-gray-400">
+   <p className="text-sm text-muted-foreground text-muted-foreground">
    {error?.statusText || error?.message || t('errors.generic')}
    </p>
   </div>
@@ -30,7 +30,7 @@ export default function NotFoundPage() {
   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
    <button
    onClick={() => navigate(-1)}
-   className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-gray-700 dark:text-white bg-card border border-primary/10 hover:bg-white/[0.04] hover:bg-white/5 transition-colors"
+   className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-foreground/80 dark:text-white bg-card border border-primary/10 hover:bg-muted/25 hover:bg-muted/40 transition-colors"
    >
    <ArrowLeft size={16} /> {t('actions.back')}
    </button>

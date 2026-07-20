@@ -47,7 +47,7 @@ function StatCard({ label, value, loading, Icon, accent, index = 0 }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -3 }}
-      className="group p-4 rounded-2xl border flex flex-col gap-2.5 bg-card border-primary/5 hover:border-primary/15 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300"
+      className="group p-4 rounded-2xl border flex flex-col gap-2.5 bg-card border-border hover:border-primary/15 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300"
     >
       <div className="flex items-start justify-between">
         <div className="p-2.5 rounded-xl" style={{ background: `${accent}18`, color: accent }}>
@@ -55,7 +55,7 @@ function StatCard({ label, value, loading, Icon, accent, index = 0 }) {
         </div>
       </div>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{label}</p>
         {loading ? (
           <Skeleton className="h-6 w-20 mt-1 bg-primary/10" />
         ) : (
@@ -76,7 +76,7 @@ function BannerPill({ icon, value, loading, label, accent = 'text-foreground', b
         ) : (
           <div className={`text-sm font-bold font-mono tabular-nums ${accent}`}>{value}</div>
         )}
-        <div className="text-[9px] text-gray-500 uppercase">{label}</div>
+        <div className="text-[9px] text-muted-foreground uppercase">{label}</div>
       </div>
     </div>
   );
@@ -207,7 +207,7 @@ export default function AdminOverview() {
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
+          className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-card dark:from-[#101010] via-card dark:via-[#141414] to-card dark:to-[#101010] border-primary/10"
         >
           {/* Subtle top accent line */}
           <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
@@ -223,14 +223,14 @@ export default function AdminOverview() {
                     <PulseDot color="#34D399" />
                     <span className="text-[10px] font-bold uppercase tracking-wider text-primary">{tc('actions.live')}</span>
                   </div>
-                  <span className="text-[11px] text-gray-500">
+                  <span className="text-[11px] text-muted-foreground">
                     {now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} · {now.toLocaleTimeString()}
                   </span>
                 </div>
                 <h1 className="text-lg sm:text-xl font-black text-foreground font-display tracking-tight">
                   {t('overview.console')}
                 </h1>
-                <p className="text-xs text-gray-500 max-w-md">
+                <p className="text-xs text-muted-foreground max-w-md">
                   {t('overview.description')}
                 </p>
               </div>
@@ -283,7 +283,7 @@ export default function AdminOverview() {
           >
             <div className="flex items-center gap-2.5">
               <AlertTriangle size={15} className="text-red-400 shrink-0" />
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {tc('errors.loadFailed')} — {tc('actions.retry')}?
               </span>
             </div>
@@ -298,11 +298,11 @@ export default function AdminOverview() {
 
         {/* ─── Stat Cards ─── */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <StatCard index={0} label={t('overview.stats.activeUsers')} value={activeUsers} loading={loading} Icon={Users} accent="#DEDBC8" />
+          <StatCard index={0} label={t('overview.stats.activeUsers')} value={activeUsers} loading={loading} Icon={Users} accent="var(--primary)" />
           <StatCard index={1} label={t('overview.stats.totalRequests')} value={totalRequests} loading={loading} Icon={Globe} accent="#A09878" />
-          <StatCard index={2} label={t('overview.stats.avgLatency')} value={avgLatencyMs} loading={loading} Icon={Clock} accent="#DEDBC8" />
+          <StatCard index={2} label={t('overview.stats.avgLatency')} value={avgLatencyMs} loading={loading} Icon={Clock} accent="var(--primary)" />
           <StatCard index={3} label={t('overview.stats.errorRate')} value={errorRate} loading={loading} Icon={AlertTriangle} accent="#EF4444" />
-          <StatCard index={4} label={t('overview.stats.dbSize')} value={dbSizeMb} loading={loading} Icon={Database} accent="#DEDBC8" />
+          <StatCard index={4} label={t('overview.stats.dbSize')} value={dbSizeMb} loading={loading} Icon={Database} accent="var(--primary)" />
         </div>
 
         {/* ─── Charts Row 1 ─── */}
@@ -312,14 +312,14 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25, duration: 0.5 }}
-            className="rounded-2xl border p-6 bg-card border-primary/5"
+            className="rounded-2xl border p-6 bg-card border-border"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Globe size={14} className="text-primary" /> {t('overview.requestVolume')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">{t('overview.requestSubtitle')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('overview.requestSubtitle')}</p>
               </div>
               <div className="flex items-center gap-3 text-[10px]">
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-500" />{t('overview.requests')}</span>
@@ -339,17 +339,17 @@ export default function AdminOverview() {
                       <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.04} vertical={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.3} vertical={false} />
                   <XAxis
                     dataKey="time"
-                    tick={{ fontSize: 10, fill: '#6B7280' }}
+                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
                     tickLine={false}
                     axisLine={false}
                     interval="preserveStartEnd"
                     minTickGap={40}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: '#6B7280' }}
+                    tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }}
                     tickLine={false}
                     axisLine={false}
                     tickCount={4}
@@ -357,15 +357,15 @@ export default function AdminOverview() {
                     width={45}
                   />
                   <Tooltip
-                    contentStyle={{ background: '#1A1A1A', border: '1px solid #DEDBC820', borderRadius: 10, fontSize: 12 }}
-                    labelStyle={{ color: '#E1E0CC' }}
+                    contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, fontSize: 12 }}
+                    labelStyle={{ color: 'var(--foreground)' }}
                   />
                   <Area type="monotone" dataKey="requests" stroke="#34D399" fill="url(#requestsGrad)" strokeWidth={2} dot={false} />
                   <Area type="monotone" dataKey="errors" stroke="#EF4444" fill="url(#errorsGrad)" strokeWidth={1.5} dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[260px] text-gray-600 text-xs">
+              <div className="flex items-center justify-center h-[260px] text-muted-foreground text-xs">
                 {t('overview.noData') || 'No data available'}
               </div>
             )}
@@ -376,14 +376,14 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35, duration: 0.5 }}
-            className="rounded-2xl border p-6 bg-card border-primary/5"
+            className="rounded-2xl border p-6 bg-card border-border"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Server size={14} className="text-primary" /> {t('overview.resourceUsage')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">{t('overview.resourceSubtitle')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('overview.resourceSubtitle')}</p>
               </div>
             </div>
             {resourceUsage ? (
@@ -391,7 +391,7 @@ export default function AdminOverview() {
                 {/* CPU */}
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-gray-400">{t('overview.cpu')}</span>
+                    <span className="text-muted-foreground">{t('overview.cpu')}</span>
                     <span className="text-foreground font-mono tabular-nums">{resourceUsage.cpuPercent}%</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
@@ -402,7 +402,7 @@ export default function AdminOverview() {
                 {/* Memory */}
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-gray-400">{t('overview.memory')}</span>
+                    <span className="text-muted-foreground">{t('overview.memory')}</span>
                     <span className="text-foreground font-mono tabular-nums">{resourceUsage.heapUsedMb} / {resourceUsage.heapMaxMb} MB</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
@@ -413,7 +413,7 @@ export default function AdminOverview() {
                 {/* Disk */}
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-gray-400">{t('overview.disk')}</span>
+                    <span className="text-muted-foreground">{t('overview.disk')}</span>
                     <span className="text-foreground font-mono tabular-nums">{resourceUsage.diskUsedGb} / {resourceUsage.diskTotalGb} GB</span>
                   </div>
                   <div className="w-full h-2 rounded-full bg-primary/10 overflow-hidden">
@@ -423,7 +423,7 @@ export default function AdminOverview() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-[220px] text-gray-600 text-xs">
+              <div className="flex items-center justify-center h-[220px] text-muted-foreground text-xs">
                 {t('overview.noData') || 'No data available'}
               </div>
             )}
@@ -437,14 +437,14 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.5 }}
-            className="lg:col-span-3 rounded-2xl border p-6 bg-card border-primary/5"
+            className="lg:col-span-3 rounded-2xl border p-6 bg-card border-border"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <TrendingUp size={14} className="text-primary" /> {t('overview.visitorTraffic')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">{t('overview.trafficSubtitle')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('overview.trafficSubtitle')}</p>
               </div>
               <div className="flex items-center gap-3 text-[10px]">
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-400" />Today</span>
@@ -464,19 +464,19 @@ export default function AdminOverview() {
                       <stop offset="95%" stopColor="#9CA3AF" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#DEDBC8" strokeOpacity={0.06} />
-                  <XAxis dataKey="hour" tick={{ fontSize: 10, fill: '#9CA3AF' }} interval={3} />
-                  <YAxis tick={{ fontSize: 10, fill: '#9CA3AF' }} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" strokeOpacity={0.3} />
+                  <XAxis dataKey="hour" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} interval={3} />
+                  <YAxis tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ background: '#1A1A1A', border: '1px solid #DEDBC820', borderRadius: 10, fontSize: 12 }}
-                    labelStyle={{ color: '#E1E0CC' }}
+                    contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, fontSize: 12 }}
+                    labelStyle={{ color: 'var(--foreground)' }}
                   />
                   <Area type="monotone" dataKey="todayVisitors" stroke="#60A5FA" fill="url(#todayGrad)" strokeWidth={2} dot={false} />
                   <Area type="monotone" dataKey="yesterdayVisitors" stroke="#9CA3AF" fill="url(#yesterdayGrad)" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
+              <div className="flex items-center justify-center h-[200px] text-muted-foreground text-xs">
                 {t('overview.noData') || 'No data available'}
               </div>
             )}
@@ -487,14 +487,14 @@ export default function AdminOverview() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.55, duration: 0.5 }}
-            className="lg:col-span-2 rounded-2xl border p-6 bg-card border-primary/5"
+            className="lg:col-span-2 rounded-2xl border p-6 bg-card border-border"
           >
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
                   <Zap size={14} className="text-primary" /> {t('overview.recentEvents')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">{t('overview.eventsSubtitle')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t('overview.eventsSubtitle')}</p>
               </div>
             </div>
             {recentEvents?.events?.length > 0 ? (
@@ -506,14 +506,14 @@ export default function AdminOverview() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-foreground truncate">{evt.title}</p>
-                      <p className="text-[10px] text-gray-500 truncate mt-0.5">{evt.description}</p>
-                      <p className="text-[9px] text-gray-600 mt-1">{evt.timestamp ? new Date(evt.timestamp).toLocaleString() : ''}</p>
+                      <p className="text-[10px] text-muted-foreground truncate mt-0.5">{evt.description}</p>
+                      <p className="text-[9px] text-muted-foreground mt-1">{evt.timestamp ? new Date(evt.timestamp).toLocaleString() : ''}</p>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-[200px] text-gray-600 text-xs">
+              <div className="flex items-center justify-center h-[200px] text-muted-foreground text-xs">
                 {t('overview.noData') || 'No recent events'}
               </div>
             )}

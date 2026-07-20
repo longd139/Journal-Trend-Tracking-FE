@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+﻿import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -66,8 +66,8 @@ function friendlyLabel(key) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const NEON = {
-  primary: '#DEDBC8',
-  accent: '#DEDBC8',
+  primary: 'var(--primary)',
+  accent: 'var(--primary)',
   success: '#34D399',
 };
 
@@ -91,13 +91,13 @@ function ConfigToggle({ checked, onChange }) {
       className="relative inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-all duration-200 focus-visible:outline-none"
       style={{
         background: checked
-          ? '#DEDBC8'
-          : 'rgba(255,255,255,0.06)',
-        boxShadow: checked ? '0 0 12px rgba(222,219,200,0.2)' : 'none',
+          ? 'var(--primary)'
+          : 'var(--muted)',
+        boxShadow: checked ? '0 0 12px rgba(79,140,255,0.25)' : 'none',
       }}
     >
       <span
-        className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${
+        className={`inline-block h-4 w-4 rounded-full bg-background shadow-sm transition-transform duration-200 ${
           checked ? 'translate-x-5' : 'translate-x-1'
         }`}
       />
@@ -239,7 +239,7 @@ export default function AdminConfigPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-[#101010] via-[#141414] to-[#101010] border-primary/10"
+        className="relative overflow-hidden rounded-2xl border bg-gradient-to-r from-card dark:from-[#101010] via-card dark:via-[#141414] to-card dark:to-[#101010] border-primary/10"
       >
         <div
           className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary/60 to-transparent"
@@ -253,10 +253,10 @@ export default function AdminConfigPage() {
               <Sliders size={15} className="text-primary" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white font-display tracking-wide">
+              <h2 className="text-sm font-bold text-foreground font-display tracking-wide">
                 {t('configs.title')}
               </h2>
-              <p className="text-[11px] text-gray-500">{t('configs.description')}</p>
+              <p className="text-[11px] text-muted-foreground">{t('configs.description')}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export default function AdminConfigPage() {
               <motion.span
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="flex items-center gap-1 text-[10px] text-[#34D399] font-semibold"
+                className="flex items-center gap-1 text-[10px] text-emerald-500 font-semibold"
               >
                 <CheckCircle2 size={11} />
                 Saved
@@ -273,7 +273,7 @@ export default function AdminConfigPage() {
             <button
               onClick={fetchConfigs}
               disabled={loading}
-              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/[0.06] active:scale-[0.97] transition-all duration-150 border border-white/5"
+              className="px-3 py-1.5 rounded-lg text-[11px] font-semibold flex items-center gap-1.5 bg-muted/20 text-muted-foreground hover:text-foreground hover:bg-muted/30 active:scale-[0.97] transition-all duration-150 border border-border"
             >
               <RefreshCw size={11} className={loading ? 'animate-spin' : ''} />
               {tc('actions.refresh')}
@@ -281,15 +281,15 @@ export default function AdminConfigPage() {
             <button
               onClick={handleSave}
               disabled={saving || editedCount === 0}
-              className="px-4 py-1.5 rounded-lg text-[11px] font-bold text-black disabled:opacity-30 active:scale-[0.97] transition-all duration-150 flex items-center gap-1.5"
+              className="px-4 py-1.5 rounded-lg text-[11px] font-bold text-primary-foreground disabled:opacity-30 active:scale-[0.97] transition-all duration-150 flex items-center gap-1.5"
               style={{
                 background:
                   editedCount > 0
-                    ? '#DEDBC8'
-                    : 'rgba(255,255,255,0.05)',
-                color: editedCount > 0 ? '#000' : '#666',
+                    ? 'var(--primary)'
+                    : 'var(--muted)',
+                color: editedCount > 0 ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
                 boxShadow: editedCount > 0
-                  ? '0 0 20px rgba(222,219,200,0.25)'
+                  ? '0 0 20px rgba(79,140,255,0.25)'
                   : 'none',
               }}
             >
@@ -312,10 +312,10 @@ export default function AdminConfigPage() {
           onChange={setSearch}
           onSearch={setSearch}
           placeholder="Search configs..."
-          className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-white/[0.03] text-gray-300 placeholder:text-gray-600 border border-white/5 focus:border-primary/30"
+          className="w-full pl-9 pr-4 py-2 rounded-xl text-xs outline-none transition-all duration-200 bg-muted/20 text-foreground/80 placeholder:text-muted-foreground border border-border focus:border-primary/30"
           wrapperClassName="relative flex-1 max-w-xs w-full"
-          icon={<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-gray-500" />}
-          inputStyle={{ boxShadow: search ? '0 0 20px rgba(222,219,200,0.04)' : 'none' }}
+          icon={<Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 z-10 text-muted-foreground" />}
+          inputStyle={{ boxShadow: search ? '0 0 20px rgba(79,140,255,0.06)' : 'none' }}
         />
 
         {/* Tabs */}
@@ -333,7 +333,7 @@ export default function AdminConfigPage() {
                 className="px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200 active:scale-[0.97]"
                 style={{
                   background: isActive ? `${tab.accent}15` : 'transparent',
-                  color: isActive ? tab.accent : '#666',
+                  color: isActive ? tab.accent : 'var(--muted-foreground)',
                   border: `1px solid ${isActive ? `${tab.accent}30` : 'transparent'}`,
                   boxShadow: isActive ? `0 0 16px ${tab.accent}08` : 'none',
                 }}
@@ -342,8 +342,8 @@ export default function AdminConfigPage() {
                 <span
                   className="ml-1.5 px-1 py-0.5 rounded text-[9px] font-mono"
                   style={{
-                    background: isActive ? `${tab.accent}20` : 'rgba(255,255,255,0.04)',
-                    color: isActive ? tab.accent : '#555',
+                    background: isActive ? `${tab.accent}20` : 'var(--muted)',
+                    color: isActive ? tab.accent : 'var(--muted-foreground)',
                   }}
                 >
                   {count}
@@ -359,11 +359,11 @@ export default function AdminConfigPage() {
         {/* Expand / Collapse controls */}
         {configs.length > 0 && (
           <div className="flex items-center justify-end gap-2 px-1 pb-2">
-            <button onClick={expandAll} className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors">
+            <button onClick={expandAll} className="text-[10px] text-muted-foreground hover:text-foreground/80 transition-colors">
               Expand all
             </button>
-            <span className="text-gray-700">·</span>
-            <button onClick={collapseAll} className="text-[10px] text-gray-500 hover:text-gray-300 transition-colors">
+            <span className="text-foreground/80">·</span>
+            <button onClick={collapseAll} className="text-[10px] text-muted-foreground hover:text-foreground/80 transition-colors">
               Collapse all
             </button>
           </div>
@@ -375,11 +375,11 @@ export default function AdminConfigPage() {
               <div
                 key={i}
                 className="flex items-center gap-4 rounded-xl px-4 py-3"
-                style={{ background: 'rgba(13,13,26,0.3)' }}
+                style={{ background: 'var(--muted)' }}
               >
                 <div className="h-3 w-32 bg-primary/8 rounded" />
-                <div className="h-3 w-48 bg-white/5 rounded flex-1" />
-                <div className="h-7 w-28 bg-white/5 rounded-lg" />
+                <div className="h-3 w-48 bg-muted/20 rounded flex-1" />
+                <div className="h-7 w-28 bg-muted/20 rounded-lg" />
               </div>
             ))}
           </div>
@@ -387,11 +387,11 @@ export default function AdminConfigPage() {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div
               className="p-4 rounded-2xl mb-4"
-              style={{ background: 'rgba(222,219,200,0.05)', border: '1px solid rgba(222,219,200,0.1)' }}
+              style={{ background: 'var(--muted)', border: '1px solid var(--border)' }}
             >
               <Settings size={28} className="text-primary/30" />
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               {search ? 'No configs match your search' : t('configs.noConfigsFound')}
             </p>
           </div>
@@ -424,13 +424,13 @@ export default function AdminConfigPage() {
                 <button
                   onClick={() => toggleGroup(cat.id)}
                   className="w-full flex items-center gap-2.5 px-4 py-3 rounded-xl transition-all duration-200 group active:scale-[0.99]"
-                  style={{ background: isExpanded ? 'rgba(222,219,200,0.03)' : 'transparent' }}
+                  style={{ background: isExpanded ? 'var(--muted)' : 'transparent' }}
                 >
                   <motion.div
                     animate={{ rotate: isExpanded ? 0 : -90 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronDown size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors" />
+                    <ChevronDown size={14} className="text-muted-foreground group-hover:text-foreground/80 transition-colors" />
                   </motion.div>
                   <div
                     className="w-[3px] h-[16px] rounded-full shrink-0 transition-all duration-200"
@@ -440,10 +440,10 @@ export default function AdminConfigPage() {
                       boxShadow: isExpanded ? `0 0 8px ${cat.accent}40` : 'none',
                     }}
                   />
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-gray-300">
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-foreground/80">
                     {cat.label}
                   </span>
-                  <span className="text-[10px] text-gray-600 font-mono">({items.length})</span>
+                  <span className="text-[10px] text-muted-foreground font-mono">({items.length})</span>
 
                   {/* Dirty badge in header */}
                   {isExpanded && items.some((cfg) => editing[cfg.configKey] !== undefined) && (
@@ -467,9 +467,9 @@ export default function AdminConfigPage() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden rounded-xl"
-                      style={{ border: '1px solid rgba(222,219,200,0.06)' }}
+                      style={{ border: '1px solid var(--border)' }}
                     >
-                      <div className="divide-y divide-[rgba(222,219,200,0.04)]">
+                      <div className="divide-y divide-border">
                         {items.map((cfg, idx) => {
                           const isEdited = editing[cfg.configKey] !== undefined;
                           const inputType = detectInputType(cfg.configKey, cfg.configValue);
@@ -486,17 +486,17 @@ export default function AdminConfigPage() {
                               transition={{ delay: idx * 0.02 }}
                               className="flex items-center justify-between gap-6 px-5 h-[52px]"
                               style={{
-                                background: isEdited ? 'rgba(222,219,200,0.03)' : 'rgba(13,13,26,0.3)',
+                                background: isEdited ? 'var(--muted)' : 'var(--muted)',
                               }}
                               title={`${friendlyLabel(cfg.configKey)} (${cfg.configKey})${cfg.description ? ': ' + cfg.description : ''}`}
                             >
                               {/* Left: name + desc */}
                               <div className="min-w-0 flex-1">
-                                <span className="text-[13px] font-bold text-white font-mono tracking-tight truncate block">
+                                <span className="text-[13px] font-bold text-foreground font-mono tracking-tight truncate block">
                                   {friendlyLabel(cfg.configKey)}
                                 </span>
                                 {cfg.description && (
-                                  <span className="text-[11px] text-gray-500 truncate block leading-tight">
+                                  <span className="text-[11px] text-muted-foreground truncate block leading-tight">
                                     {cfg.description}
                                   </span>
                                 )}
@@ -516,22 +516,22 @@ export default function AdminConfigPage() {
                                     onChange={(e) => handleEdit(cfg.configKey, e.target.value)}
                                     className="w-36 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono text-right"
                                     style={{
-                                      background: isEdited ? 'rgba(222,219,200,0.05)' : 'rgba(255,255,255,0.02)',
-                                      color: '#E1E0CC',
-                                      border: `1px solid ${isEdited ? 'rgba(222,219,200,0.3)' : 'rgba(222,219,200,0.08)'}`,
-                                      boxShadow: isEdited ? '0 0 15px rgba(222,219,200,0.05)' : 'none',
+                                      background: isEdited ? 'var(--muted)' : 'var(--card)',
+                                      color: 'var(--foreground)',
+                                      border: `1px solid ${isEdited ? 'var(--primary)' : 'var(--border)'}`,
+                                      boxShadow: isEdited ? '0 0 15px rgba(79,140,255,0.1)' : 'none',
                                     }}
                                     onFocus={(e) => {
-                                      e.target.style.borderColor = 'rgba(222,219,200,0.5)';
-                                      e.target.style.boxShadow = '0 0 20px rgba(222,219,200,0.08)';
+                                      e.target.style.borderColor = 'var(--primary)';
+                                      e.target.style.boxShadow = '0 0 20px rgba(79,140,255,0.15)';
                                     }}
                                     onBlur={(e) => {
-                                      e.target.style.borderColor = isEdited ? 'rgba(222,219,200,0.3)' : 'rgba(222,219,200,0.08)';
-                                      e.target.style.boxShadow = isEdited ? '0 0 15px rgba(222,219,200,0.05)' : 'none';
+                                      e.target.style.borderColor = isEdited ? 'var(--primary)' : 'var(--border)';
+                                      e.target.style.boxShadow = isEdited ? '0 0 15px rgba(79,140,255,0.1)' : 'none';
                                     }}
                                   />
                                 ) : inputType === 'datetime' ? (
-                                  <span className="text-xs text-gray-500 font-mono tabular-nums">
+                                  <span className="text-xs text-muted-foreground font-mono tabular-nums">
                                     {cfg.configValue
                                       ? new Date(cfg.configValue).toLocaleString()
                                       : '—'}
@@ -543,18 +543,18 @@ export default function AdminConfigPage() {
                                     onChange={(e) => handleEdit(cfg.configKey, e.target.value)}
                                     className="w-36 px-3 py-1.5 rounded-lg text-sm outline-none transition-all duration-200 font-mono"
                                     style={{
-                                      background: isEdited ? 'rgba(222,219,200,0.05)' : 'rgba(255,255,255,0.02)',
-                                      color: '#E1E0CC',
-                                      border: `1px solid ${isEdited ? 'rgba(222,219,200,0.3)' : 'rgba(222,219,200,0.08)'}`,
-                                      boxShadow: isEdited ? '0 0 15px rgba(222,219,200,0.05)' : 'none',
+                                      background: isEdited ? 'var(--muted)' : 'var(--card)',
+                                      color: 'var(--foreground)',
+                                      border: `1px solid ${isEdited ? 'var(--primary)' : 'var(--border)'}`,
+                                      boxShadow: isEdited ? '0 0 15px rgba(79,140,255,0.1)' : 'none',
                                     }}
                                     onFocus={(e) => {
-                                      e.target.style.borderColor = 'rgba(222,219,200,0.5)';
-                                      e.target.style.boxShadow = '0 0 20px rgba(222,219,200,0.08)';
+                                      e.target.style.borderColor = 'var(--primary)';
+                                      e.target.style.boxShadow = '0 0 20px rgba(79,140,255,0.15)';
                                     }}
                                     onBlur={(e) => {
-                                      e.target.style.borderColor = isEdited ? 'rgba(222,219,200,0.3)' : 'rgba(222,219,200,0.08)';
-                                      e.target.style.boxShadow = isEdited ? '0 0 15px rgba(222,219,200,0.05)' : 'none';
+                                      e.target.style.borderColor = isEdited ? 'var(--primary)' : 'var(--border)';
+                                      e.target.style.boxShadow = isEdited ? '0 0 15px rgba(79,140,255,0.1)' : 'none';
                                     }}
                                   />
                                 )}
@@ -583,7 +583,7 @@ export default function AdminConfigPage() {
                                     className="group/tip relative shrink-0"
                                     title={new Date(cfg.updatedAt).toLocaleString()}
                                   >
-                                    <Clock size={11} className="text-gray-600 hover:text-gray-400 transition-colors cursor-help" />
+                                    <Clock size={11} className="text-muted-foreground hover:text-muted-foreground transition-colors cursor-help" />
                                   </span>
                                 )}
                               </div>
@@ -613,28 +613,28 @@ export default function AdminConfigPage() {
             <div
               className="px-5 py-2.5 rounded-2xl flex items-center gap-3 shadow-2xl backdrop-blur-xl"
               style={{
-                background: 'rgba(13,13,26,0.9)',
-                border: '1px solid rgba(222,219,200,0.2)',
-                
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+
               }}
             >
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {editedCount} unsaved change{editedCount > 1 ? 's' : ''}
               </span>
-              <div className="w-px h-4 bg-white/5" />
+              <div className="w-px h-4 bg-muted/20" />
               <button
                 onClick={() => setEditing({})}
-                className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+                className="text-[11px] text-muted-foreground hover:text-foreground/80 transition-colors"
               >
                 Discard
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-3.5 py-1 rounded-lg text-[11px] font-bold text-black transition-all"
+                className="px-3.5 py-1 rounded-lg text-[11px] font-bold text-primary-foreground transition-all"
                 style={{
-                  background: '#DEDBC8',
-                  boxShadow: '0 0 20px rgba(222,219,200,0.2)',
+                  background: 'var(--primary)',
+                  boxShadow: '0 0 20px rgba(79,140,255,0.2)',
                 }}
               >
                 {saving ? 'Saving...' : `Save (${editedCount})`}

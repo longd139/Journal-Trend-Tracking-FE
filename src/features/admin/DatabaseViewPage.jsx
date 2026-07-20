@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +13,7 @@ import { adminAPI } from './api';
    Constants
    ═══════════════════════════════════════════════════════════════════════════ */
 
-const card = 'bg-card border border-primary/5 rounded-2xl';
+const card = 'bg-card border border-border rounded-2xl';
 
 const ZERO_RETRY_DELAY_MS = 4_000; // retry after 4s if cache was stale (all zeros)
 
@@ -25,7 +25,7 @@ const SOURCE_META = {
 };
 
 const NEO4J_COLOR = '#4F8CFF';
-const PAPER_COLOR = '#DEDBC8';
+const PAPER_COLOR = '#4F8CFF';
 const AUTHOR_COLOR = '#34D399';
 const KEYWORD_COLOR = '#A78BFA';
 const JOURNAL_COLOR = '#F59E0B';
@@ -48,11 +48,11 @@ function StatCard({ label, value, Icon, accent, sub }) {
         <Icon size={17} />
       </div>
       <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{label}</div>
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</div>
         <div className="text-lg font-bold text-foreground font-mono tabular-nums">
           {value?.toLocaleString() ?? '—'}
         </div>
-        {sub && <div className="text-[10px] text-gray-500 mt-0.5">{sub}</div>}
+        {sub && <div className="text-[10px] text-muted-foreground mt-0.5">{sub}</div>}
       </div>
     </motion.div>
   );
@@ -242,9 +242,9 @@ export default function DatabaseViewPage() {
         className="flex items-center justify-between"
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-[11px] text-gray-500">{t('database.systemOverview')}</span>
+          <span className="text-[11px] text-muted-foreground">{t('database.systemOverview')}</span>
           {syncLogs?.lastSync && (
-            <span className="flex items-center gap-1 text-[10px] text-gray-500">
+            <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
               <CheckCircle2 size={11} className="text-emerald-500" />
               {t('database.lastSync')}{' '}
               <span className="text-primary/70 font-medium">
@@ -257,7 +257,7 @@ export default function DatabaseViewPage() {
           type="button"
           onClick={() => fetchStats()}
           disabled={isLoading}
-          className="p-2 rounded-lg text-gray-500 hover:text-foreground hover:bg-primary/10 transition-all active:scale-[0.97] disabled:opacity-40"
+          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 transition-all active:scale-[0.97] disabled:opacity-40"
           title={t('database.refreshStats')}
         >
           <RefreshCw size={15} className={isLoading ? 'animate-spin' : ''} />
@@ -279,19 +279,19 @@ export default function DatabaseViewPage() {
           <Section title={t('database.paperBreakdown')} Icon={FileText} accent={PAPER_COLOR}>
             {/* Open Access & PDF */}
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-border text-center">
                 <div className="text-xl font-bold text-emerald-500 font-mono tabular-nums">
                   {papers?.openAccess?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
                   {t('database.openAccess')}
                 </div>
               </div>
-              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+              <div className="p-3.5 rounded-xl bg-primary/[0.02] border border-border text-center">
                 <div className="text-xl font-bold text-primary font-mono tabular-nums">
                   {papers?.hasPdfUrl?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
                   {t('database.hasPdfUrl')}
                 </div>
               </div>
@@ -299,8 +299,8 @@ export default function DatabaseViewPage() {
 
             {/* By Source */}
             {sourceEntries.length > 0 && (
-              <div className="pt-4 border-t border-primary/5">
-                <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
+              <div className="pt-4 border-t border-border">
+                <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
                   {t('database.papersBySource')}
                 </h5>
                 <div className="space-y-2.5">
@@ -310,7 +310,7 @@ export default function DatabaseViewPage() {
                     return (
                       <div key={source} className="flex items-center gap-2.5">
                         <Icon size={13} style={{ color: meta.color }} className="shrink-0" />
-                        <span className="text-[11px] text-gray-400 w-28 truncate">{meta.label}</span>
+                        <span className="text-[11px] text-muted-foreground w-28 truncate">{meta.label}</span>
                         <MiniBar value={count} max={maxSourceCount} color={meta.color} />
                         <span className="text-[11px] font-mono font-semibold text-foreground w-10 text-right shrink-0">
                           {count.toLocaleString()}
@@ -324,15 +324,15 @@ export default function DatabaseViewPage() {
 
             {/* By Year */}
             {yearEntries.length > 0 && (
-              <div className="pt-4 border-t border-primary/5">
-                <h5 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-3">
+              <div className="pt-4 border-t border-border">
+                <h5 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
                   {t('database.papersByYear')}
                 </h5>
                 <div className="space-y-2">
                   {yearEntries.map(([year, count]) => (
                     <div key={year} className="flex items-center gap-2.5">
-                      <span className="text-[11px] text-gray-400 w-10 font-mono">{year}</span>
-                      <MiniBar value={count} max={maxYearCount} color="#DEDBC8" />
+                      <span className="text-[11px] text-muted-foreground w-10 font-mono">{year}</span>
+                      <MiniBar value={count} max={maxYearCount} color={PAPER_COLOR} />
                       <span className="text-[11px] font-mono font-semibold text-foreground w-10 text-right">
                         {count.toLocaleString()}
                       </span>
@@ -349,27 +349,27 @@ export default function DatabaseViewPage() {
           {/* Neo4j Graph */}
           <Section title={t('database.knowledgeGraph')} Icon={Network} accent={NEO4J_COLOR}>
             <div className="grid grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-xl bg-[#4F8CFF]/[0.03] border border-[#4F8CFF]/10 text-center">
-                <div className="text-xl font-bold text-[#4F8CFF] font-mono tabular-nums">
+              <div className="p-3.5 rounded-xl bg-accent-blue/[0.03 border border-accent-blue/10 text-center">
+                <div className="text-xl font-bold text-accent-blue font-mono tabular-nums">
                   {neo4j?.paperNodes?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
                   {t('database.paperNodes')}
                 </div>
               </div>
-              <div className="p-3.5 rounded-xl bg-[#34D399]/[0.03] border border-[#34D399]/10 text-center">
+              <div className="p-3.5 rounded-xl bg-emerald-500/5 border border-emerald-500/10 text-center">
                 <div className="text-xl font-bold text-emerald-500 font-mono tabular-nums">
                   {neo4j?.keywordNodes?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
                   {t('database.keywordNodes')}
                 </div>
               </div>
-              <div className="p-3.5 rounded-xl bg-[#A78BFA]/[0.03] border border-[#A78BFA]/10 text-center">
-                <div className="text-xl font-bold text-[#A78BFA] font-display">
+              <div className="p-3.5 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center">
+                <div className="text-xl font-bold text-violet-500 font-display">
                   {neo4j?.relationships?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">
                   {t('database.relationships')}
                 </div>
               </div>
@@ -379,17 +379,17 @@ export default function DatabaseViewPage() {
           {/* Research Fields & Topics */}
           <Section title={t('database.researchTopicsTitle')} Icon={TrendingUp} accent="#F59E0B">
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="p-3.5 rounded-xl bg-[#F59E0B]/[0.03] border border-[#F59E0B]/10 text-center">
+              <div className="p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/10 text-center">
                 <div className="text-xl font-bold text-amber-500 font-display">
                   {researchFields?.total?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">{t('database.fields')}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">{t('database.fields')}</div>
               </div>
-              <div className="p-3.5 rounded-xl bg-[#A78BFA]/[0.03] border border-[#A78BFA]/10 text-center">
-                <div className="text-xl font-bold text-[#A78BFA] font-display">
+              <div className="p-3.5 rounded-xl bg-violet-500/5 border border-violet-500/10 text-center">
+                <div className="text-xl font-bold text-violet-500 font-display">
                   {researchTopics?.total?.toLocaleString() ?? '—'}
                 </div>
-                <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-0.5 font-semibold">{t('database.topics')}</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">{t('database.topics')}</div>
               </div>
             </div>
             {researchTopics?.trending > 0 && (
@@ -439,24 +439,24 @@ export default function DatabaseViewPage() {
       </div>
 
       {/* ── Sync Logs Footer ── */}
-      <Section title={t('database.syncActivity')} Icon={Clock} accent="#DEDBC8">
+      <Section title={t('database.syncActivity')} Icon={Clock} accent="var(--primary)">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+          <div className="p-4 rounded-xl bg-primary/[0.02] border border-border text-center">
             <div className="text-2xl font-bold text-primary font-display">
               {syncLogs?.total?.toLocaleString() ?? '—'}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1 font-semibold flex items-center justify-center gap-1">
               <RefreshCw size={10} />
               {t('database.totalSyncRuns')}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/5 text-center">
+          <div className="p-4 rounded-xl bg-primary/[0.02] border border-border text-center">
             <div className="text-sm font-bold text-primary/80 font-mono">
               {syncLogs?.lastSync
                 ? new Date(syncLogs.lastSync).toLocaleString()
                 : t('database.never')}
             </div>
-            <div className="text-[10px] uppercase tracking-wider text-gray-500 mt-1 font-semibold flex items-center justify-center gap-1">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1 font-semibold flex items-center justify-center gap-1">
               <Clock size={10} />
               {t('database.lastSyncTime')}
             </div>

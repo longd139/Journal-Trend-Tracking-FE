@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -123,13 +123,13 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
       onClick={() => onClick(notif)}
       className={`group relative p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
         isSelected
-          ? 'bg-primary/[0.06] border-primary/30 shadow-[0_0_20px_rgba(222,219,200,0.05)]'
-          : 'bg-white/[0.02] border-transparent hover:bg-white/[0.05] hover:border-white/[0.06]'
+          ? 'bg-primary/[0.06] border-primary/30 shadow-sm'
+          : 'bg-card border-primary/15 hover:bg-muted/30 hover:border-primary/15'
       }`}
     >
       {/* Unread dot */}
       {!notif.read && (
-        <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_rgba(222,219,200,0.5)]" />
+        <div className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />
       )}
 
       <div className="flex items-start gap-3.5">
@@ -142,17 +142,17 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
           <div className="flex items-center justify-between gap-2 mb-1">
             <h4
               className={`text-sm font-bold truncate ${
-                !notif.read ? 'text-foreground' : 'text-gray-400'
+                !notif.read ? 'text-foreground' : 'text-muted-foreground'
               }`}
             >
               {notif.title}
             </h4>
-            <span className="text-[10px] font-medium text-gray-500 whitespace-nowrap flex items-center gap-1">
+            <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap flex items-center gap-1">
               <Clock size={10} />
               {formatRelativeTime(notif)}
             </span>
           </div>
-          <p className="text-xs text-gray-400 leading-relaxed line-clamp-2">
+          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
             {notif.desc}
           </p>
         </div>
@@ -164,7 +164,7 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
           e.stopPropagation();
           onDismiss(notif.id);
         }}
-        className="absolute bottom-3 right-3 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 text-gray-500 hover:text-red-400 hover:bg-red-500/10"
+        className="absolute bottom-3 right-3 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 text-muted-foreground hover:text-red-400 hover:bg-red-500/10"
       >
         <Trash2 size={13} />
       </button>
@@ -190,7 +190,7 @@ function NotificationDetail({ notif, onBack }) {
       {/* Back button */}
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-gray-400 hover:text-primary transition-colors mb-5 self-start"
+        className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-primary transition-colors mb-5 self-start"
       >
         <ChevronLeft size={14} />
         Back to notifications
@@ -206,7 +206,7 @@ function NotificationDetail({ notif, onBack }) {
         <h2 className="text-lg font-black text-foreground mb-1.5 font-display tracking-tight">
           {notif.title}
         </h2>
-        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-gray-500">
+        <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
           <Clock size={11} />
           {formatRelativeTime(notif)}
         </span>
@@ -214,7 +214,7 @@ function NotificationDetail({ notif, onBack }) {
 
       {/* Detail content */}
       <div className="flex-1">
-        <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
+        <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
           {notif.detail}
         </p>
       </div>
@@ -223,7 +223,7 @@ function NotificationDetail({ notif, onBack }) {
       <div className="pt-6 border-t border-primary/10">
         <button
           onClick={onBack}
-          className="w-full py-3 rounded-xl text-sm font-bold text-black bg-primary hover:bg-foreground transition-all duration-300 hover:shadow-[0_0_24px_rgba(222,219,200,0.25)]"
+          className="w-full py-3 rounded-xl text-sm font-bold text-black bg-primary hover:bg-foreground transition-all duration-300 hover:shadow-[0_0_24px_var(--primary)]"
         >
           Got it
         </button>
@@ -244,12 +244,12 @@ function EmptyState({ t }) {
       className="flex flex-col items-center justify-center py-16 px-6"
     >
       <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mb-5">
-        <Inbox size={32} className="text-gray-500" />
+        <Inbox size={32} className="text-muted-foreground" />
       </div>
       <h3 className="text-base font-bold text-foreground mb-1.5">
         {t('notifications.emptyTitle')}
       </h3>
-      <p className="text-xs text-gray-500 text-center max-w-[240px] leading-relaxed">
+      <p className="text-xs text-muted-foreground text-center max-w-[240px] leading-relaxed">
         {t('notifications.emptyDesc')}
       </p>
     </motion.div>
@@ -438,18 +438,18 @@ export default function NotificationBell() {
           setSelectedNotif(null);
           setFilter('all');
         }}
-        className="relative p-2.5 rounded-xl bg-card border border-primary/5 hover:border-primary/20 transition-all duration-300 shadow-sm"
+        className="relative p-2.5 rounded-xl bg-card border border-border hover:border-primary/20 transition-all duration-300 shadow-sm"
       >
         {unreadCount > 0 ? (
           <BellRing size={18} className="text-primary" />
         ) : (
-          <Bell size={18} className="text-gray-400" />
+          <Bell size={18} className="text-muted-foreground" />
         )}
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center px-1 bg-primary text-[10px] font-black text-black rounded-full shadow-[0_0_12px_rgba(222,219,200,0.4)]"
+            className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 flex items-center justify-center px-1 bg-primary text-[10px] font-black text-black rounded-full shadow-[0_0_12px_var(--primary)]"
           >
             {unreadCount > 99 ? '99+' : unreadCount}
           </motion.span>
@@ -483,7 +483,7 @@ export default function NotificationBell() {
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 80, scale: 0.97 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                className="relative h-full w-full max-w-[480px] bg-[#0A0D14]/95 backdrop-blur-2xl border-l border-primary/10 shadow-2xl flex flex-col overflow-hidden"
+                className="relative h-full w-full max-w-[480px] bg-card-recessed/95 backdrop-blur-2xl border-l border-primary/10 shadow-2xl flex flex-col overflow-hidden"
               >
                 {/* ─── Header ────────────────────────────────────────── */}
                 <div className="shrink-0 px-6 pt-6 pb-4 border-b border-primary/8">
@@ -506,7 +506,7 @@ export default function NotificationBell() {
                                 {t('notifications.title')}
                               </h2>
                               {unreadCount > 0 && (
-                                <p className="text-[11px] font-medium text-gray-400">
+                                <p className="text-[11px] font-medium text-muted-foreground">
                                   {unreadCount} unread {unreadCount === 1 ? 'message' : 'messages'}
                                 </p>
                               )}
@@ -518,7 +518,7 @@ export default function NotificationBell() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={markAllAsRead}
-                                className="p-2 rounded-lg text-[11px] font-bold text-gray-400 hover:text-primary hover:bg-primary/5 transition-all flex items-center gap-1"
+                                className="p-2 rounded-lg text-[11px] font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 transition-all flex items-center gap-1"
                                 title="Mark all as read"
                               >
                                 <CheckCheck size={15} />
@@ -528,7 +528,7 @@ export default function NotificationBell() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => setIsOpen(false)}
-                              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
                             >
                               <X size={18} />
                             </motion.button>
@@ -536,7 +536,7 @@ export default function NotificationBell() {
                         </div>
 
                         {/* Filter tabs */}
-                        <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-primary/5">
+                        <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-border">
                           {[
                             { key: 'all', label: 'All' },
                             { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
@@ -546,8 +546,8 @@ export default function NotificationBell() {
                               onClick={() => setFilter(key)}
                               className={`flex-1 py-2 rounded-[10px] text-xs font-bold transition-all duration-300 ${
                                 filter === key
-                                  ? 'bg-primary text-black shadow-[0_2px_10px_rgba(222,219,200,0.2)]'
-                                  : 'text-gray-400 hover:text-foreground hover:bg-white/[0.03]'
+                                  ? 'bg-primary text-primary-foreground shadow-sm'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/20'
                               }`}
                             >
                               {label}
@@ -585,7 +585,7 @@ export default function NotificationBell() {
                         </div>
                         <button
                           onClick={() => setIsOpen(false)}
-                          className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all"
+                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
                         >
                           <X size={18} />
                         </button>
@@ -634,9 +634,9 @@ export default function NotificationBell() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="shrink-0 px-6 py-4 border-t border-primary/8 bg-[#0A0D14]/90 backdrop-blur-xl"
+                    className="shrink-0 px-6 py-4 border-t border-primary/8 bg-card-recessed/90 backdrop-blur-xl"
                   >
-                    <p className="text-[11px] text-gray-500 text-center font-medium">
+                    <p className="text-[11px] text-muted-foreground text-center font-medium">
                       {filter === 'unread'
                         ? `${filteredNotifs.length} unread notification${filteredNotifs.length !== 1 ? 's' : ''}`
                         : `${notifs.length} total notification${notifs.length !== 1 ? 's' : ''} · ${unreadCount} unread`}

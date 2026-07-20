@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+﻿import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -60,12 +60,11 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     })();
   }, [isAcademic]);
 
-  // Reset search state when leaving this page (KeepAlive keeps it mounted)
+  // Keep search results when navigating away — KeepAlive preserves state.
   const isAuthorRoute = location.pathname.endsWith('/search-author');
   useEffect(() => {
     if (!isAuthorRoute) {
       setQuery('');
-      setSearchedAuthor('');
       setApiSuggestions([]);
       setShowSuggestions(false);
       setShowHistory(false);
@@ -250,7 +249,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               }}
               onFocus={() => { if (!quotaExhausted && query.trim().length >= 2) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
                 quotaExhausted
                   ? 'border-red-500/20 opacity-50 cursor-not-allowed'
                   : 'border-primary/10'
@@ -296,15 +295,15 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   apiSuggestions.map((s) => (
                     <button key={s.authorId || s.fullName} type="button"
                       onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); setQuery(s.fullName); setShowSuggestionList(true); }}
-                      className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
+                      className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-muted/40 transition-colors"
                     >
                       <UserSearch size={12} className="text-primary/50 shrink-0" />
                       <span className="text-foreground truncate">{s.fullName}</span>
-                      {s.hIndex != null && <span className="text-[10px] text-gray-500 ml-auto shrink-0">h-index {s.hIndex}</span>}
+                      {s.hIndex != null && <span className="text-[10px] text-foreground/60 ml-auto shrink-0">h-index {s.hIndex}</span>}
                     </button>
                   ))
                 ) : (
-                  <div className="px-5 py-4 text-xs text-gray-500 flex items-center gap-2">
+                  <div className="px-5 py-4 text-xs text-foreground/60 flex items-center gap-2">
                     <Search size={12} />
                     Press Enter to search "{query.trim()}"
                   </div>
@@ -324,13 +323,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               >
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
-                    <Clock size={24} className="mx-auto text-gray-600 mb-2" />
-                    <p className="text-xs text-gray-500">No recent searches</p>
+                    <Clock size={24} className="mx-auto text-muted-foreground mb-2" />
+                    <p className="text-xs text-foreground/60">No recent searches</p>
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2.5 border-b border-primary/5 flex items-center justify-between">
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
+                    <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-foreground/60 flex items-center gap-1.5">
                         <History size={11} />
                         Recent Searches
                       </span>
@@ -341,7 +340,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                           clearSearchHistory();
                           setShowHistory(false);
                         }}
-                        className="text-[10px] font-medium text-gray-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                        className="text-[10px] font-medium text-foreground/60 hover:text-red-400 transition-colors flex items-center gap-1"
                       >
                         <Trash2 size={10} /> Clear all
                       </button>
@@ -355,9 +354,9 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                           handleSearch(kw);
                           setShowHistory(false);
                         }}
-                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors text-slate-300 group"
+                        className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-muted/40 transition-colors text-foreground group"
                       >
-                        <Clock size={12} className="text-gray-500 shrink-0" />
+                        <Clock size={12} className="text-foreground/60 shrink-0" />
                         <span className="flex-1 truncate">{kw}</span>
                         <button
                           type="button"
@@ -366,7 +365,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                             e.stopPropagation();
                             removeSearchHistoryItem(kw);
                           }}
-                          className="p-0.5 rounded hover:bg-white/10 text-gray-500 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="p-0.5 rounded hover:bg-muted/10 text-foreground/60 hover:text-red-400 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X size={11} />
                         </button>
@@ -396,7 +395,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   {searchesLeft} / {searchLimit}
                 </span>
                 {resetDate && (
-                  <span className="text-[10px] text-gray-500">
+                  <span className="text-[10px] text-foreground/60">
                     · Resets {new Date(resetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </span>
                 )}
@@ -411,14 +410,14 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               />
             </div>
             {quotaExhausted && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/5">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
                   <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors shrink-0 ml-3"
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
                 </button>
@@ -436,7 +435,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
           >
             <div className="flex items-center gap-2">
               <Search size={13} className="text-primary/50" />
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-muted-foreground">
                 {apiSuggestions.length > 0
                   ? `Showing ${apiSuggestions.length} of ${suggestTotal} author${suggestTotal !== 1 ? 's' : ''} matching "${query.trim()}"`
                   : `Searching for "${query.trim()}"...`}
@@ -444,7 +443,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               <button
                 type="button"
                 onClick={() => { setShowSuggestionList(false); setQuery(''); }}
-                className="ml-auto text-[10px] text-gray-500 hover:text-gray-300"
+                className="ml-auto text-[10px] text-foreground/60 hover:text-foreground/80"
               >
                 ✕ Clear
               </button>
@@ -469,21 +468,21 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                           </span>
                         </div>
                         {s.affiliation && (
-                          <p className="text-[10px] text-gray-500 mt-1 truncate">{s.affiliation}</p>
+                          <p className="text-[10px] text-foreground/60 mt-1 truncate">{s.affiliation}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-3 shrink-0 text-right">
                         <div>
                           <p className="text-xs font-bold text-foreground font-mono">{s.hIndex ?? '—'}</p>
-                          <p className="text-[10px] text-gray-500">h-index</p>
+                          <p className="text-[10px] text-foreground/60">h-index</p>
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-[#A09878] font-mono">{(s.totalCitations ?? 0).toLocaleString()}</p>
-                          <p className="text-[10px] text-gray-500">citations</p>
+                          <p className="text-xs font-bold text-muted-foreground font-mono">{(s.totalCitations ?? 0).toLocaleString()}</p>
+                          <p className="text-[10px] text-foreground/60">citations</p>
                         </div>
                         <div>
                           <p className="text-xs font-bold text-foreground font-mono">{(s.paperCount ?? 0).toLocaleString()}</p>
-                          <p className="text-[10px] text-gray-500">papers</p>
+                          <p className="text-[10px] text-foreground/60">papers</p>
                         </div>
                       </div>
                     </div>
@@ -491,7 +490,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center py-12 text-xs text-gray-500">
+              <div className="flex items-center justify-center py-12 text-xs text-foreground/60">
                 No authors found for "{query.trim()}". Try a different name.
               </div>
             )}
@@ -536,13 +535,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
-                      <p className="text-xs text-gray-400 max-w-[260px]">
+                      <p className="text-xs text-muted-foreground max-w-[260px]">
                         Publication timeline & citation trends — available for{' '}
                         <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>
@@ -558,13 +557,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
-                      <p className="text-xs text-gray-400 max-w-[260px]">
+                      <p className="text-xs text-muted-foreground max-w-[260px]">
                         Topic distribution & research domains — available for{' '}
                         <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>
@@ -580,13 +579,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
-                      <p className="text-xs text-gray-400 max-w-[260px]">
+                      <p className="text-xs text-muted-foreground max-w-[260px]">
                         Collaboration network & top co-authors — available for{' '}
                         <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>

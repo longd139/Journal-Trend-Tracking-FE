@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { BookOpen, ExternalLink, FileText, Download, BrainCircuit, Cpu, RefreshCw, AlertCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -110,13 +110,13 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-card border-primary/10 text-foreground">
+      <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto bg-card border-border text-foreground">
         {/* ── Header ── */}
         <DialogHeader>
           <DialogTitle className="text-base font-bold leading-snug pr-6">
             {p.title || 'Untitled Paper'}
           </DialogTitle>
-          <DialogDescription className="text-xs text-gray-500 dark:text-slate-400 mt-1.5">
+          <DialogDescription className="text-xs text-muted-foreground mt-1.5">
             {p.authors}
             {p.year && <span className="ml-2">({p.year})</span>}
           </DialogDescription>
@@ -132,11 +132,11 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
               {p.field}
             </Badge>
           )}
-          <span className="text-xs text-gray-500 dark:text-slate-400">
+          <span className="text-xs text-muted-foreground">
             {p.citations.toLocaleString()} citations
           </span>
           {p.pdfAvailable && p.pdfUrl && (
-            <Badge className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+            <Badge className="text-[10px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20">
               <FileText size={11} className="mr-1" />
               PDF Available
             </Badge>
@@ -144,7 +144,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         </div>
 
         {/* ── Follow ── */}
-        <div className="flex items-center gap-2 border-t border-gray-100 border-primary/5 pt-4">
+        <div className="flex items-center gap-2 border-t border-border pt-4">
           <FollowButton
             journalId={p.journalId || null}
             journalName={p.journalName || p.journal || null}
@@ -161,10 +161,10 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Journal & DOI ── */}
         {(p.journal || p.doi) && (
-          <div className="space-y-1.5 border-t border-gray-100 border-primary/5 pt-4">
+          <div className="space-y-1.5 border-t border-border pt-4">
             {p.journal && (
-              <p className="text-xs text-gray-600 dark:text-slate-400 flex items-center gap-1.5">
-                <BookOpen size={13} className="text-gray-400 dark:text-slate-500 flex-shrink-0" />
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <BookOpen size={13} className="text-muted-foreground flex-shrink-0" />
                 <span className="italic">{p.journal}</span>
               </p>
             )}
@@ -173,7 +173,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                 type="button"
                 variant="outline"
                 onClick={() => window.open(`https://doi.org/${p.doi}`, '_blank')}
-                className="flex items-center gap-2 text-xs border-white/20 text-white/70 hover:bg-white hover:text-gray-900 hover:border-white active:scale-[0.97] transition-all"
+                className="flex items-center gap-2 text-xs border-input text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground active:scale-[0.97] transition-all"
               >
                 <ExternalLink size={13} />
                 View Source
@@ -184,11 +184,11 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Abstract ── */}
         {p.abstract && (
-          <div className="border-t border-gray-100 border-primary/5 pt-4">
-            <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
+          <div className="border-t border-border pt-4">
+            <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Abstract
             </h5>
-            <p className="text-xs text-gray-700 dark:text-slate-300 leading-relaxed">
+            <p className="text-xs text-foreground/80 leading-relaxed">
               {p.abstract}
             </p>
           </div>
@@ -196,15 +196,15 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── AI Summary (compact) ── */}
         {aiLoading && (
-          <div className="border-t border-gray-100 border-primary/5 pt-4 animate-pulse">
+          <div className="border-t border-border pt-4 animate-pulse">
             <div className="flex items-center gap-1.5 mb-3">
-              <div className="w-4 h-4 rounded-md bg-[#4F8CFF]/20" />
+              <div className="w-4 h-4 rounded-md bg-accent-blue/20" />
               <div className="h-3 w-16 rounded bg-primary/8" />
             </div>
             <div className="space-y-2">
               {[1, 2].map((i) => (
-                <div key={i} className="rounded-md bg-primary/[0.02] border border-primary/5 p-3">
-                  <div className="h-2.5 w-16 rounded bg-[#4F8CFF]/10 mb-2" />
+                <div key={i} className="rounded-md bg-muted/30 border border-border p-3">
+                  <div className="h-2.5 w-16 rounded bg-accent-blue/10 mb-2" />
                   <div className="h-2.5 w-full rounded bg-primary/5" />
                 </div>
               ))}
@@ -213,7 +213,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         )}
 
         {!aiLoading && aiError && (
-          <div className="border-t border-gray-100 border-primary/5 pt-3">
+          <div className="border-t border-border pt-3">
             <div className="flex items-center gap-2 text-[10px] text-amber-400/70">
               <AlertCircle size={11} className="shrink-0" />
               <span>{t('aiSummary.error')}</span>
@@ -237,8 +237,8 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
             if (!hasContent && !hasMethodology) {
               return (
-                <div className="border-t border-gray-100 border-primary/5 pt-3">
-                  <div className="flex items-center gap-2 text-[10px] text-[#4F8CFF]/50">
+                <div className="border-t border-border pt-3">
+                  <div className="flex items-center gap-2 text-[10px] text-accent-blue/50">
                     <BrainCircuit size={11} className="shrink-0" />
                     <span>{t('aiSummary.unavailable')}</span>
                   </div>
@@ -247,22 +247,22 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
             }
 
             const DIALOG_COLORS = [
-              { bg: 'bg-[#4F8CFF]/8', text: 'text-[#4F8CFF]', border: 'border-[#4F8CFF]/12', dot: 'bg-[#4F8CFF]' },
-              { bg: 'bg-[#8B5CF6]/8', text: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]/12', dot: 'bg-[#8B5CF6]' },
-              { bg: 'bg-[#00D1B2]/8', text: 'text-[#00D1B2]', border: 'border-[#00D1B2]/12', dot: 'bg-[#00D1B2]' },
+              { bg: 'bg-accent-blue/8', text: 'text-accent-blue', border: 'border-accent-blue/12', dot: 'bg-accent-blue' },
+              { bg: 'bg-violet-500/8', text: 'text-violet-500', border: 'border-violet-500/12', dot: 'bg-violet-500' },
+              { bg: 'bg-accent-teal/8', text: 'text-accent-teal', border: 'border-accent-teal/12', dot: 'bg-accent-teal' },
             ];
 
             return (
-              <div className="border-t border-gray-100 border-primary/5 pt-4">
+              <div className="border-t border-border pt-4">
                 <div className="flex items-center gap-1.5 mb-2.5">
-                  <div className="w-5 h-5 rounded-md bg-[#4F8CFF]/10 flex items-center justify-center">
-                    <BrainCircuit size={11} className="text-[#4F8CFF]" />
+                  <div className="w-5 h-5 rounded-md bg-accent-blue/10 flex items-center justify-center">
+                    <BrainCircuit size={11} className="text-accent-blue" />
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#4F8CFF]">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-blue">
                     {t('aiSummary.title')}
                   </span>
                 </div>
-                <div className={isStructured ? 'space-y-2' : 'pl-4 border-l-2 border-[#4F8CFF]/15 space-y-1.5'}>
+                <div className={isStructured ? 'space-y-2' : 'pl-4 border-l-2 border-accent-blue/15 space-y-1.5'}>
                   {sections.slice(0, 4).map((section, i) => {
                     const c = DIALOG_COLORS[i % DIALOG_COLORS.length];
                     return isStructured ? (
@@ -275,16 +275,16 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                             </span>
                           </div>
                         )}
-                        <p className="text-[11px] text-gray-400 dark:text-slate-400 leading-relaxed">
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
                           {section.content}
                         </p>
                       </div>
                     ) : (
                       <div key={i} className="flex gap-2">
-                        <span className="text-[9px] font-bold text-[#4F8CFF]/30 shrink-0 mt-0.5">
+                        <span className="text-[9px] font-bold text-accent-blue/30 shrink-0 mt-0.5">
                           {i + 1}
                         </span>
-                        <p className="text-[11px] text-gray-400 dark:text-slate-400 leading-relaxed">
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
                           {section.content}
                         </p>
                       </div>
@@ -292,10 +292,10 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                   })}
                 </div>
                 {hasMethodology && (
-                  <div className="mt-2 ml-4 pl-4 border-l-2 border-primary/5">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#00D1B2]/[0.06] border border-[#00D1B2]/12">
-                      <Cpu size={10} className="text-[#00D1B2] shrink-0" />
-                      <span className="text-[10px] font-semibold text-[#00D1B2]">{aiData.methodology}</span>
+                  <div className="mt-2 ml-4 pl-4 border-l-2 border-border">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent-teal/[0.06] border border-accent-teal/12">
+                      <Cpu size={10} className="text-accent-teal shrink-0" />
+                      <span className="text-[10px] font-semibold text-accent-teal">{aiData.methodology}</span>
                     </div>
                   </div>
                 )}
@@ -306,15 +306,15 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
 
         {/* ── Keywords ── */}
         {p.keywordsArray.length > 0 && (
-          <div className="border-t border-gray-100 border-primary/5 pt-4">
-            <h5 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-slate-400 mb-2">
+          <div className="border-t border-border pt-4">
+            <h5 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
               Keywords
             </h5>
             <div className="flex flex-wrap gap-1.5">
               {p.keywordsArray.map((tag, idx) => (
                 <span
                   key={idx}
-                  className="text-[10px] px-2.5 py-1 rounded-md font-bold tracking-wide bg-blue-50/60 text-blue-600 border border-blue-100 dark:bg-blue-500/10 dark:border-blue-500/20 dark:text-blue-400"
+                  className="text-[10px] px-2.5 py-1 rounded-md font-bold tracking-wide bg-blue-500/10 text-blue-600 border border-blue-500/20"
                 >
                   #{tag.toUpperCase()}
                 </span>
@@ -324,12 +324,12 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
         )}
 
         {/* ── Footer actions ── */}
-        <DialogFooter className="border-t border-gray-100 border-primary/5 pt-4 mt-2 gap-2">
+        <DialogFooter className="border-t border-border pt-4 mt-2 gap-2">
           {p.pdfAvailable && p.pdfUrl && (
             <Button
               type="button"
               onClick={handleDownloadPdf}
-              className="flex items-center gap-2 bg-white hover:bg-gray-100 text-gray-900 text-xs font-semibold px-4 py-2 rounded-lg shadow-lg shadow-white/20 active:scale-[0.97] transition-all"
+              className="flex items-center gap-2 bg-foreground hover:bg-foreground/80 text-background text-xs font-semibold px-4 py-2 rounded-lg shadow-lg active:scale-[0.97] transition-all"
             >
               <Download size={14} />
               Download PDF
@@ -339,7 +339,7 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
             type="button"
             variant="outline"
             onClick={handleScholarSearch}
-            className="flex items-center gap-2 text-xs bg-white dark:bg-white/[0.02] border-primary/10 text-gray-700 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-white/5"
+            className="flex items-center gap-2 text-xs bg-card border-border text-foreground hover:bg-muted/50"
           >
             <ExternalLink size={14} />
             Search on Google Scholar

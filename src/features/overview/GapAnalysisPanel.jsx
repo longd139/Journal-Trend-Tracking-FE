@@ -5,26 +5,26 @@ import useGapExplorerStore from '../../store/useGapExplorerStore';
 
 function DimSection({ icon: Icon, title, items, emptyText }) {
   return (
-    <div className="p-3 rounded-lg bg-[#101010] border border-[#DEDBC8]/5">
+    <div className="p-3 rounded-lg bg-card border border-border">
       <div className="flex items-center gap-2 mb-2">
-        <Icon size={12} className="text-[#DEDBC8]" />
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">{title}</h4>
+        <Icon size={12} className="text-primary" />
+        <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{title}</h4>
       </div>
       {items && items.length > 0 ? (
         <div className="flex flex-wrap gap-1.5">
           {items.slice(0, 8).map((item, i) => (
             <span
               key={i}
-              className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#DEDBC8]/5 text-[#E1E0CC]"
+              className="px-2 py-0.5 rounded text-[10px] font-medium bg-primary/5 text-foreground"
               title={item.count ? `${item.count} papers` : ''}
             >
               {item.name}
-              {item.count && <span className="ml-1 text-gray-500">({item.count})</span>}
+              {item.count && <span className="ml-1 text-muted-foreground">({item.count})</span>}
             </span>
           ))}
         </div>
       ) : (
-        <p className="text-[10px] text-gray-600 italic">{emptyText || 'No data extracted yet'}</p>
+        <p className="text-[10px] text-muted-foreground italic">{emptyText || 'No data extracted yet'}</p>
       )}
     </div>
   );
@@ -44,9 +44,9 @@ export default function GapAnalysisPanel() {
 
   if (gapAnalysisLoading) {
     return (
-      <div className="w-full flex flex-col items-center justify-center bg-[#0B1020] border-l border-[#DEDBC8]/5 p-5 gap-3 shrink-0">
-        <Loader2 size={24} className="animate-spin text-[#DEDBC8]" />
-        <p className="text-xs text-gray-400">Analyzing gap dimensions...</p>
+      <div className="w-full flex flex-col items-center justify-center bg-background border-l border-border p-5 gap-3 shrink-0">
+        <Loader2 size={24} className="animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground">Analyzing gap dimensions...</p>
       </div>
     );
   }
@@ -54,11 +54,11 @@ export default function GapAnalysisPanel() {
   const a = gapAnalysis || {};
 
   return (
-    <div className="w-full flex flex-col bg-[#0B1020] border-l border-[#DEDBC8]/5 p-5 gap-4 overflow-y-auto">
+    <div className="w-full flex flex-col bg-background border-l border-border p-5 gap-4 overflow-y-auto">
       {/* Header */}
       <div>
-        <h3 className="text-sm font-bold text-[#E1E0CC]">📊 Gap Analysis</h3>
-        <p className="text-xs text-gray-400 mt-1">
+        <h3 className="text-sm font-bold text-foreground">📊 Gap Analysis</h3>
+        <p className="text-xs text-muted-foreground mt-1">
           {selectedPair.keywordA} ↔ {selectedPair.keywordB}
         </p>
       </div>
@@ -129,14 +129,14 @@ export default function GapAnalysisPanel() {
         />
 
         {/* AI Insight placeholder */}
-        <div className="p-3 rounded-lg bg-[#00D1B2]/5 border border-[#00D1B2]/10">
+        <div className="p-3 rounded-lg bg-accent-teal/5 border border-accent-teal/10">
           <div className="flex items-center gap-2 mb-1">
-            <Lightbulb size={12} className="text-[#00D1B2]" />
-            <h4 className="text-[11px] font-semibold text-[#00D1B2] uppercase tracking-wide">
+            <Lightbulb size={12} className="text-accent-teal" />
+            <h4 className="text-[11px] font-semibold text-accent-teal uppercase tracking-wide">
               Research Opportunity
             </h4>
           </div>
-          <p className="text-[10px] text-gray-400 leading-relaxed">
+          <p className="text-[10px] text-muted-foreground leading-relaxed">
             {a.overlapCount > 0
               ? `${a.overlapCount} papers connect these keywords. Look for datasets and methods that are used on one side but not the other — these represent concrete research gaps.`
               : 'No overlapping papers found. This intersection is completely unexplored — a significant greenfield opportunity.'}
@@ -149,9 +149,9 @@ export default function GapAnalysisPanel() {
 
 function StatBadge({ label, count, color }) {
   const colors = {
-    blue: 'bg-[#4F8CFF]/10 text-[#4F8CFF] border-[#4F8CFF]/20',
-    red: 'bg-[#FF6B6B]/10 text-[#FF6B6B] border-[#FF6B6B]/20',
-    cream: 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/20',
+    blue: 'bg-accent-blue/10 text-accent-blue border-accent-blue/20',
+    red: 'bg-red-500/10 text-red-500 border-red-500/20',
+    cream: 'bg-primary/10 text-primary border-primary/20',
   };
 
   return (

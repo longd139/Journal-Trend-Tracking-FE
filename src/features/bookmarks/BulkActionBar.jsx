@@ -23,7 +23,7 @@ export default function BulkActionBar({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-[#1A1A1A] border border-primary/15 shadow-2xl shadow-black/60 backdrop-blur-xl flex items-center gap-4"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl bg-card border border-primary/15 shadow-2xl shadow-black/10 dark:shadow-black/60 backdrop-blur-xl flex items-center gap-4"
         >
           {/* Count */}
           <span className="text-xs font-bold text-foreground whitespace-nowrap">
@@ -36,7 +36,7 @@ export default function BulkActionBar({
           {/* Deselect All */}
           <button
             onClick={onDeselectAll}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all"
           >
             <X size={12} />
             {t('bulk.deselectAll')}
@@ -55,7 +55,7 @@ export default function BulkActionBar({
           <button
             onClick={onRemoveSelected}
             disabled={removing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 hover:border-red-500/35 transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20 hover:border-red-300 dark:hover:border-red-500/35 transition-all disabled:opacity-50"
           >
             <Trash2 size={12} />
             {removing ? '...' : t('bulk.removeSelected')}
