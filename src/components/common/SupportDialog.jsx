@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+﻿import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -6,8 +6,6 @@ import {
   Search,
   Lightbulb,
   Home,
-  BookOpen,
-  UserSearch,
   BarChart3,
   Bookmark,
   Bell,
@@ -71,8 +69,6 @@ const ROLE_CONFIG = {
 const USER_SECTIONS = [
   { id: 'overview',      icon: Home,         color: '#DEDBC8' },
   { id: 'search',        icon: Search,       color: '#4F8CFF' },
-  { id: 'journal-search',icon: BookOpen,     color: '#00D1B2' },
-  { id: 'search-author', icon: UserSearch,   color: '#A78BFA' },
   { id: 'analytics',     icon: BarChart3,    color: '#F59E0B' },
   { id: 'bookmarks',     icon: Bookmark,     color: '#EC4899' },
   { id: 'follows',       icon: Bell,         color: '#10B981' },
@@ -135,7 +131,7 @@ export default function SupportDialog({ open, onClose, role }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] bg-[#0A0A0A] border border-primary/10 text-foreground p-0 overflow-hidden flex flex-col gap-0">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] bg-card border border-primary/10 text-foreground p-0 overflow-hidden flex flex-col gap-0">
         {/* ─── Header ─── */}
         <div className="relative shrink-0">
           {/* Accent gradient bar */}
@@ -168,17 +164,17 @@ export default function SupportDialog({ open, onClose, role }) {
         {/* ─── Body ─── */}
         <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Left sidebar */}
-          <div className="w-44 shrink-0 border-r border-primary/8 flex flex-col bg-[#0D0D0D]">
+          <div className="w-44 shrink-0 border-r border-primary/8 flex flex-col bg-card">
             {/* Search */}
-            <div className="p-2.5 border-b border-primary/5">
+            <div className="p-2.5 border-b border-border">
               <div className="relative">
-                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
+                <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('searchPlaceholder', 'Filter...')}
-                  className="w-full pl-7 pr-2.5 py-1.5 rounded-lg text-[10px] border bg-card border-primary/8 text-foreground placeholder:text-gray-600 focus:outline-none focus:border-primary/20 transition-colors"
+                  className="w-full pl-7 pr-2.5 py-1.5 rounded-lg text-[10px] border bg-card border-primary/8 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/20 transition-colors"
                 />
               </div>
             </div>
@@ -187,8 +183,8 @@ export default function SupportDialog({ open, onClose, role }) {
             <div className="flex-1 overflow-y-auto p-2 space-y-0.5">
               {filteredSections.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-3 text-center gap-2">
-                  <Search size={16} className="text-gray-700" />
-                  <p className="text-[10px] text-gray-600">No matching sections</p>
+                  <Search size={16} className="text-foreground/80" />
+                  <p className="text-[10px] text-muted-foreground">No matching sections</p>
                 </div>
               ) : (
                 filteredSections.map(({ id, icon: Icon, color }) => {
@@ -201,7 +197,7 @@ export default function SupportDialog({ open, onClose, role }) {
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all text-left ${
                         isActive
                           ? 'bg-primary/8 text-primary border-l-2'
-                          : 'text-gray-400 hover:bg-white/[0.03] hover:text-foreground border-l-2 border-transparent'
+                          : 'text-muted-foreground hover:bg-muted/20 hover:text-foreground border-l-2 border-transparent'
                       }`}
                       style={{ borderLeftColor: isActive ? color : 'transparent' }}
                     >
@@ -214,8 +210,8 @@ export default function SupportDialog({ open, onClose, role }) {
             </div>
 
             {/* Section count */}
-            <div className="px-3 py-2 border-t border-primary/5">
-              <p className="text-[9px] text-gray-600">
+            <div className="px-3 py-2 border-t border-border">
+              <p className="text-[9px] text-muted-foreground">
                 {filteredSections.length} {filteredSections.length === 1 ? 'section' : 'sections'}
               </p>
             </div>
@@ -244,7 +240,7 @@ export default function SupportDialog({ open, onClose, role }) {
                     <h3 className="text-sm font-bold text-foreground">
                       {t(`${ns}.sections.${activeSection}`)}
                     </h3>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground mt-0.5">
                       {t(`${ns}.descriptions.${activeSection}`)}
                     </p>
                   </div>
@@ -258,7 +254,7 @@ export default function SupportDialog({ open, onClose, role }) {
                   >
                     {t(`${ns}.content.${activeSection}.heading`)}
                   </h4>
-                  <p className="text-xs text-gray-300 leading-relaxed">
+                  <p className="text-xs text-foreground/80 leading-relaxed">
                     {t(`${ns}.content.${activeSection}.description`)}
                   </p>
                 </div>
@@ -266,7 +262,7 @@ export default function SupportDialog({ open, onClose, role }) {
                 {/* Steps */}
                 {t(`${ns}.content.${activeSection}.steps`, { defaultValue: '' }) && (
                   <div className="space-y-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-500">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                       How to
                     </p>
                     {t(`${ns}.content.${activeSection}.steps`, { defaultValue: '' })
@@ -293,7 +289,7 @@ export default function SupportDialog({ open, onClose, role }) {
                           >
                             {i + 1}
                           </span>
-                          <span className="text-xs text-gray-300 leading-relaxed pt-0.5">
+                          <span className="text-xs text-foreground/80 leading-relaxed pt-0.5">
                             {step.trim()}
                           </span>
                         </motion.div>
@@ -314,7 +310,7 @@ export default function SupportDialog({ open, onClose, role }) {
                     <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: roleConfig.accent }}>
                       {t('tip')}
                     </p>
-                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
                       {t(`${ns}.tips.${activeSection}`, t(`${ns}.tips.default`))}
                     </p>
                   </div>
@@ -326,8 +322,8 @@ export default function SupportDialog({ open, onClose, role }) {
 
         {/* ─── Footer ─── */}
         <div className="shrink-0 px-6 py-3 border-t border-primary/8 flex items-center justify-between">
-          <span className="text-[9px] text-gray-600">SciTrack — Research Platform</span>
-          <span className="text-[9px] text-gray-700">Press Esc to close</span>
+          <span className="text-[9px] text-muted-foreground">SciTrack — Research Platform</span>
+          <span className="text-[9px] text-foreground/80">Press Esc to close</span>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -55,7 +55,7 @@ export default function GeneratorCard({
 
       {/* Title + Description */}
       <h3 className="text-sm font-bold text-foreground mb-1">{title}</h3>
-      <p className="text-xs text-gray-400 mb-4 line-clamp-2">{description}</p>
+      <p className="text-xs text-muted-foreground mb-4 line-clamp-2">{description}</p>
 
       {/* Input + Button */}
       <form onSubmit={handleSubmit} className="mt-auto space-y-2.5">
@@ -66,12 +66,12 @@ export default function GeneratorCard({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           disabled={loading}
-          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-[#0A0A0A] border border-primary/10 text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 transition-colors disabled:opacity-50"
+          className="w-full px-3.5 py-2.5 rounded-lg text-sm bg-card border border-primary/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/30 transition-colors disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={loading || !input.trim()}
-          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-primary text-black hover:opacity-90"
+          className="w-full px-4 py-2.5 rounded-lg text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 bg-primary text-primary-foreground hover:opacity-90"
         >
           {loading ? (
             <>

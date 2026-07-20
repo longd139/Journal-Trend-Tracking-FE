@@ -10,7 +10,7 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
  <motion.div
   whileHover={{ y: -4 }}
   transition={{ duration: 0.2 }}
-  className="p-5 rounded-xl border flex flex-col justify-between bg-card border-primary/5 group"
+  className="p-5 rounded-xl border flex flex-col justify-between bg-card border-border group"
  >
   <div className="flex items-start justify-between mb-2">
   <div
@@ -23,12 +23,12 @@ const StatCard = ({ label, value, change, Icon, accent }) => (
   >
    <Icon size={18} />
   </div>
-  <span className="text-xs font-bold px-2 py-1 rounded-md bg-white/[0.04]" style={{ color: change.startsWith('+') ? '#34D399' : '#EF4444' }}>
+  <span className="text-xs font-bold px-2 py-1 rounded-md bg-muted/25" style={{ color: change.startsWith('+') ? '#34D399' : '#EF4444' }}>
    {change}
   </span>
   </div>
   <div>
-  <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-gray-400">{label}</h4>
+  <h4 className="text-[11px] font-semibold tracking-wider uppercase mb-1 text-muted-foreground">{label}</h4>
   <div className="text-2xl font-bold text-foreground">{value}</div>
   </div>
  </motion.div>
@@ -86,16 +86,16 @@ export default function AnalyticsView() {
     onChange={setSearchInput}
     onSearch={commitSearch}
     placeholder={t('searchPlaceholder')}
-    className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-card border-primary/5 text-gray-900 dark:text-[#E2E8F0] focus:border-blue-500 dark:focus:border-primary"
+    className="w-full pl-11 pr-28 py-3 rounded-xl text-sm outline-none border transition-colors bg-card border-border text-foreground focus:border-blue-500 dark:focus:border-primary"
     wrapperClassName="relative w-full max-w-xl"
-    icon={<Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-gray-400" />}
+    icon={<Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 text-muted-foreground" />}
   >
     <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       type="submit"
       disabled={!searchInput.trim()}
-      className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-black transition-opacity disabled:opacity-40 bg-primary"
+      className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 rounded-lg text-xs font-bold text-primary-foreground transition-opacity disabled:opacity-40 bg-primary"
     >
       {t('searchButton')}
     </motion.button>
@@ -103,27 +103,27 @@ export default function AnalyticsView() {
   </form>
 
   <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-  <StatCard label={t('cards.trendAnalysis')} value="50.2M" change="+14%" Icon={FileText} accent="#DEDBC8" />
-  <StatCard label={t('cards.citationImpact')} value="52.1M" change="+35.7%" Icon={TrendingUp} accent="#DEDBC8" />
+  <StatCard label={t('cards.trendAnalysis')} value="50.2M" change="+14%" Icon={FileText} accent="var(--primary)" />
+  <StatCard label={t('cards.citationImpact')} value="52.1M" change="+35.7%" Icon={TrendingUp} accent="var(--primary)" />
   <StatCard label={t('cards.fieldDistribution')} value="284K" change="+8.2%" Icon={Users} accent="#A09878" />
-  <StatCard label={t('cards.geographicDistribution')} value="9.4" change="+0.8" Icon={Star} accent="#E1E0CC" />
+  <StatCard label={t('cards.geographicDistribution')} value="9.4" change="+0.8" Icon={Star} accent="var(--primary)" />
   </div>
 
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
   <Neo4jGraphCard keyword={searchKeyword} />
 
-  <div className="rounded-xl border p-5 bg-card border-primary/5 ">
+  <div className="rounded-xl border p-5 bg-card border-border ">
    <h3 className="text-sm font-bold text-foreground mb-1">{t('cards.hotKeywords')}</h3>
-   <p className="text-xs mb-4 text-gray-400">{t('charts.trendingKeywords')}</p>
+   <p className="text-xs mb-4 text-muted-foreground">{t('charts.trendingKeywords')}</p>
 
    {/* Loading */}
    {hotLoading && (
    <div className="space-y-2.5 py-2">
     {[...Array(5)].map((_, i) => (
     <div key={i} className="flex items-center gap-3 animate-pulse">
-     <div className="w-5 h-5 rounded-md bg-gray-200 dark:bg-white/10" />
-     <div className="flex-1 h-4 rounded bg-gray-200 dark:bg-white/10" />
-     <div className="w-12 h-4 rounded bg-gray-200 dark:bg-white/10" />
+     <div className="w-5 h-5 rounded-md bg-gray-200 dark:bg-muted/10" />
+     <div className="flex-1 h-4 rounded bg-gray-200 dark:bg-muted/10" />
+     <div className="w-12 h-4 rounded bg-gray-200 dark:bg-muted/10" />
     </div>
     ))}
    </div>
@@ -138,7 +138,7 @@ export default function AnalyticsView() {
 
    {/* Empty */}
    {!hotLoading && !hotError && hotKeywords.length === 0 && (
-   <div className="flex items-center justify-center py-8 text-xs text-gray-400 text-gray-500">
+   <div className="flex items-center justify-center py-8 text-xs text-muted-foreground text-muted-foreground">
     {t('hotKeywords.empty')}
    </div>
    )}
@@ -149,14 +149,14 @@ export default function AnalyticsView() {
     {hotKeywords.map((kw, i) => {
     const rank = i + 1;
     const rankColor =
-     rank === 1 ? '#E1E0CC' :
+     rank === 1 ? 'var(--primary)' :
      rank === 2 ? '#94A3B8' :
      rank === 3 ? '#D97706' :
      undefined;
     return (
      <li
      key={kw.keywordText || i}
-     className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+     className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-gray-50 dark:hover:bg-muted/40 transition-colors"
      >
      <span
       className="w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold flex-shrink-0"
@@ -168,11 +168,11 @@ export default function AnalyticsView() {
      >
       {rank}
      </span>
-     <span className="flex-1 text-xs font-medium text-gray-700 dark:text-[#E2E8F0] truncate">
+     <span className="flex-1 text-xs font-medium text-foreground/80 dark:text-foreground truncate">
       {kw.keywordText}
      </span>
      <span
-      className="text-[10px] font-semibold flex-shrink-0 text-gray-400 text-gray-400"
+      className="text-[10px] font-semibold flex-shrink-0 text-muted-foreground text-muted-foreground"
      >
       {kw.searchCount.toLocaleString()} {t('hotKeywords.searches')}
      </span>

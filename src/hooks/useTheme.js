@@ -108,6 +108,8 @@ export function useTheme() {
     // Immediately apply — don't wait for useSyncExternalStore to re-render
     const resolved = newTheme === 'system' ? resolveSystemTheme() : newTheme;
     applyThemeClass(resolved);
+    // Notify all subscribers so useSyncExternalStore updates resolvedTheme
+    listeners.forEach((cb) => cb());
   }, []);
 
   return { theme, resolvedTheme, setTheme };

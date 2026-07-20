@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useState } from 'react';
+﻿import { useEffect, useRef, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Network } from 'vis-network';
 import { DataSet } from 'vis-data';
@@ -222,13 +222,13 @@ export default function GapNeo4jGraph() {
   const isLoading = hierarchyLoading || focusedGraphLoading;
 
   return (
-    <div className="flex-1 min-h-0 rounded-xl overflow-hidden relative bg-[#0B1020] border border-[#DEDBC8]/5">
+    <div className="flex-1 min-h-0 rounded-xl overflow-hidden relative bg-background border border-border">
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#0B1020]/80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3">
-            <Loader2 size={28} className="animate-spin text-[#DEDBC8]" />
-            <span className="text-xs text-gray-400">
+            <Loader2 size={28} className="animate-spin text-foreground" />
+            <span className="text-xs text-muted-foreground">
               {stage === 'overview' ? 'Loading knowledge graph...' : 'Loading gap analysis...'}
             </span>
           </div>
@@ -238,7 +238,7 @@ export default function GapNeo4jGraph() {
       {/* Empty state */}
       {!isLoading && !hierarchyGraph && !focusedGraph && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <p className="text-sm text-gray-500">Describe your research idea in the chatbot to begin</p>
+          <p className="text-sm text-muted-foreground">Describe your research idea in the chatbot to begin</p>
         </div>
       )}
 
@@ -248,7 +248,7 @@ export default function GapNeo4jGraph() {
       <div className="absolute bottom-3 left-3 z-10">
         <button
           onClick={() => setLegendOpen(!legendOpen)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#101010]/90 border border-[#DEDBC8]/10 text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card/90 border border-primary/10 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           <Info size={12} />
           {legendOpen ? <ChevronDown size={10} /> : <ChevronUp size={10} />}
@@ -260,15 +260,15 @@ export default function GapNeo4jGraph() {
               initial={{ opacity: 0, y: 8, height: 0 }}
               animate={{ opacity: 1, y: 0, height: 'auto' }}
               exit={{ opacity: 0, y: 8, height: 0 }}
-              className="mt-1.5 rounded-lg bg-[#101010]/95 border border-[#DEDBC8]/10 p-3 min-w-[220px] backdrop-blur-sm"
+              className="mt-1.5 rounded-lg bg-card/95 border border-primary/10 p-3 min-w-[220px] backdrop-blur-sm"
             >
-              <p className="text-[10px] text-gray-500 mb-2 uppercase tracking-wider">Node Legend</p>
+              <p className="text-[10px] text-muted-foreground mb-2 uppercase tracking-wider">Node Legend</p>
               <div className="flex flex-col gap-1">
                 {NODE_LEGEND.map((item) => (
                   <div key={item.group} className="flex items-center gap-2 text-xs group">
-                    <span className="text-sm w-5 text-center shrink-0 text-[#DEDBC8]">{item.shape}</span>
-                    <span className="text-[#E1E0CC] font-medium w-24 shrink-0">{item.label}</span>
-                    <span className="text-gray-500 truncate hidden sm:inline">{item.description}</span>
+                    <span className="text-sm w-5 text-center shrink-0 text-foreground">{item.shape}</span>
+                    <span className="text-foreground font-medium w-24 shrink-0">{item.label}</span>
+                    <span className="text-muted-foreground truncate hidden sm:inline">{item.description}</span>
                   </div>
                 ))}
               </div>

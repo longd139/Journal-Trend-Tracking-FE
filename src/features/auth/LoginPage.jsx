@@ -42,9 +42,9 @@ function AtmospherePanel({ isForgotMode, t }) {
 
   return (
     <div className="hidden lg:flex w-[45%] relative flex-col justify-center p-10 xl:p-14 overflow-hidden">
-      {/* Light gradient — keep right side brighter to see the library bg */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/40" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-transparent" />
+      {/* Subtle vignette — lets the image show through */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background/30 dark:from-background/10 dark:via-transparent dark:to-background/50" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/20 via-transparent to-transparent dark:from-background/20" />
 
       {/* Content */}
       <div className="relative z-10 space-y-6 pb-6">
@@ -52,11 +52,11 @@ function AtmospherePanel({ isForgotMode, t }) {
         <div className="flex flex-col items-start gap-1.5">
           <div className="flex items-center">
             <ScitrackSLogo className="text-primary -mr-2 w-14 h-20 xl:w-[4rem] xl:h-[5.7rem]" />
-            <span className="text-5xl xl:text-6xl font-black text-white font-outfit tracking-[0.05em] leading-none drop-shadow-lg">
+            <span className="text-5xl xl:text-6xl font-black text-foreground font-outfit tracking-[0.05em] leading-none drop-shadow-lg">
               CITRACK
             </span>
           </div>
-          <p className="text-sm text-gray-300 max-w-xs leading-relaxed">
+          <p className="text-sm text-foreground/80 max-w-xs leading-relaxed">
             {t('login.platformDesc')}
           </p>
         </div>
@@ -72,10 +72,10 @@ function AtmospherePanel({ isForgotMode, t }) {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="absolute inset-0"
             >
-              <div className="text-3xl font-black text-white font-outfit drop-shadow-md">
+              <div className="text-3xl font-black text-foreground font-outfit drop-shadow-md">
                 {STATS[currentStat].value}
               </div>
-              <p className="text-sm text-gray-300 mt-1.5 max-w-xs leading-relaxed">
+              <p className="text-sm text-foreground/80 mt-1.5 max-w-xs leading-relaxed">
                 {STATS[currentStat].label}
               </p>
             </motion.div>
@@ -237,28 +237,29 @@ export default function LoginPage() {
 
   /* ── Shared input class ──────────────────────────────────────────────── */
   const inputBase =
-    'w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 text-foreground placeholder:text-gray-400 shadow-[0_0_0_1px_rgba(222,219,200,0.05)]';
+    'w-full pl-11 pr-4 py-3 rounded-2xl border text-sm outline-none transition-all duration-300 text-foreground placeholder:text-muted-foreground/50';
   const inputDefault =
-    'border-primary/35 bg-card focus:border-primary focus:bg-card focus:shadow-primary/10 focus:ring-1 focus:ring-primary/20';
+    'border-border0 bg-card focus:border-primary focus:bg-card focus:shadow-[0_0_0_1px_var(--shadow-color)] focus:ring-1 focus:ring-primary/20';
   const inputError = 'border-red-500/50 bg-red-500/[0.08]';
 
   return (
-    <div className="min-h-[100dvh] flex bg-black relative overflow-hidden">
-      {/* ─── Full-page library background (like AuthLayout) ──────────────── */}
+    <div className="min-h-[100dvh] flex bg-background relative overflow-hidden">
+      {/* ─── Full-page library background ──────────────── */}
       <img
         className="absolute inset-0 w-full h-full object-cover opacity-50 pointer-events-none"
         src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?w=1400&h=900&fit=crop"
         alt=""
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/5 to-transparent pointer-events-none" />
+      {/* Overlays: subtle in light mode, darker in dark mode */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-transparent to-background/60 dark:from-background/60 dark:via-transparent dark:to-background/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/30 via-background/10 to-transparent dark:from-background/40 dark:via-background/10 dark:to-transparent pointer-events-none" />
 
       {/* Global noise overlay */}
       <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
 
-      {/* ─── Left panel dark overlay — form side deeper black ──────────── */}
-      <div className="absolute left-0 top-0 bottom-0 w-[55%] lg:w-[55%] bg-black/50 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent pointer-events-none" />
+      {/* ─── Left panel overlay — form side slightly shaded ──────────── */}
+      <div className="absolute left-0 top-0 bottom-0 w-[55%] lg:w-[55%] bg-background/40 dark:bg-background/60 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-background/60 via-background/20 to-transparent dark:from-background/80 dark:via-background/30 dark:to-transparent pointer-events-none" />
 
       {/* ═════════════════════════════════════════════════════════════════
          LEFT — Form
@@ -280,7 +281,7 @@ export default function LoginPage() {
 
           {/* Badge */}
           <motion.div {...formItem} transition={{ duration: 0.5, delay: 0.1 }}>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-primary/20 bg-primary/10 text-primary">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold mb-6 border border-primary/35 bg-primary/10 text-primary">
               <Zap size={10} />
               {isForgotMode ? t('login.passwordRecovery') : t('login.secureAccess')}
             </div>
@@ -291,7 +292,7 @@ export default function LoginPage() {
             <h2 className="text-3xl lg:text-4xl font-black text-foreground mb-2 font-display tracking-tight leading-tight">
               {isForgotMode ? t('login.resetPassword') : t('login.welcomeBack')}
             </h2>
-            <p className="text-sm text-gray-400 mb-8 leading-relaxed">
+            <p className="text-sm text-foreground/70 mb-8 leading-relaxed">
               {isForgotMode
                 ? t('login.resetDescription')
                 : t('login.signIn')}
@@ -387,7 +388,7 @@ export default function LoginPage() {
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-white/5 active:scale-[0.95]"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 z-10 p-1.5 rounded-lg transition-colors text-primary/80 hover:text-primary hover:bg-muted/40 active:scale-[0.95]"
                       >
                         {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                       </button>
@@ -412,11 +413,11 @@ export default function LoginPage() {
                     transition={{ duration: 0.5, delay: 0.3 }}
                     className="flex items-center justify-between text-xs pt-2 px-1"
                   >
-                    <label className="flex items-center gap-2.5 cursor-pointer text-gray-300 hover:text-foreground transition-colors select-none active:scale-[0.98]">
+                    <label className="flex items-center gap-2.5 cursor-pointer text-foreground/80 hover:text-foreground transition-colors select-none active:scale-[0.98]">
                       <span className="relative flex items-center justify-center w-4 h-4">
                         <input type="checkbox" className="sr-only peer" />
-                        <span className="absolute inset-0 rounded border border-primary/50 bg-white/[0.04] peer-checked:bg-primary peer-checked:border-[#DEDBC8] transition-all duration-200" />
-                        <svg className="relative w-2.5 h-2.5 text-transparent peer-checked:text-black transition-colors pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <span className="absolute inset-0 rounded border border-primary/150 bg-muted/25 peer-checked:bg-primary peer-checked:border-primary transition-all duration-200" />
+                        <svg className="relative w-2.5 h-2.5 text-transparent peer-checked:text-primary-foreground transition-colors pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"/>
                         </svg>
                       </span>
@@ -472,7 +473,7 @@ export default function LoginPage() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
-              className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-black hover:border-primary"
+              className="relative w-full py-3.5 rounded-full text-sm font-bold text-primary flex items-center justify-center gap-2 transition-all duration-300 border border-primary/60 bg-transparent hover:bg-primary hover:text-primary-foreground hover:border-primary"
               style={{ opacity: loading ? 0.7 : 1 }}
             >
               {loading ? (
@@ -496,7 +497,7 @@ export default function LoginPage() {
               >
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
-                  <span className="text-[11px] font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                  <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                     {t('login.orContinueWith')}
                   </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-primary/15 to-transparent" />
@@ -508,7 +509,7 @@ export default function LoginPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => googleLogin()}
                     disabled={loading}
-                    className="w-full py-3.5 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2.5 transition-all duration-300 bg-primary hover:bg-foreground"
+                    className="w-full py-3.5 rounded-full text-sm font-bold text-primary-foreground flex items-center justify-center gap-2.5 transition-all duration-300 bg-primary hover:bg-foreground"
                   >
                     <svg viewBox="0 0 24 24" width="18" height="18" className="shrink-0">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -527,17 +528,17 @@ export default function LoginPage() {
           <motion.div
             {...formItem}
             transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-7 pt-6 border-t border-primary/10 text-center text-xs"
+            className="mt-7 pt-6 border-t border-primary/25 text-center text-xs"
           >
             {isForgotMode ? (
               <button
                 onClick={toggleForgotMode}
-                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-gray-400 hover:text-foreground active:scale-[0.97]"
+                className="font-semibold flex items-center justify-center gap-1.5 mx-auto transition-colors text-foreground/70 hover:text-foreground active:scale-[0.97]"
               >
                 <ArrowLeft size={13} /> {t('login.backToLogin')}
               </button>
             ) : (
-              <span className="text-gray-400">
+              <span className="text-foreground/70">
                 {t('login.noAccount')}{' '}
                 <Link
                   to="/register"
@@ -559,7 +560,7 @@ export default function LoginPage() {
       {/* Back to landing */}
       <button
         onClick={() => navigate('/')}
-        className="absolute bottom-6 left-6 z-20 text-xs text-gray-500 hover:text-primary transition-colors flex items-center gap-1.5 active:scale-[0.97]"
+        className="absolute bottom-6 left-6 z-20 text-xs text-foreground/60 hover:text-primary transition-colors flex items-center gap-1.5 active:scale-[0.97]"
       >
         <ArrowLeft size={11} /> Back to home
       </button>

@@ -53,14 +53,14 @@ export default function SyncFloatingPanel() {
     ? t('sync.syncingProgress', { current: totalDone + totalErrors + 1, total: totalTasks })
     : `${t('sync.doneCount', { count: totalDone })}${totalErrors > 0 ? `, ${t('sync.failedCount', { count: totalErrors })}` : ''}`}
    </span>
-   <Maximize2 size={12} className="text-gray-400 dark:text-slate-500" />
+   <Maximize2 size={12} className="text-muted-foreground dark:text-slate-500" />
   </button>
   ) : (
   /* ── Expanded card ── */
   <div className="w-72 rounded-xl shadow-xl border overflow-hidden bg-card border-primary/10">
    {/* Header */}
-   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 border-primary/5 bg-gray-50 dark:bg-white/[0.02]">
-   <h4 className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400 flex items-center gap-2">
+   <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 border-border bg-gray-50 dark:bg-muted/15">
+   <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground flex items-center gap-2">
     {!isAllDone ? (
     <RefreshCw size={12} className="animate-spin text-emerald-500" />
     ) : (
@@ -76,7 +76,7 @@ export default function SyncFloatingPanel() {
      clearCompleted();
      setExpanded(false);
      }}
-     className="p-1 rounded text-[10px] text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+     className="p-1 rounded text-[10px] text-muted-foreground hover:text-muted-foreground dark:text-slate-500 dark:hover:text-foreground transition-colors"
      title={t('sync.clearAll')}
     >
      <X size={12} />
@@ -85,7 +85,7 @@ export default function SyncFloatingPanel() {
     <button
     type="button"
     onClick={() => setExpanded(false)}
-    className="p-1 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 active:scale-[0.90] transition-all duration-150"
+    className="p-1 rounded text-muted-foreground hover:text-muted-foreground dark:text-slate-500 dark:hover:text-foreground active:scale-[0.90] transition-all duration-150"
     title={t('sync.minimize')}
     >
     <Minimize2 size={12} />
@@ -114,14 +114,14 @@ export default function SyncFloatingPanel() {
      {task.status === 'error' && (
       <XCircle size={12} className="text-red-500 shrink-0" />
      )}
-     <span className="text-[11px] font-medium text-gray-700 dark:text-slate-300 truncate capitalize">
+     <span className="text-[11px] font-medium text-foreground/80 dark:text-foreground truncate capitalize">
       {task.source}
      </span>
      </div>
 
      <div className="flex items-center gap-1 shrink-0">
      {task.status === 'done' && task.result?.message && (
-      <span className="text-[9px] text-gray-500 dark:text-slate-500 truncate max-w-[80px]">
+      <span className="text-[9px] text-muted-foreground dark:text-slate-500 truncate max-w-[80px]">
       {task.result.message}
       </span>
      )}
@@ -134,7 +134,7 @@ export default function SyncFloatingPanel() {
       <button
       type="button"
       onClick={() => dismissTask(task.id)}
-      className="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+      className="p-0.5 rounded text-muted-foreground hover:text-muted-foreground dark:text-slate-500 dark:hover:text-foreground transition-colors"
       title={t('sync.dismiss')}
       >
       <X size={10} />
@@ -166,7 +166,7 @@ export default function SyncFloatingPanel() {
       {bulkTask.status === 'error' && (
       <XCircle size={12} className="text-red-500 shrink-0" />
       )}
-      <span className="text-[11px] font-medium text-gray-700 dark:text-slate-300 truncate">
+      <span className="text-[11px] font-medium text-foreground/80 dark:text-foreground truncate">
       {t('sync.bulkSync')}
       </span>
      </div>
@@ -178,7 +178,7 @@ export default function SyncFloatingPanel() {
       </span>
       )}
       {bulkTask.status === 'done' && bulkTask.result?.totalInserted != null && (
-      <span className="text-[9px] text-gray-500 dark:text-slate-500 truncate max-w-[80px]">
+      <span className="text-[9px] text-muted-foreground dark:text-slate-500 truncate max-w-[80px]">
        {t('sync.insertedCount', { count: bulkTask.result.totalInserted })}
       </span>
       )}
@@ -191,7 +191,7 @@ export default function SyncFloatingPanel() {
       <button
        type="button"
        onClick={() => dismissBulkTask()}
-       className="p-0.5 rounded text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+       className="p-0.5 rounded text-muted-foreground hover:text-muted-foreground dark:text-slate-500 dark:hover:text-foreground transition-colors"
        title={t('sync.dismiss')}
       >
        <X size={10} />
@@ -202,7 +202,7 @@ export default function SyncFloatingPanel() {
 
      {/* Mini progress bar for bulk task */}
      {bulkTask.status === 'running' && (
-     <div className="w-full h-1 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
+     <div className="w-full h-1 rounded-full bg-gray-200 dark:bg-muted/30 overflow-hidden">
       <motion.div
       className="h-full rounded-full bg-gradient-to-r from-amber-500 to-emerald-500"
       initial={{ width: 0 }}

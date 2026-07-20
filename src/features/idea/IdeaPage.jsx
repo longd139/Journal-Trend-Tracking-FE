@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, Fragment } from 'react';
+﻿import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -50,11 +50,11 @@ const LOADING_STEPS = [
 
 function CriterionBadge({ value }) {
   return value ? (
-    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-300 bg-emerald-500/20 border border-emerald-500/40">
+    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-500/20 border border-emerald-300 dark:border-emerald-500/40">
       <Check size={15} strokeWidth={2.5} />
     </span>
   ) : (
-    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-red-300 bg-red-500/20 border border-red-500/40">
+    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-500/20 border border-red-300 dark:border-red-500/40">
       <X size={15} strokeWidth={2.5} />
     </span>
   );
@@ -78,7 +78,7 @@ function Step1IdeaInput({ ideaText, setIdeaText, onSubmit, loading, t }) {
         <h3 className="text-lg font-bold text-foreground">
           {t('idea:newAnalysis.step1.title')}
         </h3>
-        <p className="text-sm text-gray-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           {t('idea:newAnalysis.step1.description')}
         </p>
       </div>
@@ -89,9 +89,9 @@ function Step1IdeaInput({ ideaText, setIdeaText, onSubmit, loading, t }) {
           onChange={(e) => setIdeaText(e.target.value.slice(0, MAX_CHARS))}
           placeholder={t('idea:newAnalysis.step1.placeholder')}
           rows={10}
-          className="w-full bg-[#1B2235]/80 border border-primary/15 rounded-xl p-4 text-sm text-foreground placeholder-gray-500 resize-none focus:outline-none focus:border-[#4F8CFF]/50 focus:ring-1 focus:ring-[#4F8CFF]/30 transition-all"
+          className="w-full bg-card/80 border border-primary/15 rounded-xl p-4 text-sm text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:border-accent-blue/50 focus:ring-1 focus:ring-accent-blue/30 transition-all"
         />
-        <div className="absolute bottom-3 right-3 text-[11px] text-gray-500">
+        <div className="absolute bottom-3 right-3 text-[11px] text-muted-foreground">
           {t('idea:newAnalysis.step1.charCount', {
             current: ideaText.length,
             max: MAX_CHARS,
@@ -102,7 +102,7 @@ function Step1IdeaInput({ ideaText, setIdeaText, onSubmit, loading, t }) {
       <button
         onClick={onSubmit}
         disabled={!ideaText.trim() || loading}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#4F8CFF] text-white text-sm font-bold hover:bg-[#3D7AE0] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-blue text-white text-sm font-bold hover:bg-accent-blue/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
         {loading ? (
           <Loader2 size={16} className="animate-spin" />
@@ -167,7 +167,7 @@ function Step2KeywordSelection({
         <h3 className="text-lg font-bold text-foreground">
           {t('idea:newAnalysis.step2.title')}
         </h3>
-        <p className="text-sm text-gray-400 mt-1">
+        <p className="text-sm text-muted-foreground mt-1">
           {t('idea:newAnalysis.step2.description')}
         </p>
       </div>
@@ -175,7 +175,7 @@ function Step2KeywordSelection({
       {/* Extracted keywords */}
       {extractedKeywords.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             {t('idea:newAnalysis.step2.extractedLabel')}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -187,8 +187,8 @@ function Step2KeywordSelection({
                   onClick={() => toggleKeyword(kw)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                     active
-                      ? 'bg-[#4F8CFF]/20 text-[#4F8CFF] border-[#4F8CFF]/40'
-                      : 'bg-white/5 text-gray-400 border-white/10 hover:border-white/20 hover:text-gray-300'
+                      ? 'bg-accent-blue/20 text-accent-blue border-accent-blue/40'
+                      : 'bg-muted/20 text-muted-foreground border-primary/15 hover:border-primary/20 hover:text-foreground'
                   }`}
                 >
                   {kw}
@@ -203,7 +203,7 @@ function Step2KeywordSelection({
       {/* Suggested keywords */}
       {allSuggested.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
             {t('idea:newAnalysis.step2.suggestedLabel')}
           </p>
           <div className="flex flex-wrap gap-2">
@@ -215,8 +215,8 @@ function Step2KeywordSelection({
                   onClick={() => toggleKeyword(kw)}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                     active
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                      : 'bg-white/5 text-gray-500 border-dashed border-white/10 hover:border-emerald-500/30 hover:text-emerald-400'
+                      ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-500/40'
+                      : 'bg-muted/20 text-muted-foreground border-dashed border-border hover:border-emerald-300 dark:hover:border-emerald-500/30 hover:text-emerald-600'
                   }`}
                 >
                   {active ? (
@@ -234,12 +234,12 @@ function Step2KeywordSelection({
 
       {/* Selected keywords summary */}
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
           {t('idea:newAnalysis.step2.yourKeywordsLabel')}{' '}
           <span className="text-foreground">({selectedKeywords.length})</span>
         </p>
         {selectedKeywords.length === 0 ? (
-          <p className="text-xs text-gray-500 italic">
+          <p className="text-xs text-muted-foreground italic">
             {t('idea:newAnalysis.step2.noKeywords')}
           </p>
         ) : (
@@ -248,7 +248,7 @@ function Step2KeywordSelection({
               <span
                 key={kw}
                 onClick={() => toggleKeyword(kw)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#4F8CFF]/15 text-[#4F8CFF] border border-[#4F8CFF]/30 cursor-pointer hover:bg-red-500/15 hover:text-red-400 hover:border-red-500/30 transition-all"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-accent-blue/15 text-accent-blue border border-accent-blue/30 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/15 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-500/30 transition-all"
               >
                 {kw}
                 <X size={12} />
@@ -266,12 +266,12 @@ function Step2KeywordSelection({
           onChange={(e) => setManualInput(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={t('idea:newAnalysis.step2.addPlaceholder')}
-          className="flex-1 bg-[#1B2235]/80 border border-primary/15 rounded-lg px-3 py-2 text-sm text-foreground placeholder-gray-500 focus:outline-none focus:border-[#4F8CFF]/50 transition-all"
+          className="flex-1 bg-card/80 border border-primary/15 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-accent-blue/50 transition-all"
         />
         <button
           onClick={addManualKeyword}
           disabled={!manualInput.trim()}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/10 text-gray-300 text-sm font-medium hover:bg-white/15 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-muted/10 text-foreground/80 text-sm font-medium hover:bg-muted/15 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
           <Plus size={14} />
           {t('idea:newAnalysis.step2.addButton')}
@@ -283,7 +283,7 @@ function Step2KeywordSelection({
         <button
           onClick={onRegenerate}
           disabled={loading}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 text-gray-400 text-sm font-medium hover:bg-white/10 hover:text-foreground disabled:opacity-30 transition-all"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-muted/20 text-muted-foreground text-sm font-medium hover:bg-muted/10 hover:text-foreground disabled:opacity-30 transition-all"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />
@@ -296,7 +296,7 @@ function Step2KeywordSelection({
         <button
           onClick={onConfirm}
           disabled={selectedKeywords.length === 0 || loading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#00D1B2] text-black text-sm font-bold hover:bg-[#00B89A] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-teal text-black text-sm font-bold hover:bg-accent-teal/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           <Search size={15} />
           {t('idea:newAnalysis.step2.confirmSearch')}
@@ -304,7 +304,7 @@ function Step2KeywordSelection({
       </div>
 
       {selectedKeywords.length === 0 && (
-        <p className="text-xs text-amber-400/80 flex items-center gap-1.5">
+        <p className="text-xs text-amber-600/80 dark:text-amber-400/80 flex items-center gap-1.5">
           <AlertCircle size={12} />
           {t('idea:newAnalysis.step2.minKeywordsWarning')}
         </p>
@@ -335,10 +335,10 @@ function Step3Loading({ t }) {
     >
       {/* Animated icon */}
       <div className="relative">
-        <div className="w-16 h-16 rounded-2xl bg-[#4F8CFF]/10 border border-[#4F8CFF]/20 flex items-center justify-center">
-          <Loader2 size={28} className="text-[#4F8CFF] animate-spin" />
+        <div className="w-16 h-16 rounded-2xl bg-accent-blue/10 border border-accent-blue/20 flex items-center justify-center">
+          <Loader2 size={28} className="text-accent-blue animate-spin" />
         </div>
-        <div className="absolute -inset-1 rounded-2xl bg-[#4F8CFF]/5 animate-pulse" />
+        <div className="absolute -inset-1 rounded-2xl bg-accent-blue/5 animate-pulse" />
       </div>
 
       <h3 className="text-lg font-bold text-foreground">
@@ -355,10 +355,10 @@ function Step3Loading({ t }) {
               key={step}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border transition-all ${
                 isComplete
-                  ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/5 border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                   : isActive
-                    ? 'bg-[#4F8CFF]/5 border-[#4F8CFF]/20 text-[#4F8CFF]'
-                    : 'bg-white/[0.02] border-white/5 text-gray-600'
+                    ? 'bg-accent-blue/5 border-accent-blue/20 text-accent-blue'
+                    : 'bg-muted/15 border-border text-muted-foreground'
               }`}
             >
               {isComplete ? (
@@ -366,7 +366,7 @@ function Step3Loading({ t }) {
               ) : isActive ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
-                <div className="w-4 h-4 rounded-full border border-white/10" />
+                <div className="w-4 h-4 rounded-full border border-border" />
               )}
               <span className="text-sm font-medium">
                 {t(`idea:newAnalysis.step3.${step}`)}
@@ -376,7 +376,7 @@ function Step3Loading({ t }) {
         })}
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-muted-foreground">
         {t('idea:newAnalysis.step3.estimatedTime')}
       </p>
     </motion.div>
@@ -402,7 +402,7 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-2">
-        <TrendingUp size={18} className="text-[#00D1B2]" />
+        <TrendingUp size={18} className="text-accent-teal" />
         <h3 className="text-base font-bold text-foreground">
           {t('idea:newAnalysis.step4.gapAnalysisTitle')}
         </h3>
@@ -410,8 +410,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
 
       {/* Solved Areas */}
       {solvedAreas.length > 0 && (
-        <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-xl p-4">
-          <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-2 mb-3">
+        <div className="bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-200 dark:border-emerald-500/15 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-2 mb-3">
             <CheckCircle2 size={14} />
             {t('idea:newAnalysis.step4.solvedAreas')}
           </h4>
@@ -419,8 +419,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
             {solvedAreas.map((item, i) => (
               <div key={i} className="text-sm">
                 <p className="text-foreground font-medium">• {item.area}</p>
-                <p className="text-gray-500 text-xs mt-0.5 ml-4">
-                  <span className="text-gray-400">
+                <p className="text-muted-foreground text-xs mt-0.5 ml-4">
+                  <span className="text-muted-foreground">
                     {item.papers?.join(', ')}
                   </span>
                   {' — '}
@@ -434,8 +434,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
 
       {/* Partially Addressed */}
       {partiallyAddressed.length > 0 && (
-        <div className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-4">
-          <h4 className="text-sm font-bold text-amber-400 flex items-center gap-2 mb-3">
+        <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/15 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-3">
             <AlertTriangle size={14} />
             {t('idea:newAnalysis.step4.partiallyAddressed')}
           </h4>
@@ -443,8 +443,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
             {partiallyAddressed.map((item, i) => (
               <div key={i} className="text-sm">
                 <p className="text-foreground font-medium">• {item.area}</p>
-                <p className="text-gray-500 text-xs mt-0.5 ml-4">
-                  <span className="text-gray-400">
+                <p className="text-muted-foreground text-xs mt-0.5 ml-4">
+                  <span className="text-muted-foreground">
                     {item.papers?.join(', ')}
                   </span>
                   {' — '}
@@ -458,8 +458,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
 
       {/* Research Gaps */}
       {researchGaps.length > 0 && (
-        <div className="bg-red-500/5 border border-red-500/15 rounded-xl p-4">
-          <h4 className="text-sm font-bold text-red-400 flex items-center gap-2 mb-3">
+        <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/15 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-2 mb-3">
             <AlertCircle size={14} />
             {t('idea:newAnalysis.step4.researchGaps')}
           </h4>
@@ -469,11 +469,11 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
                 <p className="text-foreground font-medium">
                   🔴 {item.gap}
                 </p>
-                <p className="text-gray-500 text-xs mt-0.5 ml-5">
+                <p className="text-muted-foreground text-xs mt-0.5 ml-5">
                   {item.rationale}
                 </p>
                 {item.suggestedDirection && (
-                  <p className="text-[#4F8CFF] text-xs mt-0.5 ml-5">
+                  <p className="text-accent-blue text-xs mt-0.5 ml-5">
                     💡 {item.suggestedDirection}
                   </p>
                 )}
@@ -485,8 +485,8 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
 
       {/* Suggested Directions */}
       {suggestedDirections.length > 0 && (
-        <div className="bg-[#4F8CFF]/5 border border-[#4F8CFF]/15 rounded-xl p-4">
-          <h4 className="text-sm font-bold text-[#4F8CFF] flex items-center gap-2 mb-3">
+        <div className="bg-accent-blue/5 border border-accent-blue/15 rounded-xl p-4">
+          <h4 className="text-sm font-bold text-accent-blue flex items-center gap-2 mb-3">
             <Lightbulb size={14} />
             {t('idea:newAnalysis.step4.suggestedDirections')}
           </h4>
@@ -501,24 +501,24 @@ function GapAnalysisPanel({ gapAnalysis, t }) {
       )}
 
       {/* Novelty Score */}
-      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
+      <div className="bg-muted/20 border border-primary/15 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-bold text-foreground">
             {t('idea:newAnalysis.step4.noveltyScore')}
           </span>
-          <span className="text-lg font-black text-[#00D1B2]">
+          <span className="text-lg font-black text-accent-teal">
             {noveltyScore}%
           </span>
         </div>
-        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2">
+        <div className="w-full h-2 bg-muted/10 rounded-full overflow-hidden mb-2">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${noveltyScore}%` }}
             transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full rounded-full bg-gradient-to-r from-[#4F8CFF] to-[#00D1B2]"
+            className="h-full rounded-full bg-gradient-to-r from-accent-blue to-accent-teal"
           />
         </div>
-        <p className="text-xs text-gray-400">{noveltyExplanation}</p>
+        <p className="text-xs text-muted-foreground">{noveltyExplanation}</p>
       </div>
     </div>
   );
@@ -574,28 +574,28 @@ function LiteratureReviewPanel({ literatureReview, t }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <FileText size={18} className="text-[#4F8CFF]" />
+        <FileText size={18} className="text-accent-blue" />
         <h3 className="text-base font-bold text-foreground">
           {t('idea:newAnalysis.step4.literatureReviewTitle')}
         </h3>
       </div>
 
       {/* Review text */}
-      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-5 max-h-80 overflow-y-auto">
-        <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">
+      <div className="bg-muted/20 border border-primary/15 rounded-xl p-5 max-h-80 overflow-y-auto">
+        <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-line">
           {text}
         </p>
       </div>
 
       {/* References */}
       {references.length > 0 && (
-        <div className="bg-white/[0.02] border border-white/10 rounded-xl p-4">
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+        <div className="bg-muted/15 border border-primary/15 rounded-xl p-4">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
             {t('idea:newAnalysis.step4.references')}
           </h4>
           <div className="space-y-1.5">
             {references.map((ref) => (
-              <p key={ref.number} className="text-xs text-gray-500">
+              <p key={ref.number} className="text-xs text-muted-foreground">
                 [{ref.number}] {ref.authors} ({ref.year}). "{ref.paperTitle}
                 ." <span className="italic">{ref.journal}</span>.
                 {ref.doi && (
@@ -603,7 +603,7 @@ function LiteratureReviewPanel({ literatureReview, t }) {
                     href={`https://doi.org/${ref.doi}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#4F8CFF] hover:underline ml-1"
+                    className="text-accent-blue hover:underline ml-1"
                   >
                     {ref.doi}
                   </a>
@@ -618,14 +618,14 @@ function LiteratureReviewPanel({ literatureReview, t }) {
       <div className="flex items-center gap-2">
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 text-xs font-medium hover:bg-white/15 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/10 text-foreground/80 text-xs font-medium hover:bg-muted/15 transition-all"
         >
           <Copy size={13} />
           {t('idea:newAnalysis.step4.copyText')}
         </button>
         <button
           onClick={handleExportBibtex}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 text-xs font-medium hover:bg-white/15 transition-all"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted/10 text-foreground/80 text-xs font-medium hover:bg-muted/15 transition-all"
         >
           <Download size={13} />
           {t('idea:newAnalysis.step4.exportBibtex')}
@@ -662,14 +662,14 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
       <div className="overflow-x-auto">
         <table className="w-full text-sm border-collapse">
           <thead>
-            <tr className="border-b border-white/10">
-              <th className="text-left py-3 px-3 text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <tr className="border-b border-border">
+              <th className="text-left py-3 px-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Paper Title
               </th>
               {CRITERIA_ORDER.map((c) => (
                 <th
                   key={c}
-                  className="text-center py-3 px-3 text-xs font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap"
+                  className="text-center py-3 px-3 text-xs font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap"
                 >
                   {t(`idea:newAnalysis.criteria.${c}`)}
                 </th>
@@ -685,11 +685,11 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
               return (
                 <Fragment key={paperId}>
                   {/* Main paper row */}
-                  <tr className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                  <tr className="border-b border-border hover:bg-muted/15 transition-colors">
                     {/* Title */}
                     <td className="py-3 px-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-[11px] text-gray-500 font-mono">
+                        <span className="text-[11px] text-muted-foreground font-mono">
                           #{i + 1}
                         </span>
                         <div>
@@ -697,13 +697,13 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
                             href={paper.pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-sm font-medium text-foreground hover:text-[#4F8CFF] transition-colors inline-flex items-center gap-1"
+                            className="text-sm font-medium text-foreground hover:text-accent-blue transition-colors inline-flex items-center gap-1"
                           >
                             {paper.title}
                             <ExternalLink size={11} />
                           </a>
                           {paper.abstractText && (
-                            <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-2">
+                            <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
                               {paper.abstractText}
                             </p>
                           )}
@@ -751,8 +751,8 @@ function PaperEvaluationTable({ papers, gapAnalysis, literatureReview, t }) {
                             <div
                               className={`rounded-lg p-3 mb-2 ml-8 border ${
                                 isTrue
-                                  ? 'bg-emerald-500/15 border-emerald-500/40'
-                                  : 'bg-red-500/15 border-red-500/40'
+                                  ? 'bg-emerald-50 dark:bg-emerald-500/15 border-emerald-300 dark:border-emerald-500/40'
+                                  : 'bg-red-50 dark:bg-red-500/15 border-red-300 dark:border-red-500/40'
                               }`}
                             >
                               <EvidenceContent
@@ -787,27 +787,27 @@ function EvidenceContent({ paper, criterion, t, onClose }) {
     <div>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
             {t(`idea:newAnalysis.criteria.${criterion}`)}
           </span>
           <CriterionBadge value={value} />
         </div>
         <button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-300 transition-colors"
+          className="text-muted-foreground hover:text-foreground/80 transition-colors"
         >
           <X size={14} />
         </button>
       </div>
-      <p className="text-xs text-gray-500 italic mb-1.5">
+      <p className="text-xs text-muted-foreground italic mb-1.5">
         {paper.title}
       </p>
       {evidence ? (
-        <blockquote className="text-sm text-foreground leading-relaxed border-l-2 border-[#4F8CFF]/40 pl-3 py-1">
+        <blockquote className="text-sm text-foreground leading-relaxed border-l-2 border-accent-blue/40 pl-3 py-1">
           "{evidence}"
         </blockquote>
       ) : (
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           {t('idea:newAnalysis.step4.noEvidence')}
         </p>
       )}
@@ -834,7 +834,7 @@ function HistoryTab({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 size={24} className="animate-spin text-gray-500" />
+        <Loader2 size={24} className="animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -846,13 +846,13 @@ function HistoryTab({
         animate={{ opacity: 1 }}
         className="flex flex-col items-center justify-center py-20 text-center"
       >
-        <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-          <Clock size={24} className="text-gray-500" />
+        <div className="w-16 h-16 rounded-2xl bg-muted/20 border border-primary/15 flex items-center justify-center mb-4">
+          <Clock size={24} className="text-muted-foreground" />
         </div>
         <h3 className="text-base font-bold text-foreground mb-1">
           {t('idea:history.empty.title')}
         </h3>
-        <p className="text-sm text-gray-500 max-w-sm">
+        <p className="text-sm text-muted-foreground max-w-sm">
           {t('idea:history.empty.description')}
         </p>
       </motion.div>
@@ -867,7 +867,7 @@ function HistoryTab({
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => onView(item)}
-          className="bg-white/[0.03] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all cursor-pointer"
+          className="bg-card border border-primary/20 rounded-xl p-4 hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
         >
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
@@ -882,13 +882,13 @@ function HistoryTab({
                   {item.keywords.slice(0, 5).map((kw) => (
                     <span
                       key={kw}
-                      className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20"
+                      className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
                     >
                       {kw}
                     </span>
                   ))}
                   {item.keywords.length > 5 && (
-                    <span className="text-[10px] text-gray-500">
+                    <span className="text-[10px] text-muted-foreground">
                       +{item.keywords.length - 5}
                     </span>
                   )}
@@ -896,7 +896,7 @@ function HistoryTab({
               )}
 
               {/* Meta */}
-              <div className="flex items-center gap-3 text-xs text-gray-500">
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <FileText size={11} />
                   {t('idea:history.item.papers', { count: item.paperCount })}
@@ -906,7 +906,7 @@ function HistoryTab({
                   {new Date(item.createdAt).toLocaleDateString()}
                 </span>
                 {item.noveltyScore != null && (
-                  <span className="flex items-center gap-1 text-[#00D1B2] font-semibold">
+                  <span className="flex items-center gap-1 text-accent-teal font-semibold">
                     <Zap size={11} />
                     {t('idea:history.item.noveltyScore', {
                       score: item.noveltyScore,
@@ -920,14 +920,14 @@ function HistoryTab({
             <div className="flex items-center gap-1.5 shrink-0">
               <button
                 onClick={(e) => { e.stopPropagation(); onContinue(item); }}
-                className="p-2 rounded-lg text-gray-400 hover:text-[#00D1B2] hover:bg-[#00D1B2]/10 transition-all"
+                className="p-2 rounded-lg text-muted-foreground hover:text-accent-teal hover:bg-accent-teal/10 transition-all"
                 title={t('idea:history.item.continue')}
               >
                 <RefreshCw size={15} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(item); }}
-                className="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                className="p-2 rounded-lg text-muted-foreground hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
                 title={t('idea:history.item.delete')}
               >
                 <Trash2 size={15} />
@@ -943,17 +943,17 @@ function HistoryTab({
           <button
             onClick={() => setPage((p) => Math.max(0, p - 1))}
             disabled={page === 0}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-gray-400 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/20 text-muted-foreground hover:bg-muted/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             Previous
           </button>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted-foreground">
             {page + 1} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             disabled={page >= totalPages - 1}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 text-gray-400 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium bg-muted/20 text-muted-foreground hover:bg-muted/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
           >
             Next
           </button>
@@ -980,17 +980,17 @@ function HistoryDetail({ detail, onBack, t }) {
       <div className="flex items-center gap-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft size={15} />
           {t('idea:history.detail.back')}
         </button>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-muted-foreground">
           {t('idea:history.detail.performedOn', {
             date: new Date(detail.createdAt).toLocaleDateString(),
           })}
         </span>
-        <span className="text-xs text-gray-500">
+        <span className="text-xs text-muted-foreground">
           {t('idea:history.detail.paperCount', {
             count: detail.papers?.length || 0,
           })}
@@ -998,8 +998,8 @@ function HistoryDetail({ detail, onBack, t }) {
       </div>
 
       {/* Original idea */}
-      <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4">
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+      <div className="bg-muted/20 border border-primary/15 rounded-xl p-4">
+        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
           {t('idea:history.detail.originalIdea')}
         </h4>
         <p className="text-sm text-foreground leading-relaxed">{detail.ideaText}</p>
@@ -1008,14 +1008,14 @@ function HistoryDetail({ detail, onBack, t }) {
       {/* Keywords */}
       {detail.keywords && detail.keywords.length > 0 && (
         <div>
-          <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
             {t('idea:history.detail.keywords')}
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {detail.keywords.map((kw) => (
               <span
                 key={kw}
-                className="inline-block px-2.5 py-1 rounded-full text-xs font-medium bg-[#4F8CFF]/10 text-[#4F8CFF] border border-[#4F8CFF]/20"
+                className="inline-block px-2.5 py-1 rounded-full text-xs font-medium bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
               >
                 {kw}
               </span>
@@ -1243,13 +1243,13 @@ export default function IdeaPage() {
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto space-y-6">
       {/* ═══════════ Tab Bar ═══════════ */}
-      <div className="flex items-center gap-1 bg-white/[0.03] border border-white/10 rounded-xl p-1 w-fit">
+      <div className="flex items-center gap-1 bg-muted/20 border border-primary/15 rounded-xl p-1 w-fit">
         <button
           onClick={handleNewAnalysis}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             activeTab === 'new'
-              ? 'bg-[#4F8CFF] text-white shadow-lg shadow-[#4F8CFF]/20'
-              : 'text-gray-400 hover:text-foreground'
+              ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Lightbulb size={15} />
@@ -1262,14 +1262,18 @@ export default function IdeaPage() {
           }}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${
             activeTab === 'history'
-              ? 'bg-[#4F8CFF] text-white shadow-lg shadow-[#4F8CFF]/20'
-              : 'text-gray-400 hover:text-foreground'
+              ? 'bg-accent-blue text-white shadow-lg shadow-accent-blue/20'
+              : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           <Clock size={15} />
           {t('sidebar.history')}
           {historyTotalItems > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-white/20 text-white text-[10px] font-bold">
+            <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
+              activeTab === 'history'
+                ? 'bg-white/20 text-white'
+                : 'bg-primary/15 text-primary font-bold'
+            }`}>
               {historyTotalItems > 99 ? '99+' : historyTotalItems}
             </span>
           )}
@@ -1294,15 +1298,15 @@ export default function IdeaPage() {
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border ${
                         step >= s
-                          ? 'bg-[#4F8CFF] text-white border-[#4F8CFF]'
-                          : 'bg-transparent text-gray-500 border-white/15'
+                          ? 'bg-accent-blue text-white border-accent-blue'
+                          : 'bg-transparent text-muted-foreground border-primary/15'
                       }`}
                     >
                       {step > s ? <CheckCircle2 size={14} /> : s}
                     </div>
                     <span
                       className={`text-xs font-semibold ${
-                        step >= s ? 'text-foreground' : 'text-gray-500'
+                        step >= s ? 'text-foreground' : 'text-muted-foreground'
                       }`}
                     >
                       {s === 1
@@ -1310,7 +1314,7 @@ export default function IdeaPage() {
                         : t('idea:newAnalysis.step2.title')}
                     </span>
                     {s < 2 && (
-                      <ChevronRight size={14} className="text-gray-600 mx-1" />
+                      <ChevronRight size={14} className="text-muted-foreground mx-1" />
                     )}
                   </div>
                 ))}
@@ -1346,7 +1350,7 @@ export default function IdeaPage() {
             {step === 3 && (
               <div>
                 <Step3Loading t={t} />
-                <p className="text-center text-xs text-gray-500 mt-2">
+                <p className="text-center text-xs text-muted-foreground mt-2">
                   {t('idea:newAnalysis.step3.navigateAway')}
                 </p>
               </div>
@@ -1385,7 +1389,7 @@ export default function IdeaPage() {
           >
             {detailLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 size={24} className="animate-spin text-gray-500" />
+                <Loader2 size={24} className="animate-spin text-muted-foreground" />
               </div>
             ) : detailView ? (
               <HistoryDetail
@@ -1425,30 +1429,30 @@ export default function IdeaPage() {
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className="bg-[#1B2235] border border-primary/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
+              className="bg-card border border-primary/20 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-                  <AlertTriangle size={18} className="text-red-400" />
+                <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+                  <AlertTriangle size={18} className="text-red-600 dark:text-red-400" />
                 </div>
                 <h3 className="text-base font-bold text-foreground">
                   {t('idea:history.delete.title')}
                 </h3>
               </div>
-              <p className="text-sm text-gray-400 mb-6">
+              <p className="text-sm text-muted-foreground mb-6">
                 {t('idea:history.delete.description')}
               </p>
               <div className="flex items-center gap-3 justify-end">
                 <button
                   onClick={() => setDeleteTarget(null)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-foreground bg-white/5 hover:bg-white/10 transition-all"
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground bg-muted/20 hover:bg-muted/10 transition-all"
                 >
                   {t('idea:history.delete.cancel')}
                 </button>
                 <button
                   onClick={confirmDelete}
-                  className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-all"
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-red-600 dark:bg-red-500 hover:bg-red-700 dark:hover:bg-red-600 transition-all"
                 >
                   {t('idea:history.delete.confirm')}
                 </button>

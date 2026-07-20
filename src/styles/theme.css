@@ -26,59 +26,68 @@
      elements like the SCITRACK logo. Do NOT use for bilingual content.        */
   --font-outfit: 'Outfit', 'Be Vietnam Pro', system-ui, sans-serif;
 
-  /* ─── Light Mode Color System ─────────────────────────────────────────── */
-  --background: #FAFAF8;
-  --foreground: #1A1A1A;
+  /* ═══════════════════════════════════════════════════════════════════════════
+     LIGHT MODE — "Warm Library"
+     Ấm áp như đọc journal học thuật dưới ánh sáng tự nhiên.
+     Không dùng pure white #FFF cho background — dùng ivory ấm để đỡ chói.
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  --background: #F7F6F1;
+  --foreground: #1E2028;
   --card: #FFFFFF;
-  --card-foreground: #1A1A1A;
+  --card-foreground: #1E2028;
   --popover: #FFFFFF;
-  --popover-foreground: #1A1A1A;
-  --primary: #5B5A48;
+  --popover-foreground: #1E2028;
+  --primary: #3A5BA0;
   --primary-foreground: #FFFFFF;
   --secondary: #F0EFE8;
-  --secondary-foreground: #1A1A1A;
-  --muted: #F0EFE8;
-  --muted-foreground: #6B7280;
-  --accent: #5B5A48;
+  --secondary-foreground: #1E2028;
+  --muted: #EDEBE4;
+  --muted-foreground: #3D4049;
+  --accent: #9B7B3C;
   --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;
+  --destructive: #DC2626;
   --destructive-foreground: #FFFFFF;
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.06);
+  --border: rgba(0, 0, 0, 0.10);
+  --input: rgba(0, 0, 0, 0.12);
   --input-background: #FFFFFF;
   --switch-background: #D1D5DB;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #5B5A48;
-  --chart-1: #5B5A48;
-  --chart-2: #7A7966;
-  --chart-3: #9A9884;
-  --chart-4: #BAB8A2;
-  --chart-5: #DAD8C2;
+  --ring: #3A5BA0;
+  --chart-1: #3A5BA0;
+  --chart-2: #9B7B3C;
+  --chart-3: #0D9488;
+  --chart-4: #6366F1;
+  --chart-5: #D97706;
   --radius: 0.75rem;
-  --sidebar: #F5F4EF;
-  --sidebar-foreground: #1A1A1A;
-  --sidebar-primary: #5B5A48;
+  --sidebar: #F2F0EA;
+  --sidebar-foreground: #1E2028;
+  --sidebar-primary: #3A5BA0;
   --sidebar-primary-foreground: #FFFFFF;
   --sidebar-accent: #FFFFFF;
-  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-accent-foreground: #1E2028;
   --sidebar-border: rgba(0, 0, 0, 0.08);
-  --sidebar-ring: #5B5A48;
+  --sidebar-ring: #3A5BA0;
 
   /* ─── Card Surface Tiers ────────────────────────────────────────────────── */
   --card-elevated: #FFFFFF;
   --card-elevated-border: rgba(0, 0, 0, 0.10);
-  --card-recessed: #F5F4EF;
-  --card-recessed-border: rgba(0, 0, 0, 0.06);
+  --card-recessed: #F3F1EB;
+  --card-recessed-border: rgba(0, 0, 0, 0.08);
 
   /* ─── Functional Accent Colors ──────────────────────────────────────────── */
-  --accent-blue: #3B82F6;
+  --accent-blue: #3A5BA0;
   --accent-teal: #0D9488;
 
-  /* ─── Scrollbar (adaptive) ─────────────────────────────────────────────── */
-  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+  /* ─── Misc theme helpers ────────────────────────────────────────────────── */
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --overlay-bg: rgba(255, 255, 255, 0.6);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DARK MODE — "Deep Observatory"
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 .dark {
   --background: #0A0A0A;
@@ -128,10 +137,14 @@
   --accent-blue: #4F8CFF;
   --accent-teal: #00D1B2;
 
-  /* ─── Scrollbar (adaptive) ─────────────────────────────────────────────── */
-  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
-  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
+  /* ─── Misc theme helpers ────────────────────────────────────────────────── */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --overlay-bg: rgba(0, 0, 0, 0.6);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   TAILWIND v4 @theme — maps CSS variables to Tailwind color tokens
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 @theme inline {
   --color-background: var(--background);
@@ -182,6 +195,10 @@
   /* ─── Functional Accent Colors ──────────────────────────────────────────── */
   --color-accent-blue: var(--accent-blue);
   --color-accent-teal: var(--accent-teal);
+
+  /* ─── Theme helpers ─────────────────────────────────────────────────────── */
+  --color-shadow: var(--shadow-color);
+  --color-overlay: var(--overlay-bg);
 
   /* ─── Font family theme tokens ────────────────────────────────────────── */
   --font-sans: var(--font-sans);

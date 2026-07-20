@@ -1,4 +1,4 @@
-import * as React from 'react';
+﻿import * as React from 'react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -55,18 +55,18 @@ function BookmarkCardSkeleton() {
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-3">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-5 w-20 rounded-md bg-white/5" />
-            <Skeleton className="h-4 w-12 rounded bg-white/5" />
+            <Skeleton className="h-5 w-20 rounded-md bg-card" />
+            <Skeleton className="h-4 w-12 rounded bg-card" />
           </div>
-          <Skeleton className="h-5 w-3/4 rounded bg-white/5" />
-          <Skeleton className="h-4 w-1/2 rounded bg-white/5" />
+          <Skeleton className="h-5 w-3/4 rounded bg-card" />
+          <Skeleton className="h-4 w-1/2 rounded bg-card" />
         </div>
         <div className="flex items-center gap-6 shrink-0">
           <div className="text-right space-y-2">
-            <Skeleton className="h-7 w-16 rounded bg-white/5 ml-auto" />
-            <Skeleton className="h-3 w-20 rounded bg-white/5 ml-auto" />
+            <Skeleton className="h-7 w-16 rounded bg-card ml-auto" />
+            <Skeleton className="h-3 w-20 rounded bg-card ml-auto" />
           </div>
-          <Skeleton className="h-10 w-10 rounded-lg bg-white/5" />
+          <Skeleton className="h-10 w-10 rounded-lg bg-card" />
         </div>
       </div>
     </div>
@@ -157,7 +157,7 @@ function BatchExportPanel({ papers, onClose }) {
           </h4>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all"
+            className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all"
           >
             Close
           </button>
@@ -172,7 +172,7 @@ function BatchExportPanel({ papers, onClose }) {
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
                 formatKey === f.key
                   ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'text-gray-500 border border-transparent hover:text-foreground hover:border-primary/10'
+                  : 'text-muted-foreground border border-transparent hover:text-foreground hover:border-primary/10'
               }`}
             >
               {f.label}
@@ -181,9 +181,9 @@ function BatchExportPanel({ papers, onClose }) {
         </div>
 
         {/* Preview */}
-        <pre className="text-[10px] text-gray-400 bg-[#0A0D14] rounded-xl p-4 max-h-[200px] overflow-auto border border-primary/5 font-mono leading-relaxed whitespace-pre-wrap">
+        <pre className="text-[10px] text-muted-foreground bg-card-recessed rounded-xl p-4 max-h-[200px] overflow-auto border border-border font-mono leading-relaxed whitespace-pre-wrap">
           {loading ? (
-            <span className="flex items-center gap-2 text-gray-500">
+            <span className="flex items-center gap-2 text-muted-foreground">
               <Loader2 size={11} className="animate-spin" />
               Fetching citations...
             </span>
@@ -194,7 +194,7 @@ function BatchExportPanel({ papers, onClose }) {
 
         {/* API fallback indicator */}
         {fetchError && !loading && (
-          <p className="text-[9px] text-amber-400/60 italic">
+          <p className="text-[9px] text-amber-600/60 dark:text-amber-400/60 italic">
             Generated locally (server unavailable)
           </p>
         )}
@@ -212,7 +212,7 @@ function BatchExportPanel({ papers, onClose }) {
           <button
             onClick={handleDownload}
             disabled={loading || !combined}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/15 hover:bg-emerald-500/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all disabled:opacity-40"
           >
             {loading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
             Download All
@@ -366,12 +366,12 @@ export default function BookmarksView() {
   if (error && !loading && bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent p-8">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-red-400" />
+        <div className="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 flex items-center justify-center">
+          <AlertCircle size={28} className="text-red-600 dark:text-red-400" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
-          <p className="text-sm text-gray-400">{t('toast.loadError')}</p>
+          <p className="text-sm text-muted-foreground">{t('toast.loadError')}</p>
         </div>
         <button
           onClick={fetchBookmarks}
@@ -388,8 +388,8 @@ export default function BookmarksView() {
     return (
       <div className="p-8 space-y-6 min-h-screen bg-transparent">
         <div className="space-y-1">
-          <Skeleton className="h-7 w-40 rounded bg-white/5" />
-          <Skeleton className="h-4 w-64 rounded bg-white/5" />
+          <Skeleton className="h-7 w-40 rounded bg-card" />
+          <Skeleton className="h-4 w-64 rounded bg-card" />
         </div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -405,11 +405,11 @@ export default function BookmarksView() {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent">
         <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
-          <BookOpen size={28} className="text-gray-500" />
+          <BookOpen size={28} className="text-muted-foreground" />
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{t('headings.bookmarks')}</h3>
-          <p className="text-sm text-gray-400">{t('subtitles.bookmarks')}</p>
+          <p className="text-sm text-muted-foreground">{t('subtitles.bookmarks')}</p>
         </div>
       </div>
     );
@@ -430,13 +430,13 @@ export default function BookmarksView() {
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
               <BookOpen size={13} className="text-primary" />
               <span className="text-xs font-bold text-primary">{bookmarks.length}</span>
-              <span className="text-[11px] text-gray-400">{bookmarks.length === 1 ? 'paper' : 'papers'}</span>
+              <span className="text-[11px] text-muted-foreground">{bookmarks.length === 1 ? 'paper' : 'papers'}</span>
             </div>
             {selectedIds.size > 0 && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#4F8CFF]/10 border border-[#4F8CFF]/15">
-                <Check size={13} className="text-[#4F8CFF]" />
-                <span className="text-xs font-bold text-[#4F8CFF]">{selectedIds.size}</span>
-                <span className="text-[11px] text-gray-400">selected</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-blue/10 border border-accent-blue/15">
+                <Check size={13} className="text-accent-blue" />
+                <span className="text-xs font-bold text-accent-blue">{selectedIds.size}</span>
+                <span className="text-[11px] text-muted-foreground">selected</span>
               </div>
             )}
           </div>
@@ -507,10 +507,10 @@ export default function BookmarksView() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       {field && <GlowBadge color={badgeColor}>{field}</GlowBadge>}
-                      {year && <span className="text-xs text-gray-400">{year}</span>}
+                      {year && <span className="text-xs text-muted-foreground">{year}</span>}
                     </div>
                     <h4 className="text-sm font-bold text-foreground mb-1">{p.title || 'Untitled'}</h4>
-                    {authors && <p className="text-xs text-gray-400">{authors}</p>}
+                    {authors && <p className="text-xs text-muted-foreground">{authors}</p>}
                   </div>
 
                   <div className="flex items-center gap-6 shrink-0">
@@ -518,9 +518,9 @@ export default function BookmarksView() {
                       <div className="text-xl font-bold text-foreground">
                         {hasCitations ? citations.toLocaleString() : '—'}
                       </div>
-                      <div className="text-xs text-gray-400">{t('user.totalCitations')}</div>
+                      <div className="text-xs text-muted-foreground">{t('user.totalCitations')}</div>
                       {p.trend && (
-                        <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-[#A09878]">
+                        <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-muted-foreground">
                           {p.trend}
                         </div>
                       )}
@@ -531,7 +531,7 @@ export default function BookmarksView() {
                         e.stopPropagation();
                         removeBookmark(bookmark);
                       }}
-                      className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group"
+                      className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group"
                       title="Remove from bookmarks"
                     >
                       <BookmarkMinus size={18} />

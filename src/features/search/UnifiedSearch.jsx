@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { motion } from 'motion/react';
 import { Search, X } from 'lucide-react';
 import SearchPapers from './SearchPapers';
@@ -39,7 +39,7 @@ export default function UnifiedSearch() {
           <div className="relative">
             <Search
               size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10"
+              className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 z-10"
             />
             <input
               type="text"
@@ -47,12 +47,12 @@ export default function UnifiedSearch() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full pl-12 pr-12 py-4 rounded-xl text-sm outline-none border transition-colors bg-[#0F0F0F]/80 border-[#DEDBC8]/10 text-[#E2E8F0] focus:border-[#DEDBC8]/30 placeholder:text-gray-500"
+              className="w-full pl-12 pr-12 py-4 rounded-xl text-sm outline-none border transition-colors bg-card/80 border-primary/10 text-foreground focus:border-primary/30 placeholder:text-muted-foreground"
             />
             {query && (
               <button
                 onClick={() => { setQuery(''); setSearchedQuery(''); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/5 text-gray-500 hover:text-gray-300"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted/40 text-foreground/60 hover:text-foreground/80"
               >
                 <X size={14} />
               </button>
@@ -65,7 +65,7 @@ export default function UnifiedSearch() {
             whileTap={{ scale: 0.98 }}
             onClick={handleSearch}
             disabled={!query.trim()}
-            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-black transition-opacity disabled:opacity-40 bg-[#DEDBC8]"
+            className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold text-primary-foreground transition-opacity disabled:opacity-40 bg-primary"
           >
             <Search size={14} />
             Search
@@ -76,15 +76,15 @@ export default function UnifiedSearch() {
         {searchedQuery && (
           <>
             {/* Tab Navigation */}
-            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-[#101010] border border-[#DEDBC8]/5">
+            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-card border border-border">
               {TABS.map((tab) => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
                   className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                     activeTab === tab.key
-                      ? 'bg-[#DEDBC8]/10 text-[#DEDBC8]'
-                      : 'text-gray-500 hover:text-gray-300'
+                      ? 'bg-primary/10 text-primary'
+                      : 'text-foreground/60 hover:text-foreground/80'
                   }`}
                 >
                   <span>{tab.icon}</span>
@@ -111,10 +111,10 @@ export default function UnifiedSearch() {
         {/* ── Zero State ── */}
         {!searchedQuery && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="p-4 rounded-2xl bg-[#DEDBC8]/5 border border-[#DEDBC8]/10 mb-4">
-              <Search size={32} className="text-[#DEDBC8]/30" />
+            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/10 mb-4">
+              <Search size={32} className="text-primary/30" />
             </div>
-            <p className="text-sm text-gray-500 max-w-sm">
+            <p className="text-sm text-foreground/60 max-w-sm">
               Search across papers, authors, and journals in one place.
               <br />
               Try "deep learning", "hinton", or "nature".

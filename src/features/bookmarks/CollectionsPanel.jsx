@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FolderPlus, Folder, Trash2, Check, X, Plus, Edit3, Layers } from 'lucide-react';
 import { toast } from 'sonner';
@@ -86,7 +86,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
           className={`px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all border ${
             !activeCollection
               ? 'bg-primary/10 text-primary border-primary/30'
-              : 'text-gray-500 border-primary/8 hover:text-foreground hover:border-primary/20'
+              : 'text-muted-foreground border-primary/8 hover:text-foreground hover:border-primary/20'
           }`}
         >
           <Layers size={11} className="inline mr-1.5" />
@@ -116,8 +116,8 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
                       className="w-24 text-[11px] bg-transparent text-foreground outline-none"
                       autoFocus
                     />
-                    <button onClick={() => handleRename(col.collectionId || col.id)} className="text-emerald-400"><Check size={11} /></button>
-                    <button onClick={() => setEditingId(null)} className="text-gray-500"><X size={11} /></button>
+                    <button onClick={() => handleRename(col.collectionId || col.id)} className="text-emerald-600 dark:text-emerald-400"><Check size={11} /></button>
+                    <button onClick={() => setEditingId(null)} className="text-muted-foreground"><X size={11} /></button>
                   </div>
                 ) : (
                   <div className={`flex items-center rounded-lg border transition-all ${
@@ -128,26 +128,26 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
                     <button
                       onClick={() => onSelectCollection(col.collectionId || col.id)}
                       className={`px-3 py-1.5 text-[11px] font-semibold rounded-l-lg transition-colors ${
-                        isActive ? 'text-primary' : 'text-gray-400 hover:text-foreground'
+                        isActive ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Folder size={11} className="inline mr-1.5" />
                       {col.name || col.collectionName || 'Untitled'}
                       {col.paperCount > 0 && (
-                        <span className="ml-1.5 text-[9px] text-gray-500">({col.paperCount})</span>
+                        <span className="ml-1.5 text-[9px] text-muted-foreground">({col.paperCount})</span>
                       )}
                     </button>
                     <div className="flex items-center px-1 border-l border-primary/8">
                       <button
                         onClick={() => { setEditingId(col.collectionId || col.id); setEditName(col.name || col.collectionName || ''); }}
-                        className="p-1 text-gray-500 hover:text-primary transition-colors"
+                        className="p-1 text-muted-foreground hover:text-primary transition-colors"
                         title="Rename"
                       >
                         <Edit3 size={9} />
                       </button>
                       <button
                         onClick={() => handleDelete(col.collectionId || col.id, col.name || col.collectionName)}
-                        className="p-1 text-gray-500 hover:text-red-400 transition-colors"
+                        className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         title="Delete"
                       >
                         <Trash2 size={9} />
@@ -164,7 +164,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
         {!showCreate ? (
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-gray-500 border border-dashed border-primary/10 hover:text-primary hover:border-primary/30 transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-muted-foreground border border-dashed border-primary/10 hover:text-primary hover:border-primary/30 transition-all"
           >
             <Plus size={11} />
             New
@@ -177,13 +177,13 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') { setShowCreate(false); setNewName(''); } }}
               placeholder="Name..."
-              className="w-28 text-[11px] bg-transparent text-foreground outline-none placeholder:text-gray-500"
+              className="w-28 text-[11px] bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
               autoFocus
             />
-            <button onClick={handleCreate} disabled={creating || !newName.trim()} className="text-emerald-400 disabled:opacity-40">
+            <button onClick={handleCreate} disabled={creating || !newName.trim()} className="text-emerald-600 dark:text-emerald-400 disabled:opacity-40">
               <Check size={11} />
             </button>
-            <button onClick={() => { setShowCreate(false); setNewName(''); }} className="text-gray-500">
+            <button onClick={() => { setShowCreate(false); setNewName(''); }} className="text-muted-foreground">
               <X size={11} />
             </button>
           </div>

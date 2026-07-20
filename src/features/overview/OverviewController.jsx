@@ -13,7 +13,7 @@ export default function OverviewController() {
   ) : (
   <Suspense fallback={
     <div className="flex h-[calc(100vh-64px)] items-center justify-center">
-      <div className="text-sm text-gray-400 animate-pulse">Loading Research Explorer...</div>
+      <div className="text-sm text-muted-foreground animate-pulse">Loading Research Explorer...</div>
     </div>
   }>
     <GapExplorerLayout />

@@ -10,8 +10,6 @@ import NotificationBell from '../../features/notifications/NotificationBell';
 import {
   Home,
   Search,
-  BookOpen,
-  UserSearch,
   FileText,
   Users,
   Database,
@@ -28,6 +26,8 @@ import {
   X,
   HelpCircle,
   Lightbulb,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
@@ -35,6 +35,7 @@ import { useAuthStore } from '../../features/user/store';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
 import SupportDialog from '../../components/common/SupportDialog';
+import { useTheme } from '../../hooks/useTheme';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Sidebar
@@ -48,8 +49,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
-    { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
-    { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -61,8 +60,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const researcherNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
-    { id: 'journal-search', Icon: BookOpen, label: t('sidebar.searchJournals') },
-    { id: 'search-author', Icon: UserSearch, label: t('sidebar.searchAuthor') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -170,7 +167,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
             toast.success('Signed out successfully', { duration: 3000 });
             navigate('/login');
           }}
-          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-muted text-muted-foreground hover:bg-red-500 hover:text-white"
+         className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-foreground/5 text-muted-foreground hover:bg-red-500 hover:text-foreground"
         >
           {t('sidebar.signOut')}
         </button>
@@ -192,6 +189,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
 
 function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
   const { t } = useTranslation('common');
+  const { resolvedTheme, setTheme } = useTheme();
 
   const getInitials = (name) => {
     if (!name) return '??';
@@ -230,7 +228,11 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
         <LanguageSwitcher />
 
         {/* Notification Bell */}
+        {/* Notification Bell */}
         <NotificationBell />
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
 
         {/* User avatar + settings */}
         <button
@@ -342,14 +344,6 @@ export default function DashboardLayout({ children }) {
     search: {
       title: t('headings.searchPapers'),
       sub: t('subtitles.search'),
-    },
-    'journal-search': {
-      title: t('headings.searchJournals'),
-      sub: t('subtitles.searchJournals'),
-    },
-    'search-author': {
-      title: t('headings.searchAuthor'),
-      sub: t('subtitles.searchAuthor'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },

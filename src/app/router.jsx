@@ -18,8 +18,6 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 
 // Trang User / Researcher
 const SearchPapers = lazy(() => import('../features/search/SearchPapers.jsx'));
-const SearchJournal = lazy(() => import('../features/search/SearchJournal.jsx'));
-const SearchAuthor = lazy(() => import('../features/search/SearchAuthor.jsx'));
 const UnifiedSearch = lazy(() => import('../features/search/UnifiedSearch.jsx'));
 const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.jsx'));
 
@@ -193,7 +191,6 @@ export const router = createBrowserRouter([
         path: 'search-author',
         element: <Navigate to="../search" replace />,
       },
-
       {
         path: 'papers/:paperId', // -> URL thực tế: /:roleName/papers/:paperId
         element: (

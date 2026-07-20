@@ -1,4 +1,4 @@
-import { useTranslation } from 'react-i18next';
+﻿import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Clock, TrendingUp, FileText, Trash2 } from 'lucide-react';
 import { getReportTypeConfig } from '../config';
 
@@ -18,12 +18,12 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
   if (!history || history.length === 0) return null;
 
   return (
-    <div className="rounded-xl border overflow-hidden bg-card border-primary/5">
-      <div className="flex items-center justify-between p-5 border-b border-primary/5">
+    <div className="rounded-xl border overflow-hidden bg-card border-border">
+      <div className="flex items-center justify-between p-5 border-b border-border">
         <h3 className="text-sm font-bold text-foreground">
           {t('history.title') || 'Report History'}
         </h3>
-        <span className="text-xs text-gray-400">
+        <span className="text-xs text-muted-foreground">
           {history.length} report{history.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -31,11 +31,11 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-primary/5">
+            <tr className="border-b border-border">
               {['Type', 'Query', 'Generated', 'Status', ''].map((h) => (
                 <th
                   key={h}
-                  className="text-left px-5 py-4 text-xs font-semibold text-gray-400"
+                  className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground"
                 >
                   {h}
                 </th>
@@ -46,12 +46,12 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
             {history.map((entry, i) => {
               const typeConfig = getReportTypeConfig(entry.type);
               const TypeIcon = typeConfig.icon || FileText;
-              const typeColor = typeConfig.color || '#DEDBC8';
+              const typeColor = typeConfig.color || 'var(--primary)';
 
               return (
                 <tr
                   key={entry._id || `${entry.type}-${entry.timestamp}-${i}`}
-                  className="border-b border-primary/5 hover:bg-white/[0.02] transition-colors"
+                  className="border-b border-border hover:bg-muted/25 transition-colors"
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
@@ -62,18 +62,18 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-xs text-gray-400 font-mono">
+                    <span className="text-xs text-muted-foreground font-mono">
                       &quot;{entry.query}&quot;
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Clock size={11} />
                       {new Date(entry.timestamp).toLocaleString()}
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md">
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md">
                       <CheckCircle2 size={12} />
                       Ready
                     </span>
@@ -82,7 +82,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onView(entry)}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-white transition-colors"
+                        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-foreground transition-colors"
                       >
                         <TrendingUp size={13} />
                         View
@@ -90,7 +90,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                       {onDelete && (
                         <button
                           onClick={() => onDelete(i)}
-                          className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-400 transition-colors"
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
                           title="Delete"
                         >
                           <Trash2 size={13} />

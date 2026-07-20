@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+﻿import { useState, useCallback, useEffect, useRef } from 'react';
 import GapNeo4jGraph from './GapNeo4jGraph';
 import MCPChatbot from './MCPChatbot';
 import GapAnalysisPanel from './GapAnalysisPanel';
@@ -62,10 +62,10 @@ export default function GapExplorerLayout() {
       {/* Drag handle */}
       <div
         onMouseDown={onMouseDown}
-        className="w-1.5 shrink-0 bg-[#DEDBC8]/5 hover:bg-[#4F8CFF]/30 cursor-col-resize transition-colors relative group"
+        className="w-1.5 shrink-0 bg-primary/5 hover:bg-accent-blue/30 cursor-col-resize transition-colors relative group"
       >
         <div className="absolute inset-y-0 -left-1 -right-1" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-[#DEDBC8]/0 group-hover:bg-[#DEDBC8]/20 transition-colors" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-primary/0 group-hover:bg-primary/20 transition-colors" />
       </div>
 
       {/* Right: Chatbot or Analysis Panel (resizable) */}

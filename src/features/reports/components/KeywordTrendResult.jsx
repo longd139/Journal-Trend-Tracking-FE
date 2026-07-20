@@ -1,4 +1,4 @@
-import { useRef, useMemo } from 'react';
+﻿import { useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -29,10 +29,10 @@ const COLORS = {
   green: '#34D399',     // positive growth
   red:   '#EF4444',     // negative growth
 
-  // ── UI chrome ──
-  muted:  '#6B7280',    // axis ticks, labels, placeholder
-  cardBg: '#0A0A0A',    // chart surface
-  border: 'rgba(222,219,200,0.06)',  // hairline grid / container
+  // ── UI chrome (theme-aware via CSS variables) ──
+  muted:  'var(--muted-foreground)',    // axis ticks, labels, placeholder
+  cardBg: 'var(--card)',    // chart surface (follows theme)
+  border: 'var(--border)',  // hairline grid / container (follows theme)
 };
 
 /** Donut chart — warm neutral palette matching researchFields CHART_COLORS */
@@ -50,14 +50,14 @@ const DONUT_COLORS = [
    ═══════════════════════════════════════════════════════════════════════════ */
 const tooltipStyle = {
   contentStyle: {
-    background: '#1a1a1a',
-    border: '1px solid #333',
+    background: 'var(--card)',
+    border: '1px solid var(--border)',
     borderRadius: 12,
     fontSize: 12,
-    color: '#E1E0CC',
+    color: 'var(--foreground)',
   },
-  itemStyle: { color: '#E1E0CC' },
-  labelStyle: { color: '#c3c2b7' },
+  itemStyle: { color: 'var(--foreground)' },
+  labelStyle: { color: 'var(--muted-foreground)' },
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -73,7 +73,7 @@ function StatCard({ icon: Icon, iconColor, label, value, sub }) {
     >
       <div className="flex items-center gap-2">
         <Icon size={13} style={{ color: iconColor }} />
-        <span className="text-[10px] uppercase tracking-wider text-gray-500">
+        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
           {label}
         </span>
       </div>
@@ -81,7 +81,7 @@ function StatCard({ icon: Icon, iconColor, label, value, sub }) {
         {value}
       </p>
       {sub && (
-        <span className="text-[10px] text-gray-500 truncate" title={sub}>
+        <span className="text-[10px] text-muted-foreground truncate" title={sub}>
           {sub}
         </span>
       )}
@@ -102,7 +102,7 @@ function SectionHeader({ icon: Icon, iconColor, title }) {
 /** Empty / fallback for charts with too little data */
 function ChartPlaceholder({ message }) {
   return (
-    <div className="flex items-center justify-center h-[200px] text-xs text-gray-500">
+    <div className="flex items-center justify-center h-[200px] text-xs text-muted-foreground">
       {message || 'Not enough data to display chart'}
     </div>
   );
@@ -218,19 +218,19 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
       className="rounded-2xl border border-primary/10 bg-card overflow-hidden"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between p-5 border-b border-primary/5">
+      <div className="flex items-center justify-between p-5 border-b border-border">
         <div>
-          <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
             {t('templates.trendAnalysis.name') || 'Keyword Trend Report'}
           </p>
           <h3 className="text-base font-bold text-foreground">
             {reportTitle || `Báo cáo phân tích: ${keyword}`}
           </h3>
-          <p className="text-sm text-[#4F8CFF] font-mono mt-0.5">
+          <p className="text-sm text-accent-blue font-mono mt-0.5">
             &quot;{keyword}&quot;
           </p>
           {generatedAt && (
-            <p className="text-[10px] text-gray-500 mt-1 flex items-center gap-1">
+            <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
               <Clock size={10} />
               Generated: {new Date(generatedAt).toLocaleString('vi-VN')}
             </p>
@@ -262,7 +262,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
           {onClose && (
             <button
               onClick={onClose}
-              className="text-xs text-gray-500 hover:text-gray-300 transition-colors px-2 py-1 ml-1"
+              className="text-xs text-muted-foreground hover:text-foreground/80 transition-colors px-2 py-1 ml-1"
             >
               ✕
             </button>
@@ -334,7 +334,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(222,219,200,0.06)"
+                  stroke="var(--border)"
                   vertical={false}
                 />
                 <XAxis
@@ -353,7 +353,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   {...tooltipStyle}
                   formatter={(value) => [value.toLocaleString(), 'Papers']}
                   labelFormatter={(label) => `Year ${label}`}
-                  cursor={{ fill: 'rgba(222,219,200,0.04)' }}
+                  cursor={{ fill: 'var(--muted-foreground)' }}
                 />
                 <Bar
                   dataKey="count"
@@ -393,7 +393,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 </defs>
                 <CartesianGrid
                   strokeDasharray="3 3"
-                  stroke="rgba(222,219,200,0.06)"
+                  stroke="var(--border)"
                   vertical={false}
                 />
                 <XAxis
@@ -411,7 +411,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   {...tooltipStyle}
                   formatter={(value) => [value.toLocaleString(), 'Citations']}
                   labelFormatter={(label) => `Year ${label}`}
-                  cursor={{ fill: 'rgba(222,219,200,0.04)' }}
+                  cursor={{ fill: 'var(--muted-foreground)' }}
                 />
                 <Area
                   type="monotone"
@@ -421,7 +421,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   fill="url(#citationGradient)"
                   name="Citations"
                   dot={{ fill: DONUT_COLORS[0], r: 3, strokeWidth: 2, stroke: COLORS.cardBg }}
-                  activeDot={{ r: 5, fill: DONUT_COLORS[0], strokeWidth: 2, stroke: '#fff' }}
+                  activeDot={{ r: 5, fill: DONUT_COLORS[0], strokeWidth: 2, stroke: 'var(--background)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -456,7 +456,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   </defs>
                   <CartesianGrid
                     strokeDasharray="3 3"
-                    stroke="rgba(222,219,200,0.06)"
+                    stroke="var(--border)"
                     horizontal={false}
                   />
                   <XAxis
@@ -469,7 +469,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   <YAxis
                     type="category"
                     dataKey="name"
-                    tick={{ fontSize: 10, fill: '#E1E0CC' }}
+                    tick={{ fontSize: 10, fill: 'var(--foreground)' }}
                     tickLine={false}
                     axisLine={false}
                     width={110}
@@ -499,7 +499,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   >
                     {kw.keyword}
                     {kw.count > 0 && (
-                      <span className="ml-1.5 text-[10px] text-gray-500">({kw.count})</span>
+                      <span className="ml-1.5 text-[10px] text-muted-foreground">({kw.count})</span>
                     )}
                   </button>
                 ))}
@@ -555,7 +555,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   <span className="text-[22px] font-bold text-foreground font-mono tabular-nums">
                     {donutData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                   </span>
-                  <span className="text-[10px] text-gray-500 mt-0.5">papers</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">papers</span>
                 </div>
               </div>
               {/* Legend — below on mobile, right on desktop */}
@@ -569,7 +569,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                     <span className="text-foreground truncate max-w-[140px]" title={entry.name}>
                       {entry.name}
                     </span>
-                    <span className="text-gray-500 tabular-nums">
+                    <span className="text-muted-foreground tabular-nums">
                       {entry.value.toLocaleString()}
                     </span>
                   </div>
@@ -594,7 +594,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
               iconColor={COLORS.amber}
               title={t('insight.title') || 'Nhận định & Phân tích'}
             />
-            <p className="text-sm text-gray-300 leading-relaxed">{insight}</p>
+            <p className="text-sm text-foreground/80 leading-relaxed">{insight}</p>
           </div>
         )}
 

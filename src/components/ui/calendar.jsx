@@ -63,7 +63,7 @@ function Calendar({
    "flex w-full mt-2",
 
   cell: cn(
-   "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-range-end)]:rounded-r-md",
+   "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-primary [&:has([aria-selected].day-range-end)]:rounded-r-md",
 
    props.mode === "range"
    ? "[&:has(>.day-range-end)]:rounded-r-md [&:has(>.day-range-start)]:rounded-l-md first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md"
@@ -87,7 +87,7 @@ function Calendar({
    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
 
   day_today:
-   "bg-accent text-accent-foreground",
+   "bg-primary text-primary-foreground",
 
   day_outside:
    "day-outside text-muted-foreground aria-selected:text-muted-foreground",
@@ -96,7 +96,7 @@ function Calendar({
    "text-muted-foreground opacity-50",
 
   day_range_middle:
-   "aria-selected:bg-accent aria-selected:text-accent-foreground",
+   "aria-selected:bg-primary aria-selected:text-primary-foreground",
 
   day_hidden:
    "invisible",
