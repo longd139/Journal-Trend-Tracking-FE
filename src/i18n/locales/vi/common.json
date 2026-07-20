@@ -39,7 +39,11 @@
     "profileSettings": "Cài đặt hồ sơ",
     "verifyEmail": "Vui lòng xác minh email",
     "switchToLight": "Chuyển sang chế độ sáng",
-    "switchToDark": "Chuyển sang chế độ tối"
+    "switchToDark": "Chuyển sang chế độ tối",
+    "switchToSystem": "Theo hệ thống",
+    "themeLight": "Sáng",
+    "themeDark": "Tối",
+    "themeSystem": "Hệ thống"
   },
   "status": {
     "active": "Hoạt động",

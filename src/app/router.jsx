@@ -42,8 +42,8 @@ const PdfRequestsPage = lazy(() => import('../features/admin/PdfRequestsPage.jsx
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
 // ==========================================
 const FallbackLoading = () => (
-  <div className="flex h-screen w-full items-center justify-center bg-[#0B1020]">
-    <div className="text-sm font-semibold text-white animate-pulse">
+  <div className="flex h-screen w-full items-center justify-center bg-background">
+    <div className="text-sm font-semibold text-foreground animate-pulse">
       Loading system...
     </div>
   </div>

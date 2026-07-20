@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
+import ThemeToggle from '../../components/common/ThemeToggle';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
@@ -85,28 +86,28 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col border-r bg-black/60 backdrop-blur-sm border-[#DEDBC8]/10 transition-transform duration-300 lg:sticky lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col border-r bg-sidebar/95 backdrop-blur-sm border-sidebar-border transition-transform duration-300 lg:sticky lg:translate-x-0 ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
       {/* Logo */}
       <div
         onClick={() => navigate(`/${role}/overview`)}
-        className="p-5 border-b border-[#DEDBC8]/10 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
+        className="p-5 border-b border-sidebar-border flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
       >
         <div className="flex items-center gap-0.5">
-          <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-6 h-8" />
-          <span className="text-xs font-black text-[#E1E0CC] tracking-[0.05em] font-outfit">
+          <ScitrackSLogo className="text-sidebar-primary -mr-1 w-6 h-8" />
+          <span className="text-xs font-black text-sidebar-foreground tracking-[0.05em] font-outfit">
             CITRACK
           </span>
         </div>
-        <div className="text-[10px] text-gray-400">
+        <div className="text-[10px] text-muted-foreground">
           {role === 'admin' ? t('app.adminConsole') : t('app.researchPlatform')}
         </div>
         {/* Close button — mobile only */}
         <button
           onClick={onClose}
-          className="lg:hidden ml-auto p-1.5 rounded-lg text-gray-400 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+          className="lg:hidden ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-sidebar-foreground hover:bg-muted transition-all"
         >
           <X size={18} />
         </button>
@@ -122,8 +123,8 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
               onClick={() => { navigate(`/${role}/${id}`); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
-                  ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]'
-                  : 'border-transparent text-gray-400 hover:bg-white/5 hover:text-[#E1E0CC]'
+                  ? 'bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary'
+                  : 'border-transparent text-muted-foreground hover:bg-muted hover:text-sidebar-foreground'
               }`}
             >
               <Icon size={15} />
@@ -144,11 +145,11 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
       </nav>
 
       {/* Bottom section */}
-      <div className="p-4 border-t border-[#DEDBC8]/10 space-y-3">
+      <div className="p-4 border-t border-sidebar-border space-y-3">
         {/* Support */}
         <button
           onClick={() => setSupportOpen(true)}
-          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-[#DEDBC8]/5 text-gray-400 hover:bg-[#DEDBC8]/15 hover:text-[#E1E0CC]"
+          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-sidebar-primary/5 text-muted-foreground hover:bg-sidebar-primary/15 hover:text-sidebar-foreground"
         >
           <HelpCircle size={14} />
           {t('sidebar.support')}
@@ -167,7 +168,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
             toast.success('Signed out successfully', { duration: 3000 });
             navigate('/login');
           }}
-          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white"
+          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-muted text-muted-foreground hover:bg-red-500 hover:text-white"
         >
           {t('sidebar.signOut')}
         </button>
@@ -198,21 +199,21 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0 bg-black/40 backdrop-blur-sm border-[#DEDBC8]/10 relative z-50">
+    <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0 bg-background/80 backdrop-blur-sm border-border relative z-50">
       <div className="flex items-center gap-3">
         {/* Hamburger — mobile only */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-[#E1E0CC] hover:bg-white/5 transition-all"
+          className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         >
           <Menu size={20} />
         </button>
         <div>
-          <h1 className="text-sm sm:text-base font-black text-[#E1E0CC] font-display">
+          <h1 className="text-sm sm:text-base font-black text-foreground font-display">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-[11px] sm:text-xs mt-0.5 text-gray-400">
+            <p className="text-[11px] sm:text-xs mt-0.5 text-muted-foreground">
               {subtitle}
             </p>
           )}
@@ -220,15 +221,18 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Language Switcher */}
         <LanguageSwitcher />
 
         {/* User avatar + settings */}
         <button
           onClick={() => navigate(`/${role}/settings`)}
-          className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all bg-[#101010]/80 border-[#DEDBC8]/10 hover:border-[#DEDBC8]/25 hover:bg-[#101010] group"
+          className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all bg-card/80 border-border hover:border-ring/30 hover:bg-card group"
         >
-          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black shrink-0 bg-[#DEDBC8] overflow-hidden">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-primary-foreground shrink-0 bg-primary overflow-hidden">
             {user?.avatarUrl ? (
               <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -236,11 +240,11 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
             )}
           </div>
           <div className="hidden sm:block text-left min-w-0 max-w-[120px]">
-            <div className="text-xs font-semibold text-[#E1E0CC] truncate">
+            <div className="text-xs font-semibold text-foreground truncate">
               {user ? user.fullName : t('sidebar.loading')}
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="text-[10px] truncate text-gray-400">
+              <div className="text-[10px] truncate text-muted-foreground">
                 {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
               </div>
               {user && user.isVerified === false && (
@@ -252,7 +256,7 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
           </div>
           <Settings
             size={14}
-            className="text-gray-500 group-hover:text-[#E1E0CC] transition-colors group-hover:rotate-90 duration-300 shrink-0"
+            className="text-muted-foreground group-hover:text-foreground transition-colors group-hover:rotate-90 duration-300 shrink-0"
           />
         </button>
       </div>
@@ -397,7 +401,7 @@ export default function DashboardLayout({ children }) {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-black">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div
@@ -426,7 +430,7 @@ export default function DashboardLayout({ children }) {
           navigate={navigate}
         />
         {/* Content area with fixed background video (below TopBar) */}
-        <div className="flex-1 relative overflow-hidden">
+        <div className="flex-1 relative overflow-hidden bg-background">
           {/* Background — image if user set one, otherwise default video */}
           <div className="absolute inset-0 pointer-events-none z-0">
             {backgroundUrl ? (

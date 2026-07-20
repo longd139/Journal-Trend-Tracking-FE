@@ -26,7 +26,61 @@
      elements like the SCITRACK logo. Do NOT use for bilingual content.        */
   --font-outfit: 'Outfit', 'Be Vietnam Pro', system-ui, sans-serif;
 
-  /* ─── Landing Page Color System ────────────────────────────────────────── */
+  /* ─── Light Mode Color System ─────────────────────────────────────────── */
+  --background: #FAFAF8;
+  --foreground: #1A1A1A;
+  --card: #FFFFFF;
+  --card-foreground: #1A1A1A;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A1A1A;
+  --primary: #5B5A48;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0EFE8;
+  --secondary-foreground: #1A1A1A;
+  --muted: #F0EFE8;
+  --muted-foreground: #6B7280;
+  --accent: #5B5A48;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.06);
+  --input-background: #FFFFFF;
+  --switch-background: #D1D5DB;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #5B5A48;
+  --chart-1: #5B5A48;
+  --chart-2: #7A7966;
+  --chart-3: #9A9884;
+  --chart-4: #BAB8A2;
+  --chart-5: #DAD8C2;
+  --radius: 0.75rem;
+  --sidebar: #F5F4EF;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-primary: #5B5A48;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #FFFFFF;
+  --sidebar-accent-foreground: #1A1A1A;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #5B5A48;
+
+  /* ─── Card Surface Tiers ────────────────────────────────────────────────── */
+  --card-elevated: #FFFFFF;
+  --card-elevated-border: rgba(0, 0, 0, 0.10);
+  --card-recessed: #F5F4EF;
+  --card-recessed-border: rgba(0, 0, 0, 0.06);
+
+  /* ─── Functional Accent Colors ──────────────────────────────────────────── */
+  --accent-blue: #3B82F6;
+  --accent-teal: #0D9488;
+
+  /* ─── Scrollbar (adaptive) ─────────────────────────────────────────────── */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.15);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.25);
+}
+
+.dark {
   --background: #0A0A0A;
   --foreground: #E1E0CC;
   --card: #101010;
@@ -55,7 +109,6 @@
   --chart-3: #C5BFA0;
   --chart-4: #A09878;
   --chart-5: #8A8468;
-  --radius: 0.75rem;
   --sidebar: #0A0A0A;
   --sidebar-foreground: #E1E0CC;
   --sidebar-primary: #DEDBC8;
@@ -74,53 +127,10 @@
   /* ─── Functional Accent Colors ──────────────────────────────────────────── */
   --accent-blue: #4F8CFF;
   --accent-teal: #00D1B2;
-}
 
-.dark {
-  --background: #0A0A0A;
-  --foreground: #E1E0CC;
-  --card: #101010;
-  --card-foreground: #E1E0CC;
-  --popover: #101010;
-  --popover-foreground: #E1E0CC;
-  --primary: #DEDBC8;
-  --primary-foreground: #000000;
-  --secondary: #0A0A0A;
-  --secondary-foreground: #E1E0CC;
-  --muted: #1A1A1A;
-  --muted-foreground: #9CA3AF;
-  --accent: #DEDBC8;
-  --accent-foreground: #000000;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: rgba(222, 219, 200, 0.05);
-  --input: rgba(222, 219, 200, 0.10);
-  --ring: #DEDBC8;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --chart-1: #DEDBC8;
-  --chart-2: #E1E0CC;
-  --chart-3: #C5BFA0;
-  --chart-4: #A09878;
-  --chart-5: #8A8468;
-  --sidebar: #0A0A0A;
-  --sidebar-foreground: #E1E0CC;
-  --sidebar-primary: #DEDBC8;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #101010;
-  --sidebar-accent-foreground: #E1E0CC;
-  --sidebar-border: rgba(222, 219, 200, 0.05);
-  --sidebar-ring: #DEDBC8;
-
-  /* ─── Card Surface Tiers ────────────────────────────────────────────────── */
-  --card-elevated: #0F0F0F;
-  --card-elevated-border: rgba(222, 219, 200, 0.10);
-  --card-recessed: #0C0C0C;
-  --card-recessed-border: rgba(222, 219, 200, 0.05);
-
-  /* ─── Functional Accent Colors ──────────────────────────────────────────── */
-  --accent-blue: #4F8CFF;
-  --accent-teal: #00D1B2;
+  /* ─── Scrollbar (adaptive) ─────────────────────────────────────────────── */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.1);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.2);
 }
 
 @theme inline {
