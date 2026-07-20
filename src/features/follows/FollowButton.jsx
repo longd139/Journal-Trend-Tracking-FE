@@ -188,8 +188,8 @@ export default function FollowButton({
         disabled={status === 'loading'}
         className={
           status === 'followed'
-            ? '!bg-[#DEDBC8] !text-black hover:!bg-[#C5BFA0]'
-            : '!border-[#DEDBC8]/20 !text-[#DEDBC8] hover:!bg-[#DEDBC8] hover:!text-black hover:!border-[#DEDBC8]'
+            ? '!bg-primary !text-black hover:!bg-[#C5BFA0]'
+            : '!border-primary/20 !text-primary hover:!bg-primary hover:!text-black hover:!border-[#DEDBC8]'
         }
       >
         {status === 'loading' ? (

@@ -51,7 +51,7 @@ function GlowBadge({ color, children }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 function BookmarkCardSkeleton() {
   return (
-    <div className="rounded-xl border p-5 bg-[#101010] border-[#DEDBC8]/10">
+    <div className="rounded-xl border p-5 bg-card border-primary/10">
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 space-y-3">
           <div className="flex items-center gap-2">
@@ -150,14 +150,14 @@ function BatchExportPanel({ papers, onClose }) {
       exit={{ opacity: 0, height: 0 }}
       className="overflow-hidden"
     >
-      <div className="p-5 rounded-xl border border-[#DEDBC8]/10 bg-[#101010] space-y-4">
+      <div className="p-5 rounded-xl border border-primary/10 bg-card space-y-4">
         <div className="flex items-center justify-between">
-          <h4 className="text-sm font-bold text-[#E1E0CC]">
+          <h4 className="text-sm font-bold text-foreground">
             Batch Export — {papers.length} papers
           </h4>
           <button
             onClick={onClose}
-            className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-gray-400 hover:text-[#E1E0CC] hover:bg-white/[0.04] transition-all"
+            className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-gray-400 hover:text-foreground hover:bg-white/[0.04] transition-all"
           >
             Close
           </button>
@@ -171,8 +171,8 @@ function BatchExportPanel({ papers, onClose }) {
               onClick={() => setFormatKey(f.key)}
               className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
                 formatKey === f.key
-                  ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20'
-                  : 'text-gray-500 border border-transparent hover:text-[#E1E0CC] hover:border-[#DEDBC8]/10'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-gray-500 border border-transparent hover:text-foreground hover:border-primary/10'
               }`}
             >
               {f.label}
@@ -181,7 +181,7 @@ function BatchExportPanel({ papers, onClose }) {
         </div>
 
         {/* Preview */}
-        <pre className="text-[10px] text-gray-400 bg-[#0A0D14] rounded-xl p-4 max-h-[200px] overflow-auto border border-[#DEDBC8]/5 font-mono leading-relaxed whitespace-pre-wrap">
+        <pre className="text-[10px] text-gray-400 bg-[#0A0D14] rounded-xl p-4 max-h-[200px] overflow-auto border border-primary/5 font-mono leading-relaxed whitespace-pre-wrap">
           {loading ? (
             <span className="flex items-center gap-2 text-gray-500">
               <Loader2 size={11} className="animate-spin" />
@@ -204,7 +204,7 @@ function BatchExportPanel({ papers, onClose }) {
           <button
             onClick={handleCopy}
             disabled={loading || !combined}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/15 hover:bg-[#DEDBC8]/20 transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-primary/10 text-primary border border-primary/15 hover:bg-primary/20 transition-all disabled:opacity-40"
           >
             {copied ? <Check size={11} /> : <Copy size={11} />}
             {copied ? 'Copied' : 'Copy All'}
@@ -370,12 +370,12 @@ export default function BookmarksView() {
           <AlertCircle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">{error}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
           <p className="text-sm text-gray-400">{t('toast.loadError')}</p>
         </div>
         <button
           onClick={fetchBookmarks}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           {t('button.retry') || 'Retry'}
         </button>
@@ -404,11 +404,11 @@ export default function BookmarksView() {
   if (bookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent">
-        <div className="w-16 h-16 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
           <BookOpen size={28} className="text-gray-500" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">{t('headings.bookmarks')}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{t('headings.bookmarks')}</h3>
           <p className="text-sm text-gray-400">{t('subtitles.bookmarks')}</p>
         </div>
       </div>
@@ -424,12 +424,12 @@ export default function BookmarksView() {
           <Checkbox
             checked={isAllSelected}
             onCheckedChange={toggleSelectAll}
-            className="border-[#DEDBC8]/20 data-[state=checked]:bg-[#DEDBC8] data-[state=checked]:text-black"
+            className="border-primary/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
           />
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-              <BookOpen size={13} className="text-[#DEDBC8]" />
-              <span className="text-xs font-bold text-[#DEDBC8]">{bookmarks.length}</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
+              <BookOpen size={13} className="text-primary" />
+              <span className="text-xs font-bold text-primary">{bookmarks.length}</span>
               <span className="text-[11px] text-gray-400">{bookmarks.length === 1 ? 'paper' : 'papers'}</span>
             </div>
             {selectedIds.size > 0 && (
@@ -490,8 +490,8 @@ export default function BookmarksView() {
                 onClick={() => handlePaperClick(bookmark)}
                 className={`rounded-xl border p-5 transition-colors flex items-start gap-3 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#DEDBC8]/[0.04] border-[#DEDBC8]/25'
-                    : 'bg-[#101010] border-[#DEDBC8]/10 hover:border-gray-300 dark:hover:border-white/20'
+                    ? 'bg-primary/[0.04] border-primary/25'
+                    : 'bg-card border-primary/10 hover:border-gray-300 dark:hover:border-white/20'
                 }`}
               >
                 {/* Checkbox */}
@@ -499,7 +499,7 @@ export default function BookmarksView() {
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => toggleSelect(bookmark.bookmarkId)}
-                    className="mt-0.5 border-[#DEDBC8]/20 data-[state=checked]:bg-[#DEDBC8] data-[state=checked]:text-black"
+                    className="mt-0.5 border-primary/20 data-[state=checked]:bg-primary data-[state=checked]:text-black"
                   />
                 </span>
 
@@ -509,13 +509,13 @@ export default function BookmarksView() {
                       {field && <GlowBadge color={badgeColor}>{field}</GlowBadge>}
                       {year && <span className="text-xs text-gray-400">{year}</span>}
                     </div>
-                    <h4 className="text-sm font-bold text-[#E1E0CC] mb-1">{p.title || 'Untitled'}</h4>
+                    <h4 className="text-sm font-bold text-foreground mb-1">{p.title || 'Untitled'}</h4>
                     {authors && <p className="text-xs text-gray-400">{authors}</p>}
                   </div>
 
                   <div className="flex items-center gap-6 shrink-0">
                     <div className="text-right">
-                      <div className="text-xl font-bold text-[#E1E0CC]">
+                      <div className="text-xl font-bold text-foreground">
                         {hasCitations ? citations.toLocaleString() : '—'}
                       </div>
                       <div className="text-xs text-gray-400">{t('user.totalCitations')}</div>

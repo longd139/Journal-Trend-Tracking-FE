@@ -449,7 +449,7 @@ export default function DashboardLayout({ children }) {
                 src="https://videos.pexels.com/video-files/5192068/5192068-uhd_1440_2732_25fps.mp4"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80" />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-transparent to-background/80" />
             <div className="noise-overlay absolute inset-0 opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
           </div>
           <main className="h-full overflow-y-auto overflow-x-hidden relative z-10">

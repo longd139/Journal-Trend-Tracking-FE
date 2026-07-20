@@ -136,7 +136,7 @@ export default function HealthCheckToast() {
 
             {/* Text */}
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-[#E1E0CC] truncate">
+              <p className="text-xs font-semibold text-foreground truncate">
                 {message}
               </p>
               {detail && (

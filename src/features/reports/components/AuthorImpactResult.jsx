@@ -48,15 +48,15 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] overflow-hidden"
+      className="rounded-2xl border border-primary/10 bg-card overflow-hidden"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between p-5 border-b border-[#DEDBC8]/5">
+      <div className="flex items-center justify-between p-5 border-b border-primary/5">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-1">
             Author Impact Report
           </p>
-          <h3 className="text-base font-bold text-[#E1E0CC]">
+          <h3 className="text-base font-bold text-foreground">
             {reportTitle || `Hồ sơ năng lực học thuật: ${authorName}`}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
@@ -98,7 +98,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Stat Cards ── */}
         <div className="grid grid-cols-3 gap-4">
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <Trophy size={13} className="text-[#F59E0B]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
@@ -109,25 +109,25 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
               {hIndex != null ? hIndex : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <Hash size={13} className="text-[#4F8CFF]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
                 Total Papers
               </span>
             </div>
-            <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums">
+            <p className="text-xl font-bold text-foreground font-mono tabular-nums">
               {totalPapers != null ? totalPapers.toLocaleString() : '—'}
             </p>
           </div>
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
             <div className="flex items-center gap-2 mb-2">
               <MapPin size={13} className="text-[#A78BFA]" />
               <span className="text-[10px] uppercase tracking-wider text-gray-500">
                 Top Field
               </span>
             </div>
-            <p className="text-xl font-bold text-[#E1E0CC] font-mono tabular-nums truncate">
+            <p className="text-xl font-bold text-foreground font-mono tabular-nums truncate">
               {topField || '—'}
             </p>
           </div>
@@ -135,16 +135,16 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Top Collaborators ── */}
         {topCollaborators.length > 0 && (
-          <div className="rounded-xl p-5 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
-            <h4 className="text-xs font-semibold text-[#E1E0CC] mb-3 flex items-center gap-2">
-              <Users size={13} className="text-[#DEDBC8]" />
+          <div className="rounded-xl p-5 border border-primary/5 bg-[#0A0A0A]">
+            <h4 className="text-xs font-semibold text-foreground mb-3 flex items-center gap-2">
+              <Users size={13} className="text-primary" />
               Top Collaborators
             </h4>
             <div className="space-y-2.5">
               {topCollaborators.map((collab, i) => (
                 <div
                   key={collab.name || i}
-                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#DEDBC8]/[0.03]"
+                  className="flex items-center justify-between py-2 px-3 rounded-lg bg-primary/[0.03]"
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -157,7 +157,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
                       {(collab.name || '?')[0].toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#E1E0CC]">
+                      <p className="text-sm font-medium text-foreground">
                         {collab.name}
                       </p>
                       {collab.affiliation && (
@@ -180,8 +180,8 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
 
         {/* ── Insight ── */}
         {insight && (
-          <div className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#0A0A0A]">
-            <h4 className="text-xs font-semibold text-[#E1E0CC] mb-2 flex items-center gap-2">
+          <div className="rounded-xl p-4 border border-primary/5 bg-[#0A0A0A]">
+            <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
               <Lightbulb size={13} className="text-[#F59E0B]" />
               Insight
             </h4>

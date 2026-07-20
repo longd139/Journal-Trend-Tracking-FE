@@ -17,7 +17,7 @@ import AuthorSuggestions from './AuthorSuggestions';
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function SearchAuthor() {
+export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
   const { t } = useTranslation('search');
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,6 +124,15 @@ export default function SearchAuthor() {
     };
   }, [query]);
 
+  // ── Embedded mode: show author suggestion list for the query ──
+  useEffect(() => {
+    if (embedded && initialQuery) {
+      setQuery(initialQuery);
+      setShowSuggestionList(true);
+      setShowSuggestions(false);
+    }
+  }, [initialQuery, embedded]);
+
   // ─── Load more authors ───
   const loadMoreAuthors = async () => {
     const nextPage = suggestPage + 1;
@@ -220,9 +229,9 @@ export default function SearchAuthor() {
     <div className="min-h-screen bg-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
         {/* ─── Search Bar ─── */}
-        <div className="relative">
+        <div className={embedded ? 'hidden' : 'relative'}>
           <div className="relative">
-            <UserSearch size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-[#DEDBC8]/40 z-10" />
+            <UserSearch size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 z-10" />
             <input
               ref={searchInputRef}
               type="text"
@@ -241,17 +250,17 @@ export default function SearchAuthor() {
               }}
               onFocus={() => { if (!quotaExhausted && query.trim().length >= 2) setShowSuggestions(true); }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-[#101010] border text-[#E1E0CC] placeholder:text-gray-500 focus:outline-none focus:border-[#DEDBC8]/30 focus:ring-1 focus:ring-[#DEDBC8]/10 transition-all ${
+              className={`w-full pl-12 pr-14 py-4 rounded-2xl text-sm bg-card border text-foreground placeholder:text-gray-500 focus:outline-none focus:border-primary/30 focus:ring-1 focus:ring-primary/10 transition-all ${
                 quotaExhausted
                   ? 'border-red-500/20 opacity-50 cursor-not-allowed'
-                  : 'border-[#DEDBC8]/10'
+                  : 'border-primary/10'
               }`}
             />
             {query && (
               <button
                 type="button"
                 onClick={() => { setQuery(''); }}
-                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-[#DEDBC8]/10 text-[#DEDBC8]/60 hover:bg-[#DEDBC8]/20 hover:text-[#DEDBC8] transition-all"
+                className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-primary/10 text-primary/60 hover:bg-primary/20 hover:text-primary transition-all"
               >
                 <X size={14} />
               </button>
@@ -265,8 +274,8 @@ export default function SearchAuthor() {
               }}
               className={`absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-full transition-all ${
                 showHistory
-                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
-                  : 'bg-transparent text-[#DEDBC8]/40 hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8]'
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-transparent text-primary/40 hover:bg-primary/10 hover:text-primary'
               }`}
               title="Search history"
             >
@@ -281,7 +290,7 @@ export default function SearchAuthor() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
               >
                 {apiSuggestions.length > 0 ? (
                   apiSuggestions.map((s) => (
@@ -289,8 +298,8 @@ export default function SearchAuthor() {
                       onMouseDown={(e) => { e.preventDefault(); setShowSuggestions(false); setQuery(s.fullName); setShowSuggestionList(true); }}
                       className="w-full flex items-center gap-3 px-5 py-2.5 text-xs text-left hover:bg-white/5 transition-colors"
                     >
-                      <UserSearch size={12} className="text-[#DEDBC8]/50 shrink-0" />
-                      <span className="text-[#E1E0CC] truncate">{s.fullName}</span>
+                      <UserSearch size={12} className="text-primary/50 shrink-0" />
+                      <span className="text-foreground truncate">{s.fullName}</span>
                       {s.hIndex != null && <span className="text-[10px] text-gray-500 ml-auto shrink-0">h-index {s.hIndex}</span>}
                     </button>
                   ))
@@ -311,7 +320,7 @@ export default function SearchAuthor() {
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-[#101010] border-[#DEDBC8]/10 shadow-xl overflow-hidden"
+                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-primary/10 shadow-xl overflow-hidden"
               >
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
@@ -320,7 +329,7 @@ export default function SearchAuthor() {
                   </div>
                 ) : (
                   <>
-                    <div className="px-4 py-2.5 border-b border-[#DEDBC8]/5 flex items-center justify-between">
+                    <div className="px-4 py-2.5 border-b border-primary/5 flex items-center justify-between">
                       <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 flex items-center gap-1.5">
                         <History size={11} />
                         Recent Searches
@@ -375,15 +384,15 @@ export default function SearchAuthor() {
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-4"
+            className="rounded-xl border border-primary/10 bg-card p-4"
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]/50'} />
-                <span className="text-xs font-semibold text-[#E1E0CC]">Search Quota</span>
+                <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary/50'} />
+                <span className="text-xs font-semibold text-foreground">Search Quota</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-[#DEDBC8]'}`}>
+                <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary'}`}>
                   {searchesLeft} / {searchLimit}
                 </span>
                 {resetDate && (
@@ -393,23 +402,23 @@ export default function SearchAuthor() {
                 )}
               </div>
             </div>
-            <div className="h-1.5 rounded-full bg-[#DEDBC8]/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-primary/5 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.max(0, Math.min(100, ((searchLimit - searchesLeft) / searchLimit) * 100))}%` }}
                 transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-[#DEDBC8]/30'}`}
+                className={`h-full rounded-full ${quotaExhausted ? 'bg-red-500/60' : searchesLeft <= 3 ? 'bg-amber-500/50' : 'bg-primary/30'}`}
               />
             </div>
             {quotaExhausted && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#DEDBC8]/5">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-primary/5">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
                   <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
-                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors shrink-0 ml-3"
+                  className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
                 </button>
@@ -426,7 +435,7 @@ export default function SearchAuthor() {
             className="space-y-3"
           >
             <div className="flex items-center gap-2">
-              <Search size={13} className="text-[#DEDBC8]/50" />
+              <Search size={13} className="text-primary/50" />
               <span className="text-xs text-gray-400">
                 {apiSuggestions.length > 0
                   ? `Showing ${apiSuggestions.length} of ${suggestTotal} author${suggestTotal !== 1 ? 's' : ''} matching "${query.trim()}"`
@@ -449,13 +458,13 @@ export default function SearchAuthor() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     onClick={() => handleSearch(s.fullName)}
-                    className="w-full text-left rounded-xl border border-[#DEDBC8]/8 bg-[#101010] hover:bg-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 p-4 transition-all group"
+                    className="w-full text-left rounded-xl border border-primary/8 bg-card hover:bg-primary/5 hover:border-primary/15 p-4 transition-all group"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <UserSearch size={13} className="text-[#DEDBC8]/50 shrink-0 group-hover:text-[#DEDBC8] transition-colors" />
-                          <span className="text-sm font-semibold text-[#E1E0CC] truncate group-hover:text-[#DEDBC8] transition-colors">
+                          <UserSearch size={13} className="text-primary/50 shrink-0 group-hover:text-primary transition-colors" />
+                          <span className="text-sm font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                             {s.fullName}
                           </span>
                         </div>
@@ -465,7 +474,7 @@ export default function SearchAuthor() {
                       </div>
                       <div className="flex items-center gap-3 shrink-0 text-right">
                         <div>
-                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{s.hIndex ?? '—'}</p>
+                          <p className="text-xs font-bold text-foreground font-mono">{s.hIndex ?? '—'}</p>
                           <p className="text-[10px] text-gray-500">h-index</p>
                         </div>
                         <div>
@@ -473,7 +482,7 @@ export default function SearchAuthor() {
                           <p className="text-[10px] text-gray-500">citations</p>
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-[#E1E0CC] font-mono">{(s.paperCount ?? 0).toLocaleString()}</p>
+                          <p className="text-xs font-bold text-foreground font-mono">{(s.paperCount ?? 0).toLocaleString()}</p>
                           <p className="text-[10px] text-gray-500">papers</p>
                         </div>
                       </div>
@@ -493,7 +502,7 @@ export default function SearchAuthor() {
                   type="button"
                   onClick={loadMoreAuthors}
                   disabled={suggestLoading}
-                  className="px-5 py-2 rounded-xl text-xs font-medium text-[#DEDBC8] bg-[#DEDBC8]/5 hover:bg-[#DEDBC8]/10 border border-[#DEDBC8]/10 transition-all disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all disabled:opacity-50"
                 >
                   {suggestLoading ? 'Loading...' : `Load more (${suggestTotal - apiSuggestions.length} remaining)`}
                 </button>
@@ -503,7 +512,7 @@ export default function SearchAuthor() {
         )}
 
         {/* ─── Pre-search: Suggested authors ─── */}
-        {!searchedAuthor && !showSuggestionList && (
+        {!embedded && !searchedAuthor && !showSuggestionList && (
           <AuthorSuggestions onAuthorClick={handleSearch} />
         )}
 
@@ -526,14 +535,14 @@ export default function SearchAuthor() {
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
-                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-gray-400 max-w-[260px]">
                         Publication timeline & citation trends — available for{' '}
-                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                        <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>
@@ -548,14 +557,14 @@ export default function SearchAuthor() {
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
-                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-gray-400 max-w-[260px]">
                         Topic distribution & research domains — available for{' '}
-                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                        <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>
@@ -570,14 +579,14 @@ export default function SearchAuthor() {
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
-                      <Lock size={20} className="text-[#DEDBC8]/40 mx-auto" />
+                      <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-gray-400 max-w-[260px]">
                         Collaboration network & top co-authors — available for{' '}
-                        <strong className="text-[#E1E0CC]">Researcher</strong> accounts.
+                        <strong className="text-foreground">Researcher</strong> accounts.
                       </p>
                       <button
                         onClick={() => navigate(`/${currentRole}/settings`)}
-                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-[#DEDBC8] text-[#0B1020] hover:bg-[#E1E0CC] transition-colors"
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors"
                       >
                         Upgrade now
                       </button>

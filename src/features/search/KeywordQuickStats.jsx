@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2 } from 'lucide-react';
+import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2, ExternalLink } from 'lucide-react';
 import { StatCard } from '../../components/SharedUI';
 import { paperAPI } from './paper.api';
+import PaperListSidebar from './PaperListSidebar';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -28,7 +29,7 @@ function TopJournalBars({ journals }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 mb-3">
-        <BookOpen size={13} className="text-[#DEDBC8]/40" />
+        <BookOpen size={13} className="text-primary/40" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Top Journals
         </span>
@@ -47,12 +48,12 @@ function TopJournalBars({ journals }) {
               className="flex items-center gap-2 group"
             >
               {/* Journal name */}
-              <span className="w-44 text-[11px] text-gray-400 truncate shrink-0 text-right group-hover:text-[#DEDBC8]/80 transition-colors">
+              <span className="w-44 text-[11px] text-gray-400 truncate shrink-0 text-right group-hover:text-primary/80 transition-colors">
                 {journal.journalName}
               </span>
 
               {/* Bar */}
-              <div className="flex-1 h-5 bg-[#DEDBC8]/3 rounded-full overflow-hidden relative">
+              <div className="flex-1 h-5 bg-primary/3 rounded-full overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${widthPct}%` }}
@@ -63,7 +64,7 @@ function TopJournalBars({ journals }) {
               </div>
 
               {/* Paper count */}
-              <span className="w-8 text-[11px] font-mono font-semibold text-[#E1E0CC] text-right shrink-0">
+              <span className="w-8 text-[11px] font-mono font-semibold text-foreground text-right shrink-0">
                 {journal.paperCount}
               </span>
 
@@ -95,23 +96,23 @@ function QuickStatsSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 border border-[#DEDBC8]/5 bg-[#101010] animate-pulse space-y-3"
+            className="rounded-xl p-4 border border-primary/5 bg-card animate-pulse space-y-3"
           >
             <div className="flex items-center justify-between">
-              <div className="h-3 w-16 bg-[#DEDBC8]/8 rounded" />
-              <div className="h-8 w-8 bg-[#DEDBC8]/5 rounded-lg" />
+              <div className="h-3 w-16 bg-primary/8 rounded" />
+              <div className="h-8 w-8 bg-primary/5 rounded-lg" />
             </div>
-            <div className="h-6 w-20 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-3 w-12 bg-[#DEDBC8]/5 rounded-full" />
+            <div className="h-6 w-20 bg-primary/8 rounded" />
+            <div className="h-3 w-12 bg-primary/5 rounded-full" />
           </div>
         ))}
       </div>
       <div className="space-y-1.5">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="flex items-center gap-2">
-            <div className="h-3 w-36 bg-[#DEDBC8]/5 rounded" />
-            <div className="flex-1 h-4 bg-[#DEDBC8]/3 rounded-full" />
-            <div className="h-3 w-6 bg-[#DEDBC8]/5 rounded" />
+            <div className="h-3 w-36 bg-primary/5 rounded" />
+            <div className="flex-1 h-4 bg-primary/3 rounded-full" />
+            <div className="h-3 w-6 bg-primary/5 rounded" />
           </div>
         ))}
       </div>
@@ -129,6 +130,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPaperList, setShowPaperList] = useState(false);
 
   useEffect(() => {
     if (!keyword || !keyword.trim()) {
@@ -204,10 +206,10 @@ export default function KeywordQuickStats({ keyword, filters }) {
     >
       {/* Section label */}
       <div className="flex items-center gap-2">
-        <div className="w-1 h-4 rounded-full bg-[#DEDBC8]/20" />
+        <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
           Quick Stats
-          <span className="text-[#DEDBC8]/60 ml-1.5 font-normal normal-case">
+          <span className="text-primary/60 ml-1.5 font-normal normal-case">
             for "{stats.keyword || keyword}"
           </span>
         </span>
@@ -230,14 +232,16 @@ export default function KeywordQuickStats({ keyword, filters }) {
 
       {/* 4 stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {/* Total Papers */}
-        <StatCard
-          label="Total Papers"
-          value={(stats.totalPapers ?? 0).toLocaleString()}
-          change=""
-          Icon={FileText}
-          accent="#4F8CFF"
-        />
+        {/* Total Papers — clickable */}
+        <button onClick={() => setShowPaperList(true)} className="text-left">
+          <StatCard
+            label="Total Papers"
+            value={(stats.totalPapers ?? 0).toLocaleString()}
+            change=""
+            Icon={FileText}
+            accent="#4F8CFF"
+          />
+        </button>
 
         {/* Total Citations */}
         <StatCard
@@ -269,6 +273,13 @@ export default function KeywordQuickStats({ keyword, filters }) {
 
       {/* Top Journals bar chart */}
       <TopJournalBars journals={stats.topJournals} />
+
+      {/* Paper List Sidebar */}
+      <PaperListSidebar
+        keyword={stats.keyword || keyword}
+        open={showPaperList}
+        onClose={() => setShowPaperList(false)}
+      />
     </motion.div>
   );
 }

@@ -79,9 +79,9 @@ export default function ResetPasswordPage() {
   <div className="noise-overlay opacity-[0.04]" style={{ mixBlendMode: 'overlay' }} />
   <div className="text-center space-y-4 relative z-10">
    <AlertCircle size={48} className="text-red-400 mx-auto" />
-   <h2 className="text-xl font-bold text-[#E1E0CC]">Invalid Reset Link</h2>
+   <h2 className="text-xl font-bold text-foreground">Invalid Reset Link</h2>
    <p className="text-sm text-gray-400">The link is invalid or missing a confirmation token.</p>
-   <button onClick={() => navigate('/login')} className="text-[#DEDBC8] text-sm font-semibold hover:text-[#E1E0CC] transition-colors">
+   <button onClick={() => navigate('/login')} className="text-primary text-sm font-semibold hover:text-foreground transition-colors">
    {t('resetPassword.backToLogin')}
    </button>
   </div>
@@ -96,7 +96,7 @@ export default function ResetPasswordPage() {
 
   {/* Subtle cream ambient glow */}
   <div className="absolute inset-0 pointer-events-none">
-  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-3xl opacity-[0.04] bg-[#DEDBC8]" />
+  <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full blur-3xl opacity-[0.04] bg-primary" />
   </div>
 
   {/* Floating cream particles */}
@@ -121,35 +121,35 @@ export default function ResetPasswordPage() {
 
   <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative z-10 w-full max-w-md mx-6">
   <div className="flex items-center justify-center gap-1 mb-8">
-   <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-7 h-10" />
-   <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em] font-outfit">CITRACK</span>
+   <ScitrackSLogo className="text-primary -mr-1 w-7 h-10" />
+   <span className="text-lg font-black text-foreground tracking-[0.05em] font-outfit">CITRACK</span>
   </div>
 
-  <div className="rounded-2xl border border-[#DEDBC8]/5 p-8 bg-[#101010]">
+  <div className="rounded-2xl border border-primary/5 p-8 bg-card">
    {isSuccess ? (
    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
     <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
     <CheckCircle2 size={32} className="text-emerald-400" />
     </div>
-    <h2 className="text-xl font-bold text-[#E1E0CC] mb-2 font-display">{t('resetPassword.success')}</h2>
+    <h2 className="text-xl font-bold text-foreground mb-2 font-display">{t('resetPassword.success')}</h2>
     <p className="text-sm mb-6 text-gray-400">Your password has been successfully changed. Please log in again.</p>
     <button
     onClick={() => navigate('/login')}
-    className="w-full py-3 rounded-full text-sm font-bold text-black transition-colors bg-[#DEDBC8] hover:bg-[#E1E0CC]"
+    className="w-full py-3 rounded-full text-sm font-bold text-black transition-colors bg-primary hover:bg-foreground"
     >
     {t('resetPassword.backToLogin')}
     </button>
    </motion.div>
    ) : (
    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-    <h2 className="text-2xl font-black text-[#E1E0CC] mb-1 font-display">{t('resetPassword.title')}</h2>
+    <h2 className="text-2xl font-black text-foreground mb-1 font-display">{t('resetPassword.title')}</h2>
     <p className="text-sm mb-6 text-gray-400">Enter a new password for your account.</p>
 
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
     <div>
-     <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5">{t('resetPassword.newPasswordLabel')}</label>
+     <label className="text-xs font-semibold text-primary/80 block mb-1.5">{t('resetPassword.newPasswordLabel')}</label>
      <div className="relative">
-     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.password ? 'text-red-400' : 'text-[#DEDBC8]/40'}`} />
+     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.password ? 'text-red-400' : 'text-primary/40'}`} />
      <input
       type="password"
       placeholder="At least 6 characters"
@@ -158,8 +158,8 @@ export default function ResetPasswordPage() {
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.password
        ? 'border-red-500/30 bg-red-500/[0.04]'
-       : 'border-[#DEDBC8]/10 bg-white/[0.03] focus:border-[#DEDBC8]/50'
-      } text-[#E1E0CC]`}
+       : 'border-primary/10 bg-white/[0.03] focus:border-primary/50'
+      } text-foreground`}
      />
      </div>
      {errors.password && (
@@ -168,9 +168,9 @@ export default function ResetPasswordPage() {
     </div>
 
     <div>
-     <label className="text-xs font-semibold text-[#DEDBC8]/80 block mb-1.5">{t('resetPassword.confirmLabel')}</label>
+     <label className="text-xs font-semibold text-primary/80 block mb-1.5">{t('resetPassword.confirmLabel')}</label>
      <div className="relative">
-     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.confirmPassword ? 'text-red-400' : 'text-[#DEDBC8]/40'}`} />
+     <Lock size={13} className={`absolute left-3 top-1/2 -translate-y-1/2 ${errors.confirmPassword ? 'text-red-400' : 'text-primary/40'}`} />
      <input
       type="password"
       placeholder="Confirm your new password"
@@ -179,8 +179,8 @@ export default function ResetPasswordPage() {
       className={`w-full pl-9 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-colors ${
       errors.confirmPassword
        ? 'border-red-500/30 bg-red-500/[0.04]'
-       : 'border-[#DEDBC8]/10 bg-white/[0.03] focus:border-[#DEDBC8]/50'
-      } text-[#E1E0CC]`}
+       : 'border-primary/10 bg-white/[0.03] focus:border-primary/50'
+      } text-foreground`}
      />
      </div>
      {errors.confirmPassword && (
@@ -197,7 +197,7 @@ export default function ResetPasswordPage() {
     <button
      type="submit"
      disabled={loading}
-     className="w-full py-3 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2 mt-4 transition-colors bg-[#DEDBC8] hover:bg-[#E1E0CC]"
+     className="w-full py-3 rounded-full text-sm font-bold text-black flex items-center justify-center gap-2 mt-4 transition-colors bg-primary hover:bg-foreground"
      style={{ opacity: loading ? 0.7 : 1 }}
     >
      {loading ? <><RefreshCw size={14} className="animate-spin" /> {t('resetPassword.submitting')}</> : t('resetPassword.submitButton')}
@@ -208,7 +208,7 @@ export default function ResetPasswordPage() {
   </div>
 
   {!isSuccess && (
-   <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 transition-colors hover:text-[#DEDBC8]">
+   <button onClick={() => navigate('/login')} className="mt-5 w-full flex items-center justify-center gap-1.5 text-xs text-gray-500 transition-colors hover:text-primary">
    <ArrowLeft size={12} /> {t('resetPassword.backToLogin')}
    </button>
   )}

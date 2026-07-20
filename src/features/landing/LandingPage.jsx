@@ -50,7 +50,7 @@ function HeroSection() {
    </button>
    <button
    onClick={() => navigate('/login')}
-   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-[#DEDBC8] text-black transition-all duration-200 hover:scale-105 active:scale-[0.97]"
+   className="text-[10px] sm:text-xs md:text-sm font-medium px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-primary text-black transition-all duration-200 hover:scale-105 active:scale-[0.97]"
    >
    Sign In
    </button>
@@ -96,7 +96,7 @@ function HeroSection() {
     <WordsPullUp
     text="SCITRACK"
     showAsterisk
-    className="font-medium leading-[0.85] tracking-[-0.07em] text-[#E1E0CC] text-[18vw] sm:text-[16vw] md:text-[14vw] lg:text-[12vw] xl:text-[11vw] 2xl:text-[12vw]"
+    className="font-medium leading-[0.85] tracking-[-0.07em] text-foreground text-[18vw] sm:text-[16vw] md:text-[14vw] lg:text-[12vw] xl:text-[11vw] 2xl:text-[12vw]"
     />
    </div>
 
@@ -119,10 +119,10 @@ function HeroSection() {
 		    animate={{ y: 0, opacity: 1 }}
 		    transition={{ duration: 0.7, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
 		    onClick={() => navigate('/register')}
-		    className="group relative flex items-center transition-all duration-500 bg-[#DEDBC8] hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit active:scale-[0.98]"
+		    className="group relative flex items-center transition-all duration-500 bg-primary hover:bg-black rounded-full pl-14 pr-8 py-2.5 text-black hover:text-white font-medium text-sm sm:text-base w-fit active:scale-[0.98]"
 		    >
-		    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-[#DEDBC8] rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
-		     <ArrowRight size={16} className="text-[#DEDBC8] group-hover:text-black transition-colors duration-500" />
+		    <span className="absolute left-1.5 group-hover:left-[calc(100%-40px)] sm:group-hover:left-[calc(100%-44px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] bg-black group-hover:bg-primary rounded-full w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center z-10">
+		     <ArrowRight size={16} className="text-primary group-hover:text-black transition-colors duration-500" />
 		    </span>
 		    <span className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-x-8 sm:group-hover:-translate-x-10">
 		     Explore more
@@ -141,15 +141,15 @@ function HeroSection() {
    className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 cursor-pointer group active:scale-[0.95]"
    aria-label="Scroll to our story"
   >
-   <span className="text-[9px] uppercase tracking-[0.2em] text-[#DEDBC8]/50 group-hover:text-[#DEDBC8]/80 transition-colors">
+   <span className="text-[9px] uppercase tracking-[0.2em] text-primary/50 group-hover:text-primary/80 transition-colors">
    Scroll
    </span>
    <motion.span
    animate={{ y: [0, 8, 0] }}
    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-   className="w-6 h-6 rounded-full border border-[#DEDBC8]/30 flex items-center justify-center group-hover:border-[#DEDBC8]/60 transition-colors"
+   className="w-6 h-6 rounded-full border border-primary/30 flex items-center justify-center group-hover:border-primary/60 transition-colors"
    >
-   <ChevronDown size={12} className="text-[#DEDBC8]/50 group-hover:text-[#DEDBC8] transition-colors" />
+   <ChevronDown size={12} className="text-primary/50 group-hover:text-primary transition-colors" />
    </motion.span>
   </motion.button>
   </div>
@@ -249,7 +249,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.6 }}
-    className="text-[10px] sm:text-xs font-medium mb-4 text-[#DEDBC8] tracking-widest uppercase"
+    className="text-[10px] sm:text-xs font-medium mb-4 text-primary tracking-widest uppercase"
    >
     Our Story
    </motion.p>
@@ -258,7 +258,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.6, delay: 0.1 }}
-    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-[#E1E0CC] max-w-3xl leading-[1.08]"
+    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium text-foreground max-w-3xl leading-[1.08]"
    >
     Every researcher knows the feeling.
    </motion.h2>
@@ -270,7 +270,7 @@ function AboutSection() {
     className="text-sm sm:text-base md:text-lg text-gray-400 mt-4 max-w-2xl leading-relaxed"
    >
     You spend hours jumping between databases, drowning in thousands of papers,
-    wondering if <span className="text-[#DEDBC8]">the one paper that changes everything</span> slipped
+    wondering if <span className="text-primary">the one paper that changes everything</span> slipped
     through the cracks. We built SCITRACK so it never does.
    </motion.p>
    </div>
@@ -289,12 +289,12 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.5, delay: i * 0.15, ease: [0.22, 1, 0.36, 1] }}
-    className="relative z-10 group bg-[#101010] rounded-2xl border border-[#DEDBC8]/5 p-6 md:p-7 hover:border-[#DEDBC8]/15 transition-all duration-300 active:scale-[0.98]"
+    className="relative z-10 group bg-card rounded-2xl border border-primary/5 p-6 md:p-7 hover:border-primary/15 transition-all duration-300 active:scale-[0.98]"
     >
-    <span className="text-4xl sm:text-5xl font-bold text-[#DEDBC8]/15 group-hover:text-[#DEDBC8] transition-all duration-500 leading-none">
+    <span className="text-4xl sm:text-5xl font-bold text-primary/15 group-hover:text-primary transition-all duration-500 leading-none">
      {item.num}
     </span>
-    <h3 className="text-lg sm:text-xl font-medium text-[#E1E0CC] mt-3 mb-2">
+    <h3 className="text-lg sm:text-xl font-medium text-foreground mt-3 mb-2">
      {item.title}
     </h3>
     <p className="text-sm text-gray-400 leading-relaxed">
@@ -321,12 +321,12 @@ function AboutSection() {
   <div className="relative z-10 max-w-7xl mx-auto">
    {/* Header — left-aligned, NOT centered */}
    <div className="mb-10 md:mb-14">
-   <p className="text-[10px] sm:text-xs font-medium mb-3 text-[#DEDBC8] tracking-widest uppercase">
+   <p className="text-[10px] sm:text-xs font-medium mb-3 text-primary tracking-widest uppercase">
     Trending now
    </p>
-   <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-[#E1E0CC]">
+   <h3 className="text-2xl sm:text-3xl md:text-4xl font-medium text-foreground">
     See what the world is
-    <span className="italic font-serif-italic text-[#DEDBC8]"> researching.</span>
+    <span className="italic font-serif-italic text-primary"> researching.</span>
    </h3>
    </div>
 
@@ -340,7 +340,7 @@ function AboutSection() {
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
     transition={{ duration: 0.4, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
-    className="group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 transition-all duration-300 flex-shrink-0 w-[280px] sm:w-[320px] snap-start active:scale-[0.98]"
+    className="group bg-card rounded-2xl overflow-hidden border border-primary/5 hover:border-primary/15 transition-all duration-300 flex-shrink-0 w-[280px] sm:w-[320px] snap-start active:scale-[0.98]"
     >
     <div className="relative h-40 sm:h-44 overflow-hidden">
      <img
@@ -349,20 +349,20 @@ function AboutSection() {
      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
      />
      <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-transparent to-transparent" />
-     <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#DEDBC8] text-black">
+     <span className="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary text-black">
      {paper.trend}
      </span>
     </div>
     <div className="p-4 sm:p-5">
-     <span className="text-[10px] font-medium text-[#DEDBC8] uppercase tracking-wider">
+     <span className="text-[10px] font-medium text-primary uppercase tracking-wider">
      {paper.field}
      </span>
-     <h3 className="text-sm font-medium text-[#E1E0CC] mt-1.5 leading-snug line-clamp-2">
+     <h3 className="text-sm font-medium text-foreground mt-1.5 leading-snug line-clamp-2">
      {paper.title}
      </h3>
      <button
      onClick={() => navigate('/login')}
-     className="flex items-center gap-1.5 mt-3 text-xs text-[#DEDBC8] hover:underline underline-offset-4 active:scale-[0.97]"
+     className="flex items-center gap-1.5 mt-3 text-xs text-primary hover:underline underline-offset-4 active:scale-[0.97]"
      >
      View paper <ArrowRight size={12} style={{ transform: 'rotate(-45deg)' }} />
      </button>
@@ -381,7 +381,7 @@ function AboutSection() {
  ═══════════════════════════════════════════════════════════════════════════ */
 
 const FEATURE_HEADER_SEGMENTS = [
- { text: 'Powerful tools for serious research.', className: 'text-[#DEDBC8]' },
+ { text: 'Powerful tools for serious research.', className: 'text-primary' },
  { text: 'Built for discovery. Driven by data.', className: 'text-gray-500' },
 ];
 
@@ -438,7 +438,7 @@ function FeatureCard({ feature, index, isLarge }) {
   initial={{ opacity: 0, y: 40 }}
   animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
   transition={{ duration: 0.55, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
-  className={`group bg-[#101010] rounded-2xl overflow-hidden border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/20 transition-all duration-500 flex flex-col active:scale-[0.99] ${isLarge ? 'md:flex-row' : ''}`}
+  className={`group bg-card rounded-2xl overflow-hidden border border-primary/5 hover:border-primary/20 transition-all duration-500 flex flex-col active:scale-[0.99] ${isLarge ? 'md:flex-row' : ''}`}
  >
   {/* Image */}
   <div className={`relative overflow-hidden ${isLarge ? 'md:w-[45%] md:min-h-full' : 'h-48 sm:h-52'}`}>
@@ -451,22 +451,22 @@ function FeatureCard({ feature, index, isLarge }) {
   />
   <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-[#101010]/20 to-transparent" />
   {/* ID badge */}
-  <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-[#DEDBC8] text-black">
+  <span className="absolute top-3 left-3 text-[10px] font-bold px-2 py-0.5 rounded-md bg-primary text-black">
    {feature.id}
   </span>
   {/* Stat badge */}
   <div className="absolute bottom-3 right-3 text-right">
-   <div className="text-xl sm:text-2xl font-bold text-[#E1E0CC] leading-none">{feature.stats}</div>
+   <div className="text-xl sm:text-2xl font-bold text-foreground leading-none">{feature.stats}</div>
    <div className="text-[10px] text-gray-400 mt-0.5">{feature.statsLabel}</div>
   </div>
   </div>
 
   {/* Content */}
   <div className={`p-5 md:p-6 flex flex-col flex-1 ${isLarge ? 'md:justify-center' : ''}`}>
-  <p className="text-[10px] font-medium text-[#DEDBC8] uppercase tracking-wider mb-1.5">
+  <p className="text-[10px] font-medium text-primary uppercase tracking-wider mb-1.5">
    {feature.subtitle}
   </p>
-  <h3 className="text-lg sm:text-xl font-medium text-[#E1E0CC] mb-2">
+  <h3 className="text-lg sm:text-xl font-medium text-foreground mb-2">
    {feature.title}
   </h3>
   <p className="text-xs sm:text-sm text-gray-400 leading-relaxed mb-4">
@@ -477,7 +477,7 @@ function FeatureCard({ feature, index, isLarge }) {
   <ul className="space-y-2 mt-auto">
    {feature.points.map((point, i) => (
    <li key={i} className="flex items-start gap-2">
-    <Check size={13} className="text-[#DEDBC8] mt-0.5 shrink-0" />
+    <Check size={13} className="text-primary mt-0.5 shrink-0" />
     <span className="text-xs text-gray-400 leading-snug">{point}</span>
    </li>
    ))}
@@ -486,7 +486,7 @@ function FeatureCard({ feature, index, isLarge }) {
   {/* Learn more */}
   <a
    href="/register"
-   className="inline-flex items-center gap-1.5 text-xs text-[#DEDBC8] mt-5 hover:underline underline-offset-4 group/link active:scale-[0.97]"
+   className="inline-flex items-center gap-1.5 text-xs text-primary mt-5 hover:underline underline-offset-4 group/link active:scale-[0.97]"
   >
    Learn more
    <ArrowRight size={13} className="transition-transform duration-300 group-hover/link:translate-x-0.5" style={{ transform: 'rotate(-45deg)' }} />
@@ -552,14 +552,14 @@ function FeaturesSection() {
 
 function Footer() {
  return (
- <footer className="relative bg-black border-t border-[#DEDBC8]/10 prisma-page">
+ <footer className="relative bg-black border-t border-primary/10 prisma-page">
   <div className="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14">
   <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
    {/* Brand */}
    <div className="flex flex-col items-center md:items-start gap-2">
    <div className="flex items-center">
-    <ScitrackSLogo className="text-[#DEDBC8] -mr-1 w-7 h-10" />
-    <span className="text-lg font-black text-[#E1E0CC] tracking-[0.05em]">CITRACK</span>
+    <ScitrackSLogo className="text-primary -mr-1 w-7 h-10" />
+    <span className="text-lg font-black text-foreground tracking-[0.05em]">CITRACK</span>
    </div>
    <p className="text-[10px] text-gray-500">Academic Research Platform</p>
    <p className="text-[10px] text-gray-600 mt-1">
@@ -570,15 +570,15 @@ function Footer() {
    {/* Nav links */}
    <div className="flex flex-col items-center md:items-start gap-2">
    <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Navigation</span>
-   <a href="/login" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Sign In</a>
-   <a href="/register" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Register</a>
+   <a href="/login" className="text-xs text-gray-400 hover:text-foreground transition-colors">Sign In</a>
+   <a href="/register" className="text-xs text-gray-400 hover:text-foreground transition-colors">Register</a>
    </div>
 
    {/* Legal */}
    <div className="flex flex-col items-center md:items-start gap-2">
    <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 mb-1">Legal</span>
-   <a href="#" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Privacy Policy</a>
-   <a href="#" className="text-xs text-gray-400 hover:text-[#E1E0CC] transition-colors">Terms of Service</a>
+   <a href="#" className="text-xs text-gray-400 hover:text-foreground transition-colors">Privacy Policy</a>
+   <a href="#" className="text-xs text-gray-400 hover:text-foreground transition-colors">Terms of Service</a>
    </div>
   </div>
   </div>

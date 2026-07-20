@@ -209,9 +209,9 @@ export default function ReportsViewPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-wrap items-center gap-3"
       >
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-          <FileText size={13} className="text-[#DEDBC8]" />
-          <span className="text-xs font-bold text-[#DEDBC8]">Keyword Trend Report</span>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
+          <FileText size={13} className="text-primary" />
+          <span className="text-xs font-bold text-primary">Keyword Trend Report</span>
         </div>
         <span className="text-[11px] text-gray-500">Search a keyword and generate a trend analysis report</span>
       </motion.div>
@@ -224,27 +224,27 @@ export default function ReportsViewPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-8"
+          className="rounded-2xl border border-primary/10 bg-card p-8"
         >
           <div className="flex flex-col items-center text-center max-w-lg mx-auto">
             <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/10 flex items-center justify-center mb-5">
               <Search size={24} className="text-[#3B82F6]" />
             </div>
-            <h3 className="text-lg font-semibold text-[#E1E0CC] mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Generate a Keyword Trend Report
             </h3>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
-              Go to the <span className="text-[#E1E0CC] font-medium">Search Papers</span> page,
+              Go to the <span className="text-foreground font-medium">Search Papers</span> page,
               search for a keyword, and click{' '}
               <span className="text-[#3B82F6] font-medium">Generate Report</span> in the
               Quick Stats section. Your trend analysis will appear right here.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span className="px-3 py-1.5 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+              <span className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
                 Search Papers
               </span>
               <ArrowRight size={12} />
-              <span className="px-3 py-1.5 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
+              <span className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
                 Quick Stats
               </span>
               <ArrowRight size={12} />
@@ -261,13 +261,13 @@ export default function ReportsViewPage() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-[#DEDBC8]/10 bg-[#101010] p-8"
+          className="rounded-2xl border border-primary/10 bg-card p-8"
         >
           <div className="flex flex-col items-center text-center">
             <div className="w-14 h-14 rounded-2xl bg-[#3B82F6]/10 flex items-center justify-center mb-5">
               <Loader2 size={24} className="text-[#3B82F6] animate-spin" />
             </div>
-            <h3 className="text-lg font-semibold text-[#E1E0CC] mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-2">
               Generating Report
             </h3>
             <p className="text-sm text-gray-400">
@@ -299,21 +299,21 @@ export default function ReportsViewPage() {
         <motion.div
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-[#DEDBC8]/8 bg-[#0A0A0A] p-4"
+          className="rounded-xl border border-primary/8 bg-[#0A0A0A] p-4"
         >
           <div className="flex items-center gap-2 mb-3">
             <History size={13} className="text-[#4F8CFF]" />
-            <span className="text-xs font-semibold text-[#E1E0CC] uppercase tracking-wide">
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wide">
               Report History
             </span>
             <span className="text-[10px] text-gray-500 ml-auto">
               {kwHistory.length} keyword{kwHistory.length > 1 ? 's' : ''}
             </span>
           </div>
-          <div className="overflow-hidden rounded-lg border border-[#DEDBC8]/10">
+          <div className="overflow-hidden rounded-lg border border-primary/10">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-[#DEDBC8]/10 text-gray-500">
+                <tr className="border-b border-primary/10 text-gray-500">
                   <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Keyword</th>
                   <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Created Date</th>
                   <th className="text-right py-2.5 px-4 font-medium uppercase tracking-wider text-[10px] w-16">Action</th>
@@ -324,10 +324,10 @@ export default function ReportsViewPage() {
                   <tr
                     key={item.keyword}
                     onClick={() => loadFromKeywordHistory(item.keyword)}
-                    className="border-b border-[#DEDBC8]/5 last:border-0
+                    className="border-b border-primary/5 last:border-0
                       hover:bg-[#4F8CFF]/5 cursor-pointer transition-colors"
                   >
-                    <td className="py-2.5 px-4 text-[#E1E0CC] font-medium">
+                    <td className="py-2.5 px-4 text-foreground font-medium">
                       <div className="flex items-center gap-2">
                         <Clock size={11} className="text-gray-500" />
                         {item.keyword}

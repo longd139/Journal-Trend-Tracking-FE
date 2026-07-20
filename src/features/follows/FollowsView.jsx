@@ -29,8 +29,8 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
           onClick={() => onTabChange(tab.key)}
           className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
             activeTab === tab.key
-              ? 'bg-[#DEDBC8]/10 text-[#DEDBC8] border-[#DEDBC8]/30'
-              : 'text-gray-400 border-transparent hover:bg-white/5 hover:text-[#E1E0CC]'
+              ? 'bg-primary/10 text-primary border-primary/30'
+              : 'text-gray-400 border-transparent hover:bg-white/5 hover:text-foreground'
           }`}
         >
           {tab.label}
@@ -38,7 +38,7 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
             <span
               className={`ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold ${
                 activeTab === tab.key
-                  ? 'bg-[#DEDBC8]/20 text-[#DEDBC8]'
+                  ? 'bg-primary/20 text-primary'
                   : 'bg-white/5 text-gray-500'
               }`}
             >
@@ -160,12 +160,12 @@ export default function FollowsView() {
           <AlertCircle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">{error}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
           <p className="text-sm text-gray-400">{t('toast.loadError')}</p>
         </div>
         <button
           onClick={fetchFollows}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           {t('button.retry')}
         </button>
@@ -199,11 +199,11 @@ export default function FollowsView() {
   if (follows.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] text-center space-y-4 bg-transparent p-8">
-        <div className="w-16 h-16 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
           <BellOff size={28} className="text-gray-500" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">
+          <h3 className="text-lg font-bold text-foreground mb-1">
             {t('page.empty.title')}
           </h3>
           <p className="text-sm text-gray-400">
@@ -219,9 +219,9 @@ export default function FollowsView() {
     <div className="p-8 space-y-6 min-h-screen bg-transparent">
       {/* Header — compact stats, title is in TopBar */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#DEDBC8]/5 border border-[#DEDBC8]/8">
-          <Bell size={13} className="text-[#DEDBC8]" />
-          <span className="text-xs font-bold text-[#DEDBC8]">{follows.length}</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
+          <Bell size={13} className="text-primary" />
+          <span className="text-xs font-bold text-primary">{follows.length}</span>
           <span className="text-[11px] text-gray-400">{follows.length === 1 ? 'follow' : 'follows'}</span>
         </div>
       </div>
@@ -237,9 +237,9 @@ export default function FollowsView() {
           <motion.div
             key={stat.label}
             whileHover={{ y: -2 }}
-            className="p-3 rounded-xl border bg-[#101010] border-[#DEDBC8]/10 text-center"
+            className="p-3 rounded-xl border bg-card border-primary/10 text-center"
           >
-            <div className="text-xl font-bold text-[#E1E0CC]">{stat.count}</div>
+            <div className="text-xl font-bold text-foreground">{stat.count}</div>
             <div className="text-[10px] uppercase tracking-wider font-bold text-gray-500">{stat.label}</div>
           </motion.div>
         ))}

@@ -48,7 +48,7 @@ function StatChip({ icon: Icon, label, value, color = '#DEDBC8' }) {
     >
       <Icon size={16} style={{ color }} />
       <div>
-        <div className="text-lg font-bold text-[#E1E0CC]">{value}</div>
+        <div className="text-lg font-bold text-foreground">{value}</div>
         <div className="text-[10px] text-gray-500 uppercase tracking-wider">{label}</div>
       </div>
     </div>
@@ -192,21 +192,21 @@ function AISummarySection({ paperId }) {
   // ── Loading skeleton ──
   if (loading) {
     return (
-      <div className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 animate-pulse">
+      <div className="rounded-xl border border-primary/10 bg-card p-5 animate-pulse">
         {/* Header */}
         <div className="flex items-center gap-2 mb-5">
           <div className="w-6 h-6 rounded-lg bg-[#4F8CFF]/20" />
-          <div className="h-3 w-20 rounded bg-[#DEDBC8]/8" />
+          <div className="h-3 w-20 rounded bg-primary/8" />
           <div className="h-4 w-16 rounded-md bg-[#4F8CFF]/10 ml-auto" />
         </div>
         {/* Section cards */}
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="rounded-lg bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 p-4">
+            <div key={i} className="rounded-lg bg-primary/[0.02] border border-primary/5 p-4">
               <div className="h-3 w-24 rounded bg-[#4F8CFF]/10 mb-2.5" />
               <div className="space-y-1.5">
-                <div className="h-3 w-full rounded bg-[#DEDBC8]/5" />
-                <div className="h-3 w-5/6 rounded bg-[#DEDBC8]/5" />
+                <div className="h-3 w-full rounded bg-primary/5" />
+                <div className="h-3 w-5/6 rounded bg-primary/5" />
               </div>
             </div>
           ))}
@@ -264,7 +264,7 @@ function AISummarySection({ paperId }) {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.14, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-xl border border-[#DEDBC8]/10 bg-gradient-to-br from-[#101010] via-[#101010] to-[#4F8CFF]/[0.02] p-5"
+      className="rounded-xl border border-primary/10 bg-gradient-to-br from-[#101010] via-[#101010] to-[#4F8CFF]/[0.02] p-5"
     >
       {/* Header */}
       <div className="flex items-center gap-2 mb-5">
@@ -331,7 +331,7 @@ function AISummarySection({ paperId }) {
           initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.16 + sections.length * 0.07 + 0.05, duration: 0.3 }}
-          className="mt-5 ml-5 pl-5 border-l-2 border-[#DEDBC8]/5"
+          className="mt-5 ml-5 pl-5 border-l-2 border-primary/5"
         >
           <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#00D1B2]/[0.06] border border-[#00D1B2]/15">
             <Cpu size={13} className="text-[#00D1B2] shrink-0" />
@@ -383,14 +383,14 @@ export default function PaperDetailPage() {
 
   // ── Upgrade banner for academic users ──
   const UpgradeBanner = ({ feature }) => (
-    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.04] border border-[#DEDBC8]/10">
+    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/[0.04] border border-primary/10">
       <div className="flex items-center gap-2">
-        <Lock size={13} className="text-[#DEDBC8]/50 shrink-0" />
+        <Lock size={13} className="text-primary/50 shrink-0" />
         <span className="text-[11px] text-gray-400">
-          {feature} is available for <strong className="text-[#E1E0CC]">Researcher</strong> accounts.{' '}
+          {feature} is available for <strong className="text-foreground">Researcher</strong> accounts.{' '}
           <button
             onClick={() => navigate(`/${role}/settings`)}
-            className="underline hover:text-[#DEDBC8] transition-colors font-semibold text-[#DEDBC8]/70"
+            className="underline hover:text-primary transition-colors font-semibold text-primary/70"
           >
             Upgrade now
           </button>
@@ -533,19 +533,19 @@ export default function PaperDetailPage() {
           <AlertCircle size={28} className="text-red-400" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-[#E1E0CC] mb-1">{error}</h3>
+          <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
           <p className="text-sm text-gray-400">The paper could not be loaded.</p>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={goBack}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
           >
             Go Back
           </button>
           <button
             onClick={fetchPaper}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8] text-black hover:opacity-90 transition-all"
+            className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-black hover:opacity-90 transition-all"
           >
             Retry
           </button>
@@ -558,13 +558,13 @@ export default function PaperDetailPage() {
   if (!paper) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-4 p-8">
-        <div className="w-16 h-16 rounded-2xl bg-[#101010] border border-[#DEDBC8]/10 flex items-center justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-card border border-primary/10 flex items-center justify-center">
           <FileText size={28} className="text-gray-500" />
         </div>
-        <h3 className="text-lg font-bold text-[#E1E0CC]">Paper not found</h3>
+        <h3 className="text-lg font-bold text-foreground">Paper not found</h3>
         <button
           onClick={goBack}
-          className="px-4 py-2 rounded-lg text-sm font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+          className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           Go Back
         </button>
@@ -592,7 +592,7 @@ export default function PaperDetailPage() {
         {/* ── Back button ── */}
         <button
           onClick={goBack}
-          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-[#E1E0CC] transition-colors"
+          className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={14} />
           Back to results
@@ -632,7 +632,7 @@ export default function PaperDetailPage() {
             )}
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-[#E1E0CC] leading-snug">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-snug">
             {title}
           </h1>
         </motion.div>
@@ -733,12 +733,12 @@ export default function PaperDetailPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-2"
+            className="rounded-xl border border-primary/10 bg-card p-5 space-y-2"
           >
             {journal && (
               <div className="flex items-center gap-2 text-sm">
                 <BookOpen size={16} className="text-gray-500" />
-                <span className="text-[#E1E0CC] font-semibold">{journal}</span>
+                <span className="text-foreground font-semibold">{journal}</span>
               </div>
             )}
             {doi && (
@@ -762,7 +762,7 @@ export default function PaperDetailPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3"
+            className="rounded-xl border border-primary/10 bg-card p-5 space-y-3"
           >
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Abstract</h3>
             {isAcademic ? (
@@ -796,7 +796,7 @@ export default function PaperDetailPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.16 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-4"
+            className="rounded-xl border border-primary/10 bg-card p-5 space-y-4"
           >
             <div className="flex items-center gap-2">
               <Users size={15} className="text-gray-500" />
@@ -823,15 +823,15 @@ export default function PaperDetailPage() {
                       }, 300);
                     }
                   }}
-                  className="w-full text-left flex items-start justify-between gap-4 px-4 py-3 rounded-xl bg-[#DEDBC8]/[0.02] border border-[#DEDBC8]/5 hover:border-[#DEDBC8]/15 hover:bg-[#DEDBC8]/[0.04] transition-all group cursor-pointer"
+                  className="w-full text-left flex items-start justify-between gap-4 px-4 py-3 rounded-xl bg-primary/[0.02] border border-primary/5 hover:border-primary/15 hover:bg-primary/[0.04] transition-all group cursor-pointer"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-[#E1E0CC] group-hover:text-[#DEDBC8] transition-colors">
+                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                         {author.fullName}
                       </span>
                       {author.isCorresponding && (
-                        <span className="text-[9px] font-bold text-[#DEDBC8] bg-[#DEDBC8]/10 px-1.5 py-0.5 rounded border border-[#DEDBC8]/20">
+                        <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">
                           ✉ Corresponding
                         </span>
                       )}
@@ -844,7 +844,7 @@ export default function PaperDetailPage() {
 
                   <div className="flex items-center gap-4 shrink-0">
                     <div className="text-right">
-                      <div className="text-xs font-bold text-[#E1E0CC]">
+                      <div className="text-xs font-bold text-foreground">
                         {author.totalCitations?.toLocaleString() || 0}
                       </div>
                       <div className="text-[10px] text-gray-500">Citations</div>
@@ -868,7 +868,7 @@ export default function PaperDetailPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.18 }}
-            className="rounded-xl border border-[#DEDBC8]/10 bg-[#101010] p-5 space-y-3"
+            className="rounded-xl border border-primary/10 bg-card p-5 space-y-3"
           >
             <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">Keywords</h3>
             <div className="flex flex-wrap gap-2">

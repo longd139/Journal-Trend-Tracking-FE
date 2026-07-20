@@ -1,19 +1,23 @@
-﻿import React from 'react';
+﻿import React, { Suspense, lazy } from 'react';
 import AdminOverviewPage from '../admin/AdminOverviewPage';
-import UserOverviewPage from './UserOverviewPage';
+
+const GapExplorerLayout = lazy(() => import('./GapExplorerLayout'));
 
 export default function OverviewController() {
- // Lấy role từ sessionStorage (nếu chưa có thì mặc định là 'user')
- const currentRole = sessionStorage.getItem('userRole') || 'user'; 
+ const currentRole = sessionStorage.getItem('userRole') || 'user';
 
- // Đắp thêm cái div bao ngoài với background đồng bộ
- // Tailwind sẽ tự động đổi bg dựa trên chế độ Dark/Light của toàn trang
  return (
  <div className="min-h-full bg-transparent">
   {currentRole === 'admin' ? (
   <AdminOverviewPage />
   ) : (
-  <UserOverviewPage />
+  <Suspense fallback={
+    <div className="flex h-[calc(100vh-64px)] items-center justify-center">
+      <div className="text-sm text-gray-400 animate-pulse">Loading Research Explorer...</div>
+    </div>
+  }>
+    <GapExplorerLayout />
+  </Suspense>
   )}
  </div>
  );

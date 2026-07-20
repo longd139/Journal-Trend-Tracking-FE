@@ -14,13 +14,13 @@ function Skeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-[#DEDBC8]/5 bg-[#101010] p-4 space-y-2.5 animate-pulse"
+          className="rounded-xl border border-primary/5 bg-card p-4 space-y-2.5 animate-pulse"
         >
-          <div className="h-4 w-3/4 bg-[#DEDBC8]/8 rounded" />
-          <div className="h-3 w-1/2 bg-[#DEDBC8]/5 rounded" />
+          <div className="h-4 w-3/4 bg-primary/8 rounded" />
+          <div className="h-3 w-1/2 bg-primary/5 rounded" />
           <div className="flex items-center gap-2">
-            <div className="h-3 w-16 bg-[#DEDBC8]/5 rounded-full" />
-            <div className="h-3 w-12 bg-[#DEDBC8]/5 rounded-full" />
+            <div className="h-3 w-16 bg-primary/5 rounded-full" />
+            <div className="h-3 w-12 bg-primary/5 rounded-full" />
           </div>
         </div>
       ))}
@@ -119,7 +119,7 @@ export default function SimilarPapers({ paper }) {
       className="space-y-3"
     >
       <div className="flex items-center gap-2">
-        <Sparkles size={14} className="text-[#DEDBC8]/40" />
+        <Sparkles size={14} className="text-primary/40" />
         <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
           Similar Papers
         </h3>
@@ -154,18 +154,18 @@ export default function SimilarPapers({ paper }) {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 + i * 0.05 }}
               whileHover={{ x: 3 }}
-              className="w-full text-left rounded-xl border border-[#DEDBC8]/5 bg-[#101010] p-4 hover:border-[#DEDBC8]/15 transition-all group"
+              className="w-full text-left rounded-xl border border-primary/5 bg-card p-4 hover:border-primary/15 transition-all group"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0 space-y-1">
-                  <h4 className="text-[13px] font-semibold text-[#E1E0CC] leading-snug line-clamp-2 group-hover:text-[#DEDBC8] transition-colors">
+                  <h4 className="text-[13px] font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
                     {p.title || 'Untitled'}
                   </h4>
                   <div className="flex items-center gap-2 text-[10px] text-gray-500 flex-wrap">
                     {authors && <span>{authors}</span>}
                     {year && <span>· {year}</span>}
                     {field && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#DEDBC8]/5 text-[#DEDBC8]/60 border border-[#DEDBC8]/10">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-primary/5 text-primary/60 border border-primary/10">
                         {field}
                       </span>
                     )}
@@ -173,10 +173,10 @@ export default function SimilarPapers({ paper }) {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <div className="text-right">
-                    <div className="text-sm font-bold text-[#E1E0CC]">{citations.toLocaleString()}</div>
+                    <div className="text-sm font-bold text-foreground">{citations.toLocaleString()}</div>
                     <div className="text-[9px] text-gray-500">cites</div>
                   </div>
-                  <ChevronRight size={14} className="text-gray-600 group-hover:text-[#DEDBC8] transition-colors" />
+                  <ChevronRight size={14} className="text-gray-600 group-hover:text-primary transition-colors" />
                 </div>
               </div>
             </motion.button>

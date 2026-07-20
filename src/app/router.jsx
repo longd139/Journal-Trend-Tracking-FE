@@ -20,6 +20,7 @@ const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 const SearchPapers = lazy(() => import('../features/search/SearchPapers.jsx'));
 const SearchJournal = lazy(() => import('../features/search/SearchJournal.jsx'));
 const SearchAuthor = lazy(() => import('../features/search/SearchAuthor.jsx'));
+const UnifiedSearch = lazy(() => import('../features/search/UnifiedSearch.jsx'));
 const PaperDetailPage = lazy(() => import('../features/search/PaperDetailPage.jsx'));
 
 const BookmarksView = lazy(() => import('../features/bookmarks/BookmarksView.jsx'));
@@ -175,34 +176,22 @@ export const router = createBrowserRouter([
         ),
       },
       {
-        path: 'search', // -> URL thực tế: /:roleName/search
+        path: 'search', // -> /:roleName/search
         element: (
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
-              <SearchPapers />
+              <UnifiedSearch />
             </Suspense>
           </ProtectedRoute>
         ),
       },
       {
-        path: 'journal-search', // -> URL thực tế: /:roleName/journal-search
-        element: (
-          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <SearchJournal />
-            </Suspense>
-          </ProtectedRoute>
-        ),
+        path: 'journal-search',
+        element: <Navigate to="../search" replace />,
       },
       {
-        path: 'search-author', // -> URL thực tế: /:roleName/search-author
-        element: (
-          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <SearchAuthor />
-            </Suspense>
-          </ProtectedRoute>
-        ),
+        path: 'search-author',
+        element: <Navigate to="../search" replace />,
       },
 
       {

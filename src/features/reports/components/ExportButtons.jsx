@@ -147,7 +147,7 @@ export default function ExportButtons({
       {/* Download JSON */}
       <button
         onClick={handleDownloadJSON}
-        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#DEDBC8]/10 text-[#DEDBC8] border border-[#DEDBC8]/20 hover:bg-[#DEDBC8]/20 transition-all"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
       >
         <FileJson size={13} />
         Download JSON

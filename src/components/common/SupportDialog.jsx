@@ -135,7 +135,7 @@ export default function SupportDialog({ open, onClose, role }) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[85vh] bg-[#0A0A0A] border border-[#DEDBC8]/10 text-[#E1E0CC] p-0 overflow-hidden flex flex-col gap-0">
+      <DialogContent className="sm:max-w-2xl max-h-[85vh] bg-[#0A0A0A] border border-primary/10 text-foreground p-0 overflow-hidden flex flex-col gap-0">
         {/* ─── Header ─── */}
         <div className="relative shrink-0">
           {/* Accent gradient bar */}
@@ -143,13 +143,13 @@ export default function SupportDialog({ open, onClose, role }) {
             className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent to-transparent"
             style={{ '--tw-gradient-via-color': roleConfig.accent, backgroundImage: `linear-gradient(to right, transparent, ${roleConfig.accent}99, transparent)` }}
           />
-          <DialogHeader className="px-6 py-4 border-b border-[#DEDBC8]/8">
+          <DialogHeader className="px-6 py-4 border-b border-primary/8">
             <DialogTitle className="flex items-center gap-3">
               <div className={`p-2 rounded-xl ${roleConfig.accentBg}`}>
                 <HelpCircle size={18} style={{ color: roleConfig.accent }} />
               </div>
               <div className="flex items-center gap-2.5">
-                <span className="text-base font-bold text-[#E1E0CC]">{t('title')}</span>
+                <span className="text-base font-bold text-foreground">{t('title')}</span>
                 <span
                   className="text-[10px] font-semibold px-2 py-0.5 rounded-md border"
                   style={{
@@ -168,9 +168,9 @@ export default function SupportDialog({ open, onClose, role }) {
         {/* ─── Body ─── */}
         <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Left sidebar */}
-          <div className="w-44 shrink-0 border-r border-[#DEDBC8]/8 flex flex-col bg-[#0D0D0D]">
+          <div className="w-44 shrink-0 border-r border-primary/8 flex flex-col bg-[#0D0D0D]">
             {/* Search */}
-            <div className="p-2.5 border-b border-[#DEDBC8]/5">
+            <div className="p-2.5 border-b border-primary/5">
               <div className="relative">
                 <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" />
                 <input
@@ -178,7 +178,7 @@ export default function SupportDialog({ open, onClose, role }) {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t('searchPlaceholder', 'Filter...')}
-                  className="w-full pl-7 pr-2.5 py-1.5 rounded-lg text-[10px] border bg-[#101010] border-[#DEDBC8]/8 text-[#E1E0CC] placeholder:text-gray-600 focus:outline-none focus:border-[#DEDBC8]/20 transition-colors"
+                  className="w-full pl-7 pr-2.5 py-1.5 rounded-lg text-[10px] border bg-card border-primary/8 text-foreground placeholder:text-gray-600 focus:outline-none focus:border-primary/20 transition-colors"
                 />
               </div>
             </div>
@@ -200,8 +200,8 @@ export default function SupportDialog({ open, onClose, role }) {
                       onClick={() => setActiveSection(id)}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all text-left ${
                         isActive
-                          ? 'bg-[#DEDBC8]/8 text-[#DEDBC8] border-l-2'
-                          : 'text-gray-400 hover:bg-white/[0.03] hover:text-[#E1E0CC] border-l-2 border-transparent'
+                          ? 'bg-primary/8 text-primary border-l-2'
+                          : 'text-gray-400 hover:bg-white/[0.03] hover:text-foreground border-l-2 border-transparent'
                       }`}
                       style={{ borderLeftColor: isActive ? color : 'transparent' }}
                     >
@@ -214,7 +214,7 @@ export default function SupportDialog({ open, onClose, role }) {
             </div>
 
             {/* Section count */}
-            <div className="px-3 py-2 border-t border-[#DEDBC8]/5">
+            <div className="px-3 py-2 border-t border-primary/5">
               <p className="text-[9px] text-gray-600">
                 {filteredSections.length} {filteredSections.length === 1 ? 'section' : 'sections'}
               </p>
@@ -233,7 +233,7 @@ export default function SupportDialog({ open, onClose, role }) {
                 className="p-6 space-y-5"
               >
                 {/* Section header */}
-                <div className="flex items-center gap-3 pb-4 border-b border-[#DEDBC8]/8">
+                <div className="flex items-center gap-3 pb-4 border-b border-primary/8">
                   <div
                     className="p-2.5 rounded-xl"
                     style={{ backgroundColor: `${currentSection.color}18` }}
@@ -241,7 +241,7 @@ export default function SupportDialog({ open, onClose, role }) {
                     <SectionIcon size={18} style={{ color: currentSection.color }} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#E1E0CC]">
+                    <h3 className="text-sm font-bold text-foreground">
                       {t(`${ns}.sections.${activeSection}`)}
                     </h3>
                     <p className="text-[11px] text-gray-500 mt-0.5">
@@ -325,7 +325,7 @@ export default function SupportDialog({ open, onClose, role }) {
         </div>
 
         {/* ─── Footer ─── */}
-        <div className="shrink-0 px-6 py-3 border-t border-[#DEDBC8]/8 flex items-center justify-between">
+        <div className="shrink-0 px-6 py-3 border-t border-primary/8 flex items-center justify-between">
           <span className="text-[9px] text-gray-600">SciTrack — Research Platform</span>
           <span className="text-[9px] text-gray-700">Press Esc to close</span>
         </div>

@@ -151,7 +151,7 @@ export default function SearchWithHistory({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -4 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 top-full mt-1.5 z-50 w-full rounded-2xl border border-[#DEDBC8]/10 bg-[#151515] shadow-2xl backdrop-blur-xl overflow-hidden"
+            className="absolute left-0 top-full mt-1.5 z-50 w-full rounded-2xl border border-primary/10 bg-[#151515] shadow-2xl backdrop-blur-xl overflow-hidden"
           >
             <div className="py-1 max-h-[260px] overflow-y-auto">
               {suggestions.map((term, i) => (
@@ -159,7 +159,7 @@ export default function SearchWithHistory({
                   key={`${term}-${i}`}
                   type="button"
                   onClick={() => handleSelect(term)}
-                  className="w-full text-left px-3.5 py-2.5 text-[13px] text-slate-300 hover:text-white hover:bg-[#DEDBC8]/5 transition-all flex items-center gap-3 group"
+                  className="w-full text-left px-3.5 py-2.5 text-[13px] text-slate-300 hover:text-white hover:bg-primary/5 transition-all flex items-center gap-3 group"
                 >
                   <Clock size={12} className="text-slate-500 shrink-0 group-hover:text-slate-400 transition-colors" />
                   <span className="flex-1 truncate">{term}</span>
@@ -175,7 +175,7 @@ export default function SearchWithHistory({
               ))}
             </div>
             {/* Clear all footer */}
-            <div className="border-t border-[#DEDBC8]/5 px-3.5 py-2 flex justify-end">
+            <div className="border-t border-primary/5 px-3.5 py-2 flex justify-end">
               <button
                 type="button"
                 onClick={handleClearAll}

@@ -83,10 +83,10 @@ function BreakoutSkeleton() {
     <div className="space-y-5">
       {/* Trending chips skeleton (top) */}
       <div className="flex items-center gap-2">
-        <div className="h-3 w-20 bg-[#DEDBC8]/8 rounded-full" />
+        <div className="h-3 w-20 bg-primary/8 rounded-full" />
         <div className="flex gap-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-7 w-20 bg-[#DEDBC8]/5 rounded-full" />
+            <div key={i} className="h-7 w-20 bg-primary/5 rounded-full" />
           ))}
         </div>
       </div>
@@ -95,15 +95,15 @@ function BreakoutSkeleton() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-5 space-y-3 animate-pulse"
+            className="bg-card border border-primary/5 rounded-2xl p-5 space-y-3 animate-pulse"
           >
-            <div className="h-4 w-2/3 bg-[#DEDBC8]/8 rounded" />
-            <div className="h-10 w-full bg-[#DEDBC8]/5 rounded-lg" />
+            <div className="h-4 w-2/3 bg-primary/8 rounded" />
+            <div className="h-10 w-full bg-primary/5 rounded-lg" />
             <div className="flex items-center justify-between">
-              <div className="h-3 w-16 bg-[#DEDBC8]/5 rounded-full" />
-              <div className="h-3 w-14 bg-[#DEDBC8]/5 rounded-full" />
+              <div className="h-3 w-16 bg-primary/5 rounded-full" />
+              <div className="h-3 w-14 bg-primary/5 rounded-full" />
             </div>
-            <div className="h-5 w-20 bg-[#DEDBC8]/8 rounded-full" />
+            <div className="h-5 w-20 bg-primary/8 rounded-full" />
           </div>
         ))}
       </div>
@@ -125,7 +125,7 @@ function TrendingChips({ keywords, onKeywordClick }) {
       transition={{ delay: 0.45, duration: 0.35 }}
       className="flex items-center gap-2.5 flex-wrap"
     >
-      <Tag size={13} className="text-[#DEDBC8]/30 shrink-0" />
+      <Tag size={13} className="text-primary/30 shrink-0" />
       {keywords.map((kw, i) => (
         <motion.button
           key={kw.keywordText}
@@ -137,8 +137,8 @@ function TrendingChips({ keywords, onKeywordClick }) {
           whileTap={{ scale: 0.93 }}
           onClick={() => onKeywordClick?.(kw.keywordText)}
           className="px-3.5 py-1.5 rounded-full text-[11px] font-medium transition-all
-                     bg-[#DEDBC8]/4 text-[#DEDBC8]/65 border border-[#DEDBC8]/8
-                     hover:bg-[#DEDBC8]/10 hover:text-[#DEDBC8] hover:border-[#DEDBC8]/20"
+                     bg-primary/4 text-primary/65 border border-primary/8
+                     hover:bg-primary/10 hover:text-primary hover:border-primary/20"
         >
           {kw.keywordText}
         </motion.button>
@@ -210,7 +210,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
       {trendingKeywords.length > 0 && (
         <div className="space-y-2.5">
           <div className="flex items-center gap-2">
-            <TrendingUp size={13} className="text-[#DEDBC8]/40" />
+            <TrendingUp size={13} className="text-primary/40" />
             <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
               Trending Now
             </span>
@@ -223,7 +223,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
       {breakoutTopics.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <Sparkles size={14} className="text-[#DEDBC8]/50" />
+            <Sparkles size={14} className="text-primary/50" />
             <span className="text-[11px] uppercase tracking-wider font-bold text-gray-500">
               Weekly Breakout Topics
             </span>
@@ -243,7 +243,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
                   whileHover={{ y: -4, borderColor: isNeutral ? 'rgba(222,219,200,0.12)' : `${color}30` }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => onKeywordClick?.(topic.keywordText)}
-                  className="relative bg-[#101010] border border-[#DEDBC8]/5 rounded-2xl p-5 text-left transition-all duration-300 group cursor-pointer overflow-hidden"
+                  className="relative bg-card border border-primary/5 rounded-2xl p-5 text-left transition-all duration-300 group cursor-pointer overflow-hidden"
                 >
                   {/* Ambient glow orb — only for growth/decline */}
                   {!isNeutral && (
@@ -262,7 +262,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
                   )}
 
                   {/* Keyword name */}
-                  <h4 className="text-sm font-semibold text-[#E1E0CC] mb-3 truncate font-display pt-1">
+                  <h4 className="text-sm font-semibold text-foreground mb-3 truncate font-display pt-1">
                     {topic.keywordText}
                   </h4>
 
