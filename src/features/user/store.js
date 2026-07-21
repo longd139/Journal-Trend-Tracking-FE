@@ -11,6 +11,7 @@ export const useAuthStore = create(
         preferredLanguage: null,
         user: null,
         backgroundUrl: null,
+        backgroundColor: null,
 
         // Actions
         setTokens: (access) => set({ accessToken: access }),
@@ -23,6 +24,8 @@ export const useAuthStore = create(
           set((state) => ({ user: { ...state.user, ...partial } })),
 
         setBackground: (url) => set({ backgroundUrl: url }),
+
+        setBackgroundColor: (color) => set({ backgroundColor: color }),
 
         clearTokens: () => set({ accessToken: null }),
       }),
@@ -37,6 +40,7 @@ export const useAuthStore = create(
           refreshToken: state.refreshToken,
           preferredLanguage: state.preferredLanguage,
           backgroundUrl: state.backgroundUrl,
+          backgroundColor: state.backgroundColor,
         }),
       },
     ),

@@ -1,4 +1,5 @@
-﻿import { useState } from 'react';
+﻿import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Search, X } from 'lucide-react';
 import SearchPapers from './SearchPapers';
@@ -16,10 +17,16 @@ const TABS = [
  * into a single search bar with tabbed results.
  * Each tab renders the existing search page component in embedded mode,
  * preserving all stats, charts, and visualizations.
+ *
+ * URL param: ?q=keyword — pre-fills the search box and auto-triggers search.
+ *             Used by Author Research Focus "deep analysis" topic clicks.
  */
 export default function UnifiedSearch() {
-  const [query, setQuery] = useState('');
-  const [searchedQuery, setSearchedQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialQ = searchParams.get('q') || '';
+
+  const [query, setQuery] = useState(initialQ);
+  const [searchedQuery, setSearchedQuery] = useState(initialQ);
   const [activeTab, setActiveTab] = useState('papers');
 
   const handleSearch = () => {
@@ -30,6 +37,21 @@ export default function UnifiedSearch() {
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch();
   };
+
+  // Listen for URL param changes (e.g., clicking a topic from Author Research Focus)
+  // When ?q=... changes, auto-trigger search and clean the URL param.
+  const urlQ = searchParams.get('q');
+  useEffect(() => {
+    if (urlQ && urlQ.trim()) {
+      setQuery(urlQ);
+      setSearchedQuery(urlQ);
+      setActiveTab('papers');
+      // Clean URL param after consuming to keep URL tidy
+      const next = new URLSearchParams(searchParams);
+      next.delete('q');
+      setSearchParams(next, { replace: true });
+    }
+  }, [urlQ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="min-h-screen bg-transparent">
