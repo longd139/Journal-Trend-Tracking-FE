@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { AlertCircle, PieChartIcon } from 'lucide-react';
@@ -100,7 +101,8 @@ function renderLegend(props) {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function AuthorResearchFocus({ keyword }) {
+export default function AuthorResearchFocus({ keyword, onTopicClick }) {
+  const { t } = useTranslation('search');
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -212,6 +214,11 @@ export default function AuthorResearchFocus({ keyword }) {
                 Topic Distribution
               </span>
             </div>
+            {onTopicClick && (
+              <p className="text-[10px] text-primary/50 mb-3 -mt-1 italic">
+                {t('author.topicClickHint')}
+              </p>
+            )}
             <div className="space-y-1.5">
               {data.topics.map((topic, i) => (
                 <motion.div
@@ -219,7 +226,12 @@ export default function AuthorResearchFocus({ keyword }) {
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.1 + i * 0.04, duration: 0.25 }}
-                  className="flex items-center gap-2.5 group"
+                  onClick={() => onTopicClick?.(topic)}
+                  className="flex items-center gap-2.5 group cursor-pointer rounded-lg px-2 py-1.5 -mx-2 hover:bg-primary/5 active:bg-primary/10 transition-colors"
+                  title={topic.topicName} // hiển thị tooltip full tên khi hover
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onTopicClick?.(topic); }}
                 >
                   <span
                     className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -243,6 +255,10 @@ export default function AuthorResearchFocus({ keyword }) {
                       {topic.percentage?.toFixed(1)}%
                     </div>
                   </div>
+                  {/* Click indicator arrow */}
+                  <span className="text-[10px] text-primary/30 group-hover:text-primary/60 transition-colors shrink-0 opacity-0 group-hover:opacity-100">
+                    →
+                  </span>
                 </motion.div>
               ))}
             </div>

@@ -166,6 +166,14 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     setShowSuggestions(false);
   };
 
+  // ─── Topic click → navigate to Papers tab with topic as keyword ───
+  const handleTopicClick = (topic) => {
+    const topicName = topic?.topicName;
+    if (!topicName) return;
+    const role = currentRole || 'researcher';
+    navigate(`/${role}/search?q=${encodeURIComponent(topicName)}`);
+  };
+
   const removeSearchHistoryItem = (keyword) => {
     const updated = searchHistory.filter((k) => k !== keyword);
     setSearchHistory(updated);
@@ -552,7 +560,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                 {/* Research Focus — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
-                    <AuthorResearchFocus keyword={searchedAuthor} />
+                    <AuthorResearchFocus keyword={searchedAuthor} onTopicClick={handleTopicClick} />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
@@ -596,7 +604,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             ) : (
               <>
                 <AuthorTimeline keyword={searchedAuthor} />
-                <AuthorResearchFocus keyword={searchedAuthor} />
+                <AuthorResearchFocus keyword={searchedAuthor} onTopicClick={handleTopicClick} />
                 <AuthorCoAuthors keyword={searchedAuthor} onAuthorClick={handleSearch} />
               </>
             )}

@@ -39,7 +39,8 @@
     "placeholder": "Search by author name to explore academic profiles...",
     "clearQuery": "Clear query",
     "noResults": "No author found.",
-    "error": "Unable to load author data from the system."
+    "error": "Unable to load author data from the system.",
+    "topicClickHint": "Click a topic to explore papers →"
   },
   "sort": {
     "label": "Sort by",

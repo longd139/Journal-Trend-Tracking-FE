@@ -281,6 +281,7 @@ export default function DashboardLayout({ children }) {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const backgroundUrl = useAuthStore((s) => s.backgroundUrl);
+  const backgroundColor = useAuthStore((s) => s.backgroundColor);
 
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
@@ -433,9 +434,14 @@ export default function DashboardLayout({ children }) {
         />
         {/* Content area with fixed background video (below TopBar) */}
         <div className="flex-1 relative overflow-hidden bg-background">
-          {/* Background — image if user set one, otherwise default video */}
+          {/* Background — solid color (instant), then image, otherwise default video */}
           <div className="absolute inset-0 pointer-events-none z-0">
-            {backgroundUrl ? (
+            {backgroundColor ? (
+              <div
+                className="absolute inset-0 w-full h-full"
+                style={{ background: backgroundColor, opacity: 0.15 }}
+              />
+            ) : backgroundUrl ? (
               <img
                 src={backgroundUrl}
                 alt=""

@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   User,
@@ -224,6 +224,12 @@ export default function SettingsPage() {
             useAuthStore.getState().setBackground(userData.backgroundUrl);
           }
         }
+        // Restore solid color from Zustand if set
+        const savedBgColor = useAuthStore.getState().backgroundColor;
+        if (savedBgColor) {
+          setSelectedColor(savedBgColor);
+          setSolidColorSaved(savedBgColor);
+        }
       } catch (err) {
         console.error('Error fetching user info:', err);
         setError(t('errors.loadFailed', { ns: 'common' }));
@@ -358,7 +364,10 @@ export default function SettingsPage() {
       setBackgroundPreview(null);
       setBackgroundFile(null);
       setBackgroundChanged(false);
+      setSolidColorSaved(null);
+      setSolidColorDirty(false);
       useAuthStore.getState().setBackground(null);
+      useAuthStore.getState().setBackgroundColor(null);
       const payload = {
         fullName: formData.fullName,
         institution: formData.institution,
@@ -374,12 +383,47 @@ export default function SettingsPage() {
   };
 
   const [selectedColor, setSelectedColor] = useState('#1B2235');
+  // Refs for instant DOM updates — bypass React render for 60fps color tracking
+  const previewBgRef = useRef(null);
+  const swatchRef = useRef(null);
+  const pickerLabelRef = useRef(null);
+  const [solidColorSaved, setSolidColorSaved] = useState(null);
+  const [solidColorDirty, setSolidColorDirty] = useState(false);
+  const [solidColorSaving, setSolidColorSaving] = useState(false);
+
+  const handleSelectSolidColor = useCallback((color) => {
+    // ⚡ Direct DOM update — instant, zero React render overhead
+    if (previewBgRef.current) previewBgRef.current.style.background = color;
+    if (swatchRef.current) swatchRef.current.style.background = color;
+    if (pickerLabelRef.current) pickerLabelRef.current.style.background = color;
+
+    setSelectedColor(color);
+    setSolidColorDirty(true);
+    setBackgroundFile(null);
+    setBackgroundChanged(false);
+  }, []);
+
+  const handleDiscardSolidColor = () => {
+    if (solidColorSaved) {
+      setSelectedColor(solidColorSaved);
+    } else {
+      setSelectedColor('#1B2235');
+    }
+    setSolidColorDirty(false);
+  };
 
   const handlePresetColor = async (color) => {
     setSelectedColor(color);
-    setBackgroundUploading(true);
+    setSolidColorSaving(true);
+
+    // ⚡ Apply instantly via Zustand (no network wait)
+    useAuthStore.getState().setBackgroundColor(color);
+    setSolidColorSaved(color);
+    setSolidColorDirty(false);
+    toast.success('Background updated');
+
+    // Upload to Cloudinary in background (non-blocking)
     try {
-      // Generate a solid-color PNG blob via canvas
       const canvas = document.createElement('canvas');
       canvas.width = 1440;
       canvas.height = 320;
@@ -389,24 +433,15 @@ export default function SettingsPage() {
       const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
       const file = new File([blob], `bg-${color.replace('#', '')}.png`, { type: 'image/png' });
 
-      // Show preview immediately
-      const reader = new FileReader();
-      reader.onload = () => setBackgroundPreview(reader.result);
-      reader.readAsDataURL(file);
-
-      // Upload and apply background immediately
       const result = await userAPI.uploadBackground(file);
+      // Also set backgroundUrl for backward compatibility
+      useAuthStore.getState().setBackground(result.url);
       setBackgroundPreview(result.url);
       setFormData((prev) => ({ ...prev, backgroundUrl: result.url }));
-      setBackgroundFile(null);
-      setBackgroundChanged(false);
-      // Sync to Zustand so MainLayout picks it up immediately
-      useAuthStore.getState().setBackground(result.url);
-      toast.success('Background updated');
-    } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to apply background');
+    } catch {
+      // Silent — color already applied via backgroundColor in store
     } finally {
-      setBackgroundUploading(false);
+      setSolidColorSaving(false);
     }
   };
 
@@ -432,6 +467,10 @@ export default function SettingsPage() {
       setFormData((prev) => ({ ...prev, backgroundUrl: result.url }));
       setBackgroundFile(null);
       setBackgroundChanged(false);
+      // Clear solid color when image takes over
+      useAuthStore.getState().setBackgroundColor(null);
+      setSolidColorSaved(null);
+      setSolidColorDirty(false);
       // Sync to Zustand so MainLayout picks it up immediately
       useAuthStore.getState().setBackground(result.url);
       toast.success('Background updated');
@@ -851,9 +890,15 @@ export default function SettingsPage() {
           onChange={handleBackgroundFileChange}
         />
 
-        {/* Background preview */}
+        {/* Background preview — show solid color directly if dirty, else show current background */}
         <div className="relative rounded-xl overflow-hidden border border-primary/10 mb-5">
-          {backgroundPreview ? (
+          {solidColorDirty ? (
+            <div
+              ref={previewBgRef}
+              className="w-full h-40"
+              style={{ background: selectedColor }}
+            />
+          ) : backgroundPreview ? (
             <img
               src={backgroundPreview}
               alt="Background"
@@ -862,6 +907,12 @@ export default function SettingsPage() {
           ) : (
             <div className="w-full h-40 bg-gradient-to-br from-card via-card-recessed to-card flex items-center justify-center">
               <span className="text-xs text-muted-foreground">No background set</span>
+            </div>
+          )}
+          {/* Dirty indicator */}
+          {solidColorDirty && (
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] font-bold text-amber-400">
+              Unsaved
             </div>
           )}
           {/* Click overlay */}
@@ -933,8 +984,10 @@ export default function SettingsPage() {
 
           {/* Color preview + hex input + picker */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="relative w-12 h-12 rounded-xl border-2 border-border shadow-sm shrink-0 overflow-hidden" style={{ background: selectedColor }}>
-              {backgroundUploading && (
+            <div ref={swatchRef} className="relative w-12 h-12 rounded-xl border-2 border-border shadow-sm shrink-0 overflow-hidden"
+              style={{ background: selectedColor }}
+            >
+              {solidColorSaving && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                   <RefreshCw size={16} className="animate-spin text-white" />
                 </div>
@@ -949,7 +1002,7 @@ export default function SettingsPage() {
                     const val = e.target.value;
                     if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
                       setSelectedColor(val);
-                      if (val.length === 7) handlePresetColor(val);
+                      if (val.length === 7) handleSelectSolidColor(val);
                     }
                   }}
                   placeholder="#1B2235"
@@ -957,7 +1010,7 @@ export default function SettingsPage() {
                 />
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">#</span>
               </div>
-              <label className="w-10 h-10 rounded-lg border-2 border-input hover:border-primary/30 cursor-pointer transition-all flex items-center justify-center overflow-hidden shrink-0"
+              <label ref={pickerLabelRef} className="w-10 h-10 rounded-lg border-2 border-input hover:border-primary/30 cursor-pointer transition-all flex items-center justify-center overflow-hidden shrink-0"
                 style={{ background: selectedColor }}
                 title="Open color picker"
               >
@@ -965,8 +1018,7 @@ export default function SettingsPage() {
                   type="color"
                   value={selectedColor}
                   onChange={(e) => {
-                    setSelectedColor(e.target.value);
-                    handlePresetColor(e.target.value);
+                    handleSelectSolidColor(e.target.value);
                   }}
                   className="opacity-0 absolute w-0 h-0"
                 />
@@ -977,6 +1029,35 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Save / Discard buttons for solid color */}
+          {solidColorDirty && (
+            <div className="flex items-center gap-3 mb-4">
+              <button
+                type="button"
+                onClick={() => handlePresetColor(selectedColor)}
+                disabled={solidColorSaving}
+                className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold
+                  bg-accent-blue text-white hover:bg-accent-blue/80 disabled:opacity-50 transition-all"
+              >
+                {solidColorSaving ? (
+                  <RefreshCw size={13} className="animate-spin" />
+                ) : (
+                  <Save size={13} />
+                )}
+                {solidColorSaving ? 'Saving...' : 'Save Color'}
+              </button>
+              <button
+                type="button"
+                onClick={handleDiscardSolidColor}
+                disabled={solidColorSaving}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
+                  text-muted-foreground hover:text-foreground hover:bg-primary/8 transition-all border border-transparent hover:border-primary/10 disabled:opacity-50"
+              >
+                <RotateCcw size={13} /> Discard
+              </button>
+            </div>
+          )}
+
           {/* Preset color chips */}
           <div className="flex flex-wrap gap-2">
             {PRESET_COLORS.map(({ color, label }) => (
@@ -984,8 +1065,7 @@ export default function SettingsPage() {
                 key={color}
                 type="button"
                 onClick={() => {
-                  setSelectedColor(color);
-                  handlePresetColor(color);
+                  handleSelectSolidColor(color);
                 }}
                 title={label}
                 className={`w-9 h-9 rounded-lg border-2 transition-all hover:scale-110 shadow-sm ${
