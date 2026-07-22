@@ -28,15 +28,26 @@ export default function KeywordMatchFeedback() {
     fuzzyCandidates,
     availableLandscape,
     guidanceMessage,
+    ideaText,
     selectFuzzyCandidate,
     startCrawl,
     isCrawling,
     reset,
   } = useGapExplorerStore();
 
+  // Fallback: extract words from ideaText as crawl keywords if unmatchedTerms is empty
+  const crawlKeywords = unmatchedTerms.length > 0
+    ? unmatchedTerms
+    : (ideaText ? ideaText.split(/[,;]\s*/).filter(t => t.trim().length > 0) : []);
+
   const [confirmedTerms, setConfirmedTerms] = useState(new Set());
 
   if (!matchLevel || matchLevel === 'FULL') return null;
+
+  // Truncate long guidance messages (AI sometimes leaks internal reasoning)
+  const shortMsg = guidanceMessage?.length > 200
+    ? guidanceMessage.slice(0, 200) + '…'
+    : guidanceMessage;
 
   // ── PARTIAL: warning + continue ──
   if (matchLevel === 'PARTIAL') {
@@ -59,13 +70,13 @@ export default function KeywordMatchFeedback() {
               </span>
             </p>
             <p className="text-xs text-muted-foreground mt-1 italic">
-              {guidanceMessage}
+              {shortMsg}
             </p>
-            {unmatchedTerms.length > 0 && (
+            {crawlKeywords.length > 0 && (
               <CrawlButton
-                keywords={unmatchedTerms}
+                keywords={crawlKeywords}
                 isCrawling={isCrawling}
-                onClick={() => startCrawl(unmatchedTerms)}
+                onClick={() => startCrawl(crawlKeywords)}
               />
             )}
           </div>
@@ -87,7 +98,7 @@ export default function KeywordMatchFeedback() {
           <p className="text-xs font-semibold text-foreground">Did you mean?</p>
         </div>
 
-        <p className="text-xs text-muted-foreground">{guidanceMessage}</p>
+        <p className="text-xs text-muted-foreground">{shortMsg}</p>
 
         {fuzzyCandidates.map((fs, i) => (
           <div key={i} className="rounded-lg border border-primary/10 bg-card p-3">
@@ -146,11 +157,11 @@ export default function KeywordMatchFeedback() {
         ))}
 
         <div className="flex gap-2">
-          {unmatchedTerms.length > 0 && (
+          {crawlKeywords.length > 0 && (
             <CrawlButton
-              keywords={unmatchedTerms}
+              keywords={crawlKeywords}
               isCrawling={isCrawling}
-              onClick={() => startCrawl(unmatchedTerms)}
+              onClick={() => startCrawl(crawlKeywords)}
             />
           )}
           <motion.button
@@ -230,11 +241,11 @@ export default function KeywordMatchFeedback() {
         )}
 
         <div className="flex gap-2">
-          {unmatchedTerms.length > 0 && (
+          {crawlKeywords.length > 0 && (
             <CrawlButton
-              keywords={unmatchedTerms}
+              keywords={crawlKeywords}
               isCrawling={isCrawling}
-              onClick={() => startCrawl(unmatchedTerms)}
+              onClick={() => startCrawl(crawlKeywords)}
             />
           )}
           <motion.button

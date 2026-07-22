@@ -1,0 +1,129 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { motion } from 'motion/react';
+import { FileText, Clock, CheckCircle2, XCircle, Eye, Inbox, ChevronLeft, ChevronRight } from 'lucide-react';
+import { reportAPI } from './api';
+
+const spring = { type: 'spring', stiffness: 300, damping: 30 };
+
+const STATUS_META = {
+  pending:   { icon: Clock,         bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', label: 'Pending' },
+  reviewed:  { icon: Eye,           bg: 'bg-blue-500/10',   text: 'text-blue-400',   border: 'border-blue-500/20',   label: 'Reviewed' },
+  resolved:  { icon: CheckCircle2,  bg: 'bg-emerald-500/10',text: 'text-emerald-400',border: 'border-emerald-500/20',label: 'Resolved' },
+  dismissed: { icon: XCircle,       bg: 'bg-gray-500/10',   text: 'text-gray-400',   border: 'border-gray-500/20',   label: 'Dismissed' },
+};
+
+function StatusBadge({ status }) {
+  const meta = STATUS_META[status] || STATUS_META.pending;
+  const Icon = meta.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
+      <Icon size={10} />
+      {meta.label}
+    </span>
+  );
+}
+
+export default function MyReportsPage() {
+  const { t: tc } = useTranslation('common');
+
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchReports = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await reportAPI.getMyReports({ page, size: 15 });
+      if (res?.data) {
+        setReports(res.data.content || []);
+        setTotalPages(res.data.totalPages || 1);
+      }
+    } catch (err) {
+      console.error('Failed to load reports:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    fetchReports();
+  }, [fetchReports]);
+
+  function formatDate(ts) {
+    if (!ts) return '—';
+    return new Date(ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  return (
+    <div className="min-h-screen p-6 lg:p-8 space-y-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
+        <h1 className="text-xl font-bold text-foreground font-display">My Reports</h1>
+        <p className="text-sm text-muted-foreground">Reports you have submitted</p>
+      </motion.div>
+
+      <div className="space-y-3">
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-24 rounded-2xl bg-card-elevated border border-card-elevated-border animate-pulse" />
+          ))
+        ) : reports.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Inbox size={32} className="text-muted-foreground mb-3" />
+            <p className="text-sm text-muted-foreground">No reports submitted yet.</p>
+          </div>
+        ) : (
+          reports.map((r, i) => (
+            <motion.div
+              key={r.reportId}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.04, ...spring }}
+              className="p-4 rounded-2xl bg-card-elevated border border-card-elevated-border hover:border-primary/15 transition-all"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="p-2 rounded-xl bg-card-hover border border-border/50">
+                    <FileText size={16} className="text-muted-foreground" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <StatusBadge status={r.status} />
+                      <span className="text-[10px] text-muted-foreground">{formatDate(r.createdAt)}</span>
+                    </div>
+                    <h4 className="text-sm font-semibold text-foreground line-clamp-1">{r.title}</h4>
+                    {r.description && (
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{r.description}</p>
+                    )}
+                    {r.adminNote && (
+                      <div className="mt-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                        <p className="text-[11px] text-blue-400/80">
+                          <span className="font-medium">Admin:</span> {r.adminNote}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))
+        )}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2">
+          <button disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))}
+            className="p-2 rounded-xl bg-card-elevated border border-card-elevated-border text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            <ChevronLeft size={16} />
+          </button>
+          <span className="text-sm text-muted-foreground px-3">{page + 1} / {totalPages}</span>
+          <button disabled={page >= totalPages - 1} onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            className="p-2 rounded-xl bg-card-elevated border border-card-elevated-border text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all">
+            <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

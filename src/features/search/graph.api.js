@@ -28,6 +28,28 @@ export const graphAPI = {
   },
 
   /**
+   * Convenience: sync wrapper that polls async endpoint until COMPLETED.
+   * Returns { nodes, links } directly.
+   */
+  async searchGraph(keyword, depth = 3) {
+    const startRes = await this.startGraphSearch(keyword, depth);
+    const taskId = startRes.taskId;
+    if (!taskId) throw new Error('No taskId returned from graph search');
+
+    for (let i = 0; i < 30; i++) {
+      const statusRes = await this.getGraphStatus(taskId);
+      if (statusRes.status === 'COMPLETED') {
+        return statusRes.result || { nodes: [], links: [] };
+      }
+      if (statusRes.status === 'FAILED') {
+        throw new Error(statusRes.message || 'Graph search failed');
+      }
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+    throw new Error('Graph search timed out');
+  },
+
+  /**
    * Get hot keywords (public endpoint, no auth needed).
    * GET /api/public/keywords/hot?limit=10
    */

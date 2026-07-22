@@ -71,4 +71,32 @@ export const reportAPI = {
     return data;
   },
 
+  // ═══════════════════════════════════════════════════════════════════
+  // User Report (submit issue reports)
+  // ═══════════════════════════════════════════════════════════════════
+
+  /**
+   * POST /api/v1/reports — Submit a report
+   */
+  async submitReport({ reportType, targetType, targetId, title, description }) {
+    const { data } = await axiosClient.post('/api/v1/reports', {
+      reportType,
+      targetType,
+      targetId,
+      title,
+      description,
+    });
+    return data;
+  },
+
+  /**
+   * GET /api/v1/reports/my — Get user's own reports
+   */
+  async getMyReports({ page = 0, size = 20 } = {}) {
+    const { data } = await axiosClient.get('/api/v1/reports/my', {
+      params: { page, size },
+    });
+    return data;
+  },
+
 };

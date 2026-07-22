@@ -27,6 +27,7 @@
     "configs": "Cấu hình",
     "pdfRequests": "Yêu cầu PDF",
     "dataSources": "Nguồn dữ liệu",
+    "adminNotifications": "Thông báo Admin",
     "signOut": "Đăng xuất",
     "signIn": "Đăng nhập",
     "settings": "Cài đặt",
@@ -122,6 +123,7 @@
     "title": "Thông báo",
     "back": "← Quay lại",
     "viewDocument": "Xem tài liệu",
+    "markAllRead": "Đánh dấu tất cả đã đọc",
     "newCitations": "Trích dẫn mới",
     "newCitationsDesc": "Bài báo \"IoT Architecture\" nhận được 5 trích dẫn mới.",
     "newCitationsDetail": "Bài báo của bạn đã được tham chiếu bởi 5 bài báo mới trên tạp chí IEEE Internet of Things.",
@@ -140,5 +142,17 @@
     "1dAgo": "1 ngày trước",
     "emptyTitle": "Tất cả đã xong!",
     "emptyDesc": "Hiện không có thông báo nào. Chúng tôi sẽ báo cho bạn khi có điều gì mới."
+  },
+
+  "report": {
+    "title": "Báo cáo sự cố",
+    "submitReport": "Gửi báo cáo",
+    "reportType": "Loại báo cáo",
+    "description": "Mô tả",
+    "pdfIssue": "Vấn đề PDF",
+    "contentError": "Lỗi nội dung",
+    "other": "Khác",
+    "submitted": "Đã gửi báo cáo thành công",
+    "submitting": "Đang gửi..."
   }
 }

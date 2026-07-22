@@ -22,7 +22,9 @@
     "pdfRequests": "Yêu cầu PDF",
     "dataSources": "Nguồn dữ liệu",
     "paperDetails": "Chi tiết bài báo",
-    "dashboard": "Bảng điều khiển"
+    "dashboard": "Bảng điều khiển",
+    "myReports": "Báo cáo của tôi",
+    "adminNotifications": "Thông báo Admin"
   },
   "subtitles": {
     "adminOverview": "Tình trạng và số liệu nền tảng",
@@ -47,7 +49,9 @@
     "pdfRequests": "Quản lý yêu cầu truy cập PDF",
     "dataSources": "Quản lý tích hợp dữ liệu bên ngoài",
     "paperDetails": "Xem chi tiết bài báo và thông tin trích dẫn",
-    "welcomeBack": "Chào mừng trở lại"
+    "welcomeBack": "Chào mừng trở lại",
+    "myReports": "Xem các báo cáo sự cố đã gửi",
+    "adminNotifications": "Sự kiện hệ thống, báo cáo người dùng và cảnh báo đồng bộ"
   },
   "admin": {
     "activeUsers": "Người dùng hoạt động",

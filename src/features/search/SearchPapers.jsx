@@ -223,8 +223,11 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
     debounceRef.current = setTimeout(async () => {
       try {
         const suggestions = await trendAPI.suggestKeywords(q, 8);
-        setApiSuggestions(Array.isArray(suggestions) ? suggestions : []);
-      } catch {
+        const list = Array.isArray(suggestions) ? suggestions : [];
+        setApiSuggestions(list);
+        if (list.length > 0) setShowSuggestions(true);
+      } catch (err) {
+        console.error('Suggest API failed:', err);
         setApiSuggestions([]);
       }
     }, 300);

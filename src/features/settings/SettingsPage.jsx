@@ -1014,20 +1014,20 @@ export default function SettingsPage() {
             onClick={() => setTheme('light')}
             className={`flex items-center gap-3 px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
               theme === 'light'
-                ? 'border-[#3A5BA0] bg-[#3A5BA0]/5 shadow-[0_0_0_1px_rgba(58,91,160,0.3)]'
+                ? 'border-[#D97706] bg-[#D97706]/5 shadow-[0_0_0_1px_rgba(217,119,6,0.3)]'
                 : 'border-primary/10 bg-transparent hover:border-primary/25 dark:border-primary/10 dark:hover:border-primary/25'
             }`}
           >
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
               theme === 'light'
-                ? 'bg-[#3A5BA0] text-white shadow-lg shadow-[#3A5BA0]/25'
+                ? 'bg-[#D97706] text-white shadow-lg shadow-[#D97706]/25'
                 : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
             }`}>
               <Sun size={20} />
             </div>
             <div className="text-left">
               <div className={`text-sm font-bold transition-colors ${
-                theme === 'light' ? 'text-[#3A5BA0]' : 'text-foreground'
+                theme === 'light' ? 'text-[#D97706]' : 'text-foreground'
               }`}>Light</div>
               <div className="text-[10px] text-muted-foreground">Warm ivory tone</div>
             </div>

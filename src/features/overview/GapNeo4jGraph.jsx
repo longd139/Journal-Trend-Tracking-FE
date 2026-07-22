@@ -1,93 +1,109 @@
-﻿import { useEffect, useRef, useCallback, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Network } from 'vis-network';
-import { DataSet } from 'vis-data';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { Loader2, Info, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import Graph from 'graphology';
+import Sigma from 'sigma';
+import forceAtlas2 from 'graphology-layout-forceatlas2';
+import EdgeCurveProgram from '@sigma/edge-curve';
+import { NodeBorderProgram } from '@sigma/node-border';
 import useGapExplorerStore from '../../store/useGapExplorerStore';
 
 // ═══════════════════════════════════════════════════
-// Node group styling — 6 groups with distinct shapes & colors
+// Node group colors
 // ═══════════════════════════════════════════════════
-const GROUP_STYLE = {
-  YEAR: { shape: 'square', color: { background: '#A09878', border: '#8A8468' } },
-  FIELD: { shape: 'hexagon', color: { background: '#4F8CFF', border: '#3B6FD4' } },
-  TOPIC: { shape: 'triangle', color: { background: '#00D1B2', border: '#00A890' } },
-  KEYWORD: { shape: 'diamond', color: { background: '#A09878', border: '#8A8468' } },
-  PAPER_A: { shape: 'dot', color: { background: '#4F8CFF', border: '#3B6FD4' } },
-  PAPER_B: { shape: 'dot', color: { background: '#FF6B6B', border: '#E05555' } },
-  PAPER_SHARED: { shape: 'dot', color: { background: '#DEDBC8', border: '#C5BFA0' } },
-  DATASET: { shape: 'square', color: { background: '#FF6B6B', border: '#E05555' } },
-  METRIC: { shape: 'triangle', color: { background: '#FFD93D', border: '#E0C030' } },
-  METHOD: { shape: 'diamond', color: { background: '#6BCB77', border: '#4DA85A' } },
-  AUTHOR: { shape: 'star', color: { background: '#4F8CFF', border: '#3B6FD4' } },
+const EDGE_LIGHT = 'rgba(0,0,0,0.12)';
+const EDGE_DARK = 'rgba(160,152,120,0.15)';
+const GROUP_COLORS = {
+  YEAR: '#A09878',
+  FIELD: '#4F8CFF',
+  TOPIC: '#00D1B2',
+  KEYWORD: '#A09878',
+  PAPER_A: '#4F8CFF',
+  PAPER_B: '#FF6B6B',
+  PAPER_SHARED: '#DEDBC8',
+  DATASET: '#FF6B6B',
+  METRIC: '#FFD93D',
+  METHOD: '#6BCB77',
+  AUTHOR: '#4F8CFF',
 };
 
-// ═══════════════════════════════════════════════════
-// Node legend — what each shape means
-// ═══════════════════════════════════════════════════
-const NODE_LEGEND = [
-  { group: 'YEAR', shape: '■', label: 'Year', description: 'Publication year (2024, 2025, 2026)' },
-  { group: 'FIELD', shape: '⬡', label: 'Research Field', description: 'CS, AI, etc.' },
-  { group: 'TOPIC', shape: '▲', label: 'Topic', description: 'Deep Learning, NLP, Computer Vision...' },
-  { group: 'KEYWORD', shape: '◆', label: 'Keyword', description: 'Key concepts extracted from papers' },
-  { group: 'PAPER', shape: '●', label: 'Paper', description: 'Research paper (color = side/source)' },
-  { group: 'DATASET', shape: '□', label: 'Dataset', description: 'Dataset used in experiments' },
-  { group: 'METRIC', shape: '△', label: 'Metric', description: 'Evaluation metric (Accuracy, F1...)' },
-  { group: 'METHOD', shape: '◇', label: 'Method', description: 'Algorithm or technique used' },
-  { group: 'AUTHOR', shape: '★', label: 'Author', description: 'Paper author' },
-];
+const DEFAULT_COLOR = '#DEDBC8';
 
-function getGroupStyle(group) {
-  // Strip PAPER_ prefix to handle PAPER_A, PAPER_B, PAPER_SHARED
+function getGroupColor(group) {
   const lookup = group.startsWith('PAPER_') ? group : group;
-  return (
-    GROUP_STYLE[lookup] || {
-      shape: 'dot',
-      color: { background: '#DEDBC8', border: '#C5BFA0' },
-    }
-  );
+  return GROUP_COLORS[lookup] || DEFAULT_COLOR;
 }
 
 // ═══════════════════════════════════════════════════
-// Transform backend GraphResponse → vis-network DataSet
+// Node legend
 // ═══════════════════════════════════════════════════
-function transformGraphData(graphData) {
-  const { nodes = [], links = [] } = graphData;
+const NODE_LEGEND = [
+  { group: 'YEAR', label: 'Year', description: 'Publication year' },
+  { group: 'FIELD', label: 'Research Field', description: 'CS, AI, etc.' },
+  { group: 'TOPIC', label: 'Topic', description: 'Deep Learning, NLP, CV...' },
+  { group: 'KEYWORD', label: 'Keyword', description: 'Key concepts from papers' },
+  { group: 'PAPER', label: 'Paper', description: 'Research paper' },
+  { group: 'DATASET', label: 'Dataset', description: 'Dataset used in experiments' },
+  { group: 'METRIC', label: 'Metric', description: 'Evaluation metric' },
+  { group: 'METHOD', label: 'Method', description: 'Algorithm or technique' },
+  { group: 'AUTHOR', label: 'Author', description: 'Paper author' },
+];
 
-  const visNodes = nodes.map((node) => {
-    const style = getGroupStyle(node.group);
-    return {
-      id: node.id,
-      label: truncate(node.label, 40),
+// ═══════════════════════════════════════════════════
+// Transform backend data → graphology Graph
+// ═══════════════════════════════════════════════════
+function buildGraphology(data) {
+  const graph = new Graph({ multi: false, type: 'undirected' });
+  const { nodes = [], links = [] } = data;
+
+  // Filter out YEAR nodes — they act as super-hubs and cause clustering
+  const filteredNodes = nodes.filter((n) => n.group !== 'YEAR');
+  const yearIds = new Set(nodes.filter((n) => n.group === 'YEAR').map((n) => n.id));
+
+  const maxSize = Math.max(...filteredNodes.map((n) => n.size || 1), 1);
+
+  for (const node of filteredNodes) {
+    const size = node.size || 1;
+    const scaledSize = 4 + (size / maxSize) * 16;
+    const color = getGroupColor(node.group);
+
+    graph.addNode(node.id, {
+      label: truncate(node.label, 35),
+      fullLabel: node.label,
       group: node.group,
-      value: Math.max(node.size || 1, 1),
-      title: `<b>${node.label}</b><br/>${node.group}`,
-      shape: style.shape,
-      color: {
-        background: style.color.background,
-        border: style.color.border,
-        highlight: {
-          background: style.color.background,
-          border: '#FFFFFF',
-        },
-      },
-    };
+      size: scaledSize,
+      color,
+      originalColor: color,
+    });
+  }
+
+  for (const link of links) {
+    // Skip edges that connect to filtered-out YEAR nodes
+    if (yearIds.has(link.source) || yearIds.has(link.target)) continue;
+    if (graph.hasNode(link.source) && graph.hasNode(link.target)) {
+      graph.addEdge(link.source, link.target, {
+        color: 'rgba(160,152,120,0.2)',
+        size: 0.5,
+      });
+    }
+  }
+
+  // Assign initial random positions then run force layout
+  graph.forEachNode((node) => {
+    graph.setNodeAttribute(node, 'x', (Math.random() - 0.5) * 500);
+    graph.setNodeAttribute(node, 'y', (Math.random() - 0.5) * 500);
+  });
+  forceAtlas2.assign(graph, {
+    iterations: 150,
+    settings: {
+      gravity: 0.05,
+      scalingRatio: 50,
+      strongGravityMode: false,
+      barnesHutOptimize: true,
+    },
   });
 
-  const visEdges = links.map((link) => ({
-    from: link.source,
-    to: link.target,
-    color: { color: 'rgba(160,152,120,0.25)' },
-    width: 0.5,
-    smooth: { type: 'continuous' },
-    arrows: { to: { enabled: false } },
-  }));
-
-  return {
-    nodes: new DataSet(visNodes),
-    edges: new DataSet(visEdges),
-  };
+  return graph;
 }
 
 function truncate(text, max) {
@@ -96,44 +112,12 @@ function truncate(text, max) {
 }
 
 // ═══════════════════════════════════════════════════
-// vis-network options
-// ═══════════════════════════════════════════════════
-function getGraphOptions(nodeCount) {
-  return {
-    nodes: {
-      font: { color: '#E2E8F0', size: 11, face: '"Be Vietnam Pro", Inter, sans-serif', strokeWidth: 0 },
-      borderWidth: 2,
-      shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 4 },
-      scaling: { min: 8, max: 50, label: { enabled: true, min: 10, max: 16 } },
-    },
-    edges: {
-      width: 1,
-      smooth: { type: 'continuous' },
-      color: { color: 'rgba(255,255,255,0.10)' },
-      arrows: { to: { enabled: false } },
-    },
-    physics: {
-      solver: 'forceAtlas2Based',
-      forceAtlas2Based: {
-        gravitationalConstant: -40,
-        centralGravity: 0.01,
-        springLength: nodeCount > 100 ? 100 : 150,
-        springConstant: 0.08,
-        damping: 0.4,
-      },
-      stabilization: { iterations: 80, updateInterval: 25 },
-    },
-    interaction: { hover: true, tooltipDelay: 100, zoomView: true, dragView: true },
-  };
-}
-
-// ═══════════════════════════════════════════════════
 // Component
 // ═══════════════════════════════════════════════════
 export default function GapNeo4jGraph() {
   const containerRef = useRef(null);
-  const networkRef = useRef(null);
-  const dataRef = useRef(null);
+  const sigmaRef = useRef(null);
+  const graphRef = useRef(null);
   const [legendOpen, setLegendOpen] = useState(false);
 
   const {
@@ -157,52 +141,112 @@ export default function GapNeo4jGraph() {
     }
   }, []);
 
-  // ── Build/rebuild graph when data changes ──
-  const buildGraph = useCallback((graphData) => {
-    if (networkRef.current) {
-      networkRef.current.destroy();
-      networkRef.current = null;
+  // ── Destroy & rebuild ──
+  const destroySigma = useCallback(() => {
+    if (sigmaRef.current) {
+      sigmaRef.current.kill();
+      sigmaRef.current = null;
     }
-    if (!containerRef.current || !graphData) return;
+    graphRef.current = null;
+  }, []);
 
-    const { nodes, edges } = transformGraphData(graphData);
-    dataRef.current = { nodes, edges };
+  const buildGraph = useCallback(
+    (graphData) => {
+      destroySigma();
+      if (!containerRef.current || !graphData) return;
 
-    const options = getGraphOptions(nodes.length);
-    networkRef.current = new Network(containerRef.current, { nodes, edges }, options);
+      const graph = buildGraphology(graphData);
+      graphRef.current = graph;
 
-    // ── Click interaction ──
-    networkRef.current.on('click', (params) => {
-      if (params.nodes.length === 1) {
-        const clickedNode = params.nodes[0];
-        setHighlightedNode(clickedNode);
-        const neighbors = networkRef.current.getConnectedNodes(clickedNode);
-        const allNodes = nodes.getIds();
-        allNodes.forEach((id) => {
-          const isRelevant = id === clickedNode || neighbors.includes(id);
-          nodes.update({ id, opacity: isRelevant ? 1.0 : 0.15 });
+      const isDark = document.documentElement.classList.contains('dark');
+
+      sigmaRef.current = new Sigma(graph, containerRef.current, {
+        allowInvalidContainer: true,
+        stagePadding: 50,
+        renderLabels: true,
+        renderEdgeLabels: false,
+        labelRenderedSizeThreshold: 8,
+        labelDensity: 0.1,
+        labelFont: '"Be Vietnam Pro", Inter, sans-serif',
+        labelColor: { color: isDark ? '#E2E8F0' : '#0F172A' },
+        labelSize: 12,
+        defaultEdgeColor: isDark ? EDGE_DARK : EDGE_LIGHT,
+        defaultEdgeType: 'curved',
+        itemSizesReference: 'screen',
+        inertiaDuration: 300,
+        edgeProgramClasses: { curved: EdgeCurveProgram },
+        nodeHoverProgramClasses: { circle: NodeBorderProgram },
+        nodeReducer: (nodeId, data) => ({
+          ...data,
+          type: 'circle',
+          size: data.size,
+          color: data.color,
+          label: data.label,
+        }),
+        edgeReducer: (edgeId, data) => ({
+          ...data,
+          type: 'curved',
+          color: isDark ? EDGE_DARK : EDGE_LIGHT,
+          size: 0.5,
+        }),
+      });
+
+      // ── Hover → show label + NodeBorderProgram handles ring ──
+      sigmaRef.current.on('enterNode', ({ node }) => {
+        graph.setNodeAttribute(node, 'forceLabel', true);
+      });
+      sigmaRef.current.on('leaveNode', ({ node }) => {
+        graph.setNodeAttribute(node, 'forceLabel', false);
+      });
+
+      // ── Click → highlight neighbors ──
+      sigmaRef.current.on('clickNode', ({ node }) => {
+        setHighlightedNode(node);
+        const neighbors = graph.neighbors(node);
+        const neighborSet = new Set(neighbors);
+        neighborSet.add(node);
+
+        graph.forEachNode((id, attrs) => {
+          if (!neighborSet.has(id)) {
+            graph.setNodeAttribute(id, 'color', isDark ? 'rgba(148,163,184,0.08)' : 'rgba(0,0,0,0.05)');
+          }
         });
-      } else {
+      });
+
+      // Click empty → reset
+      sigmaRef.current.on('clickStage', () => {
         clearHighlight();
-        const allNodes = nodes.getIds();
-        allNodes.forEach((id) => nodes.update({ id, opacity: 1.0 }));
-      }
-    });
+        graph.forEachNode((id, attrs) => {
+          graph.setNodeAttribute(id, 'color', attrs.originalColor);
+          graph.setNodeAttribute(id, 'forceLabel', false);
+        });
+      });
 
-    // Fit after stabilization
-    networkRef.current.once('stabilizationIterationsDone', () => {
-      networkRef.current?.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
-    });
-  }, [setHighlightedNode, clearHighlight]);
+      // Double-click → zoom to node
+      sigmaRef.current.on('doubleClickNode', ({ node }) => {
+        const pos = sigmaRef.current.getNodeDisplayData(node);
+        if (pos) {
+          sigmaRef.current.getCamera().animate(
+            { x: pos.x, y: pos.y, ratio: 0.25 },
+            { duration: 400 }
+          );
+        }
+      });
 
-  // ── Stage 1: Hierarchy graph ──
+      // Fit camera
+      sigmaRef.current.getCamera().animatedReset({ duration: 600 });
+    },
+    [destroySigma, setHighlightedNode, clearHighlight]
+  );
+
+  // ── Stage 1: Hierarchy ──
   useEffect(() => {
     if (stage === 'overview' && hierarchyGraph) {
       buildGraph(hierarchyGraph);
     }
   }, [stage, hierarchyGraph, buildGraph]);
 
-  // ── Stage 3: Focused graph ──
+  // ── Stage 3: Focused ──
   useEffect(() => {
     if (stage === 'focused' && selectedPair && !focusedGraph) {
       loadFocusedGraph(selectedPair.keywordA, selectedPair.keywordB);
@@ -214,12 +258,29 @@ export default function GapNeo4jGraph() {
 
   // ── Cleanup ──
   useEffect(() => {
-    return () => {
-      if (networkRef.current) networkRef.current.destroy();
-    };
+    return () => destroySigma();
+  }, [destroySigma]);
+
+  // Watch theme changes → update edge & label colors
+  useEffect(() => {
+    const html = document.documentElement;
+    const observer = new MutationObserver(() => {
+      if (!sigmaRef.current || !graphRef.current) return;
+      const isDark = html.classList.contains('dark');
+      const ec = isDark ? EDGE_DARK : EDGE_LIGHT;
+      const lc = isDark ? '#E2E8F0' : '#0F172A';
+
+      graphRef.current.forEachEdge((edge) => graphRef.current.setEdgeAttribute(edge, 'color', ec));
+      sigmaRef.current.setSetting('labelColor', { color: lc });
+      sigmaRef.current.setSetting('defaultEdgeColor', ec);
+      sigmaRef.current.refresh();
+    });
+    observer.observe(html, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
   }, []);
 
   const isLoading = hierarchyLoading || focusedGraphLoading;
+  const hasData = graphRef.current !== null;
 
   return (
     <div className="flex-1 min-h-0 rounded-xl overflow-hidden relative bg-background border border-border">
@@ -236,15 +297,16 @@ export default function GapNeo4jGraph() {
       )}
 
       {/* Empty state */}
-      {!isLoading && !hierarchyGraph && !focusedGraph && (
+      {!isLoading && !hasData && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <p className="text-sm text-muted-foreground">Describe your research idea in the chatbot to begin</p>
+          <p className="text-sm text-muted-foreground">Describe your research idea to begin</p>
         </div>
       )}
 
+      {/* Sigma container */}
       <div ref={containerRef} className="size-full" />
 
-      {/* ── Node Legend (toggle) ── */}
+      {/* Node Legend */}
       <div className="absolute bottom-3 left-3 z-10">
         <button
           onClick={() => setLegendOpen(!legendOpen)}
@@ -266,7 +328,10 @@ export default function GapNeo4jGraph() {
               <div className="flex flex-col gap-1">
                 {NODE_LEGEND.map((item) => (
                   <div key={item.group} className="flex items-center gap-2 text-xs group">
-                    <span className="text-sm w-5 text-center shrink-0 text-foreground">{item.shape}</span>
+                    <span
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: getGroupColor(item.group) }}
+                    />
                     <span className="text-foreground font-medium w-24 shrink-0">{item.label}</span>
                     <span className="text-muted-foreground truncate hidden sm:inline">{item.description}</span>
                   </div>

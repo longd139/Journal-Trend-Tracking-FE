@@ -268,7 +268,7 @@ export default function DatabaseViewPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label={t('database.papers')} value={papers?.total} Icon={FileText} accent={PAPER_COLOR} />
         <StatCard label={t('database.authors')} value={authors?.total} Icon={Users} accent={AUTHOR_COLOR} />
-        <StatCard label={t('database.keywords')} value={keywords?.total} Icon={Hash} accent={KEYWORD_COLOR} />
+        <StatCard label={t('database.keywords')} value={neo4j?.keywordNodes} Icon={Hash} accent={KEYWORD_COLOR} />
         <StatCard label={t('database.journals')} value={journals?.total} Icon={BookOpen} accent={JOURNAL_COLOR} />
       </div>
 
