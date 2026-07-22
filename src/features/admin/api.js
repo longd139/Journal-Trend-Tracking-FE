@@ -440,4 +440,60 @@ export const adminAPI = {
     const { data } = await axiosClient.post('/api/admin/sync/enrich-journals/upload', formData);
     return data;
   },
+
+  /* ──────────── Admin Notifications (/api/v1/notifications) ──────────── */
+
+  /**
+   * Get admin notifications with optional type filter.
+   * GET /api/v1/notifications?type=new_user&page=0&size=15
+   */
+  async getAdminNotifications({ page = 0, size = 15, type } = {}) {
+    const { data } = await axiosClient.get('/api/v1/notifications', {
+      params: { page, size, type },
+    });
+    return data; // AppResponse<List<NotificationResponse>>
+  },
+
+  /**
+   * Get unread notification count.
+   * GET /api/v1/notifications/unread-count
+   */
+  async getUnreadCount() {
+    const { data } = await axiosClient.get('/api/v1/notifications/unread-count');
+    return data; // AppResponse<UnreadCountResponse>
+  },
+
+  /* ──────────── User Reports (/api/admin/reports) ──────────── */
+
+  /**
+   * Get all user reports with optional status filter.
+   * GET /api/admin/reports?status=pending&page=0&size=20
+   */
+  async getReports({ page = 0, size = 20, status } = {}) {
+    const { data } = await axiosClient.get('/api/admin/reports', {
+      params: { page, size, status },
+    });
+    return data; // AppResponse<Page<UserReportResponse>>
+  },
+
+  /**
+   * Get a single report detail.
+   * GET /api/admin/reports/:id
+   */
+  async getReportDetail(id) {
+    const { data } = await axiosClient.get(`/api/admin/reports/${id}`);
+    return data; // AppResponse<UserReportResponse>
+  },
+
+  /**
+   * Update report status (reviewed/resolved/dismissed).
+   * PUT /api/admin/reports/:id/status
+   */
+  async updateReportStatus(id, { status, adminNote }) {
+    const { data } = await axiosClient.put(`/api/admin/reports/${id}/status`, {
+      status,
+      adminNote,
+    });
+    return data; // AppResponse<UserReportResponse>
+  },
 };

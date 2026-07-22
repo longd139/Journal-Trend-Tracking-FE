@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Loader2, Database, Gauge, Wrench, Users, Lightbulb } from 'lucide-react';
+import { Loader2, Database, Gauge, Wrench, Users, Lightbulb, ArrowLeft } from 'lucide-react';
 import useGapExplorerStore from '../../store/useGapExplorerStore';
 
 function DimSection({ icon: Icon, title, items, emptyText }) {
@@ -31,7 +31,7 @@ function DimSection({ icon: Icon, title, items, emptyText }) {
 }
 
 export default function GapAnalysisPanel() {
-  const { stage, selectedPair, gapAnalysis, gapAnalysisLoading, loadGapAnalysis } =
+  const { stage, selectedPair, gapAnalysis, gapAnalysisLoading, loadGapAnalysis, backToSuggestions } =
     useGapExplorerStore();
 
   useEffect(() => {
@@ -56,12 +56,21 @@ export default function GapAnalysisPanel() {
   return (
     <div className="w-full flex flex-col bg-background border-l border-border p-5 gap-4 overflow-y-auto">
       {/* Header */}
-      <div>
-        <h3 className="text-sm font-bold text-foreground">📊 Gap Analysis</h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          {selectedPair.keywordA} ↔ {selectedPair.keywordB}
-        </p>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-bold text-foreground">Gap Analysis</h3>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={backToSuggestions}
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors bg-card/60 border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/20"
+        >
+          <ArrowLeft size={12} />
+          Back
+        </motion.button>
       </div>
+      <p className="text-xs text-muted-foreground">
+        {selectedPair.keywordA} ↔ {selectedPair.keywordB}
+      </p>
 
       {/* Quick stats */}
       <div className="grid grid-cols-3 gap-2">

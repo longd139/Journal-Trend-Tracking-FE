@@ -22,7 +22,9 @@
     "pdfRequests": "PDF Requests",
     "dataSources": "Data Sources",
     "paperDetails": "Paper Details",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "myReports": "My Reports",
+    "adminNotifications": "Admin Notifications"
   },
   "subtitles": {
     "adminOverview": "Platform health and metrics",
@@ -47,7 +49,9 @@
     "pdfRequests": "Manage user PDF access requests",
     "dataSources": "Manage external data integrations",
     "paperDetails": "Viewing paper details and citation information",
-    "welcomeBack": "Welcome back"
+    "welcomeBack": "Welcome back",
+    "myReports": "View your submitted issue reports",
+    "adminNotifications": "System events, user reports, and sync alerts"
   },
   "admin": {
     "activeUsers": "Active Users",

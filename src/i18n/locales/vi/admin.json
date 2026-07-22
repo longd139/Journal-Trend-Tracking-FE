@@ -185,5 +185,37 @@
     "sourceName": "Tên nguồn",
     "baseUrl": "URL gốc",
     "rateLimitRpm": "Giới hạn (req/phút)"
+  },
+
+  "adminNotifications": {
+    "title": "Thông báo Admin",
+    "description": "Sự kiện hệ thống, báo cáo người dùng và cảnh báo đồng bộ",
+    "filterAll": "Tất cả",
+    "filterNewUser": "Người dùng mới",
+    "filterReport": "Báo cáo",
+    "filterSyncCompleted": "Đồng bộ OK",
+    "filterSyncFailed": "Đồng bộ lỗi",
+    "filterSystem": "Hệ thống",
+    "filterContent": "Nội dung",
+    "emptyTitle": "Không có thông báo admin",
+    "emptyDesc": "Mọi thứ đang hoạt động ổn định."
+  },
+
+  "reports": {
+    "title": "Báo cáo người dùng",
+    "description": "Quản lý báo cáo nội dung và phản hồi từ người dùng",
+    "filterAll": "Tất cả",
+    "filterPending": "Đang chờ",
+    "filterReviewed": "Đã xem",
+    "filterResolved": "Đã giải quyết",
+    "filterDismissed": "Đã bỏ qua",
+    "detail": "Chi tiết báo cáo",
+    "reporter": "Người báo cáo",
+    "type": "Loại",
+    "target": "Mục tiêu",
+    "adminNote": "Ghi chú Admin",
+    "resolve": "Giải quyết",
+    "dismiss": "Bỏ qua",
+    "markReviewed": "Đánh dấu đã xem"
   }
 }

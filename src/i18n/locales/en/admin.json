@@ -185,5 +185,37 @@
     "sourceName": "Source Name",
     "baseUrl": "Base URL",
     "rateLimitRpm": "Rate Limit (rpm)"
+  },
+
+  "adminNotifications": {
+    "title": "Admin Notifications",
+    "description": "System events, user reports, and sync status alerts",
+    "filterAll": "All",
+    "filterNewUser": "New Users",
+    "filterReport": "Reports",
+    "filterSyncCompleted": "Sync OK",
+    "filterSyncFailed": "Sync Failed",
+    "filterSystem": "System",
+    "filterContent": "Content",
+    "emptyTitle": "No admin notifications",
+    "emptyDesc": "Everything is running smoothly."
+  },
+
+  "reports": {
+    "title": "User Reports",
+    "description": "Manage content reports and feedback from users",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterReviewed": "Reviewed",
+    "filterResolved": "Resolved",
+    "filterDismissed": "Dismissed",
+    "detail": "Report Detail",
+    "reporter": "Reporter",
+    "type": "Type",
+    "target": "Target",
+    "adminNote": "Admin Note",
+    "resolve": "Resolve",
+    "dismiss": "Dismiss",
+    "markReviewed": "Mark Reviewed"
   }
 }

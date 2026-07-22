@@ -27,6 +27,7 @@ const ReportsView = lazy(() => import('../features/reports/ReportsViewPage.jsx')
 const IdeaPage = lazy(() => import('../features/idea/IdeaPage.jsx'));
 const FollowsView = lazy(() => import('../features/follows/FollowsView.jsx'));
 const NotificationsPage = lazy(() => import('../features/notifications/NotificationsPage.jsx'));
+const MyReportsPage = lazy(() => import('../features/reports/MyReportsPage.jsx'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage.jsx'));
 
 // Trang Admin
@@ -36,6 +37,8 @@ const SyncData = lazy(() => import('../features/admin/SyncDataPage.jsx'));
 const AdminAuditLog = lazy(() => import('../features/admin/AdminAuditLogPage.jsx'));
 const AdminConfig = lazy(() => import('../features/admin/AdminConfigPage.jsx'));
 const PdfRequestsPage = lazy(() => import('../features/admin/PdfRequestsPage.jsx'));
+const AdminNotificationsPage = lazy(() => import('../features/admin/AdminNotificationsPage.jsx'));
+const AdminReportsPage = lazy(() => import('../features/admin/AdminReportsPage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -292,6 +295,34 @@ export const router = createBrowserRouter([
               <PdfRequestsPage />
             </Suspense>
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'admin-notifications',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminNotificationsPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'reports',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminReportsPage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'my-reports',
+        element: (
+          <Suspense fallback={<FallbackLoading />}>
+            <MyReportsPage />
+          </Suspense>
         ),
       },
     ],

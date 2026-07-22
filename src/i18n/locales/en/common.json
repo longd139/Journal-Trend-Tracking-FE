@@ -27,6 +27,7 @@
     "configs": "Configs",
     "pdfRequests": "PDF Requests",
     "dataSources": "Data Sources",
+    "adminNotifications": "Admin Notifications",
     "signOut": "Sign Out",
     "signIn": "Sign In",
     "settings": "Settings",
@@ -122,6 +123,7 @@
     "title": "Notifications",
     "back": "← Back",
     "viewDocument": "View Document",
+    "markAllRead": "Mark all read",
     "newCitations": "New Citations",
     "newCitationsDesc": "Paper \"IoT Architecture\" got 5 new citations.",
     "newCitationsDetail": "Your paper has been referenced by 5 new articles in IEEE Internet of Things journal.",
@@ -140,5 +142,17 @@
     "1dAgo": "1d ago",
     "emptyTitle": "All clear!",
     "emptyDesc": "No notifications to show right now. We'll let you know when something arrives."
+  },
+
+  "report": {
+    "title": "Report an Issue",
+    "submitReport": "Submit Report",
+    "reportType": "Report Type",
+    "description": "Description",
+    "pdfIssue": "PDF Issue",
+    "contentError": "Content Error",
+    "other": "Other",
+    "submitted": "Report submitted successfully",
+    "submitting": "Submitting..."
   }
 }

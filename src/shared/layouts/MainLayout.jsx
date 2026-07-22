@@ -22,6 +22,7 @@ import {
   RefreshCw,
   ShieldCheck,
   Sliders,
+  Flag,
   Menu,
   X,
   HelpCircle,
@@ -74,7 +75,8 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
-    { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
+    { id: 'reports', Icon: Flag, label: t('sidebar.reports') },
+    { id: 'admin-notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
   ];
@@ -128,7 +130,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
             >
               <Icon size={15} />
               {label}
-              {id === 'notifications' && unreadCount > 0 && (
+              {((id === 'notifications') || (id === 'admin-notifications')) && unreadCount > 0 && (
                 <span className="ml-auto flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-red-500 text-white text-[10px] font-bold leading-none">
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
@@ -228,11 +230,7 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
         <LanguageSwitcher />
 
         {/* Notification Bell */}
-        {/* Notification Bell */}
         <NotificationBell />
-
-        {/* Theme Toggle */}
-        <ThemeToggle />
 
         {/* User avatar + settings */}
         <button
@@ -347,6 +345,7 @@ export default function DashboardLayout({ children }) {
       sub: t('subtitles.search'),
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
+    'my-reports': { title: t('headings.myReports'), sub: t('subtitles.myReports') },
     ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },
     bookmarks: {
       title: t('headings.bookmarks'),
@@ -385,6 +384,10 @@ export default function DashboardLayout({ children }) {
     'pdf-requests': {
       title: t('headings.pdfRequests'),
       sub: t('subtitles.pdfRequests'),
+    },
+    'admin-notifications': {
+      title: t('headings.adminNotifications'),
+      sub: t('subtitles.adminNotifications'),
     },
     papers: {
       title: t('headings.paperDetails'),

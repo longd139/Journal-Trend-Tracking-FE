@@ -509,7 +509,7 @@ export default function LoginPage() {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => googleLogin()}
                     disabled={loading}
-                    className="w-full py-3.5 rounded-full text-sm font-bold text-primary-foreground flex items-center justify-center gap-2.5 transition-all duration-300 bg-primary hover:bg-foreground"
+                    className="w-full py-3.5 rounded-full text-sm font-bold text-primary-foreground flex items-center justify-center gap-2.5 transition-all duration-300 bg-foreground hover:bg-foreground/85"
                   >
                     <svg viewBox="0 0 24 24" width="18" height="18" className="shrink-0">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
