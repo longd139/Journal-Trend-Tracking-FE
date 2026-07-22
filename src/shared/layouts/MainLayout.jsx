@@ -1,10 +1,12 @@
-﻿import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
+import ThemeToggle from '../../components/common/ThemeToggle';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
 import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
+import NotificationBell from '../../features/notifications/NotificationBell';
 import {
   Home,
   Search,
@@ -72,6 +74,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
+    { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
   ];
@@ -82,7 +85,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col border-r bg-sidebar/60 backdrop-blur-sm border-sidebar-border transition-transform duration-300 lg:sticky lg:translate-x-0 ${
+      className={`fixed inset-y-0 left-0 z-40 w-60 flex flex-col border-r bg-sidebar/95 backdrop-blur-sm border-sidebar-border transition-transform duration-300 lg:sticky lg:translate-x-0 ${
         open ? 'translate-x-0' : '-translate-x-full'
       }`}
     >
@@ -92,7 +95,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
         className="p-5 border-b border-sidebar-border flex items-center gap-3 cursor-pointer hover:opacity-80 transition-all"
       >
         <div className="flex items-center gap-0.5">
-          <ScitrackSLogo className="text-primary -mr-1 w-6 h-8" />
+          <ScitrackSLogo className="text-sidebar-primary -mr-1 w-6 h-8" />
           <span className="text-xs font-black text-sidebar-foreground tracking-[0.05em] font-outfit">
             CITRACK
           </span>
@@ -103,7 +106,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
         {/* Close button — mobile only */}
         <button
           onClick={onClose}
-          className="lg:hidden ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-sidebar-foreground hover:bg-foreground/5 transition-all"
+          className="lg:hidden ml-auto p-1.5 rounded-lg text-muted-foreground hover:text-sidebar-foreground hover:bg-muted transition-all"
         >
           <X size={18} />
         </button>
@@ -119,8 +122,8 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
               onClick={() => { navigate(`/${role}/${id}`); onClose(); }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all text-left border-l-2 ${
                 active
-                  ? 'bg-primary/10 text-primary border-primary'
-                  : 'border-transparent text-muted-foreground hover:bg-foreground/5 hover:text-sidebar-foreground'
+                  ? 'bg-sidebar-primary/10 text-sidebar-primary border-sidebar-primary'
+                  : 'border-transparent text-muted-foreground hover:bg-muted hover:text-sidebar-foreground'
               }`}
             >
               <Icon size={15} />
@@ -145,7 +148,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
         {/* Support */}
         <button
           onClick={() => setSupportOpen(true)}
-          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-primary/5 text-muted-foreground hover:bg-primary/15 hover:text-sidebar-foreground"
+          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-sidebar-primary/5 text-muted-foreground hover:bg-sidebar-primary/15 hover:text-sidebar-foreground"
         >
           <HelpCircle size={14} />
           {t('sidebar.support')}
@@ -164,7 +167,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
             toast.success('Signed out successfully', { duration: 3000 });
             navigate('/login');
           }}
-          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-foreground/5 text-muted-foreground hover:bg-red-500 hover:text-foreground"
+         className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-foreground/5 text-muted-foreground hover:bg-red-500 hover:text-foreground"
         >
           {t('sidebar.signOut')}
         </button>
@@ -196,12 +199,12 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0 bg-background/40 backdrop-blur-sm border-border relative z-50">
+    <header className="flex items-center justify-between px-4 sm:px-6 py-3 border-b shrink-0 bg-background/80 backdrop-blur-sm border-border relative z-50">
       <div className="flex items-center gap-3">
         {/* Hamburger — mobile only */}
         <button
           onClick={onMenuClick}
-          className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-all"
+          className="lg:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
         >
           <Menu size={20} />
         </button>
@@ -218,26 +221,23 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
       </div>
 
       <div className="flex items-center gap-3">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Language Switcher */}
         <LanguageSwitcher />
 
+        {/* Notification Bell */}
+        {/* Notification Bell */}
+        <NotificationBell />
+
         {/* Theme Toggle */}
-        <button
-          onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-          className="flex items-center justify-center w-9 h-9 rounded-xl border transition-all duration-200 bg-card/60 border-border hover:border-primary/30 hover:bg-card hover:scale-105"
-          title={resolvedTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        >
-          {resolvedTheme === 'dark' ? (
-            <Sun size={17} className="text-amber-400" />
-          ) : (
-            <Moon size={17} className="text-primary" />
-          )}
-        </button>
+        <ThemeToggle />
 
         {/* User avatar + settings */}
         <button
           onClick={() => navigate(`/${role}/settings`)}
-          className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all bg-card/80 border-border hover:border-primary/25 hover:bg-card group"
+          className="flex items-center gap-2.5 p-1.5 pr-3 rounded-xl border transition-all bg-card/80 border-border hover:border-ring/30 hover:bg-card group"
         >
           <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-primary-foreground shrink-0 bg-primary overflow-hidden">
             {user?.avatarUrl ? (
@@ -283,6 +283,7 @@ export default function DashboardLayout({ children }) {
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
   const backgroundUrl = useAuthStore((s) => s.backgroundUrl);
+  const backgroundColor = useAuthStore((s) => s.backgroundColor);
 
   const unreadCount = useNotificationStore((s) => s.unreadCount);
   const fetchUnreadCount = useNotificationStore((s) => s.fetchUnreadCount);
@@ -429,10 +430,15 @@ export default function DashboardLayout({ children }) {
           navigate={navigate}
         />
         {/* Content area with fixed background video (below TopBar) */}
-        <div className="flex-1 relative overflow-hidden">
-          {/* Background — image if user set one, otherwise default video */}
+        <div className="flex-1 relative overflow-hidden bg-background">
+          {/* Background — solid color (instant), then image, otherwise default video */}
           <div className="absolute inset-0 pointer-events-none z-0">
-            {backgroundUrl ? (
+            {backgroundColor ? (
+              <div
+                className="absolute inset-0 w-full h-full"
+                style={{ background: backgroundColor, opacity: 0.15 }}
+              />
+            ) : backgroundUrl ? (
               <img
                 src={backgroundUrl}
                 alt=""

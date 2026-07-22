@@ -39,7 +39,8 @@
     "placeholder": "Tìm kiếm theo tên tác giả để khám phá hồ sơ học thuật...",
     "clearQuery": "Xóa tìm kiếm",
     "noResults": "Không tìm thấy tác giả.",
-    "error": "Không thể tải dữ liệu tác giả từ hệ thống."
+    "error": "Không thể tải dữ liệu tác giả từ hệ thống.",
+    "topicClickHint": "Nhấp vào chủ đề để phân tích sâu hơn →"
   },
   "sort": {
     "label": "Sắp xếp theo",
@@ -62,5 +63,31 @@
     "error": "Không thể tải tóm tắt AI.",
     "retry": "Thử lại",
     "fetching": "Đang tạo thông tin AI..."
+  },
+  "report": {
+    "button": "Báo cáo",
+    "title": "Báo cáo bài báo",
+    "description": "Cho chúng tôi biết nếu có vấn đề với bài báo này.",
+    "reason": "Lý do",
+    "reasonPlaceholder": "Chọn lý do...",
+    "reasons": {
+      "INCORRECT_DATA": "Dữ liệu không chính xác",
+      "DUPLICATE": "Bài báo trùng lặp",
+      "INAPPROPRIATE": "Nội dung không phù hợp",
+      "COPYRIGHT": "Vi phạm bản quyền",
+      "SPAM": "Spam hoặc chất lượng thấp",
+      "OTHER": "Khác"
+    },
+    "details": "Chi tiết",
+    "detailsPlaceholder": "Vui lòng mô tả vấn đề...",
+    "images": "Hình ảnh (tùy chọn)",
+    "imagesHint": "Đính kèm ảnh chụp màn hình — tối đa 5 ảnh, mỗi ảnh 5MB",
+    "addImages": "Thêm ảnh",
+    "removeImage": "Xóa",
+    "submit": "Gửi báo cáo",
+    "submitting": "Đang gửi...",
+    "success": "Đã gửi báo cáo. Cảm ơn bạn đã giúp cải thiện hệ thống.",
+    "error": "Không thể gửi báo cáo. Vui lòng thử lại.",
+    "duplicate": "Bạn đã báo cáo bài báo này rồi."
   }
 }

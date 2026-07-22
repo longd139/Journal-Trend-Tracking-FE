@@ -39,7 +39,8 @@
     "placeholder": "Search by author name to explore academic profiles...",
     "clearQuery": "Clear query",
     "noResults": "No author found.",
-    "error": "Unable to load author data from the system."
+    "error": "Unable to load author data from the system.",
+    "topicClickHint": "Click a topic to explore papers →"
   },
   "sort": {
     "label": "Sort by",
@@ -62,5 +63,31 @@
     "error": "Unable to load AI summary.",
     "retry": "Retry",
     "fetching": "Generating AI insights..."
+  },
+  "report": {
+    "button": "Report",
+    "title": "Report Paper",
+    "description": "Let us know if there's an issue with this paper.",
+    "reason": "Reason",
+    "reasonPlaceholder": "Select a reason...",
+    "reasons": {
+      "INCORRECT_DATA": "Incorrect or misleading data",
+      "DUPLICATE": "Duplicate entry",
+      "INAPPROPRIATE": "Inappropriate content",
+      "COPYRIGHT": "Copyright violation",
+      "SPAM": "Spam or low quality",
+      "OTHER": "Other"
+    },
+    "details": "Details",
+    "detailsPlaceholder": "Please describe the issue...",
+    "images": "Images (optional)",
+    "imagesHint": "Attach screenshots — max 5 images, 5MB each",
+    "addImages": "Add Images",
+    "removeImage": "Remove",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "success": "Report submitted. Thank you for helping us improve.",
+    "error": "Failed to submit report. Please try again.",
+    "duplicate": "You have already reported this paper."
   }
 }

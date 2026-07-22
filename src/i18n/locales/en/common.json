@@ -39,7 +39,11 @@
     "profileSettings": "Profile Settings",
     "verifyEmail": "Please verify your email",
     "switchToLight": "Switch to Light Mode",
-    "switchToDark": "Switch to Dark Mode"
+    "switchToDark": "Switch to Dark Mode",
+    "switchToSystem": "Follow System",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "status": {
     "active": "Active",

@@ -75,3 +75,32 @@
 [data-density="compact"] .rounded-xl { border-radius: 0.625rem; }
 
 [data-density="compact"] .min-h-\[500px\] { min-height: 350px; }
+
+/* ─── Light Mode Overrides ────────────────────────────────────────────
+   When .dark is NOT on <html>, remap hardcoded dark colors to light-mode
+   equivalents. These overrides will be removed page by page as each
+   component is migrated to semantic tokens (Phase 2).                      */
+
+/* Text: cream → near-black */
+html:not(.dark) .text-\[\#E1E0CC\] { color: #1A1A1A; }
+html:not(.dark) .text-\[\#DEDBC8\] { color: #5B5A48; }
+
+/* Backgrounds: dark surfaces → light surfaces */
+html:not(.dark) .bg-\[\#101010\] { background-color: #FFFFFF; }
+html:not(.dark) .bg-\[\#0A0A0A\] { background-color: #FAFAF8; }
+html:not(.dark) .bg-\[\#0F0F0F\] { background-color: #FFFFFF; }
+html:not(.dark) .bg-\[\#0C0C0C\] { background-color: #F5F4EF; }
+html:not(.dark) .bg-\[\#0D0D0D\] { background-color: #F5F4EF; }
+html:not(.dark) .bg-\[\#1A1A1A\] { background-color: #F0EFE8; }
+html:not(.dark) .bg-\[\#151515\] { background-color: #F0EFE8; }
+html:not(.dark) .bg-\[\#0A0D14\] { background-color: #FFFFFF; }
+html:not(.dark) .bg-\[\#0F1219\] { background-color: #FFFFFF; }
+html:not(.dark) .bg-\[\#151922\] { background-color: #FFFFFF; }
+html:not(.dark) .bg-\[\#111620\] { background-color: #F5F4EF; }
+html:not(.dark) .bg-\[\#222222\] { background-color: #D1D5DB; }
+
+/* Borders: cream → gray */
+html:not(.dark) .border-\[\#DEDBC8\]\/5  { border-color: rgba(0, 0, 0, 0.05); }
+html:not(.dark) .border-\[\#DEDBC8\]\/10 { border-color: rgba(0, 0, 0, 0.08); }
+html:not(.dark) .border-\[\#DEDBC8\]\/20 { border-color: rgba(0, 0, 0, 0.10); }
+html:not(.dark) .border-\[\#DEDBC8\]    { border-color: #5B5A48; }

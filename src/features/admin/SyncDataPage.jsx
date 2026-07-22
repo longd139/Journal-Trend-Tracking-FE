@@ -1,9 +1,9 @@
-﻿import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
  RefreshCw, Search, Database, CheckCircle2, AlertCircle, Clock,
- ChevronDown, ChevronUp, Globe, Brain, Archive, Layers, AlertTriangle,
- Info, ExternalLink, Users, Upload, FileText, X,
+ ChevronDown, ChevronUp, Layers, AlertTriangle,
+ Info, ExternalLink, Upload, FileText, X,
 } from 'lucide-react';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
@@ -26,12 +26,6 @@ const card = 'bg-card border border-border rounded-xl';
 const currentYear = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: currentYear - 1900 + 1 }, (_, i) => 1900 + i).reverse();
 
-const SOURCES = [
- { key: 'openalex', label: 'OpenAlex', Icon: Globe },
- { key: 'semanticScholar', label: 'Semantic Scholar', Icon: Brain },
- { key: 'arxiv', label: 'arXiv', Icon: Archive },
- { key: 'core', label: 'CORE', Icon: Layers },
-];
 
 const BULK_TABS = [
  { key: 'openalex', label: 'OpenAlex', color: '#4F8CFF', defaultPapers: 100, defaultKeywords: 20 },
@@ -129,10 +123,6 @@ export default function SyncDataPage() {
  const [limit, setLimit] = useState(10);
  const [yearFrom, setYearFrom] = useState('');
  const [yearTo, setYearTo] = useState(String(currentYear));
- const [selectedSources, setSelectedSources] = useState(
- SOURCES.map((s) => s.key),
- );
-
  const tasks = useSyncStore((s) => s.tasks);
  const bulkTask = useSyncStore((s) => s.bulkTask);
  const startTasks = useSyncStore((s) => s.startTasks);
@@ -166,6 +156,10 @@ export default function SyncDataPage() {
 	const [scimagoUploading, setScimagoUploading] = useState(false);
 	const [scimagoResult, setScimagoResult] = useState(null);
 	const [scimagoError, setScimagoError] = useState(null);
+	const SCIMAGO_LAST_UPLOAD_KEY = 'scitrack_scimago_last_upload';
+	const [scimagoLastUploadTime, setScimagoLastUploadTime] = useState(
+	  () => localStorage.getItem(SCIMAGO_LAST_UPLOAD_KEY) || null,
+	);
 	const scimagoInputRef = useRef(null);
 
  const [autoSyncEnabled, setAutoSyncEnabled] = useState(null); // null = loading
@@ -414,6 +408,9 @@ export default function SyncDataPage() {
     try {
       const res = await adminAPI.enrichJournalsUpload(scimagoFile);
       setScimagoResult(res?.message || res?.data || 'Enrichment complete');
+      const now = new Date().toISOString();
+      setScimagoLastUploadTime(now);
+      localStorage.setItem(SCIMAGO_LAST_UPLOAD_KEY, now);
       toast.success('SCImago enrichment complete');
       setScimagoFile(null);
     } catch (err) {
@@ -425,19 +422,8 @@ export default function SyncDataPage() {
     }
   };
 
-  const allSelected = selectedSources.length === SOURCES.length;
-
- const toggleAll = () => {
- setSelectedSources(allSelected ? [] : SOURCES.map((s) => s.key));
- };
-
- const toggleSource = (key) => {
- setSelectedSources((prev) =>
-  prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
- );
- };
-
  const handleSync = () => {
+ if (!query.trim()) return;
  if (!query.trim() || selectedSources.length === 0) return;
 
  const params = {
@@ -447,10 +433,10 @@ export default function SyncDataPage() {
   yearTo: yearTo ? parseInt(yearTo, 10) : undefined,
  };
 
- startTasks(selectedSources, params);
+ startTasks(['openalex'], params);
  };
 
- const canSync = query.trim() && selectedSources.length > 0 && !isRunning && !isBulkSyncing && !isClearing;
+ const canSync = query.trim() && !isRunning && !isBulkSyncing && !isClearing;
 
  return (
  <div className="p-6 space-y-6 max-w-3xl mx-auto">
@@ -467,8 +453,8 @@ export default function SyncDataPage() {
       <RefreshCw size={15} />
      </div>
      <div>
-      <h2 className="text-sm font-bold text-foreground font-display">Sync Data</h2>
-      <p className="text-[11px] text-muted-foreground">Fetch and import academic papers from OpenAlex & external sources</p>
+      <h2 className="text-sm font-bold text-foreground font-display">Sync Data OpenAlex</h2>
+      <p className="text-[11px] text-muted-foreground">Fetch and import academic papers from OpenAlex</p>
      </div>
     </div>
    </div>
@@ -547,42 +533,6 @@ export default function SyncDataPage() {
    </select>
   </div>
 
-  {/* Source selection — icon buttons */}
-  <div className="space-y-2">
-   <div className="flex items-center justify-between">
-   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-    Data Sources
-   </label>
-   <button
-    type="button"
-    onClick={toggleAll}
-    className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground hover:text-emerald-600 dark:hover:text-emerald-400 active:scale-[0.97] transition-all duration-150"
-   >
-    {allSelected ? 'Deselect All' : 'Select All'}
-   </button>
-   </div>
-
-   <div className="flex flex-wrap gap-2">
-   {SOURCES.map(({ key, label, Icon }) => {
-    const isSelected = selectedSources.includes(key);
-    return (
-    <button
-     key={key}
-     type="button"
-     onClick={() => toggleSource(key)}
-     className={`flex items-center gap-2 px-3.5 py-2.5 rounded-lg border text-xs font-semibold transition-all ${
-     isSelected
-      ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 shadow-sm shadow-emerald-500/10'
-      : 'bg-gray-50 dark:bg-muted/20 border-primary/10 text-muted-foreground dark:text-slate-500 hover:text-muted-foreground dark:hover:text-foreground hover:border-gray-300 dark:hover:border-white/20'
-     }`}
-    >
-     <Icon size={16} />
-     {label}
-    </button>
-    );
-   })}
-   </div>
-  </div>
 
   <Button
    type="button"
@@ -591,9 +541,7 @@ export default function SyncDataPage() {
    className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold py-2.5 rounded-lg active:scale-[0.97] transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
   >
    <RefreshCw size={15} className={isRunning ? 'animate-spin' : ''} />
-   {isRunning
-   ? `Syncing ${runningTasks.length} source(s)...`
-   : `Sync ${selectedSources.length} source(s)`}
+   {isRunning ? 'Syncing...' : 'Sync from OpenAlex'}
   </Button>
   </motion.div>
 
@@ -739,521 +687,6 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* -- Bulk Sync -- */}
-  <div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
-  <motion.div
-   initial={{ opacity: 0 }}
-   animate={{ opacity: 1 }}
-   className={`${card} p-5`}
-   style={{ borderLeft: `3px solid ${activeTab.color}` }}
-  >
-   <div className="flex items-start gap-3 mb-4">
-    <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: `${activeTab.color}15`, color: activeTab.color }}>
-     <Layers size={18} />
-    </div>
-    <div>
-     <h4 className="text-sm font-bold text-foreground">Bulk Sync</h4>
-     <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-      Sync multiple keywords at once from OpenAlex or CORE with real-time progress tracking.
-     </p>
-    </div>
-   </div>
-
-   {/* Tab buttons */}
-   <div className="flex gap-1.5 mb-4 p-1 rounded-lg bg-primary/[0.03] border border-border">
-    {BULK_TABS.map(({ key, label, color }) => {
-     const isActive = bulkSource === key;
-     return (
-      <button
-       key={key}
-       type="button"
-       onClick={() => { if (!isBulkSyncing) setBulkSource(key); }}
-       disabled={isBulkSyncing}
-       className={`flex-1 py-2 rounded-md text-xs font-semibold transition-all ${
-        isActive
-         ? 'text-foreground shadow-sm'
-         : 'text-muted-foreground hover:text-foreground/80'
-       }`}
-       style={isActive ? { backgroundColor: color } : {}}
-      >
-       {label}
-      </button>
-     );
-    })}
-   </div>
-
-   {/* Keyword input mode toggle */}
-   <div className="flex items-center gap-2 mb-4">
-    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground shrink-0">
-     Keywords
-    </span>
-    <div className="flex rounded-lg bg-primary/[0.04] border border-primary/8 p-0.5">
-     <button
-      type="button"
-      onClick={() => setKeywordInputMode('trending')}
-      disabled={isBulkSyncing}
-      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
-       keywordInputMode === 'trending'
-        ? 'text-foreground shadow-sm'
-        : 'text-muted-foreground hover:text-foreground/80'
-      }`}
-      style={keywordInputMode === 'trending' ? { backgroundColor: activeTab.color } : {}}
-     >
-      Trending
-     </button>
-     <button
-      type="button"
-      onClick={() => setKeywordInputMode('manual')}
-      disabled={isBulkSyncing}
-      className={`px-3 py-1.5 rounded-md text-[10px] font-semibold transition-all ${
-       keywordInputMode === 'manual'
-        ? 'text-foreground shadow-sm'
-        : 'text-muted-foreground hover:text-foreground/80'
-      }`}
-      style={keywordInputMode === 'manual' ? { backgroundColor: activeTab.color } : {}}
-     >
-      Manual
-     </button>
-    </div>
-   </div>
-
-   {/* Manual mode — textarea */}
-   {keywordInputMode === 'manual' && (
-    <div className="space-y-1.5 mb-4">
-     <textarea
-      placeholder="Enter keywords, one per line or comma-separated&#10;e.g.&#10;machine learning&#10;deep learning&#10;computer vision"
-      value={bulkKeywords}
-      onChange={(e) => setBulkKeywords(e.target.value)}
-      disabled={isBulkSyncing}
-      rows={4}
-      className="w-full p-3 rounded-lg text-xs bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors resize-none"
-     />
-    </div>
-   )}
-
-   {/* Trending mode — keyword chips */}
-   {keywordInputMode === 'trending' && (
-   <div className="space-y-3 mb-4">
-    <div className="flex items-center justify-between">
-     <span className="text-[10px] text-muted-foreground">
-      {selectedKeywords.length} selected
-     </span>
-     <div className="flex items-center gap-2">
-      {isLoadingTrending ? (
-       <span className="text-[10px] text-muted-foreground animate-pulse">Loading…</span>
-      ) : (
-       <>
-        <button
-         type="button"
-         onClick={() => setSelectedKeywords(trendingKeywords.map((k) => k.keywordText))}
-         disabled={isBulkSyncing}
-         className="text-[10px] font-medium text-muted-foreground hover:text-foreground/80 transition-colors"
-        >
-         Select All
-        </button>
-        <span className="text-muted-foreground text-[10px]">·</span>
-        <button
-         type="button"
-         onClick={() => setSelectedKeywords([])}
-         disabled={isBulkSyncing}
-         className="text-[10px] font-medium text-muted-foreground hover:text-foreground/80 transition-colors"
-        >
-         Clear
-        </button>
-       </>
-      )}
-     </div>
-    </div>
-
-    {isLoadingTrending ? (
-     <div className="flex flex-wrap gap-1.5">
-      {Array.from({ length: 8 }).map((_, i) => (
-       <div key={i} className="h-7 w-24 rounded-full bg-primary/5 animate-pulse" />
-      ))}
-     </div>
-    ) : trendingKeywords.length === 0 ? (
-     <p className="text-xs text-muted-foreground py-2">No trending keywords available. Try again later.</p>
-    ) : (
-     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
-      {trendingKeywords.map((kw) => {
-       const isSelected = selectedKeywords.includes(kw.keywordText);
-       return (
-        <button
-         key={kw.keywordText}
-         type="button"
-         onClick={() => {
-          setSelectedKeywords((prev) =>
-           isSelected
-            ? prev.filter((k) => k !== kw.keywordText)
-            : [...prev, kw.keywordText],
-          );
-         }}
-         disabled={isBulkSyncing}
-         className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full text-[11px] font-medium transition-all border ${
-          isSelected
-           ? 'text-foreground border-current'
-           : 'bg-primary/[0.03] border-primary/10 text-muted-foreground hover:text-gray-200 hover:border-primary/20'
-         }`}
-         style={isSelected ? { backgroundColor: activeTab.color, borderColor: activeTab.color } : {}}
-        >
-         {kw.keywordText}
-         {kw.paperCount > 0 && (
-          <span className={`text-[9px] ${isSelected ? 'text-foreground/70' : 'text-muted-foreground'}`}>
-           {kw.paperCount}
-          </span>
-         )}
-        </button>
-       );
-      })}
-     </div>
-    )}
-   </div>
-   )}
-
-   {/* Papers per keyword + Year range */}
-   <div className="space-y-3 mb-4">
-    <div className="flex flex-col sm:flex-row gap-3">
-    <div className="w-full sm:w-40 space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-     Papers per keyword
-     </label>
-     <Input
-     type="number"
-     min={1}
-     max={2000}
-     value={bulkPapersPerKeyword}
-     onChange={(e) => setBulkPapersPerKeyword(parseInt(e.target.value, 10) || 500)}
-     disabled={isBulkSyncing}
-     className="py-2.5 rounded-lg text-sm text-center bg-card border-primary/10 text-foreground"
-     />
-    </div>
-    <div className="flex items-end gap-2">
-     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-      Year From
-     </label>
-     <select
-      value={bulkYearFrom}
-      onChange={(e) => setBulkYearFrom(e.target.value)}
-      disabled={isBulkSyncing}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors cursor-pointer"
-      style={{ colorScheme: 'dark' }}
-     >
-      <option value="">Any</option>
-      {YEAR_OPTIONS.map((y) => (
-      <option key={y} value={y}>{y}</option>
-      ))}
-     </select>
-     </div>
-     <span className="text-xs text-muted-foreground dark:text-slate-500 pb-2">–</span>
-     <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-      Year To
-     </label>
-     <select
-      value={bulkYearTo}
-      onChange={(e) => setBulkYearTo(e.target.value)}
-      disabled={isBulkSyncing}
-      className="w-24 py-2 rounded-lg text-sm text-center bg-card border border-primary/10 text-foreground outline-none focus:border-current transition-colors cursor-pointer"
-      style={{ colorScheme: 'dark' }}
-     >
-      <option value="">Any</option>
-      {YEAR_OPTIONS.map((y) => (
-      <option key={y} value={y}>{y}</option>
-      ))}
-     </select>
-     </div>
-    </div>
-    </div>
-   </div>
-
-    {/* OpenAlex API Key + Mailto (only for OpenAlex tab) */}
-    {bulkSource === 'openalex' && (
-    <>
-    <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-      OpenAlex API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
-      <a
-       href="https://openalex.org/settings/api"
-       target="_blank"
-       rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-blue-400 transition-colors"
-      >
-       <Info size={12} />
-       <ExternalLink size={9} />
-      </a>
-     </label>
-     <Input
-      type="text"
-      placeholder="sk_xxxx — get yours at openalex.org/settings/api"
-      value={openAlexApiKey}
-      onChange={(e) => setOpenAlexApiKey(e.target.value)}
-      disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
-     />
-    </div>
-    <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-      Polite Pool Email <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
-     </label>
-     <Input
-      type="email"
-      placeholder="your@email.com (for higher rate limits)"
-      value={bulkMailto}
-      onChange={(e) => setBulkMailto(e.target.value)}
-      disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground"
-     />
-    </div>
-    </>
-    )}
-
-    {/* Semantic Scholar API Key (only for Semantic Scholar tab) */}
-    {bulkSource === 'semanticScholar' && (
-    <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-      Semantic Scholar API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
-      <a
-       href="https://www.semanticscholar.org/product/api"
-       target="_blank"
-       rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-emerald-400 transition-colors"
-      >
-       <Info size={12} />
-       <ExternalLink size={9} />
-      </a>
-     </label>
-     <Input
-      type="text"
-      placeholder="Your Semantic Scholar API key"
-      value={semanticScholarApiKey}
-      onChange={(e) => setSemanticScholarApiKey(e.target.value)}
-      disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
-     />
-    </div>
-    )}
-
-    {/* CORE API Key (only for CORE tab) */}
-    {bulkSource === 'core' && (
-    <div className="space-y-1.5">
-     <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-      CORE API Key <span className="text-[10px] font-normal text-muted-foreground">(optional)</span>
-      <a
-       href="https://core.ac.uk/api-v2"
-       target="_blank"
-       rel="noopener noreferrer"
-       className="inline-flex items-center gap-0.5 text-muted-foreground hover:text-violet-400 transition-colors"
-      >
-       <Info size={12} />
-       <ExternalLink size={9} />
-      </a>
-     </label>
-     <Input
-      type="text"
-      placeholder="Your CORE API key — get yours at core.ac.uk/api-v2"
-      value={coreApiKey}
-      onChange={(e) => setCoreApiKey(e.target.value)}
-      disabled={isBulkSyncing}
-      className="py-2.5 rounded-lg text-sm bg-card border-primary/10 text-foreground font-mono"
-     />
-    </div>
-    )}
-
-   <Button
-   type="button"
-   disabled={isBulkSyncing || isRunning || isClearing}
-   onClick={handleBulkSync}
-   className="w-full flex items-center justify-center gap-2 text-foreground text-sm font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-   style={{ backgroundColor: activeTab.color }}
-   >
-   <RefreshCw size={15} className={isBulkSyncing ? 'animate-spin' : ''} />
-   {isBulkSyncing && bulkProgress
-    ? `Syncing... ${bulkProgress.percent ?? 0}%`
-    : isBulkSyncing
-    ? 'Starting bulk sync...'
-    : `Start ${activeTab.label} Bulk Sync`}
-   </Button>
-
-   {/* -- Bulk progress bar -- */}
-   {isBulkSyncing && bulkProgress && (
-   <motion.div
-    initial={{ opacity: 0, y: -6 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="mt-4 space-y-3 border-t border-gray-100 border-border pt-4"
-   >
-    {/* Percent + status */}
-    <div className="flex items-center justify-between">
-    <div className="flex items-center gap-2">
-     <RefreshCw size={14} className="animate-spin" style={{ color: activeTab.color }} />
-     <span className="text-xs font-bold text-foreground">
-     {bulkProgress.percent ?? 0}% complete
-     </span>
-     <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: `${activeTab.color}15`, color: activeTab.color }}>
-     {bulkProgress.status || 'RUNNING'}
-     </span>
-    </div>
-    <span className="text-[10px] text-muted-foreground dark:text-muted-foreground">
-     {bulkProgress.completedKeywords ?? 0}/{bulkProgress.totalKeywords ?? '?'} keywords
-    </span>
-    </div>
-
-    {/* Progress bar */}
-    <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-muted/30 overflow-hidden">
-    <motion.div
-     className="h-full rounded-full"
-     style={{ backgroundColor: activeTab.color }}
-     initial={{ width: 0 }}
-     animate={{ width: `${bulkProgress.percent ?? 0}%` }}
-     transition={{ duration: 0.4, ease: 'easeOut' }}
-    />
-    </div>
-
-    {/* Detail stats */}
-    <div className="grid grid-cols-3 gap-2 text-center">
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
-     <div className="text-sm font-bold text-foreground font-mono">
-     {bulkProgress.currentKeyword || '—'}
-     </div>
-     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Current</div>
-    </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
-     <div className="text-sm font-bold text-blue-400 font-mono">
-     {bulkProgress.totalFetched ?? 0}
-     </div>
-     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Fetched</div>
-    </div>
-    <div className="p-2 rounded-lg bg-gray-50 dark:bg-muted/15">
-     <div className="text-sm font-bold text-emerald-400 font-mono">
-     {bulkProgress.totalInserted ?? 0}
-     </div>
-     <div className="text-[9px] uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</div>
-    </div>
-    </div>
-
-    {/* Per-keyword stats (if available) */}
-    {bulkProgress.keywordStats && Object.keys(bulkProgress.keywordStats).length > 0 && (
-    <div className="bg-transparent/50 border border-gray-200 border-border rounded-lg p-3 max-h-48 overflow-y-auto">
-     <table className="w-full text-xs">
-     <thead>
-      <tr className="border-b border-gray-200 border-border">
-      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Scanned</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</th>
-      </tr>
-     </thead>
-     <tbody>
-      {Object.entries(bulkProgress.keywordStats).map(([kw, stats]) => (
-      <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
-       <td className="py-1.5 font-medium text-foreground/80 dark:text-foreground">
-       {kw}
-       {bulkProgress.currentKeyword === kw && (
-        <span className="ml-1.5 inline-block w-1.5 h-1.5 rounded-full animate-pulse align-middle" style={{ backgroundColor: activeTab.color }} />
-       )}
-       </td>
-       <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
-       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
-      </tr>
-      ))}
-     </tbody>
-     </table>
-    </div>
-    )}
-
-    {/* Keyword errors during progress */}
-    {bulkProgress.keywordErrors && Object.keys(bulkProgress.keywordErrors).length > 0 && (
-    <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-lg p-3">
-     <div className="flex items-center gap-1.5 mb-2">
-      <AlertCircle size={11} className="text-red-500" />
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">Errors</span>
-     </div>
-     {Object.entries(bulkProgress.keywordErrors).map(([kw, err]) => (
-      <div key={kw} className="text-[10px] text-red-600 dark:text-red-400 flex gap-2 py-0.5">
-       <span className="font-medium shrink-0">{kw}:</span>
-       <span className="truncate">{err}</span>
-      </div>
-     ))}
-    </div>
-    )}
-   </motion.div>
-   )}
-
-   {/* Bulk error */}
-   {bulkError && (
-   <div className="mt-4 flex items-center gap-2 p-2.5 rounded-lg bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10">
-    <AlertCircle size={14} className="text-red-500" />
-    <span className="text-xs text-red-600 dark:text-red-400">{bulkError}</span>
-   </div>
-   )}
-
-   {/* Bulk result (on completion) */}
-   {bulkResult && !isBulkSyncing && (
-   <div className="mt-4 space-y-3 border-t border-gray-100 border-border pt-4">
-    <div className="flex items-center gap-2">
-    <CheckCircle2 size={14} className="text-emerald-500" />
-    <span className="text-xs font-bold text-foreground">
-     {bulkResult.totalKeywords != null && `${bulkResult.totalKeywords} keywords — `}
-     {bulkResult.totalFetched != null && `${bulkResult.totalFetched} fetched — `}
-     {(bulkResult.totalInserted ?? bulkResult.result?.totalInserted) != null
-     && `${bulkResult.totalInserted ?? bulkResult.result?.totalInserted} inserted`}
-    </span>
-    {bulkResult.completedAt && (
-     <span className="text-[10px] text-muted-foreground dark:text-muted-foreground ml-auto">
-     {new Date(bulkResult.completedAt).toLocaleString()}
-     </span>
-    )}
-    {bulkResult.yearRange && (
-     <span className="text-[10px] text-muted-foreground dark:text-muted-foreground ml-auto">
-     {bulkResult.yearRange}
-     </span>
-    )}
-    </div>
-
-    {(bulkResult.keywordStats || bulkProgress?.keywordStats) && (
-    <div className="bg-transparent/50 border border-gray-200 border-border rounded-lg p-3 max-h-48 overflow-y-auto">
-     <table className="w-full text-xs">
-     <thead>
-      <tr className="border-b border-gray-200 border-border">
-      <th className="text-left py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Keyword</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Scanned</th>
-      <th className="text-right py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">Inserted</th>
-      </tr>
-     </thead>
-     <tbody>
-      {Object.entries(bulkResult.keywordStats || bulkProgress?.keywordStats || {}).map(([kw, stats]) => (
-      <tr key={kw} className="border-b border-gray-100 dark:border-white/[0.03] last:border-b-0">
-       <td className="py-1.5 font-medium text-foreground/80 dark:text-foreground">{kw}</td>
-       <td className="py-1.5 text-right font-mono text-blue-600 dark:text-blue-400">{stats.scanned ?? stats.fetched}</td>
-       <td className="py-1.5 text-right font-mono text-emerald-600 dark:text-emerald-400">{stats.inserted}</td>
-      </tr>
-      ))}
-     </tbody>
-     </table>
-    </div>
-    )}
-
-    {/* Keyword errors on completion */}
-    {((bulkResult.keywordErrors && Object.keys(bulkResult.keywordErrors).length > 0) || (bulkProgress?.keywordErrors && Object.keys(bulkProgress.keywordErrors).length > 0)) && (
-    <div className="bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/10 rounded-lg p-3">
-     <div className="flex items-center gap-1.5 mb-2">
-      <AlertCircle size={11} className="text-red-500" />
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">Errors</span>
-     </div>
-     {Object.entries(bulkResult.keywordErrors || bulkProgress?.keywordErrors || {}).map(([kw, err]) => (
-      <div key={kw} className="text-[10px] text-red-600 dark:text-red-400 flex gap-2 py-0.5">
-       <span className="font-medium shrink-0">{kw}:</span>
-       <span className="truncate">{err}</span>
-      </div>
-     ))}
-    </div>
-    )}
-   </div>
-   )}
-  </motion.div>
-  </div>
-
-
-
 {/* -- Clear All Data -- */}
   <div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isBulkSyncing ? 'opacity-50 pointer-events-none' : ''}`}>
   <motion.div
@@ -1302,101 +735,6 @@ export default function SyncDataPage() {
   </motion.div>
   </div>
 
-  {/* -- Backfill Author Metrics -- */}
-	<div className={`border-t border-gray-200 border-border pt-6 mt-2 ${isRunning || isBulkSyncing || isClearing ? 'opacity-50 pointer-events-none' : ''}`}>
-	<motion.div
-	 initial={{ opacity: 0 }}
-	 animate={{ opacity: 1 }}
-	 className={`${card} p-5 border-primary/20`}
-	 style={{ borderLeft: '3px solid #4F8CFF' }}
-	>
-	 <div className="flex items-start gap-3 mb-4">
-	  <div className="p-2 rounded-lg shrink-0" style={{ backgroundColor: '#4F8CFF15', color: '#4F8CFF' }}>
-	   <Users size={18} />
-	  </div>
-	  <div>
-	   <h4 className="text-sm font-bold text-foreground">Backfill Author Metrics</h4>
-	   <p className="text-xs text-muted-foreground mt-0.5">
-	    Fetch h-index and citation metrics from OpenAlex for authors missing metrics data.
-	    Only processes authors with externalAuthorId and hIndex=0.
-	   </p>
-	  </div>
-	 </div>
-
-	 <div className="flex flex-col sm:flex-row gap-3 mb-4">
-	  <div className="w-full sm:w-36 space-y-1.5">
-	   <label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-	    Limit
-	   </label>
-	   <Input
-	    type="number"
-	    min={1}
-	    max={1000}
-	    value={backfillLimit}
-	    onChange={(e) => setBackfillLimit(parseInt(e.target.value, 10) || 100)}
-	    disabled={backfillLoading}
-	    className="py-2.5 rounded-lg text-sm text-center bg-card border-primary/10 text-foreground"
-	   />
-	  </div>
-	  <div className="flex items-end">
-	   <Button
-	    type="button"
-	    onClick={handleBackfillAuthorMetrics}
-	    disabled={backfillLoading || isRunning || isBulkSyncing || isClearing}
-	    className="flex items-center gap-2 text-foreground text-sm font-semibold py-2.5 px-5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-	    style={{ backgroundColor: '#4F8CFF' }}
-	   >
-	    <RefreshCw size={15} className={backfillLoading ? 'animate-spin' : ''} />
-	    {backfillLoading ? 'Processing...' : `Backfill Author Metrics`}
-	   </Button>
-	  </div>
-	 </div>
-
-	 <p className="text-[10px] text-muted-foreground mb-4">
-	  Rate: ~3 req/s (polite pool). Set limit=0 to process all authors.
-	 </p>
-
-	 {/* Backfill result */}
-	 {backfillResult && (
-	  <div className="space-y-2 border-t border-border pt-4">
-	   <div className="flex items-center gap-2">
-	    <CheckCircle2 size={14} className="text-emerald-500" />
-	    <span className="text-xs font-bold text-foreground">
-	     {backfillResult.totalProcessed} processed — {backfillResult.updated} updated — {backfillResult.skipped} skipped
-	     {backfillResult.errors > 0 && ` — ${backfillResult.errors} errors`}
-	    </span>
-	   </div>
-	   <div className="grid grid-cols-4 gap-3">
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
-	     <div className="text-lg font-bold text-foreground font-display">{backfillResult.totalProcessed}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Processed</div>
-	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
-	     <div className="text-lg font-bold text-emerald-400 font-display">{backfillResult.updated}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Updated</div>
-	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
-	     <div className="text-lg font-bold text-primary font-display">{backfillResult.skipped}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Skipped</div>
-	    </div>
-	    <div className="p-3 rounded-xl bg-primary/[0.02] border border-border text-center">
-	     <div className="text-lg font-bold text-red-400 font-display">{backfillResult.errors ?? 0}</div>
-	     <div className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5 font-semibold">Errors</div>
-	    </div>
-	   </div>
-	  </div>
-	 )}
-
-	 {/* Backfill error */}
-	 {backfillError && (
-	  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-red-500/5 border border-red-500/10 mt-4">
-	   <AlertCircle size={14} className="text-red-500" />
-	   <span className="text-xs text-red-400">{backfillError}</span>
-	  </div>
-	 )}
-	</motion.div>
-	</div>
-
 	{/* -- SCImago Journal Quartile Enrichment -- */}
 	<div className="border-t border-gray-200 border-border pt-6 mt-2">
 	<motion.div
@@ -1410,7 +748,15 @@ export default function SyncDataPage() {
 	   <Layers size={18} />
 	  </div>
 	  <div>
-	   <h4 className="text-sm font-bold text-foreground">SCImago Journal Quartile Enrichment</h4>
+<div className="flex items-center justify-between">
+       <h4 className="text-sm font-bold text-foreground">SCImago Journal Quartile Enrichment</h4>
+       {scimagoLastUploadTime && (
+        <span className="text-[10px] text-muted-foreground flex items-center gap-1 shrink-0">
+         <Clock size={10} />
+         Last upload: {new Date(scimagoLastUploadTime).toLocaleString()}
+        </span>
+       )}
+      </div>
 	   <p className="text-xs text-muted-foreground mt-0.5">
 	    Upload the SCImago Journal Rank CSV to populate journal quartile rankings (Q1–Q4).
 	   </p>
