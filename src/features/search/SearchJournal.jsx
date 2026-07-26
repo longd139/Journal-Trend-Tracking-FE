@@ -17,6 +17,7 @@ import { paperAPI } from './paper.api';
 import { journalAPI } from './journal.api';
 import { StatCard } from '../../components/SharedUI';
 import TopPapers from './TopPapers';
+import PaperListSidebar from './PaperListSidebar';
 import FollowButton from '../follows/FollowButton';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -333,6 +334,11 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
   const searchInputRef = useRef(null);
   const debounceRef = useRef(null);
 
+  // ─── Paper List Sidebar ───
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarKeyword, setSidebarKeyword] = useState('');
+  const [sidebarTotal, setSidebarTotal] = useState(null);
+
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
   const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -420,7 +426,9 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
-        const suggestions = await journalAPI.getSuggest(q);
+        // Strip Vietnamese diacritics — OpenAlex doesn't support them
+        const stripped = q.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        const suggestions = await journalAPI.getSuggest(stripped);
         setApiSuggestions(Array.isArray(suggestions) ? suggestions : []);
       } catch {
         setApiSuggestions([]);
@@ -546,9 +554,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
       e.preventDefault();
       const q = query.trim();
       if (!q) return;
-      // Show suggestion list instead of searching immediately
-      setShowSuggestionList(true);
       setShowSuggestions(false);
+      handleSearch(q);
     }
   };
 
@@ -1157,6 +1164,11 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 change=""
                 Icon={FileText}
                 accent="var(--chart-1)"
+                onClick={() => {
+                  setSidebarKeyword(searchedKeyword);
+                  setSidebarTotal(journalStats.totalPapers ?? null);
+                  setSidebarOpen(true);
+                }}
               />
               <StatCard
                 label="Total Citations"
@@ -1277,6 +1289,14 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ─── Paper List Sidebar (click Total Papers) ─── */}
+      <PaperListSidebar
+        journalName={sidebarKeyword}
+        totalOverride={sidebarTotal}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
     </div>
   );
 }

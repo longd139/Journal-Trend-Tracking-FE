@@ -57,7 +57,7 @@ function StatsSkeleton() {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function AuthorQuickStats({ keyword }) {
+export default function AuthorQuickStats({ keyword, onTotalPapersClick }) {
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'academic';
   const [stats, setStats] = useState(null);
@@ -220,6 +220,7 @@ export default function AuthorQuickStats({ keyword }) {
           change=""
           Icon={FileText}
           accent="var(--chart-1)"
+          onClick={() => onTotalPapersClick(stats.totalPapers)}
         />
 
         {/* Total Citations */}

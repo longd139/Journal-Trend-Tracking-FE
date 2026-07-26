@@ -209,6 +209,9 @@ export function PaperDetailDialog({ paper, open, onOpenChange }) {
                 </div>
               ))}
             </div>
+            <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
+              Generating AI summary...
+            </p>
           </div>
         )}
 

@@ -277,6 +277,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
       {/* Paper List Sidebar */}
       <PaperListSidebar
         keyword={stats.keyword || keyword}
+        totalOverride={stats.totalPapers}
         open={showPaperList}
         onClose={() => setShowPaperList(false)}
       />

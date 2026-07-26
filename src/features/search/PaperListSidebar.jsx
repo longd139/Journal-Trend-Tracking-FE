@@ -1,76 +1,127 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Loader2, ExternalLink, FileText, Quote } from 'lucide-react';
+import { X, Loader2, FileText, Quote, User, ChevronLeft, ChevronRight, Library } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { paperAPI } from './paper.api';
 
+const PAGE_SIZE = 20;
+
 /**
- * Slide-out sidebar showing all papers for a keyword.
- * Triggered by clicking "Total Papers" in KeywordQuickStats.
+ * Slide-out sidebar showing ALL papers with pagination.
+ *
+ * Modes:
+ * - Keyword:  pass `keyword` → searches papers matching the keyword
+ * - Author:   pass `authorName` (+ optional `year`) → papers by that author
+ * - Journal:  pass `journalName` → papers from that journal
+ *
+ * Pagination: {PAGE_SIZE} papers/page, prev/next buttons, page indicator.
  */
-export default function PaperListSidebar({ keyword, open, onClose }) {
+export default function PaperListSidebar({ keyword, authorName, journalName, year, totalOverride, open, onClose }) {
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-  const [total, setTotal] = useState(0);
+  const [apiTotal, setApiTotal] = useState(0);
+
+  // Use refs to avoid stale closures
+  const keywordRef = useRef(keyword);
+  const authorRef = useRef(authorName);
+  const journalRef = useRef(journalName);
+  const yearRef = useRef(year);
+  keywordRef.current = keyword;
+  authorRef.current = authorName;
+  journalRef.current = journalName;
+  yearRef.current = year;
+
+  const isAuthorMode = !!authorName;
+  const isJournalMode = !!journalName;
+
+  // Use override only for author mode (same API source), not for keyword/journal
+  const OPENALEX_PAGE_LIMIT = 500;
+  const totalElements = (isAuthorMode && totalOverride != null && totalOverride > 0) ? totalOverride : apiTotal;
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'researcher';
 
-  useEffect(() => {
-    if (!open || !keyword) return;
-    let cancelled = false;
-    setPage(0);
+  const hasYearFilter = year != null;
+  const totalPages = Math.max(1, Math.ceil(totalElements / PAGE_SIZE));
+  const displayPages = isAuthorMode ? totalPages : Math.min(totalPages, OPENALEX_PAGE_LIMIT);
+  const startItem = totalElements > 0 ? page * PAGE_SIZE + 1 : 0;
+  const endItem = Math.min((page + 1) * PAGE_SIZE, totalElements);
 
-    async function fetchPapers() {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await paperAPI.searchPapers({
-          query: keyword,
-          page: 0,
-          size: 50,
-          sortBy: 'citations',
-        });
-        if (!cancelled) {
-          const list = result?.papers || result?.data?.papers || [];
-          setPapers(list);
-          setTotal(result?.totalElements || result?.data?.totalElements || list.length);
-          setHasMore((result?.totalPages || result?.data?.totalPages || 0) > 1);
-          setPage(0);
-        }
-      } catch (err) {
-        if (!cancelled) setError(err?.message || 'Failed to load papers');
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchPapers();
-    return () => { cancelled = true; };
-  }, [open, keyword]);
-
-  const loadMore = async () => {
-    const nextPage = page + 1;
+  /* ─── Fetch a page (reads from refs, no stale closure) ─── */
+  async function doFetch(pageNum) {
     setLoading(true);
+    setError(null);
     try {
-      const result = await paperAPI.searchPapers({
-        query: keyword,
-        page: nextPage,
-        size: 50,
-        sortBy: 'citations',
-      });
+      const kw = keywordRef.current;
+      const an = authorRef.current;
+      const jn = journalRef.current;
+      const yr = yearRef.current;
+
+      let result;
+
+      if (an) {
+        // Author mode: search papers BY this author (with optional year filter)
+        result = await paperAPI.searchPapersByAuthor({
+          authorName: an,
+          page: pageNum,
+          size: PAGE_SIZE,
+          sortBy: 'date',
+          sortDirection: 'desc',
+          pubYearFrom: yr ?? undefined,
+          pubYearTo: yr ?? undefined,
+        });
+      } else {
+        // Keyword/Journal mode: use OpenAlex for full pagination
+        const query = kw || jn || '';
+        if (!query.trim()) {
+          setPapers([]);
+          setApiTotal(0);
+          setLoading(false);
+          return;
+        }
+        result = await paperAPI.searchOpenAlex({ query, page: pageNum, size: PAGE_SIZE });
+      }
+
       const list = result?.papers || result?.data?.papers || [];
-      setPapers((prev) => [...prev, ...list]);
-      setPage(nextPage);
-      setHasMore((result?.totalPages || result?.data?.totalPages || 0) > nextPage + 1);
+      // Only keep papers with valid years (1900–current), sorted newest first
+      const currentYear = new Date().getFullYear();
+      const filtered = list.filter(p => p.pubYear && p.pubYear >= 1900 && p.pubYear <= currentYear);
+      setPapers(filtered);
+      setApiTotal(result?.totalElements || result?.data?.totalElements || filtered.length);
+      setPage(pageNum);
     } catch (err) {
-      console.error('Load more failed:', err);
+      setError(err?.message || 'Failed to load papers');
     } finally {
       setLoading(false);
     }
+  }
+
+  // Reset & fetch when opening or keyword/author changes
+  useEffect(() => {
+    if (!open) return;
+    setPapers([]);
+    setApiTotal(0);
+    setError(null);
+    doFetch(0);
+  }, [open, keyword, authorName, journalName, year]);
+
+  /* ─── Navigation ─── */
+  const goToPage = (p) => {
+    if (p < 0 || p >= displayPages || loading) return;
+    doFetch(p);
   };
+
+  /* ─── Header ─── */
+  const headerTitle = isAuthorMode
+    ? `Papers by ${authorName}`
+    : isJournalMode
+      ? `Papers in ${journalName}`
+      : `Papers for "${keyword}"`;
+
+  const headerSubtitle = isAuthorMode && hasYearFilter
+    ? `${totalElements.toLocaleString()} paper${totalElements !== 1 ? 's' : ''} in ${year}`
+    : `${totalElements.toLocaleString()} paper${totalElements !== 1 ? 's' : ''} total`;
 
   return (
     <AnimatePresence>
@@ -91,17 +142,23 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 z-50 w-[420px] max-w-[90vw] bg-background border-l border-primary/10 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 bottom-0 z-50 w-[460px] max-w-[92vw] bg-background border-l border-primary/10 flex flex-col shadow-2xl"
           >
-            {/* Header */}
+            {/* ── Header ── */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
               <div>
                 <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                  <FileText size={14} className="text-accent-blue" />
-                  Papers for "{keyword}"
+                  {isAuthorMode ? (
+                    <User size={14} className="text-primary" />
+                  ) : isJournalMode ? (
+                    <Library size={14} className="text-accent-teal" />
+                  ) : (
+                    <FileText size={14} className="text-accent-blue" />
+                  )}
+                  {headerTitle}
                 </h3>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {total > 0 ? `${papers.length} of ${total} papers` : ''}
+                  {headerSubtitle}
                 </p>
               </div>
               <button
@@ -112,98 +169,180 @@ export default function PaperListSidebar({ keyword, open, onClose }) {
               </button>
             </div>
 
-            {/* Content */}
+            {/* ── Content ── */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-2">
-              {/* Loading */}
+              {/* Loading spinner */}
               {loading && (
-                <div className="flex items-center justify-center py-12">
+                <div className="flex items-center justify-center py-16">
                   <Loader2 size={24} className="animate-spin text-primary" />
                 </div>
               )}
 
               {/* Error */}
-              {error && (
+              {!loading && error && (
                 <div className="px-4 py-3 rounded-lg bg-red-500/5 border border-red-500/10 text-xs text-red-400">
-                  {error}
+                  Error: {error}
+                </div>
+              )}
+
+              {/* Empty */}
+              {!loading && !error && papers.length === 0 && (
+                <div className="text-center py-16 space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    {totalElements > 0
+                      ? `All ${totalElements.toLocaleString()} papers shown. No more pages.`
+                      : 'No papers found.'}
+                  </p>
+                </div>
+              )}
+
+              {/* OpenAlex limit notice */}
+              {!loading && papers.length > 0 && !isAuthorMode && page >= OPENALEX_PAGE_LIMIT - 2 && (
+                <div className="px-3 py-2 rounded-lg bg-amber-500/5 border border-amber-500/10 text-[10px] text-amber-400/80 text-center">
+                  OpenAlex free tier limit: showing first ~10,000 of {totalElements.toLocaleString()} papers
                 </div>
               )}
 
               {/* Paper list */}
-              {!loading && !error && papers.length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-12">
-                  No papers found for this keyword.
-                </p>
-              )}
-
-              {!loading &&
-                papers.map((paper, i) => (
-                  <motion.div
-                    key={paper.paperId || i}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.03 }}
-                    className="p-3 rounded-lg bg-card border border-border hover:border-primary/15 transition-colors group cursor-pointer"
-                    onClick={() => {
-                      navigate(`/${role}/papers/${paper.paperId}`);
-                      onClose();
-                    }}
-                  >
+              {!loading && papers.map((paper, i) => (
+                <motion.div
+                  key={paper.paperId || i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: Math.min(i * 0.03, 0.5) }}
+                  className="p-3 rounded-lg bg-card border border-border hover:border-primary/15 transition-colors group cursor-pointer"
+                  onClick={() => {
+                    const url = paper.sourceUrl
+                      ? `/${role}/papers/${paper.paperId}?sourceUrl=${encodeURIComponent(paper.sourceUrl)}`
+                      : `/${role}/papers/${paper.paperId}`;
+                    navigate(url);
+                    onClose();
+                  }}
+                >
+                  {/* Number + Title */}
+                  <div className="flex items-start gap-2">
+                    <span className="text-[10px] font-mono text-muted-foreground/50 shrink-0 mt-0.5">
+                      {startItem + i}
+                    </span>
                     <p className="text-xs font-medium text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">
                       {paper.title}
                     </p>
+                  </div>
 
-                    <div className="flex items-center gap-3 mt-1.5 text-[10px] text-muted-foreground">
-                      {/* Authors */}
-                      {paper.authors && paper.authors.length > 0 && (
-                        <span className="truncate max-w-[200px]">
-                          {paper.authors.slice(0, 3).map((a) => a.fullName || a.name).join(', ')}
-                          {paper.authors.length > 3 && ' et al.'}
-                        </span>
-                      )}
-
-                      {/* Year */}
-                      {paper.pubYear && (
-                        <span className="shrink-0">{paper.pubYear}</span>
-                      )}
-
-                      {/* Citations */}
-                      {paper.citationCount != null && (
-                        <span className="flex items-center gap-0.5 shrink-0">
-                          <Quote size={9} />
-                          {paper.citationCount}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Journal */}
-                    {paper.journalName && (
-                      <p className="text-[10px] text-muted-foreground/70 mt-0.5 truncate">
-                        {paper.journalName}
-                      </p>
+                  {/* Meta row */}
+                  <div className="flex items-center gap-3 mt-1.5 ml-5 text-[10px] text-muted-foreground">
+                    {paper.authors && paper.authors.length > 0 && (
+                      <span className="truncate max-w-[160px]">
+                        {paper.authors.slice(0, 3).map((a) => a.fullName || a.name).join(', ')}
+                        {paper.authors.length > 3 && ' et al.'}
+                      </span>
                     )}
-                  </motion.div>
-                ))}
+                    {(paper.pubYear || paper.year) && (
+                      <span className="shrink-0">{paper.pubYear || paper.year}</span>
+                    )}
+                    {paper.citationCount != null && (
+                      <span className="flex items-center gap-0.5 shrink-0">
+                        <Quote size={9} />
+                        {paper.citationCount.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Journal name */}
+                  {paper.journalName && (
+                    <p className="text-[10px] text-muted-foreground/70 mt-0.5 ml-5 truncate">
+                      {paper.journalName}
+                    </p>
+                  )}
+                </motion.div>
+              ))}
             </div>
 
-            {/* Load more */}
-            {hasMore && !loading && (
-              <div className="flex justify-center pt-2 pb-1">
-                <button
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="px-4 py-2 rounded-lg text-xs font-semibold text-foreground bg-muted hover:bg-muted/60 border border-border transition-all"
-                >
-                  {loading ? 'Loading...' : `Load more (${total - papers.length} remaining)`}
-                </button>
+            {/* ── Pagination Footer ── */}
+            {totalElements > 0 && (
+              <div className="px-5 py-3 border-t border-border shrink-0 bg-card-recessed">
+                {/* Page info */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] text-muted-foreground">
+                    Showing {startItem}–{endItem} of {totalElements.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] font-mono text-muted-foreground">
+                    Page {page + 1} of {displayPages}
+                  </span>
+                </div>
+
+                {/* Navigation buttons */}
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => goToPage(0)}
+                    disabled={page === 0 || loading}
+                    className="px-2 py-1.5 rounded-md text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    First
+                  </button>
+                  <button
+                    onClick={() => goToPage(page - 1)}
+                    disabled={page === 0 || loading}
+                    className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+
+                  {/* Page numbers */}
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: Math.min(displayPages, 7) }, (_, i) => {
+                      let pageNum;
+                      if (displayPages <= 7) {
+                        pageNum = i;
+                      } else if (page <= 3) {
+                        pageNum = i < 5 ? i : displayPages - (7 - i);
+                      } else if (page >= displayPages - 4) {
+                        pageNum = i < 2 ? i : displayPages - (7 - i);
+                      } else {
+                        pageNum = i < 2 ? i : i === 6 ? displayPages - 1 : page - 3 + i;
+                      }
+
+                      if (i === 2 && pageNum > 2 && page > 3) {
+                        return <span key="e1" className="text-[10px] text-muted-foreground px-1">…</span>;
+                      }
+                      if (i === 5 && pageNum < displayPages - 1 && page < displayPages - 4) {
+                        return <span key="e2" className="text-[10px] text-muted-foreground px-1">…</span>;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => goToPage(pageNum)}
+                          disabled={loading}
+                          className={`w-7 h-7 rounded-md text-[10px] font-semibold transition-all ${
+                            pageNum === page
+                              ? 'bg-primary text-primary-foreground shadow-sm'
+                              : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+                          }`}
+                        >
+                          {pageNum + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    onClick={() => goToPage(page + 1)}
+                    disabled={page >= displayPages - 1 || loading}
+                    className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                  <button
+                    onClick={() => goToPage(displayPages - 1)}
+                    disabled={page >= displayPages - 1 || loading}
+                    className="px-2 py-1.5 rounded-md text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/40 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    Last
+                  </button>
+                </div>
               </div>
             )}
-
-            {/* Footer */}
-            <div className="px-5 py-3 border-t border-border shrink-0">
-              <p className="text-[10px] text-muted-foreground/70 text-center">
-                Click a paper to view details
-              </p>
-            </div>
           </motion.div>
         </>
       )}

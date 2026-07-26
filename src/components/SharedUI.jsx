@@ -39,13 +39,15 @@ export function StatusPill({ status }) {
  );
 }
 
-export function StatCard({ label, value, change, Icon, accent }) {
+export function StatCard({ label, value, change, Icon, accent, onClick }) {
  const up = !change.startsWith('-');
+ const isClickable = typeof onClick === 'function';
  return (
  <motion.div
   whileHover={{ y: -4 }}
   transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-  className="rounded-xl p-5 border relative overflow-hidden cursor-default group"
+  onClick={onClick}
+  className={`rounded-xl p-5 border relative overflow-hidden group ${isClickable ? 'cursor-pointer' : 'cursor-default'}`}
   style={{ background: 'var(--card)', borderColor: 'var(--border)' }}
  >
   <div
