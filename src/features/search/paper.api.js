@@ -30,6 +30,22 @@ export const paperAPI = {
   },
 
   /**
+   * Search papers directly from OpenAlex with full pagination.
+   * Returns the REAL total count from OpenAlex — not limited to local DB.
+   * GET /api/v1/papers/search/openalex?query=...&page=0&size=20
+   */
+  async searchOpenAlex(params = {}) {
+    const { data } = await axiosClient.get('/api/v1/papers/search/openalex', {
+      params: {
+        query: params.query || '',
+        page: params.page ?? 0,
+        size: params.size ?? 20,
+      },
+    });
+    return data;
+  },
+
+  /**
    * Tìm kiếm bài báo nâng cao (POST).
    * Gửi request body: { query, authorName, journalId, page, size }
    * Nhận response: { status, message, data: { papers, totalElements, totalPages, currentPage, pageSize, hasNext, hasPrev }, timestamp }
@@ -103,8 +119,10 @@ export const paperAPI = {
    * Lấy chi tiết một paper theo ID.
    * GET /api/v1/papers/{paperId}
    */
-  async getPaperById(paperId) {
-    const { data } = await axiosClient.get(`/api/v1/papers/${paperId}`);
+  async getPaperById(paperId, sourceUrl) {
+    const params = {};
+    if (sourceUrl) params.sourceUrl = sourceUrl;
+    const { data } = await axiosClient.get(`/api/v1/papers/${paperId}`, { params });
     return data.data || data;
   },
 
@@ -188,7 +206,7 @@ export const paperAPI = {
   async searchPapersByJournal(params = {}) {
     const { data } = await axiosClient.get('/api/v1/papers/search/journal', {
       params: {
-        journalName: params.journalName || '',
+        journalId: params.journalId || '',
         page: params.page ?? 0,
         size: params.size ?? 20,
         sortBy: params.sortBy || 'relevance',
@@ -208,8 +226,10 @@ export const paperAPI = {
         authorName: params.authorName || '',
         page: params.page ?? 0,
         size: params.size ?? 20,
-        sortBy: params.sortBy || 'relevance',
+        sortBy: params.sortBy || 'citations',
         sortDirection: params.sortDirection || 'desc',
+        pubYearFrom: params.pubYearFrom || undefined,
+        pubYearTo: params.pubYearTo || undefined,
       },
     });
     return data; // AppResponse<Page<Paper>>

@@ -12,6 +12,7 @@ import AuthorTimeline from './AuthorTimeline';
 import AuthorResearchFocus from './AuthorResearchFocus';
 import AuthorCoAuthors from './AuthorCoAuthors';
 import AuthorSuggestions from './AuthorSuggestions';
+import PaperListSidebar from './PaperListSidebar';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Main Component
@@ -47,6 +48,12 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
   const [searchLimit, setSearchLimit] = useState(null);
   const [resetDate, setResetDate] = useState(null);
   const quotaExhausted = isAcademic && searchesLeft === 0;
+
+  // ── Sidebar state for timeline bar click ──
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarYear, setSidebarYear] = useState(null);
+  const [sidebarAuthor, setSidebarAuthor] = useState('');
+  const [sidebarTotal, setSidebarTotal] = useState(null);
 
   useEffect(() => {
     if (!isAcademic) return;
@@ -96,7 +103,9 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     debounceRef.current = setTimeout(async () => {
       try {
         setSuggestLoading(true);
-        const res = await authorAPI.getSuggest(q, { page: 1, size: 20 });
+        // Strip Vietnamese diacritics — OpenAlex doesn't support them
+        const searchQuery = stripVietnameseDiacritics(q);
+        const res = await authorAPI.getSuggest(searchQuery, { page: 1, size: 20 });
         // Handle paginated response: { data: [...], total, page, hasMore }
         if (res && Array.isArray(res.data)) {
           setApiSuggestions(res.data);
@@ -137,7 +146,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     const nextPage = suggestPage + 1;
     try {
       setSuggestLoading(true);
-      const res = await authorAPI.getSuggest(query.trim(), { page: nextPage, size: 20 });
+      const res = await authorAPI.getSuggest(stripVietnameseDiacritics(query.trim()), { page: nextPage, size: 20 });
       if (res && Array.isArray(res.data)) {
         setApiSuggestions((prev) => [...prev, ...res.data]);
         setSuggestTotal(res.total || 0);
@@ -152,6 +161,14 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
   };
 
   // ─── Helpers ───
+  /** Strip Vietnamese diacritics for OpenAlex search (OpenAlex doesn't support them) */
+  const stripVietnameseDiacritics = (str) => {
+    return str
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '') // remove combining diacritics
+      .replace(/đ/g, 'd').replace(/Đ/g, 'D'); // đ/Đ are base letters, not diacritic combos
+  };
+
   const saveToSearchHistory = (keyword) => {
     const trimmed = keyword.trim();
     if (!trimmed) return;
@@ -172,6 +189,24 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     if (!topicName) return;
     const role = currentRole || 'researcher';
     navigate(`/${role}/search?q=${encodeURIComponent(topicName)}`);
+  };
+
+  // ─── Timeline bar click → open sidebar with papers for that year ───
+  const handleBarClick = (data) => {
+    if (!data?.year || !searchedAuthor) return;
+    setSidebarYear(data.year);
+    setSidebarAuthor(searchedAuthor);
+    setSidebarTotal(null);
+    setSidebarOpen(true);
+  };
+
+  // ─── Total Papers click → open sidebar with all papers by author ───
+  const handleTotalPapersClick = (total) => {
+    if (!searchedAuthor) return;
+    setSidebarYear(null);
+    setSidebarAuthor(searchedAuthor);
+    setSidebarTotal(total ?? null);
+    setSidebarOpen(true);
   };
 
   const removeSearchHistoryItem = (keyword) => {
@@ -532,13 +567,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-8"
           >
-            <AuthorQuickStats keyword={searchedAuthor} />
+            <AuthorQuickStats keyword={searchedAuthor} onTotalPapersClick={handleTotalPapersClick} />
             {isAcademic ? (
               <div className="space-y-8">
                 {/* Timeline — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
-                    <AuthorTimeline keyword={searchedAuthor} />
+                    <AuthorTimeline keyword={searchedAuthor} onBarClick={handleBarClick} highlightYear={sidebarOpen ? sidebarYear : null} />
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center space-y-3 px-4">
@@ -603,13 +638,22 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               </div>
             ) : (
               <>
-                <AuthorTimeline keyword={searchedAuthor} />
+                <AuthorTimeline keyword={searchedAuthor} onBarClick={handleBarClick} highlightYear={sidebarOpen ? sidebarYear : null} />
                 <AuthorResearchFocus keyword={searchedAuthor} onTopicClick={handleTopicClick} />
                 <AuthorCoAuthors keyword={searchedAuthor} onAuthorClick={handleSearch} />
               </>
             )}
           </motion.div>
         )}
+
+        {/* ─── Paper List Sidebar (timeline bar click) ─── */}
+        <PaperListSidebar
+          authorName={sidebarAuthor}
+          year={sidebarYear}
+          totalOverride={sidebarTotal}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
       </div>
     </div>
   );

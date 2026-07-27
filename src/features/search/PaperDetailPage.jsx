@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
@@ -138,7 +138,7 @@ function RequestPdfButton({ paperId, paperTitle, hasRequestedPdf }) {
    AI Summary Section (self-contained, pattern: SimilarPapers)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function AISummarySection({ paperId }) {
+function AISummarySection({ paperId, hasAbstract }) {
   const { t } = useTranslation('search');
   const [aiData, setAiData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -212,6 +212,9 @@ function AISummarySection({ paperId }) {
             </div>
           ))}
         </div>
+        <p className="text-[10px] text-muted-foreground/60 text-center mt-4">
+          Generating AI summary... this may take a few seconds
+        </p>
       </div>
     );
   }
@@ -243,6 +246,19 @@ function AISummarySection({ paperId }) {
   const isStructured = aiData?.aiSummarySections?.length > 0;
 
   if (!hasContent && !hasMethodology) {
+    // Loading state: AI not fetched yet
+    if (loading) return null; // parent shows skeleton
+
+    // No abstract in source data (OpenAlex doesn't have it)
+    if (hasAbstract === false) {
+      return (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-muted/30 border border-border">
+          <FileText size={13} className="text-muted-foreground shrink-0" />
+          <span className="text-[11px] text-muted-foreground">No abstract available for this paper — summary cannot be generated.</span>
+        </div>
+      );
+    }
+    // AI service unavailable
     return (
       <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-accent-blue/[0.03 border border-accent-blue/10">
         <BrainCircuit size={13} className="text-accent-blue/50 shrink-0" />
@@ -354,6 +370,8 @@ function AISummarySection({ paperId }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 export default function PaperDetailPage() {
   const { paperId } = useParams();
+  const [searchParams] = useSearchParams();
+  const sourceUrl = searchParams.get('sourceUrl') || undefined;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -406,7 +424,7 @@ export default function PaperDetailPage() {
     setLoading(true);
     setError(null);
     try {
-      const data = await paperAPI.getPaperById(paperId);
+      const data = await paperAPI.getPaperById(paperId, sourceUrl);
       if (data) {
         setPaper(data);
         clearCache('reading-history-list'); // invalidate so history page shows fresh data
@@ -796,7 +814,7 @@ export default function PaperDetailPage() {
             <UpgradeBanner feature="AI-powered paper summary" />
           </motion.div>
         ) : (
-          <AISummarySection paperId={paperId} />
+          <AISummarySection paperId={paperId} hasAbstract={!!paper?.abstractText} />
         )}
 
         {/* ── Authors ── */}

@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from 'recharts';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 import { authorAPI } from './author.api';
@@ -68,7 +69,7 @@ function CustomTooltip({ active, payload, label }) {
    Main Component
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export default function AuthorTimeline({ keyword }) {
+export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -188,11 +189,27 @@ export default function AuthorTimeline({ keyword }) {
               yAxisId="left"
               dataKey="worksCount"
               name="Papers"
-              fill="var(--chart-1)"
               radius={[4, 4, 0, 0]}
               barSize={20}
-              fillOpacity={0.85}
-            />
+              onClick={(data) => {
+                if (data?.worksCount > 0 && onBarClick) {
+                  onBarClick(data);
+                }
+              }}
+              cursor="pointer"
+            >
+              {timeline.map((entry, index) => {
+                const isActive = highlightYear != null && entry.year === highlightYear;
+                const hasData = entry.worksCount > 0;
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill="var(--chart-1)"
+                    fillOpacity={isActive ? 1 : hasData ? 0.85 : 0.25}
+                  />
+                );
+              })}
+            </Bar>
             <Line
               yAxisId="right"
               type="monotone"
