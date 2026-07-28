@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FolderPlus, Folder, Trash2, Check, X, Plus, Edit3, Layers } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,6 +10,7 @@ import { collectionsAPI } from './collectionsApi';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function CollectionsPanel({ activeCollection, onSelectCollection }) {
+  const { t } = useTranslation('dashboard');
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -37,26 +39,26 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
     setCreating(true);
     try {
       await collectionsAPI.createCollection({ name });
-      toast.success('Collection created!');
+      toast.success(t('collections.created'));
       setNewName('');
       setShowCreate(false);
       fetchCollections();
     } catch (err) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to create collection');
+      toast.error(err?.response?.data?.message || err?.message || t('collections.createFailed'));
     } finally {
       setCreating(false);
     }
   };
 
   const handleDelete = async (id, name) => {
-    if (!confirm(`Delete collection "${name}"? Papers inside will not be deleted.`)) return;
+    if (!confirm(t('collections.deleteConfirm', { name }))) return;
     try {
       await collectionsAPI.deleteCollection(id);
-      toast.success('Collection deleted');
+      toast.success(t('collections.deleted'));
       if (activeCollection === id) onSelectCollection(null);
       fetchCollections();
     } catch (err) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to delete');
+      toast.error(err?.response?.data?.message || err?.message || t('collections.deleteFailed'));
     }
   };
 
@@ -65,12 +67,12 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
     if (!name) return;
     try {
       await collectionsAPI.updateCollection(id, { name });
-      toast.success('Collection renamed');
+      toast.success(t('collections.renamed'));
       setEditingId(null);
       setEditName('');
       fetchCollections();
     } catch (err) {
-      toast.error(err?.response?.data?.message || err?.message || 'Failed to rename');
+      toast.error(err?.response?.data?.message || err?.message || t('collections.renameFailed'));
     }
   };
 
@@ -90,7 +92,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
           }`}
         >
           <Layers size={11} className="inline mr-1.5" />
-          All
+          {t('collections.all')}
         </button>
 
         {/* Collection tabs */}
@@ -132,7 +134,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
                       }`}
                     >
                       <Folder size={11} className="inline mr-1.5" />
-                      {col.name || col.collectionName || 'Untitled'}
+                      {col.name || col.collectionName || t('collections.untitled')}
                       {col.paperCount > 0 && (
                         <span className="ml-1.5 text-[9px] text-muted-foreground">({col.paperCount})</span>
                       )}
@@ -141,14 +143,14 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
                       <button
                         onClick={() => { setEditingId(col.collectionId || col.id); setEditName(col.name || col.collectionName || ''); }}
                         className="p-1 text-muted-foreground hover:text-primary transition-colors"
-                        title="Rename"
+                        title={t('collections.rename')}
                       >
                         <Edit3 size={9} />
                       </button>
                       <button
                         onClick={() => handleDelete(col.collectionId || col.id, col.name || col.collectionName)}
                         className="p-1 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                        title="Delete"
+                        title={t('collections.delete')}
                       >
                         <Trash2 size={9} />
                       </button>
@@ -167,7 +169,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-muted-foreground border border-dashed border-primary/10 hover:text-primary hover:border-primary/30 transition-all"
           >
             <Plus size={11} />
-            New
+            {t('collections.new')}
           </button>
         ) : (
           <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/20 bg-card">
@@ -176,7 +178,7 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') { setShowCreate(false); setNewName(''); } }}
-              placeholder="Name..."
+              placeholder={t('collections.namePlaceholder')}
               className="w-28 text-[11px] bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
               autoFocus
             />

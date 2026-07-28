@@ -7,25 +7,25 @@ import { reportAPI } from './api';
 const spring = { type: 'spring', stiffness: 300, damping: 30 };
 
 const STATUS_META = {
-  pending:   { icon: Clock,         bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', label: 'Pending' },
-  reviewed:  { icon: Eye,           bg: 'bg-blue-500/10',   text: 'text-blue-400',   border: 'border-blue-500/20',   label: 'Reviewed' },
-  resolved:  { icon: CheckCircle2,  bg: 'bg-emerald-500/10',text: 'text-emerald-400',border: 'border-emerald-500/20',label: 'Resolved' },
-  dismissed: { icon: XCircle,       bg: 'bg-gray-500/10',   text: 'text-gray-400',   border: 'border-gray-500/20',   label: 'Dismissed' },
+  pending:   { icon: Clock,         bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20', labelKey: 'myReports.status.pending' },
+  reviewed:  { icon: Eye,           bg: 'bg-blue-500/10',   text: 'text-blue-400',   border: 'border-blue-500/20',   labelKey: 'myReports.status.reviewed' },
+  resolved:  { icon: CheckCircle2,  bg: 'bg-emerald-500/10',text: 'text-emerald-400',border: 'border-emerald-500/20',labelKey: 'myReports.status.resolved' },
+  dismissed: { icon: XCircle,       bg: 'bg-gray-500/10',   text: 'text-gray-400',   border: 'border-gray-500/20',   labelKey: 'myReports.status.dismissed' },
 };
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, t }) {
   const meta = STATUS_META[status] || STATUS_META.pending;
   const Icon = meta.icon;
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider border ${meta.bg} ${meta.text} ${meta.border}`}>
       <Icon size={10} />
-      {meta.label}
+      {t(meta.labelKey)}
     </span>
   );
 }
 
 export default function MyReportsPage() {
-  const { t: tc } = useTranslation('common');
+  const { t } = useTranslation('reports');
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,8 +59,8 @@ export default function MyReportsPage() {
   return (
     <div className="min-h-screen p-6 lg:p-8 space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={spring}>
-        <h1 className="text-xl font-bold text-foreground font-display">My Reports</h1>
-        <p className="text-sm text-muted-foreground">Reports you have submitted</p>
+        <h1 className="text-xl font-bold text-foreground font-display">{t('myReports.heading')}</h1>
+        <p className="text-sm text-muted-foreground">{t('myReports.subtitle')}</p>
       </motion.div>
 
       <div className="space-y-3">
@@ -71,7 +71,7 @@ export default function MyReportsPage() {
         ) : reports.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Inbox size={32} className="text-muted-foreground mb-3" />
-            <p className="text-sm text-muted-foreground">No reports submitted yet.</p>
+            <p className="text-sm text-muted-foreground">{t('myReports.empty')}</p>
           </div>
         ) : (
           reports.map((r, i) => (
@@ -89,7 +89,7 @@ export default function MyReportsPage() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <StatusBadge status={r.status} />
+                      <StatusBadge status={r.status} t={t} />
                       <span className="text-[10px] text-muted-foreground">{formatDate(r.createdAt)}</span>
                     </div>
                     <h4 className="text-sm font-semibold text-foreground line-clamp-1">{r.title}</h4>
@@ -99,7 +99,7 @@ export default function MyReportsPage() {
                     {r.adminNote && (
                       <div className="mt-2 p-2 rounded-lg bg-blue-500/5 border border-blue-500/10">
                         <p className="text-[11px] text-blue-400/80">
-                          <span className="font-medium">Admin:</span> {r.adminNote}
+                          <span className="font-medium">{t('myReports.adminLabel')}</span> {r.adminNote}
                         </p>
                       </div>
                     )}

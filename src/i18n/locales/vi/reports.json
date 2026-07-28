@@ -3,6 +3,40 @@
     "title": "Báo cáo & Xuất dữ liệu",
     "subtitle": "Tạo, tùy chỉnh và tải xuống dữ liệu phân tích của bạn."
   },
+  "page": {
+    "title": "Báo cáo xu hướng từ khóa",
+    "subtitle": "Tìm kiếm từ khóa và tạo báo cáo phân tích xu hướng",
+    "emptyTitle": "Tạo báo cáo xu hướng từ khóa",
+    "emptyDesc": "Vào trang Tìm kiếm bài báo, tìm kiếm từ khóa và nhấn Tạo báo cáo trong mục Thống kê nhanh. Phân tích xu hướng sẽ hiển thị ngay tại đây.",
+    "searchPapers": "Tìm kiếm bài báo",
+    "quickStats": "Thống kê nhanh",
+    "generateReport": "Tạo báo cáo",
+    "generating": "Đang tạo báo cáo",
+    "generatingDesc": "Đang phân tích xu hướng cho \"{{keyword}}\" — đang tải dữ liệu xuất bản, chỉ số trích dẫn và từ khóa liên quan...",
+    "reportHistory": "Lịch sử báo cáo",
+    "keywordsCount": "{{count}} từ khóa",
+    "keywordsCount_plural": "{{count}} từ khóa",
+    "columns": {
+      "keyword": "Từ khóa",
+      "createdDate": "Ngày tạo",
+      "action": "Thao tác"
+    },
+    "removeFromHistory": "Xóa khỏi lịch sử",
+    "refresh": "Làm mới"
+  },
+  "toast": {
+    "success": "Tạo báo cáo thành công!",
+    "error": "Tạo báo cáo thất bại",
+    "loadError": "Tạo báo cáo thất bại",
+    "loadedReport": "Đã tải báo cáo cho \"{{keyword}}\"",
+    "loadFailed": "Không thể tải báo cáo",
+    "removedKeyword": "Đã xóa \"{{keyword}}\" khỏi lịch sử",
+    "removeFailed": "Không thể xóa từ khóa",
+    "savedLocally": "Đã lưu báo cáo cục bộ",
+    "nothingToExport": "Không có gì để xuất — nội dung chưa sẵn sàng",
+    "printOpened": "Đã mở hộp thoại in — chọn \"Lưu dưới dạng PDF\"",
+    "exportFailed": "Xuất thất bại — thử Tải xuống JSON"
+  },
   "templates": {
     "trendAnalysis": {
       "name": "Báo cáo xu hướng từ khóa",
@@ -29,13 +63,24 @@
   "history": {
     "title": "Lịch sử báo cáo",
     "showing": "Hiển thị 30 ngày qua",
+    "reportCount": "{{count}} báo cáo",
+    "reportCount_plural": "{{count}} báo cáo",
     "columns": {
       "reportName": "Tên báo cáo",
       "type": "Loại",
+      "query": "Truy vấn",
+      "generated": "Đã tạo",
       "dateGenerated": "Ngày tạo",
       "size": "Kích thước",
       "status": "Trạng thái",
       "action": "Thao tác"
+    },
+    "status": {
+      "ready": "Sẵn sàng"
+    },
+    "action": {
+      "view": "Xem",
+      "delete": "Xóa"
     }
   },
   "input": {
@@ -44,10 +89,6 @@
       "journal": "Nhập tên tạp chí (vd: Nature)...",
       "author": "Nhập tên tác giả..."
     }
-  },
-  "toast": {
-    "success": "Tạo báo cáo thành công!",
-    "error": "Tạo báo cáo thất bại"
   },
   "summary": {
     "title": "Tổng quan",
@@ -60,13 +101,73 @@
     "publicationTrend": "Xu hướng xuất bản theo thời gian",
     "citationTrend": "Xu hướng trích dẫn theo thời gian",
     "coKeywords": "Mạng lưới từ khóa liên quan",
-    "topJournals": "Phân bổ theo Tạp chí"
+    "topJournals": "Phân bổ theo Tạp chí",
+    "papers": "Bài báo",
+    "citations": "Trích dẫn",
+    "cooccurrences": "Lần xuất hiện chung",
+    "yearPrefix": "Năm",
+    "donutPapersLabel": "bài báo",
+    "donutPapersSuffix": "bài báo",
+    "insufficientData": "Không đủ dữ liệu để hiển thị biểu đồ",
+    "needTwoYearsTrend": "Cần ít nhất 2 năm dữ liệu cho biểu đồ xu hướng",
+    "needTwoYearsCitation": "Cần ít nhất 2 năm dữ liệu trích dẫn",
+    "noCoKeywords": "Không tìm thấy từ khóa liên quan",
+    "noJournalDistribution": "Không có dữ liệu phân bổ tạp chí"
   },
   "insight": {
     "title": "Nhận định & Phân tích"
   },
+  "stats": {
+    "hIndex": "Chỉ số h",
+    "totalPapers": "Tổng số bài báo",
+    "topField": "Lĩnh vực hàng đầu",
+    "topCollaborators": "Cộng tác viên hàng đầu",
+    "score": "Điểm",
+    "citations": "Trích dẫn",
+    "impactFactor": "Hệ số tác động"
+  },
+  "authorImpact": {
+    "headerBadge": "Báo cáo tác động tác giả",
+    "reportTitle": "Hồ sơ học thuật: {{name}}",
+    "unknown": "Không rõ",
+    "papersCount": "{{count}} bài báo",
+    "papersCount_plural": "{{count}} bài báo"
+  },
+  "journalQuality": {
+    "headerBadge": "Báo cáo chất lượng tạp chí",
+    "reportTitle": "Chất lượng tạp chí: {{name}}",
+    "issnPrefix": "ISSN: ",
+    "ifPrefix": "IF: ",
+    "editorialFocus": "Trọng tâm biên tập",
+    "recentKeywords": "Từ khóa gần đây",
+    "insight": "Nhận định"
+  },
+  "myReports": {
+    "heading": "Báo cáo của tôi",
+    "subtitle": "Báo cáo bạn đã gửi",
+    "empty": "Chưa có báo cáo nào được gửi.",
+    "adminLabel": "Admin:",
+    "status": {
+      "pending": "Đang chờ",
+      "reviewed": "Đã xem xét",
+      "resolved": "Đã giải quyết",
+      "dismissed": "Đã bỏ qua"
+    }
+  },
+  "export": {
+    "downloadJson": "Tải xuống JSON",
+    "exportPdf": "Xuất PDF",
+    "openingPrint": "Đang mở hộp thoại in...",
+    "saveReport": "Lưu báo cáo",
+    "saving": "Đang lưu..."
+  },
+  "result": {
+    "generatedAt": "Đã tạo: ",
+    "yoyGrowth": "% YoY"
+  },
   "button": {
     "generate": "Tạo báo cáo",
-    "customReport": "Báo cáo tùy chỉnh"
+    "customReport": "Báo cáo tùy chỉnh",
+    "generating": "Đang tạo..."
   }
 }

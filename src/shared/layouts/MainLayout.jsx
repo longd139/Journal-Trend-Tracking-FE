@@ -166,7 +166,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
             sessionStorage.removeItem('scitrack_author_query');
             sessionStorage.removeItem('scitrack_referrer');
             clearTokens();
-            toast.success('Signed out successfully', { duration: 3000 });
+            toast.success(t('toast.signedOut', 'Signed out successfully'), { duration: 3000 });
             navigate('/login');
           }}
          className="w-full text-xs py-2.5 rounded-lg font-bold transition-all bg-foreground/5 text-muted-foreground hover:bg-red-500 hover:text-foreground"

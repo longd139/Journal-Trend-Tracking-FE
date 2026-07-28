@@ -32,7 +32,9 @@
     "keyword": "Keyword",
     "author": "Author",
     "followedOn": "Followed on {{date}}",
-    "notification": "Notification"
+    "notification": "Notification",
+    "followCount": "{{count}} follow",
+    "followCount_plural": "{{count}} follows"
   },
   "toast": {
     "followSuccess": "Followed successfully",

@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   BellRing,
@@ -16,6 +17,7 @@ import {
   Inbox,
   Clock,
   UserCheck,
+  Search,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { notificationAPI } from './api';
@@ -72,7 +74,7 @@ function normalizeNotif(api) {
   };
 }
 
-function formatRelativeTime(notif) {
+function formatRelativeTime(notif, t) {
   if (notif.rawCreatedAt) {
     try {
       const d = new Date(notif.rawCreatedAt);
@@ -82,25 +84,22 @@ function formatRelativeTime(notif) {
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
 
-      if (diffMins < 1) return 'Just now';
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffHours < 24) return `${diffHours}h ago`;
-      if (diffDays < 7) return `${diffDays}d ago`;
+      if (diffMins < 1) return t('notifications.justNow');
+      if (diffMins < 60) return t('notifications.minutesAgo', { count: diffMins });
+      if (diffHours < 24) return t('notifications.hoursAgo', { count: diffHours });
+      if (diffDays < 7) return t('notifications.daysAgo', { count: diffDays });
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    } catch {
-      // fall through
-    }
+    } catch { /* fall through */ }
   }
-  // Fallback for old mock data or unparseable dates
   if (notif.timestamp) {
     const diff = Date.now() - notif.timestamp;
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t('notifications.justNow');
+    if (mins < 60) return t('notifications.minutesAgo', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return t('notifications.hoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return t('notifications.daysAgo', { count: days });
     return new Date(notif.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
   return '';
@@ -111,6 +110,7 @@ function formatRelativeTime(notif) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
+  const { t } = useTranslation('common');
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
 
@@ -149,7 +149,7 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
             </h4>
             <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap flex items-center gap-1">
               <Clock size={10} />
-              {formatRelativeTime(notif)}
+              {formatRelativeTime(notif, t)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
@@ -172,13 +172,29 @@ function NotificationCard({ notif, isSelected, onClick, onDismiss }) {
   );
 }
 
+function extractKeywordFromText(text) {
+  if (!text || typeof text !== 'string') return '';
+  const quoted = text.match(/["«]([^"»]{2,50})["»]/);
+  if (quoted) return quoted[1].trim();
+  const pattern = text.match(/([A-Za-z0-9\s\-+#.]{3,40}) (?:usage|increased|decreased|trend|trending|grew|growth|surge)/i);
+  if (pattern) return pattern[1].trim();
+  return '';
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
-   Notification detail view
+   Notification detail view (inline in bell panel)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function NotificationDetail({ notif, onBack }) {
+function NotificationDetail({ notif, onBack, onSearchKeyword }) {
+  const { t } = useTranslation('common');
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
+  // Extract keyword: use relatedKeywordText first, fallback to extracting from title/message
+  const keyword = notif.relatedKeywordText?.trim()
+    || extractKeywordFromText(notif.title)
+    || extractKeywordFromText(notif.detail)
+    || '';
+  const hasKeyword = !!keyword;
 
   return (
     <motion.div
@@ -187,21 +203,18 @@ function NotificationDetail({ notif, onBack }) {
       exit={{ opacity: 0, x: -30 }}
       className="h-full flex flex-col"
     >
-      {/* Back button */}
       <button
         onClick={onBack}
         className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-primary transition-colors mb-5 self-start"
       >
         <ChevronLeft size={14} />
-        Back to notifications
+        {t('notifications.backToList')}
       </button>
 
-      {/* Icon */}
       <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${colors.bg}`}>
         <Icon size={26} className={colors.text} />
       </div>
 
-      {/* Title & time */}
       <div className="mb-5">
         <h2 className="text-lg font-black text-foreground mb-1.5 font-display tracking-tight">
           {notif.title}
@@ -212,21 +225,29 @@ function NotificationDetail({ notif, onBack }) {
         </span>
       </div>
 
-      {/* Detail content */}
       <div className="flex-1">
         <p className="text-sm text-foreground/80 leading-relaxed whitespace-pre-wrap">
           {notif.detail}
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="pt-6 border-t border-primary/10">
-        <button
-          onClick={onBack}
-          className="w-full py-3 rounded-xl text-sm font-bold text-black bg-primary hover:bg-foreground transition-all duration-300 hover:shadow-[0_0_24px_var(--primary)]"
-        >
-          Got it
-        </button>
+      <div className="pt-6 border-t border-primary/10 space-y-2.5">
+        {hasKeyword ? (
+          <button
+            onClick={() => onSearchKeyword(keyword)}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 hover:shadow-[0_0_24px_var(--primary)] flex items-center justify-center gap-2"
+          >
+            <Search size={15} />
+            {t('notifications.searchKeyword', { keyword })}
+          </button>
+        ) : (
+          <button
+            onClick={onBack}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transition-all duration-300 hover:shadow-[0_0_24px_var(--primary)]"
+          >
+            {t('notifications.gotIt')}
+          </button>
+        )}
       </div>
     </motion.div>
   );
@@ -263,7 +284,6 @@ function EmptyState({ t }) {
 export default function NotificationBell() {
   const { t } = useTranslation('common');
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedNotif, setSelectedNotif] = useState(null);
   const [filter, setFilter] = useState('all'); // 'all' | 'unread'
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -271,6 +291,8 @@ export default function NotificationBell() {
 
   const userRole = sessionStorage.getItem('userRole');
   const isAdmin = userRole === 'admin';
+  const navigate = useNavigate();
+  const [selectedNotif, setSelectedNotif] = useState(null);
 
   /* ── Fetch notifications from API ────────────────────────────────── */
   const fetchNotifications = useCallback(async () => {
@@ -396,6 +418,14 @@ export default function NotificationBell() {
     if (!notif.read) markAsRead(notif.id);
   };
 
+  const handleSearchKeyword = (keyword) => {
+    setIsOpen(false);
+    setSelectedNotif(null);
+    const rawRole = sessionStorage.getItem('userRole') || 'researcher';
+    const role = rawRole === 'academic' ? 'academic_user' : rawRole;
+    navigate(`/${role}/search?q=${encodeURIComponent(keyword)}`);
+  };
+
   /* ── Keyboard: Esc to close ─────────────────────────────────────── */
   useEffect(() => {
     if (!isOpen) return;
@@ -489,12 +519,7 @@ export default function NotificationBell() {
                 <div className="shrink-0 px-6 pt-6 pb-4 border-b border-primary/8">
                   <AnimatePresence mode="wait">
                     {!selectedNotif ? (
-                      <motion.div
-                        key="list-header"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                      >
+                      <motion.div key="list-header" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                         {/* Top row */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-3">
@@ -507,7 +532,7 @@ export default function NotificationBell() {
                               </h2>
                               {unreadCount > 0 && (
                                 <p className="text-[11px] font-medium text-muted-foreground">
-                                  {unreadCount} unread {unreadCount === 1 ? 'message' : 'messages'}
+                                  {t('notifications.unreadCount', { count: unreadCount })}
                                 </p>
                               )}
                             </div>
@@ -534,12 +559,11 @@ export default function NotificationBell() {
                             </motion.button>
                           </div>
                         </div>
-
                         {/* Filter tabs */}
                         <div className="flex gap-1.5 p-1 rounded-xl bg-primary/[0.04] border border-border">
                           {[
-                            { key: 'all', label: 'All' },
-                            { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
+                            { key: 'all', label: t('notifications.all') },
+                            { key: 'unread', label: `${t('notifications.unread')}${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
                           ].map(({ key, label }) => (
                             <button
                               key={key}
@@ -556,37 +580,16 @@ export default function NotificationBell() {
                         </div>
                       </motion.div>
                     ) : (
-                      <motion.div
-                        key="detail-header"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center justify-between"
-                      >
+                      <motion.div key="detail-header" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                              (COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).bg
-                            }`}
-                          >
-                            {(() => {
-                              const Icon = ICON_MAP[selectedNotif.type] || FileText;
-                              return (
-                                <Icon
-                                  size={18}
-                                  className={(COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).text}
-                                />
-                              );
-                            })()}
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${(COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).bg}`}>
+                            {(() => { const Icon = ICON_MAP[selectedNotif.type] || FileText; return <Icon size={18} className={(COLOR_MAP[selectedNotif.type] || COLOR_MAP.system).text} />; })()}
                           </div>
                           <h2 className="text-sm font-black text-foreground font-display tracking-tight truncate max-w-[280px]">
                             {selectedNotif.title}
                           </h2>
                         </div>
-                        <button
-                          onClick={() => setIsOpen(false)}
-                          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
-                        >
+                        <button onClick={() => setIsOpen(false)} className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all">
                           <X size={18} />
                         </button>
                       </motion.div>
@@ -602,15 +605,10 @@ export default function NotificationBell() {
                         key={`detail-${selectedNotif.id}`}
                         notif={selectedNotif}
                         onBack={() => setSelectedNotif(null)}
+                        onSearchKeyword={handleSearchKeyword}
                       />
                     ) : filteredNotifs.length > 0 ? (
-                      <motion.div
-                        key="list"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="space-y-2 pb-6"
-                      >
+                      <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-2 pb-6">
                         <AnimatePresence>
                           {filteredNotifs.map((n) => (
                             <NotificationCard

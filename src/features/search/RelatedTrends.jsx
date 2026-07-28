@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Hash, AlertCircle } from 'lucide-react';
 import { paperAPI } from './paper.api';
@@ -32,7 +33,8 @@ function Skeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
-  const [trends, setTrends] = useState([]);
+  const { t } = useTranslation('search');
+    const [trends, setTrends] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -56,7 +58,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Related trends fetch error:', err);
-          setError(err?.message || 'Failed to load related trends');
+          setError(err?.message || t('trends.loadFailed', 'Failed to load related trends'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -77,7 +79,7 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
     return (
       <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
         <AlertCircle size={13} className="shrink-0" />
-        <span>Related trends unavailable.</span>
+        <span>{t('trends.unavailable')}</span>
       </div>
     );
   }
@@ -142,14 +144,14 @@ export default function RelatedTrends({ keyword, onKeywordClick, filters }) {
               <div className="flex items-center gap-1.5 mb-2.5">
                 <Hash size={11} className="text-muted-foreground" />
                 <span className="text-[11px] text-muted-foreground">
-                  {trend.cooccurrenceCount ?? 0} co-occurrences
+                  {trend.cooccurrenceCount ?? 0} {t('trends.cooccurrences', 'co-occurrences')}
                 </span>
               </div>
 
               {/* This year / Last year */}
               <div className="flex items-center">
                 <span className="text-[10px] text-muted-foreground">
-                  {trend.thisYearCount ?? 0} this yr / {trend.lastYearCount ?? 0} last yr
+                  {trend.thisYearCount ?? 0}{t('trends.thisYr', 'this yr')} / {trend.lastYearCount ?? 0} {t('trends.lastYr', 'last yr')}
                 </span>
               </div>
             </motion.button>

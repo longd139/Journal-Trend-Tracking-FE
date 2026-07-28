@@ -146,6 +146,56 @@
   "toast": {
     "removed": "Đã xóa khỏi bookmark",
     "loadError": "Không thể tải bookmark",
-    "removeError": "Không thể xóa bookmark"
+    "removeError": "Không thể xóa bookmark",
+    "copied": "Đã sao chép!",
+    "copyFailed": "Sao chép thất bại"
+  },
+  "bookmarks": {
+    "batchExport": "Xuất hàng loạt — {{count}} bài báo",
+    "close": "Đóng",
+    "fetchingCitations": "Đang tải trích dẫn...",
+    "noCitationData": "Không có dữ liệu trích dẫn",
+    "generatedLocally": "Tạo cục bộ (máy chủ không khả dụng)",
+    "copied": "Đã sao chép",
+    "copyAll": "Sao chép tất cả",
+    "downloadAll": "Tải tất cả",
+    "paperCount": "{{count}} bài báo",
+    "paperCount_plural": "{{count}} bài báo",
+    "selected": "đã chọn",
+    "untitled": "Không tiêu đề",
+    "removeTitle": "Xóa khỏi bookmark",
+    "citations": "Trích dẫn"
+  },
+  "readingHistory": {
+    "noPapers": "Chưa có bài báo nào được xem",
+    "startExploring": "Bắt đầu khám phá để xây dựng lịch sử đọc",
+    "startBtn": "Bắt đầu khám phá",
+    "untitled": "Không tiêu đề",
+    "cited": "Trích dẫn: ",
+    "openAccess": "Truy cập mở",
+    "viewed": "Đã xem ",
+    "justNow": "vừa xong",
+    "oneMinuteAgo": "1 phút trước",
+    "minutesAgo": "{{count}} phút trước",
+    "oneHourAgo": "1 giờ trước",
+    "hoursAgo": "{{count}} giờ trước",
+    "oneDayAgo": "1 ngày trước",
+    "daysAgo": "{{count}} ngày trước",
+    "at": " lúc "
+  },
+  "collections": {
+    "all": "Tất cả",
+    "new": "Mới",
+    "untitled": "Không tiêu đề",
+    "namePlaceholder": "Tên...",
+    "rename": "Đổi tên",
+    "delete": "Xóa",
+    "created": "Đã tạo bộ sưu tập!",
+    "createFailed": "Không thể tạo bộ sưu tập",
+    "deleted": "Đã xóa bộ sưu tập",
+    "deleteFailed": "Không thể xóa",
+    "deleteConfirm": "Xóa bộ sưu tập \"{{name}}\"? Bài báo bên trong sẽ không bị xóa.",
+    "renamed": "Đã đổi tên bộ sưu tập",
+    "renameFailed": "Không thể đổi tên"
   }
 }

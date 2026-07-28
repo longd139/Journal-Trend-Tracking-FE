@@ -1,4 +1,21 @@
 {
+  "actions": {
+    "search": "Tìm kiếm"
+  },
+  "hero": {
+    "line1": "Khám phá",
+    "highlight": "nghiên cứu đột phá",
+    "line2": "trong học thuật",
+    "subtitle": "Tìm kiếm hàng triệu bài báo, tác giả và tạp chí với phân tích và trực quan hóa bằng AI.",
+    "placeholder": "Tiêu đề bài báo, tên tác giả hoặc tạp chí...",
+    "trending": "Xu hướng hiện tại",
+    "loadingTrending": "Đang tải chủ đề xu hướng..."
+  },
+  "tabs": {
+    "papers": "Bài báo",
+    "authors": "Tác giả",
+    "journals": "Tạp chí"
+  },
   "placeholder": "Tìm kiếm theo từ khóa để tìm bài báo học thuật...",
   "quickSearch": "Tìm nhanh:",
   "clearQuery": "Xóa tìm kiếm",
@@ -12,6 +29,7 @@
   },
   "filters": {
     "title": "Bộ lọc nâng cao",
+    "button": "Bộ lọc",
     "yearRange": "Khoảng năm",
     "startYear": "Năm bắt đầu",
     "endYear": "Năm kết thúc",
@@ -39,8 +57,64 @@
     "placeholder": "Tìm kiếm theo tên tác giả để khám phá hồ sơ học thuật...",
     "clearQuery": "Xóa tìm kiếm",
     "noResults": "Không tìm thấy tác giả.",
+    "noAuthorsFound": "Không tìm thấy tác giả cho \"{{query}}\". Thử tên khác.",
     "error": "Không thể tải dữ liệu tác giả từ hệ thống.",
-    "topicClickHint": "Nhấp vào chủ đề để phân tích sâu hơn →"
+    "topicClickHint": "Nhấp vào chủ đề để phân tích sâu hơn →",
+    "recentSearches": "Tìm kiếm gần đây",
+    "clearAll": "Xóa tất cả",
+    "clearSearchHistory": "Xóa lịch sử tìm kiếm",
+    "noRecentSearches": "Chưa có tìm kiếm nào",
+    "pressEnterToSearch": "Nhấn Enter để tìm \"{{query}}\"",
+    "showingAuthors": "Hiển thị {{shown}} trong số {{total}} tác giả khớp \"{{query}}\"",
+    "showingAuthors_plural": "Hiển thị {{shown}} trong số {{total}} tác giả khớp \"{{query}}\"",
+    "searchingFor": "Đang tìm \"{{query}}\"...",
+    "loadMore": "Tải thêm",
+    "loadMoreRemaining": "Tải thêm (còn {{remaining}})",
+    "loading": "Đang tải...",
+    "profile": "Hồ sơ tác giả",
+    "totalPapers": "Tổng số bài báo",
+    "totalCitations": "Tổng trích dẫn",
+    "hIndex": "Chỉ số h",
+    "i10Index": "Chỉ số i10",
+    "orcidProfile": "Hồ sơ ORCID",
+    "viewOnOpenAlex": "Xem trên OpenAlex",
+    "twoYearMeanCitedness": "Trích dẫn trung bình 2 năm",
+    "publicationTimeline": "Dòng thời gian xuất bản",
+    "papersBy": "Bài báo của {{author}}",
+    "papersIn": "{{count}} bài báo năm {{year}}",
+    "papersTotal": "{{count}} bài báo",
+    "papersTotal_plural": "{{count}} bài báo",
+    "noPapersFound": "Không tìm thấy bài báo nào.",
+    "showingRange": "Hiển thị {{start}}–{{end}} trong {{total}}",
+    "pageOf": "Trang {{page}} / {{total}}",
+    "first": "Đầu",
+    "last": "Cuối",
+    "papers": "Bài báo",
+    "citations": "Trích dẫn",
+    "searchQuota": "Hạn mức tìm kiếm",
+    "searchLimitReached": "Đã đạt giới hạn tìm kiếm",
+    "monthlyLimitMsg": "Bạn đã dùng hết {{limit}} lượt tìm kiếm tháng này. Nâng cấp lên Researcher để không giới hạn.",
+    "upgrade": "Nâng cấp",
+    "upgradeNow": "Nâng cấp ngay",
+    "resetsOn": "· Đặt lại vào {{date}}",
+    "quotaExhaustedPlaceholder": "Đã đạt giới hạn — nâng cấp để tiếp tục",
+    "quotaExhaustedBanner": "Đã đạt giới hạn tháng. Nâng cấp lên Researcher để tìm kiếm không giới hạn.",
+    "statsUnavailable": "Thống kê tác giả không khả dụng.",
+    "timelineUnavailable": "Dòng thời gian không khả dụng.",
+    "coauthorsLoadFailed": "Không thể tải đồng tác giả",
+    "coauthorsUnavailable": "Đồng tác giả không khả dụng.",
+    "researchFocusLoadFailed": "Không thể tải lĩnh vực nghiên cứu",
+    "researchFocusUnavailable": "Lĩnh vực nghiên cứu không khả dụng.",
+    "suggestionsLoadFailed": "Không thể tải gợi ý",
+    "noSuggestedAuthors": "Không có tác giả gợi ý.",
+    "analyzed": "đã phân tích",
+    "uniqueCoauthors": "đồng tác giả duy nhất",
+    "topCollaborators": "Top",
+    "mostFrequentCollaborators": "đồng tác giả thường xuyên nhất",
+    "clickToExplore": "Nhấp để khám phá →",
+    "openInOpenAlex": "Mở trong OpenAlex",
+    "cites": "trích dẫn",
+    "paperCount": "Số bài báo"
   },
   "sort": {
     "label": "Sắp xếp theo",
@@ -89,5 +163,80 @@
     "success": "Đã gửi báo cáo. Cảm ơn bạn đã giúp cải thiện hệ thống.",
     "error": "Không thể gửi báo cáo. Vui lòng thử lại.",
     "duplicate": "Bạn đã báo cáo bài báo này rồi."
+  },
+  "keyword": {
+    "quickStats": "Thống kê nhanh",
+    "generateReport": "Tạo báo cáo",
+    "totalPapers": "Tổng số bài báo",
+    "totalCitations": "Tổng trích dẫn",
+    "yoyGrowth": "Tăng trưởng năm",
+    "avgCitations": "Trích dẫn TB/Bài",
+    "statsLoadFailed": "Không thể tải thống kê từ khóa",
+    "statsUnavailable": "Thống kê nhanh không khả dụng cho từ khóa này.",
+    "topJournals": "Tạp chí hàng đầu",
+    "quickStatsFor": "cho"
+  },
+  "trending": {
+    "trendingNow": "Xu hướng hiện tại",
+    "weeklyBreakout": "Chủ đề đột phá tuần",
+    "loadFailed": "Không thể tải chủ đề xu hướng",
+    "unavailable": "Chủ đề xu hướng không khả dụng — thử lại sau."
+  },
+  "trends": {
+    "relatedResearchTrends": "Xu hướng nghiên cứu liên quan",
+    "loadFailed": "Không thể tải xu hướng liên quan",
+    "unavailable": "Xu hướng liên quan không khả dụng.",
+    "cooccurrences": "lần xuất hiện chung",
+    "thisYr": "năm nay",
+    "lastYr": "năm trước"
+  },
+  "similar": {
+    "title": "Bài báo tương tự",
+    "loadFailed": "Không thể tải bài báo tương tự",
+    "unavailable": "Bài báo tương tự không khả dụng.",
+    "untitled": "Không tiêu đề",
+    "cites": "trích dẫn"
+  },
+  "topPapers": {
+    "title": "Bài báo trích dẫn nhiều nhất",
+    "subtitle": "Bài báo có ảnh hưởng nhất cho chủ đề này",
+    "loadFailed": "Không thể tải bài báo",
+    "unavailable": "Bài báo hàng đầu không khả dụng."
+  },
+  "upsell": {
+    "title": "Nâng cấp lên Researcher",
+    "description": "Mở khóa chi tiết bài báo đầy đủ, tóm tắt AI, xuất trích dẫn và tìm kiếm không giới hạn.",
+    "cta": "Nâng cấp ngay — $999/năm",
+    "maybeLater": "Để sau",
+    "features": [
+      "Tóm tắt & chi tiết bài báo đầy đủ",
+      "Tóm tắt bằng AI",
+      "Gợi ý bài báo tương tự",
+      "Xuất trích dẫn (BibTeX, RIS, APA)",
+      "Tìm kiếm & đánh dấu không giới hạn"
+    ]
+  },
+  "bookmarks": {
+    "removed": "Đã xóa khỏi đánh dấu",
+    "saved": "Đã lưu vào đánh dấu",
+    "failed": "Thất bại"
+  },
+  "journal": {
+    "placeholder": "Tìm kiếm theo tên hoặc ID tạp chí...",
+    "loadFailed": "Không thể tải dữ liệu tạp chí",
+    "categoriesLoadFailed": "Không thể tải danh mục tạp chí",
+    "noResults": "Không tìm thấy tạp chí cho \"{{query}}\".",
+    "browseByField": "Duyệt theo lĩnh vực",
+    "browseDescription": "{{count}} danh mục có sẵn",
+    "noCategoryJournals": "Chưa có tạp chí trong danh mục này.",
+    "emptyPrompt": "Tìm kiếm tạp chí để xem thống kê và bài báo.",
+    "loadError": "Không thể tải danh sách tạp chí.",
+    "totalPapers": "Tổng số bài báo",
+    "totalCitations": "Tổng trích dẫn",
+    "avgCitations": "Trích dẫn TB/Bài",
+    "quartile": "Phân hạng",
+    "notRanked": "Chưa xếp hạng",
+    "quartileTop25": "Top 25%",
+    "quartileBottom25": "25% cuối"
   }
 }

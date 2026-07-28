@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, AlertCircle, Lock, X } from 'lucide-react';
@@ -50,7 +51,8 @@ export default function TopPapers({
   fetchPapers: customFetchPapers,
 }) {
   const navigate = useNavigate();
-  const [papers, setPapers] = useState([]);
+  const { t } = useTranslation('search');
+    const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
@@ -131,7 +133,7 @@ export default function TopPapers({
           // Optimistic: remove from cached bookmarks list
           removeFromCache('bookmarks-list', (item) => item.paperId === paperId);
           window.dispatchEvent(new CustomEvent('bookmark-changed'));
-          toast.success('Removed from bookmarks');
+          toast.success(t('bookmarks.removed', 'Removed from bookmarks'));
         } else {
           const res = await bookmarkAPI.addBookmark(paperId);
           const bm = res?.data?.data || res?.data || res;
@@ -148,7 +150,7 @@ export default function TopPapers({
             createdAt: new Date().toISOString(),
           });
           window.dispatchEvent(new CustomEvent('bookmark-changed'));
-          toast.success('Saved to bookmarks');
+          toast.success(t('bookmarks.saved', 'Saved to bookmarks'));
         }
       } catch (err) {
         // 409 = already bookmarked → state is already correct, ignore
@@ -160,7 +162,7 @@ export default function TopPapers({
             else next.delete(paperId);
             return next;
           });
-          toast.error(err?.response?.data?.message || err?.message || 'Failed');
+          toast.error(err?.response?.data?.message || err?.message || t('bookmarks.failed', 'Failed'));
         }
       }
     },
@@ -193,7 +195,7 @@ export default function TopPapers({
       } catch (err) {
         if (!cancelled) {
           console.error('Papers fetch error:', err);
-          setError(err?.message || 'Failed to load papers');
+          setError(err?.message || t('topPapers.loadFailed', 'Failed to load papers'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -264,7 +266,7 @@ export default function TopPapers({
     return (
       <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
         <AlertCircle size={13} className="shrink-0" />
-        <span>Top papers unavailable.</span>
+        <span>{t('topPapers.unavailable')}</span>
       </div>
     );
   }
@@ -285,7 +287,7 @@ export default function TopPapers({
           Top Cited Papers
         </span>
         <span className="text-[10px] text-muted-foreground ml-auto">
-          Most influential papers for this topic
+          {t('topPapers.subtitle')}
         </span>
       </div>
 

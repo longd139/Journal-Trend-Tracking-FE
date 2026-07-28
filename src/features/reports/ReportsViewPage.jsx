@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useEffect, useRef } from 'react';
+﻿import { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,7 +18,6 @@ export default function ReportsViewPage() {
   const [loadingKeyword, setLoadingKeyword] = useState('');
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
-  const autoGenDoneRef = useRef(new Set());
 
   // ── Keyword Trend History (from new BE endpoint) ──
   const [kwHistory, setKwHistory] = useState([]);
@@ -98,9 +97,9 @@ export default function ReportsViewPage() {
         loadKeywordHistory();
       }
 
-      toast.success(t('toast.success') || 'Report generated successfully');
+      toast.success(t('toast.success'));
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to generate report';
+      const msg = err?.response?.data?.message || err?.message || t('toast.loadError');
       setError(msg);
       toast.error(t('toast.error') || msg);
     } finally {
@@ -132,9 +131,9 @@ export default function ReportsViewPage() {
         status: 'ready',
         data: reportData,
       });
-      toast.success(`Loaded report for "${keyword}"`);
+      toast.success(t('toast.loadedReport', { keyword }));
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to load report';
+      const msg = err?.response?.data?.message || err?.message || t('toast.loadFailed');
       setError(msg);
       toast.error(msg);
     } finally {
@@ -151,9 +150,9 @@ export default function ReportsViewPage() {
         const kw = item.keyword || '';
         return kw !== keyword;
       }));
-      toast.success(`Removed "${keyword}" from history`);
+      toast.success(t('toast.removedKeyword', { keyword }));
     } catch {
-      toast.error('Failed to remove keyword');
+      toast.error(t('toast.removeFailed'));
     }
   }, []);
 
@@ -166,10 +165,6 @@ export default function ReportsViewPage() {
     const endYear = params.get('endYear');
 
     if (type && q && REPORT_TYPES[type]) {
-      const key = `${type}:${q}:${startYear || ''}:${endYear || ''}`;
-      if (autoGenDoneRef.current.has(key)) return;
-      autoGenDoneRef.current.add(key);
-
       const apiFn = reportAPI[REPORT_TYPES[type].apiFn];
       if (apiFn) {
         const yearParams = {};
@@ -185,7 +180,7 @@ export default function ReportsViewPage() {
 
   /* ── Save report (local toast only — BE has no persistence endpoint) ── */
   const handleSave = useCallback(async (_reportData) => {
-    toast.success('Report saved locally');
+    toast.success(t('toast.savedLocally'));
   }, []);
 
   /* ── Error Banner ── */
@@ -211,9 +206,9 @@ export default function ReportsViewPage() {
       >
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
           <FileText size={13} className="text-primary" />
-          <span className="text-xs font-bold text-primary">Keyword Trend Report</span>
+          <span className="text-xs font-bold text-primary">{t('page.title')}</span>
         </div>
-        <span className="text-[11px] text-muted-foreground">Search a keyword and generate a trend analysis report</span>
+        <span className="text-[11px] text-muted-foreground">{t('page.subtitle')}</span>
       </motion.div>
 
       {/* Error Banner */}
@@ -231,25 +226,22 @@ export default function ReportsViewPage() {
               <Search size={24} className="text-accent-blue" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Generate a Keyword Trend Report
+              {t('page.emptyTitle')}
             </h3>
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              Go to the <span className="text-foreground font-medium">Search Papers</span> page,
-              search for a keyword, and click{' '}
-              <span className="text-accent-blue font-medium">Generate Report</span> in the
-              Quick Stats section. Your trend analysis will appear right here.
+              {t('page.emptyDesc')}
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
-                Search Papers
+                {t('page.searchPapers')}
               </span>
               <ArrowRight size={12} />
               <span className="px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/8">
-                Quick Stats
+                {t('page.quickStats')}
               </span>
               <ArrowRight size={12} />
               <span className="px-3 py-1.5 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue font-medium">
-                Generate Report
+                {t('page.generateReport')}
               </span>
             </div>
           </div>
@@ -268,12 +260,10 @@ export default function ReportsViewPage() {
               <Loader2 size={24} className="text-accent-blue animate-spin" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">
-              Generating Report
+              {t('page.generating')}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Analyzing trends for{' '}
-              <span className="text-accent-blue font-semibold">"{loadingKeyword}"</span>
-              — fetching publication data, citation metrics, and co-occurring keywords...
+              {t('page.generatingDesc', { keyword: loadingKeyword })}
             </p>
           </div>
         </motion.div>
@@ -304,19 +294,19 @@ export default function ReportsViewPage() {
           <div className="flex items-center gap-2 mb-3">
             <History size={13} className="text-accent-blue" />
             <span className="text-xs font-semibold text-foreground uppercase tracking-wide">
-              Report History
+              {t('page.reportHistory')}
             </span>
             <span className="text-[10px] text-muted-foreground ml-auto">
-              {kwHistory.length} keyword{kwHistory.length > 1 ? 's' : ''}
+              {t('page.keywordsCount', { count: kwHistory.length })}
             </span>
           </div>
           <div className="overflow-hidden rounded-lg border border-primary/10">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-primary/10 text-muted-foreground">
-                  <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Keyword</th>
-                  <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">Created Date</th>
-                  <th className="text-right py-2.5 px-4 font-medium uppercase tracking-wider text-[10px] w-16">Action</th>
+                  <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">{t('page.columns.keyword')}</th>
+                  <th className="text-left py-2.5 px-4 font-medium uppercase tracking-wider text-[10px]">{t('page.columns.createdDate')}</th>
+                  <th className="text-right py-2.5 px-4 font-medium uppercase tracking-wider text-[10px] w-16">{t('page.columns.action')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -340,7 +330,7 @@ export default function ReportsViewPage() {
                       <button
                         onClick={(e) => deleteKeywordFromCache(item.keyword, e)}
                         className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-500/10 text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                        title="Remove from history"
+                        title={t('page.removeFromHistory')}
                       >
                         <Trash2 size={12} />
                       </button>
@@ -357,7 +347,7 @@ export default function ReportsViewPage() {
             <button
               onClick={loadKeywordHistory}
               className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground/80 transition-colors"
-              title="Refresh"
+              title={t('page.refresh')}
             >
               <RefreshCw size={12} className={kwHistoryLoading ? 'animate-spin' : ''} />
             </button>

@@ -129,10 +129,10 @@ function BatchExportPanel({ papers, onClose }) {
     try {
       await navigator.clipboard.writeText(combined);
       setCopied(true);
-      toast.success('Copied!');
+      toast.success(t('toast.copied'));
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy');
+      toast.error(t('toast.copyFailed'));
     }
   };
 
@@ -153,13 +153,13 @@ function BatchExportPanel({ papers, onClose }) {
       <div className="p-5 rounded-xl border border-primary/10 bg-card space-y-4">
         <div className="flex items-center justify-between">
           <h4 className="text-sm font-bold text-foreground">
-            Batch Export — {papers.length} papers
+            {t('bookmarks.batchExport', { count: papers.length })}
           </h4>
           <button
             onClick={onClose}
             className="px-3 py-1.5 rounded-lg text-[10px] font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all"
           >
-            Close
+            {t('bookmarks.close')}
           </button>
         </div>
 
@@ -185,17 +185,17 @@ function BatchExportPanel({ papers, onClose }) {
           {loading ? (
             <span className="flex items-center gap-2 text-muted-foreground">
               <Loader2 size={11} className="animate-spin" />
-              Fetching citations...
+              {t('bookmarks.fetchingCitations')}
             </span>
           ) : (
-            combined || 'No citation data available'
+            combined || t('bookmarks.noCitationData')
           )}
         </pre>
 
         {/* API fallback indicator */}
         {fetchError && !loading && (
           <p className="text-[9px] text-amber-600/60 dark:text-amber-400/60 italic">
-            Generated locally (server unavailable)
+            {t('bookmarks.generatedLocally')}
           </p>
         )}
 
@@ -207,7 +207,7 @@ function BatchExportPanel({ papers, onClose }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-primary/10 text-primary border border-primary/15 hover:bg-primary/20 transition-all disabled:opacity-40"
           >
             {copied ? <Check size={11} /> : <Copy size={11} />}
-            {copied ? 'Copied' : 'Copy All'}
+            {copied ? t('bookmarks.copied') : t('bookmarks.copyAll')}
           </button>
           <button
             onClick={handleDownload}
@@ -215,7 +215,7 @@ function BatchExportPanel({ papers, onClose }) {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/15 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-all disabled:opacity-40"
           >
             {loading ? <Loader2 size={11} className="animate-spin" /> : <Download size={11} />}
-            Download All
+            {t('bookmarks.downloadAll')}
           </button>
         </div>
       </div>
@@ -344,7 +344,7 @@ export default function BookmarksView() {
     // Map bookmark-level fields to expected paper field names
     return {
       ...paper,
-      title: paper.title || bookmark.paperTitle || 'Untitled',
+      title: paper.title || bookmark.paperTitle || t('bookmarks.untitled'),
       paperId: paper.paperId || bookmark.paperId,
     };
   };
@@ -430,13 +430,13 @@ export default function BookmarksView() {
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
               <BookOpen size={13} className="text-primary" />
               <span className="text-xs font-bold text-primary">{bookmarks.length}</span>
-              <span className="text-[11px] text-muted-foreground">{bookmarks.length === 1 ? 'paper' : 'papers'}</span>
+              <span className="text-[11px] text-muted-foreground">{t('bookmarks.paperCount', { count: bookmarks.length })}</span>
             </div>
             {selectedIds.size > 0 && (
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-accent-blue/10 border border-accent-blue/15">
                 <Check size={13} className="text-accent-blue" />
                 <span className="text-xs font-bold text-accent-blue">{selectedIds.size}</span>
-                <span className="text-[11px] text-muted-foreground">selected</span>
+                <span className="text-[11px] text-muted-foreground">{t('bookmarks.selected')}</span>
               </div>
             )}
           </div>
@@ -509,7 +509,7 @@ export default function BookmarksView() {
                       {field && <GlowBadge color={badgeColor}>{field}</GlowBadge>}
                       {year && <span className="text-xs text-muted-foreground">{year}</span>}
                     </div>
-                    <h4 className="text-sm font-bold text-foreground mb-1">{p.title || 'Untitled'}</h4>
+                    <h4 className="text-sm font-bold text-foreground mb-1">{p.title || t('bookmarks.untitled')}</h4>
                     {authors && <p className="text-xs text-muted-foreground">{authors}</p>}
                   </div>
 
@@ -518,7 +518,7 @@ export default function BookmarksView() {
                       <div className="text-xl font-bold text-foreground">
                         {hasCitations ? citations.toLocaleString() : '—'}
                       </div>
-                      <div className="text-xs text-muted-foreground">{t('user.totalCitations')}</div>
+                      <div className="text-xs text-muted-foreground">{t('bookmarks.citations')}</div>
                       {p.trend && (
                         <div className="text-xs font-semibold mt-1 text-emerald-600 dark:text-muted-foreground">
                           {p.trend}
@@ -532,7 +532,7 @@ export default function BookmarksView() {
                         removeBookmark(bookmark);
                       }}
                       className="p-2.5 rounded-lg border bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 dark:hover:text-white transition-all group"
-                      title="Remove from bookmarks"
+                      title={t('bookmarks.removeTitle')}
                     >
                       <BookmarkMinus size={18} />
                     </button>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Sparkles, AlertCircle, Tag, Minus } from 'lucide-react';
 import { trendAPI } from './trend.api';
@@ -152,7 +153,8 @@ function TrendingChips({ keywords, onKeywordClick }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function WeeklyBreakout({ onKeywordClick }) {
-  const [breakoutTopics, setBreakoutTopics] = useState([]);
+  const { t } = useTranslation('search');
+    const [breakoutTopics, setBreakoutTopics] = useState([]);
   const [trendingKeywords, setTrendingKeywords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -176,7 +178,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Trend API fetch error:', err);
-          setError(err?.message || 'Failed to load trending topics');
+          setError(err?.message || t('trending.loadFailed', 'Failed to load trending topics'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -274,7 +276,7 @@ export default function WeeklyBreakout({ onKeywordClick }) {
                   {/* Stats row */}
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="text-[11px] text-muted-foreground font-medium">
-                      {(topic.totalPapers ?? 0).toLocaleString()} papers
+                      {(topic.totalPapers ?? 0).toLocaleString()} {t('author.papers')}
                     </span>
 
                     {/* Growth rate */}

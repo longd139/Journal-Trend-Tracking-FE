@@ -132,13 +132,19 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     };
   }, [query]);
 
-  // ── Embedded mode: show author suggestion list for the query ──
+  // ── Embedded mode: show suggestion list or auto-search based on URL param ──
   useEffect(() => {
     if (embedded && initialQuery) {
       setQuery(initialQuery);
-      setShowSuggestionList(true);
-      setShowSuggestions(false);
+      const shouldAutoSearch = new URLSearchParams(window.location.search).get('auto') === '1';
+      if (shouldAutoSearch) {
+        handleSearch(initialQuery);
+      } else {
+        setShowSuggestionList(true);
+        setShowSuggestions(false);
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery, embedded]);
 
   // ─── Load more authors ───
@@ -191,12 +197,16 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     navigate(`/${role}/search?q=${encodeURIComponent(topicName)}`);
   };
 
-  // ─── Timeline bar click → open sidebar with papers for that year ───
+  // ─── Timeline bar click → open sidebar with {t('author.papers')} for that year ───
   const handleBarClick = (data) => {
-    if (!data?.year || !searchedAuthor) return;
-    setSidebarYear(data.year);
+    const entry = data?.payload || data;
+    const year = entry?.year ?? data?.year;
+    const count = entry?.worksCount ?? data?.worksCount;
+    console.log('[SearchAuthor] handleBarClick:', { year, count, searchedAuthor, raw: data });
+    if (!year || !searchedAuthor) return;
+    setSidebarYear(year);
     setSidebarAuthor(searchedAuthor);
-    setSidebarTotal(null);
+    setSidebarTotal(count ?? null);
     setSidebarOpen(true);
   };
 
@@ -217,8 +227,8 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
 
   const handleSearch = (kw) => {
     if (quotaExhausted) {
-      toast.error('Search limit reached', {
-        description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
+      toast.error(t('author.searchLimitReached'), {
+        description: t('author.monthlyLimitMsg', { limit: searchLimit }),
         action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
         duration: 6000,
       });
@@ -319,7 +329,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   ? 'bg-primary/20 text-primary'
                   : 'bg-transparent text-primary/40 hover:bg-primary/10 hover:text-primary'
               }`}
-              title="Search history"
+              title={t('author.recentSearches')}
             >
               <History size={14} />
             </button>
@@ -342,13 +352,13 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     >
                       <UserSearch size={12} className="text-primary/50 shrink-0" />
                       <span className="text-foreground truncate">{s.fullName}</span>
-                      {s.hIndex != null && <span className="text-[10px] text-foreground/60 ml-auto shrink-0">h-index {s.hIndex}</span>}
+                      {s.hIndex != null && <span className="text-[10px] text-foreground/60 ml-auto shrink-0">{t('author.hIndex')} {s.hIndex}</span>}
                     </button>
                   ))
                 ) : (
                   <div className="px-5 py-4 text-xs text-foreground/60 flex items-center gap-2">
                     <Search size={12} />
-                    Press Enter to search "{query.trim()}"
+                    {t('author.pressEnterToSearch', { query: query.trim() })} "{query.trim()}"
                   </div>
                 )}
               </motion.div>
@@ -367,7 +377,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
                     <Clock size={24} className="mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-foreground/60">No recent searches</p>
+                    <p className="text-xs text-foreground/60">{t('author.noRecentSearches')}</p>
                   </div>
                 ) : (
                   <>
@@ -385,7 +395,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                         }}
                         className="text-[10px] font-medium text-foreground/60 hover:text-red-400 transition-colors flex items-center gap-1"
                       >
-                        <Trash2 size={10} /> Clear all
+                        <Trash2 size={10} /> {t('author.clearAll')}
                       </button>
                     </div>
                     {searchHistory.map((kw) => (
@@ -431,7 +441,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary/50'} />
-                <span className="text-xs font-semibold text-foreground">Search Quota</span>
+                <span className="text-xs font-semibold text-foreground">{t('author.searchQuota')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary'}`}>
@@ -456,7 +466,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
-                  <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
+                  <span>{t('author.monthlyLimitMsg', { limit: searchLimit })}</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
@@ -521,7 +531,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                         </div>
                         <div>
                           <p className="text-xs font-bold text-muted-foreground font-mono">{(s.totalCitations ?? 0).toLocaleString()}</p>
-                          <p className="text-[10px] text-foreground/60">citations</p>
+                          <p className="text-[10px] text-foreground/60">{t('author.citations')}</p>
                         </div>
                         <div>
                           <p className="text-xs font-bold text-foreground font-mono">{(s.paperCount ?? 0).toLocaleString()}</p>
@@ -534,7 +544,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
               </div>
             ) : (
               <div className="flex items-center justify-center py-12 text-xs text-foreground/60">
-                No authors found for "{query.trim()}". Try a different name.
+                {t('author.noAuthorsFound', { query: query.trim() })}
               </div>
             )}
             {/* Load more button */}
@@ -546,7 +556,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   disabled={suggestLoading}
                   className="px-5 py-2 rounded-xl text-xs font-medium text-primary bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-all disabled:opacity-50"
                 >
-                  {suggestLoading ? 'Loading...' : `Load more (${suggestTotal - apiSuggestions.length} remaining)`}
+                  {suggestLoading ? t('author.loading') : t('author.loadMoreRemaining', { remaining: suggestTotal - apiSuggestions.length })}
                 </button>
               </div>
             )}
@@ -586,7 +596,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                         onClick={() => navigate(`/${currentRole}/settings`)}
                         className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
-                        Upgrade now
+                        {t('author.upgradeNow')}
                       </button>
                     </div>
                   </div>

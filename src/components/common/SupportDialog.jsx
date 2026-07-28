@@ -173,7 +173,7 @@ export default function SupportDialog({ open, onClose, role }) {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={t('searchPlaceholder', 'Filter...')}
+                  placeholder={t('searchPlaceholder')}
                   className="w-full pl-7 pr-2.5 py-1.5 rounded-lg text-[10px] border bg-card border-primary/8 text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/20 transition-colors"
                 />
               </div>
@@ -184,7 +184,7 @@ export default function SupportDialog({ open, onClose, role }) {
               {filteredSections.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-8 px-3 text-center gap-2">
                   <Search size={16} className="text-foreground/80" />
-                  <p className="text-[10px] text-muted-foreground">No matching sections</p>
+                  <p className="text-[10px] text-muted-foreground">{t('noMatchingSections')}</p>
                 </div>
               ) : (
                 filteredSections.map(({ id, icon: Icon, color }) => {
@@ -212,7 +212,7 @@ export default function SupportDialog({ open, onClose, role }) {
             {/* Section count */}
             <div className="px-3 py-2 border-t border-border">
               <p className="text-[9px] text-muted-foreground">
-                {filteredSections.length} {filteredSections.length === 1 ? 'section' : 'sections'}
+                {t('sectionCount', { count: filteredSections.length })}
               </p>
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function SupportDialog({ open, onClose, role }) {
                 {t(`${ns}.content.${activeSection}.steps`, { defaultValue: '' }) && (
                   <div className="space-y-2">
                     <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                      How to
+                      {t('howTo')}
                     </p>
                     {t(`${ns}.content.${activeSection}.steps`, { defaultValue: '' })
                       .split('|')
@@ -322,8 +322,8 @@ export default function SupportDialog({ open, onClose, role }) {
 
         {/* ─── Footer ─── */}
         <div className="shrink-0 px-6 py-3 border-t border-primary/8 flex items-center justify-between">
-          <span className="text-[9px] text-muted-foreground">SciTrack — Research Platform</span>
-          <span className="text-[9px] text-foreground/80">Press Esc to close</span>
+          <span className="text-[9px] text-muted-foreground">{t('footer')}</span>
+          <span className="text-[9px] text-foreground/80">{t('pressEsc')}</span>
         </div>
       </DialogContent>
     </Dialog>

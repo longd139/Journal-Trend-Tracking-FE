@@ -1,4 +1,21 @@
 {
+  "actions": {
+    "search": "Search"
+  },
+  "hero": {
+    "line1": "Discover",
+    "highlight": "breakthrough research",
+    "line2": "across academia",
+    "subtitle": "Search across millions of papers, authors, and journals with AI-powered analytics and visualizations.",
+    "placeholder": "Paper title, author name, or journal...",
+    "trending": "Trending now",
+    "loadingTrending": "Loading trending topics..."
+  },
+  "tabs": {
+    "papers": "Papers",
+    "authors": "Authors",
+    "journals": "Journals"
+  },
   "placeholder": "Search by keyword to find academic papers...",
   "quickSearch": "Quick search:",
   "clearQuery": "Clear query",
@@ -12,6 +29,7 @@
   },
   "filters": {
     "title": "Advanced Filters",
+    "button": "Filters",
     "yearRange": "Year Range",
     "startYear": "Start Year",
     "endYear": "End Year",
@@ -39,8 +57,64 @@
     "placeholder": "Search by author name to explore academic profiles...",
     "clearQuery": "Clear query",
     "noResults": "No author found.",
+    "noAuthorsFound": "No authors found for \"{{query}}\". Try a different name.",
     "error": "Unable to load author data from the system.",
-    "topicClickHint": "Click a topic to explore papers →"
+    "topicClickHint": "Click a topic to explore papers →",
+    "recentSearches": "Recent Searches",
+    "clearAll": "Clear all",
+    "clearSearchHistory": "Clear search history",
+    "noRecentSearches": "No recent searches",
+    "pressEnterToSearch": "Press Enter to search \"{{query}}\"",
+    "showingAuthors": "Showing {{shown}} of {{total}} author matching \"{{query}}\"",
+    "showingAuthors_plural": "Showing {{shown}} of {{total}} authors matching \"{{query}}\"",
+    "searchingFor": "Searching for \"{{query}}\"...",
+    "loadMore": "Load more",
+    "loadMoreRemaining": "Load more ({{remaining}} remaining)",
+    "loading": "Loading...",
+    "profile": "Author Profile",
+    "totalPapers": "Total Papers",
+    "totalCitations": "Total Citations",
+    "hIndex": "h-Index",
+    "i10Index": "i10-Index",
+    "orcidProfile": "ORCID Profile",
+    "viewOnOpenAlex": "View on OpenAlex",
+    "twoYearMeanCitedness": "2-Year Mean Citedness",
+    "publicationTimeline": "Publication Timeline",
+    "papersBy": "Papers by {{author}}",
+    "papersIn": "Papers in {{year}}",
+    "papersTotal": "{{count}} paper total",
+    "papersTotal_plural": "{{count}} papers total",
+    "noPapersFound": "No papers found.",
+    "showingRange": "Showing {{start}}–{{end}} of {{total}}",
+    "pageOf": "Page {{page}} of {{total}}",
+    "first": "First",
+    "last": "Last",
+    "papers": "Papers",
+    "citations": "Citations",
+    "searchQuota": "Search Quota",
+    "searchLimitReached": "Search limit reached",
+    "monthlyLimitMsg": "You have used all {{limit}} searches this month. Upgrade to Researcher for unlimited access.",
+    "upgrade": "Upgrade",
+    "upgradeNow": "Upgrade now",
+    "resetsOn": "· Resets {{date}}",
+    "quotaExhaustedPlaceholder": "Search limit reached — upgrade to continue",
+    "quotaExhaustedBanner": "Monthly limit reached. Upgrade to Researcher for unlimited searches.",
+    "statsUnavailable": "Author stats unavailable.",
+    "timelineUnavailable": "Timeline unavailable.",
+    "coauthorsLoadFailed": "Failed to load co-authors",
+    "coauthorsUnavailable": "Co-authors unavailable.",
+    "researchFocusLoadFailed": "Failed to load research focus",
+    "researchFocusUnavailable": "Research focus unavailable.",
+    "suggestionsLoadFailed": "Failed to load suggestions",
+    "noSuggestedAuthors": "No suggested authors.",
+    "analyzed": "analyzed",
+    "uniqueCoauthors": "unique co-authors",
+    "topCollaborators": "Top",
+    "mostFrequentCollaborators": "most frequent collaborators",
+    "clickToExplore": "Click to explore →",
+    "openInOpenAlex": "Open in OpenAlex",
+    "cites": "cites",
+    "paperCount": "Paper count"
   },
   "sort": {
     "label": "Sort by",
@@ -89,5 +163,80 @@
     "success": "Report submitted. Thank you for helping us improve.",
     "error": "Failed to submit report. Please try again.",
     "duplicate": "You have already reported this paper."
+  },
+  "keyword": {
+    "quickStats": "Quick Stats",
+    "generateReport": "Generate Report",
+    "totalPapers": "Total Papers",
+    "totalCitations": "Total Citations",
+    "yoyGrowth": "YoY Growth",
+    "avgCitations": "Avg Citations/Paper",
+    "statsLoadFailed": "Failed to load keyword statistics",
+    "statsUnavailable": "Quick stats unavailable for this keyword.",
+    "topJournals": "Top Journals",
+    "quickStatsFor": "for"
+  },
+  "trending": {
+    "trendingNow": "Trending Now",
+    "weeklyBreakout": "Weekly Breakout Topics",
+    "loadFailed": "Failed to load trending topics",
+    "unavailable": "Trending topics unavailable — try again shortly."
+  },
+  "trends": {
+    "relatedResearchTrends": "Related Research Trends",
+    "loadFailed": "Failed to load related trends",
+    "unavailable": "Related trends unavailable.",
+    "cooccurrences": "co-occurrences",
+    "thisYr": "this yr",
+    "lastYr": "last yr"
+  },
+  "similar": {
+    "title": "Similar Papers",
+    "loadFailed": "Failed to load similar papers",
+    "unavailable": "Similar papers unavailable.",
+    "untitled": "Untitled",
+    "cites": "cites"
+  },
+  "topPapers": {
+    "title": "Top Cited Papers",
+    "subtitle": "Most influential papers for this topic",
+    "loadFailed": "Failed to load papers",
+    "unavailable": "Top papers unavailable."
+  },
+  "upsell": {
+    "title": "Upgrade to Researcher",
+    "description": "Unlock full paper details, AI summaries, citation exports, and unlimited searches.",
+    "cta": "Upgrade Now — $999/year",
+    "maybeLater": "Maybe later",
+    "features": [
+      "Full abstract & paper details",
+      "AI-powered paper summaries",
+      "Similar paper recommendations",
+      "Citation export (BibTeX, RIS, APA)",
+      "Unlimited searches & bookmarks"
+    ]
+  },
+  "bookmarks": {
+    "removed": "Removed from bookmarks",
+    "saved": "Saved to bookmarks",
+    "failed": "Failed"
+  },
+  "journal": {
+    "placeholder": "Search by journal name or ID...",
+    "loadFailed": "Failed to load journal data",
+    "categoriesLoadFailed": "Failed to load journal categories",
+    "noResults": "No journals found for \"{{query}}\".",
+    "browseByField": "Browse by Field",
+    "browseDescription": "{{count}} categories available",
+    "noCategoryJournals": "No journals in this category yet.",
+    "emptyPrompt": "Search for a journal to see its stats and papers.",
+    "loadError": "Unable to load journal list.",
+    "totalPapers": "Total Papers",
+    "totalCitations": "Total Citations",
+    "avgCitations": "Avg Citations/Paper",
+    "quartile": "Quartile",
+    "notRanked": "Not ranked yet",
+    "quartileTop25": "Top 25%",
+    "quartileBottom25": "Bottom 25%"
   }
 }

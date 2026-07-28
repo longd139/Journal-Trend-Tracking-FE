@@ -3,6 +3,40 @@
     "title": "Reports & Exports",
     "subtitle": "Generate, customize, and download your analytical data."
   },
+  "page": {
+    "title": "Keyword Trend Report",
+    "subtitle": "Search a keyword and generate a trend analysis report",
+    "emptyTitle": "Generate a Keyword Trend Report",
+    "emptyDesc": "Go to the Search Papers page, search for a keyword, and click Generate Report in the Quick Stats section. Your trend analysis will appear right here.",
+    "searchPapers": "Search Papers",
+    "quickStats": "Quick Stats",
+    "generateReport": "Generate Report",
+    "generating": "Generating Report",
+    "generatingDesc": "Analyzing trends for \"{{keyword}}\" — fetching publication data, citation metrics, and co-occurring keywords...",
+    "reportHistory": "Report History",
+    "keywordsCount": "{{count}} keyword",
+    "keywordsCount_plural": "{{count}} keywords",
+    "columns": {
+      "keyword": "Keyword",
+      "createdDate": "Created Date",
+      "action": "Action"
+    },
+    "removeFromHistory": "Remove from history",
+    "refresh": "Refresh"
+  },
+  "toast": {
+    "success": "Report generated successfully!",
+    "error": "Failed to generate report",
+    "loadError": "Failed to generate report",
+    "loadedReport": "Loaded report for \"{{keyword}}\"",
+    "loadFailed": "Failed to load report",
+    "removedKeyword": "Removed \"{{keyword}}\" from history",
+    "removeFailed": "Failed to remove keyword",
+    "savedLocally": "Report saved locally",
+    "nothingToExport": "Nothing to export — content not ready",
+    "printOpened": "Print dialog opened — choose \"Save as PDF\"",
+    "exportFailed": "Export failed — try Download JSON instead"
+  },
   "templates": {
     "trendAnalysis": {
       "name": "Keyword Trend Report",
@@ -29,13 +63,24 @@
   "history": {
     "title": "Report History",
     "showing": "Showing last 30 days",
+    "reportCount": "{{count}} report",
+    "reportCount_plural": "{{count}} reports",
     "columns": {
       "reportName": "Report Name",
       "type": "Type",
+      "query": "Query",
+      "generated": "Generated",
       "dateGenerated": "Date Generated",
       "size": "Size",
       "status": "Status",
       "action": "Action"
+    },
+    "status": {
+      "ready": "Ready"
+    },
+    "action": {
+      "view": "View",
+      "delete": "Delete"
     }
   },
   "input": {
@@ -44,10 +89,6 @@
       "journal": "Enter a journal name (e.g. Nature)...",
       "author": "Enter an author name..."
     }
-  },
-  "toast": {
-    "success": "Report generated successfully!",
-    "error": "Failed to generate report"
   },
   "summary": {
     "title": "Overview",
@@ -60,13 +101,73 @@
     "publicationTrend": "Publication Trend Over Time",
     "citationTrend": "Citation Trend Over Time",
     "coKeywords": "Co-occurring Keywords Network",
-    "topJournals": "Top Journals Distribution"
+    "topJournals": "Top Journals Distribution",
+    "papers": "Papers",
+    "citations": "Citations",
+    "cooccurrences": "Co-occurrences",
+    "yearPrefix": "Year",
+    "donutPapersLabel": "papers",
+    "donutPapersSuffix": "papers",
+    "insufficientData": "Not enough data to display chart",
+    "needTwoYearsTrend": "Need at least 2 years of data for trend chart",
+    "needTwoYearsCitation": "Need at least 2 years of citation data",
+    "noCoKeywords": "No co-occurring keywords found",
+    "noJournalDistribution": "No journal distribution data"
   },
   "insight": {
     "title": "Insight & Analysis"
   },
+  "stats": {
+    "hIndex": "h-Index",
+    "totalPapers": "Total Papers",
+    "topField": "Top Field",
+    "topCollaborators": "Top Collaborators",
+    "score": "Score",
+    "citations": "Citations",
+    "impactFactor": "Impact Factor"
+  },
+  "authorImpact": {
+    "headerBadge": "Author Impact Report",
+    "reportTitle": "Academic Profile: {{name}}",
+    "unknown": "Unknown",
+    "papersCount": "{{count}} paper",
+    "papersCount_plural": "{{count}} papers"
+  },
+  "journalQuality": {
+    "headerBadge": "Journal Quality Report",
+    "reportTitle": "Journal Quality: {{name}}",
+    "issnPrefix": "ISSN: ",
+    "ifPrefix": "IF: ",
+    "editorialFocus": "Editorial Focus",
+    "recentKeywords": "Recent Keywords",
+    "insight": "Insight"
+  },
+  "myReports": {
+    "heading": "My Reports",
+    "subtitle": "Reports you have submitted",
+    "empty": "No reports submitted yet.",
+    "adminLabel": "Admin:",
+    "status": {
+      "pending": "Pending",
+      "reviewed": "Reviewed",
+      "resolved": "Resolved",
+      "dismissed": "Dismissed"
+    }
+  },
+  "export": {
+    "downloadJson": "Download JSON",
+    "exportPdf": "Export PDF",
+    "openingPrint": "Opening print...",
+    "saveReport": "Save Report",
+    "saving": "Saving..."
+  },
+  "result": {
+    "generatedAt": "Generated: ",
+    "yoyGrowth": "% YoY"
+  },
   "button": {
     "generate": "Generate Report",
-    "customReport": "Custom Report"
+    "customReport": "Custom Report",
+    "generating": "Generating..."
   }
 }
