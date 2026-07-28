@@ -1,16 +1,16 @@
-﻿import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion } from 'motion/react';
-import { Search, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Search, X, TrendingUp, BookOpen, Users, Library, ChevronDown } from 'lucide-react';
 import SearchPapers from './SearchPapers';
 import SearchAuthor from './SearchAuthor';
 import SearchJournal from './SearchJournal';
 import { trendAPI } from './trend.api.js';
 
 const TABS = [
-  { key: 'papers', label: 'Papers', icon: '📄' },
-  { key: 'authors', label: 'Authors', icon: '👤' },
-  { key: 'journals', label: 'Journals', icon: '📚' },
+  { key: 'papers', label: 'Papers', icon: BookOpen },
+  { key: 'authors', label: 'Authors', icon: Users },
+  { key: 'journals', label: 'Journals', icon: Library },
 ];
 
 /**
@@ -32,7 +32,22 @@ export default function UnifiedSearch() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [trendingKeywords, setTrendingKeywords] = useState([]);
+  const [showTabDropdown, setShowTabDropdown] = useState(false);
   const debounceRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  // ─── Close tab dropdown on outside click ───
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setShowTabDropdown(false);
+      }
+    };
+    if (showTabDropdown) {
+      document.addEventListener('mousedown', handleClick);
+      return () => document.removeEventListener('mousedown', handleClick);
+    }
+  }, [showTabDropdown]);
 
   // ─── Load trending keywords on mount ───
   useEffect(() => {
@@ -51,6 +66,11 @@ export default function UnifiedSearch() {
     const q = query.trim();
     if (q.length < 2) {
       setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    // Don't fetch suggestions if user already searched for this exact query
+    if (q === searchedQuery.trim()) {
       setShowSuggestions(false);
       return;
     }
@@ -81,11 +101,15 @@ export default function UnifiedSearch() {
     }
     setShowSuggestions(false);
     setSuggestions([]);
+    setShowTabDropdown(false);
   };
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') handleSearch();
-    if (e.key === 'Escape') setShowSuggestions(false);
+    if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setShowTabDropdown(false);
+    }
   };
 
   // Listen for URL param changes (e.g., clicking a topic from Author Research Focus)
@@ -103,43 +127,165 @@ export default function UnifiedSearch() {
     }
   }, [urlQ]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const activeTabDef = TABS.find((t) => t.key === activeTab);
+  const ActiveTabIcon = activeTabDef?.icon;
+
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-6">
-        {/* ── Search Bar ── */}
-        <div className="relative" onClick={(e) => e.stopPropagation()}>
-          <div className="relative">
-            <Search
-              size={18}
-              className="absolute left-5 top-1/2 -translate-y-1/2 text-primary/40 z-10"
-            />
+      {/* ══════════════════════════════════════════════════════════════
+          HERO SECTION — centered hero with headline, subheading & search
+          ══════════════════════════════════════════════════════════════ */}
+      <div className="flex flex-col items-center px-4 sm:px-6 pt-12 sm:pt-20 pb-4">
+        {/* ── Heading + Subheading (animated collapse, stays in DOM) ── */}
+        <motion.div
+          animate={{
+            opacity: searchedQuery ? 0 : 1,
+            maxHeight: searchedQuery ? 0 : 300,
+            marginBottom: searchedQuery ? 0 : 0,
+          }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center overflow-hidden"
+        >
+          <h1 className="text-center font-extrabold tracking-tight leading-tight text-3xl sm:text-[42px]">
+            Discover{' '}
+            <span className="inline-block bg-primary text-white px-2.5 py-1 rounded-lg">
+              breakthrough research
+            </span>{' '}
+            across academia
+          </h1>
+          <p className="mt-4 text-sm sm:text-base text-muted-foreground text-center max-w-[500px] leading-relaxed">
+            Search across millions of papers, authors, and journals with
+            AI-powered analytics and visualizations.
+          </p>
+        </motion.div>
+
+        {/* ── Pill-Shaped Composite Search Bar ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            marginTop: searchedQuery ? 16 : 32,
+          }}
+          transition={{
+            opacity: { duration: 0.5, delay: 0.2 },
+            y: { duration: 0.5, delay: 0.2 },
+            marginTop: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+          }}
+          className="relative w-full max-w-[560px]"
+          ref={searchContainerRef}
+        >
+          <div
+            className={`flex items-center bg-card border rounded-full p-1.5 transition-all duration-300 ${
+              showSuggestions
+                ? 'border-primary/50 shadow-[0_4px_24px_rgba(79,140,255,0.15)]'
+                : 'border-primary/20 shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:border-primary/30'
+            }`}
+          >
+            {/* ── Search icon button (circle, primary bg) ── */}
+            <button
+              onClick={() => handleSearch()}
+              className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0 hover:bg-primary/90 active:scale-95 transition-all"
+              title="Search"
+            >
+              <Search size={16} className="text-white" strokeWidth={2.5} />
+            </button>
+
+            {/* ── Keyword input ── */}
             <input
               type="text"
-              placeholder="Search papers, authors, or journals..."
+              placeholder="Paper title, author name, or journal..."
               value={query}
-              onChange={(e) => { setQuery(e.target.value); setShowSuggestions(true); }}
-              onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setShowSuggestions(true);
+                setShowTabDropdown(false);
+              }}
+              onFocus={() => {
+                if (suggestions.length > 0) setShowSuggestions(true);
+              }}
               onKeyDown={handleKeyDown}
-              className="w-full pl-12 pr-12 py-4 rounded-xl text-sm outline-none border transition-colors bg-card/80 border-primary/10 text-foreground focus:border-primary/30 placeholder:text-muted-foreground"
+              className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
             />
+
+            {/* ── Clear button ── */}
             {query && (
               <button
-                onClick={() => { setQuery(''); setSearchedQuery(''); setSuggestions([]); }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-muted/40 text-foreground/60 hover:text-foreground/80"
+                onClick={() => {
+                  setQuery('');
+                  setSearchedQuery('');
+                  setSuggestions([]);
+                }}
+                className="p-1.5 rounded-full hover:bg-muted/50 text-foreground/30 hover:text-foreground/60 transition-colors mr-0.5"
               >
                 <X size={14} />
               </button>
             )}
+
+            {/* ── Tab selector (like "location filter" in reference design) ── */}
+            <div className="relative shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowTabDropdown(!showTabDropdown);
+                  setShowSuggestions(false);
+                }}
+                className="flex items-center gap-1.5 pl-3 pr-2.5 py-2 rounded-full bg-muted/60 text-xs font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-colors border border-transparent hover:border-border"
+              >
+                {ActiveTabIcon && <ActiveTabIcon size={13} className="text-primary/60" />}
+                <span>{activeTabDef?.label}</span>
+                <ChevronDown
+                  size={12}
+                  className={`text-foreground/40 transition-transform duration-200 ${
+                    showTabDropdown ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              {/* ── Tab dropdown ── */}
+              <AnimatePresence>
+                {showTabDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-2 z-30 w-44 rounded-xl border bg-card border-border shadow-xl shadow-black/30 overflow-hidden"
+                  >
+                    {TABS.map((tab) => {
+                      const Icon = tab.icon;
+                      return (
+                        <button
+                          key={tab.key}
+                          onClick={() => {
+                            setActiveTab(tab.key);
+                            setShowTabDropdown(false);
+                          }}
+                          className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-left transition-colors ${
+                            activeTab === tab.key
+                              ? 'bg-primary/10 text-primary font-semibold'
+                              : 'text-foreground/70 hover:bg-muted/40'
+                          }`}
+                        >
+                          <Icon size={13} />
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
 
-          {/* Autocomplete dropdown */}
+          {/* ── Autocomplete dropdown ── */}
           <AnimatePresence>
             {showSuggestions && suggestions.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: -8 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="absolute top-full left-0 right-0 mt-2 z-20 rounded-2xl border bg-card border-border shadow-xl overflow-hidden"
+                exit={{ opacity: 0, y: -6 }}
+                className="absolute top-full left-0 right-0 mt-3 z-20 rounded-2xl border bg-card border-border shadow-xl shadow-black/30 overflow-hidden"
               >
                 {suggestions.slice(0, 10).map((kw) => (
                   <button
@@ -158,67 +304,67 @@ export default function UnifiedSearch() {
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
-        {/* ── Tabs + Embedded Results ── */}
-        {searchedQuery && (
-          <>
-            {/* Tab Navigation */}
-            <div className="flex items-center gap-0.5 p-1 rounded-xl bg-card border border-border">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                    activeTab === tab.key
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-foreground/60 hover:text-foreground/80'
-                  }`}
-                >
-                  <span>{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Tab Content */}
-            <div className="min-h-[400px]">
-              {activeTab === 'papers' && (
-                <SearchPapers embedded initialQuery={searchedQuery} />
-              )}
-              {activeTab === 'authors' && (
-                <SearchAuthor embedded initialQuery={searchedQuery} />
-              )}
-              {activeTab === 'journals' && (
-                <SearchJournal embedded initialQuery={searchedQuery} />
-              )}
-            </div>
-          </>
-        )}
-
-        {/* ── Zero State ── */}
-        {!searchedQuery && (
-          <div className="flex flex-col items-center py-12">
-            <div className="flex items-center gap-2 mb-6">
-              <TrendingUp size={16} className="text-primary/60" />
-              <span className="text-sm font-semibold text-foreground/70">Trending now</span>
-            </div>
-            <div className="flex flex-wrap justify-center gap-2 max-w-lg">
-              {trendingKeywords.map((kw) => (
-                <motion.button
-                  key={kw}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => handleSearch(kw)}
-                  className="px-4 py-2 rounded-full text-xs font-medium border transition-colors bg-card/60 border-primary/10 text-foreground/70 hover:border-primary/30 hover:text-primary hover:bg-primary/5"
-                >
-                  {kw}
-                </motion.button>
-              ))}
-            </div>
+        {/* ══════════════════════════════════════════════════════════════
+            ZERO STATE — Trending keywords (collapses when search done)
+            ══════════════════════════════════════════════════════════════ */}
+        <motion.div
+          animate={{
+            opacity: searchedQuery ? 0 : 1,
+            maxHeight: searchedQuery ? 0 : 200,
+            marginTop: searchedQuery ? 0 : 40,
+          }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col items-center overflow-hidden"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp size={14} className="text-primary/50" />
+            <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
+              Trending now
+            </span>
           </div>
-        )}
+          <div className="flex flex-wrap justify-center gap-2 max-w-lg">
+            {trendingKeywords.map((kw) => (
+              <motion.button
+                key={kw}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => handleSearch(kw)}
+                className="px-4 py-2 rounded-full text-xs font-medium border transition-colors bg-card/60 border-primary/10 text-foreground/70 hover:border-primary/30 hover:text-primary hover:bg-primary/5"
+              >
+                {kw}
+              </motion.button>
+            ))}
+          </div>
+        </motion.div>
       </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+          RESULTS SECTION — tabs + embedded tab content
+          ══════════════════════════════════════════════════════════════ */}
+      {searchedQuery && (
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-12">
+          {/* Tab Content */}
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            className="min-h-[400px]"
+          >
+            {activeTab === 'papers' && (
+              <SearchPapers embedded initialQuery={searchedQuery} />
+            )}
+            {activeTab === 'authors' && (
+              <SearchAuthor embedded initialQuery={searchedQuery} />
+            )}
+            {activeTab === 'journals' && (
+              <SearchJournal embedded initialQuery={searchedQuery} />
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
