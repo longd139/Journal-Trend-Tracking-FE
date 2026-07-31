@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import Graph from 'graphology';
@@ -43,41 +44,10 @@ const ZONE_COLORS = {
   right: '#FF6B6B',   // keywords unique to B
 };
 
-// Friendly labels for tooltip
-const GROUP_LABELS = {
-  YEAR: 'Year',
-  FIELD: 'Research Field',
-  TOPIC: 'Topic',
-  KEYWORD: 'Keyword',
-  PAPER_A: 'Paper',
-  PAPER_B: 'Paper',
-  PAPER_SHARED: 'Shared Paper',
-  DATASET: 'Dataset',
-  METRIC: 'Metric',
-  METHOD: 'Method',
-  AUTHOR: 'Author',
-};
-
 function getGroupColor(group) {
   const lookup = group.startsWith('PAPER_') ? group : group;
   return GROUP_COLORS[lookup] || DEFAULT_COLOR;
 }
-
-// ═══════════════════════════════════════════════════
-// Node legend (compact, always visible)
-// ═══════════════════════════════════════════════════
-const OVERVIEW_LEGEND = [
-  { group: 'FIELD', label: 'Research Field' },
-  { group: 'TOPIC', label: 'Topic' },
-  { group: 'KEYWORD', label: 'Keyword' },
-  { group: 'PAPER', label: 'Paper', color: DEFAULT_COLOR },
-];
-
-const FOCUSED_LEGEND = [
-  { group: 'left', label: 'Concepts unique to A', color: ZONE_COLORS.left },
-  { group: 'bridge', label: 'Bridge Concepts', color: ZONE_COLORS.bridge },
-  { group: 'right', label: 'Concepts unique to B', color: ZONE_COLORS.right },
-];
 
 // ═══════════════════════════════════════════════════
 // Transform backend data → graphology Graph
@@ -321,10 +291,32 @@ function getZone(group) {
   return 'other'; // KEYWORD, etc. — don't dim edges to these
 }
 
+/**
+ * Resolve a group name to its i18n tooltip label.
+ * Uses the same keys as the overview legend where applicable.
+ */
+function getGroupTooltipLabel(group, t) {
+  const map = {
+    FIELD: t('researchField'),
+    TOPIC: t('topic'),
+    KEYWORD: t('legend.keyword'),
+    PAPER_A: t('legend.paper'),
+    PAPER_B: t('legend.paper'),
+    PAPER_SHARED: t('sharedPaper'),
+    YEAR: 'Year',
+    DATASET: 'Dataset',
+    METRIC: 'Metric',
+    METHOD: 'Method',
+    AUTHOR: 'Author',
+  };
+  return map[group] || group || 'Node';
+}
+
 // ═══════════════════════════════════════════════════
 // Component
 // ═══════════════════════════════════════════════════
 export default function GapNeo4jGraph() {
+  const { t } = useTranslation('graph');
   const containerRef = useRef(null);
   const sigmaRef = useRef(null);
   const graphRef = useRef(null);
@@ -348,6 +340,21 @@ export default function GapNeo4jGraph() {
   } = useGapExplorerStore();
 
   const isFocused = stage === 'focused';
+
+  // ── Overview legend items (i18n-aware)
+  const overviewLegend = [
+    { group: 'FIELD', label: t('researchField') },
+    { group: 'TOPIC', label: t('topic') },
+    { group: 'KEYWORD', label: t('legend.keyword') },
+    { group: 'PAPER', label: t('legend.paper'), color: DEFAULT_COLOR },
+  ];
+
+  // ── Focused legend items (i18n-aware)
+  const focusedLegend = [
+    { group: 'left', label: t('conceptsUniqueTo', { kw: selectedPair?.keywordA || 'A' }), color: ZONE_COLORS.left },
+    { group: 'bridge', label: t('bridgeConcepts'), color: ZONE_COLORS.bridge },
+    { group: 'right', label: t('conceptsUniqueTo', { kw: selectedPair?.keywordB || 'B' }), color: ZONE_COLORS.right },
+  ];
 
   // ── Load hierarchy on mount ──
   useEffect(() => {
@@ -417,7 +424,7 @@ export default function GapNeo4jGraph() {
         const x = event.x - rect.left;
         const y = event.y - rect.top;
 
-        const groupLabel = GROUP_LABELS[attrs.group] || attrs.group || 'Node';
+        const groupLabel = getGroupTooltipLabel(attrs.group, t);
         const paperInfo = attrs.paperCount > 0 ? ` · ${attrs.paperCount} papers` : '';
 
         setTooltip({
@@ -473,7 +480,7 @@ export default function GapNeo4jGraph() {
       // Fit camera
       sigmaRef.current.getCamera().animatedReset({ duration: 600 });
     },
-    [destroySigma, setHighlightedNode, clearHighlight, isFocused]
+    [destroySigma, setHighlightedNode, clearHighlight, isFocused, t]
   );
 
   // ── Stage 1: Hierarchy ──
@@ -520,7 +527,7 @@ export default function GapNeo4jGraph() {
   const hasData = graphRef.current !== null;
 
   // Pick legend based on stage
-  const legendItems = isFocused ? FOCUSED_LEGEND : OVERVIEW_LEGEND;
+  const legendItems = isFocused ? focusedLegend : overviewLegend;
 
   // ── Count keywords per zone for focused mode ──
   const zoneCounts = { left: 0, bridge: 0, right: 0 };
@@ -536,7 +543,7 @@ export default function GapNeo4jGraph() {
   // Gap score — use BE value from selectedPair
   const gapScore = selectedPair?.gapScore ?? 0;
   const gapColor = gapScore >= 70 ? '#00D1B2' : gapScore >= 50 ? '#FFD93D' : '#64748B';
-  const gapLabel = gapScore >= 70 ? 'High Opportunity' : gapScore >= 50 ? 'Moderate' : 'Mature Field';
+  const gapLabel = gapScore >= 70 ? t('highOpportunity') : gapScore >= 50 ? t('moderate') : t('matureField');
 
   return (
     <div className="flex-1 min-h-0 rounded-xl overflow-hidden relative bg-background border border-border">
@@ -546,10 +553,10 @@ export default function GapNeo4jGraph() {
           <p className="text-[11px] font-semibold text-foreground">
             {isFocused && selectedPair
               ? `${selectedPair.keywordA}  ↔  ${selectedPair.keywordB}`
-              : 'Knowledge Landscape'}
+              : t('knowledgeLandscape')}
           </p>
           <p className="text-[9px] text-muted-foreground">
-            {isFocused ? 'Research Gap Analysis' : 'CS & AI Research (2024–2026)'}
+            {isFocused ? t('researchGapAnalysis') : t('csAiResearch')}
           </p>
         </div>
       </div>
@@ -557,7 +564,7 @@ export default function GapNeo4jGraph() {
       {/* ── Legend (top-right, always visible) ── */}
       <div className="absolute top-3 right-3 z-10">
         <div className="rounded-lg bg-card/90 border border-primary/10 backdrop-blur-sm p-2.5">
-          <p className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">Legend</p>
+          <p className="text-[9px] text-muted-foreground mb-1.5 uppercase tracking-wider font-semibold">{t('gapLegend')}</p>
           <div className="flex flex-col gap-1">
             {legendItems.map((item) => (
               <div key={item.group} className="flex items-center gap-1.5">
@@ -641,7 +648,7 @@ export default function GapNeo4jGraph() {
                   className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold"
                   style={{ background: ZONE_COLORS.left + '18', color: ZONE_COLORS.left }}
                 >
-                  {selectedPair?.keywordA || 'A'} Concepts
+                  {t('conceptsUniqueTo', { kw: selectedPair?.keywordA || 'A' })}
                 </span>
               </div>
               <div className="text-center" style={{ width: '35%' }}>
@@ -649,7 +656,7 @@ export default function GapNeo4jGraph() {
                   className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold"
                   style={{ background: ZONE_COLORS.bridge + '20', color: ZONE_COLORS.bridge }}
                 >
-                  Bridge Concepts
+                  {t('bridgeConcepts')}
                 </span>
               </div>
               <div className="text-center" style={{ width: '31%' }}>
@@ -657,7 +664,7 @@ export default function GapNeo4jGraph() {
                   className="inline-block px-2.5 py-1 rounded-lg text-[10px] font-bold"
                   style={{ background: ZONE_COLORS.right + '18', color: ZONE_COLORS.right }}
                 >
-                  {selectedPair?.keywordB || 'B'} Concepts
+                  {t('conceptsUniqueTo', { kw: selectedPair?.keywordB || 'B' })}
                 </span>
               </div>
             </div>
@@ -668,15 +675,15 @@ export default function GapNeo4jGraph() {
             <div className="flex justify-between px-4">
               <div className="text-center" style={{ width: '31%' }}>
                 <p className="text-[11px] font-bold text-foreground font-mono tabular-nums">{zoneCounts.left}</p>
-                <p className="text-[9px] text-muted-foreground">concepts</p>
+                <p className="text-[9px] text-muted-foreground">{t('concepts')}</p>
               </div>
               <div className="text-center" style={{ width: '35%' }}>
                 <p className="text-[11px] font-bold text-foreground font-mono tabular-nums">{zoneCounts.bridge}</p>
-                <p className="text-[9px] text-muted-foreground">bridging</p>
+                <p className="text-[9px] text-muted-foreground">{t('bridging')}</p>
               </div>
               <div className="text-center" style={{ width: '31%' }}>
                 <p className="text-[11px] font-bold text-foreground font-mono tabular-nums">{zoneCounts.right}</p>
-                <p className="text-[9px] text-muted-foreground">concepts</p>
+                <p className="text-[9px] text-muted-foreground">{t('concepts')}</p>
               </div>
             </div>
           </div>
@@ -686,7 +693,7 @@ export default function GapNeo4jGraph() {
             <div className="flex flex-col items-center gap-1 px-4 py-2.5 rounded-xl bg-card/95 border shadow-lg backdrop-blur-sm"
               style={{ borderColor: gapColor + '50' }}>
               <p className="text-2xl font-black font-mono tabular-nums" style={{ color: gapColor }}>{gapScore}</p>
-              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">GAP SCORE</p>
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">{t('gapScore')}</p>
               <p className="text-[10px] font-medium" style={{ color: gapColor }}>{gapLabel}</p>
             </div>
           </div>
@@ -697,7 +704,7 @@ export default function GapNeo4jGraph() {
           <div className="flex flex-col items-center gap-3">
             <Loader2 size={28} className="animate-spin text-foreground" />
             <span className="text-xs text-muted-foreground">
-              {stage === 'overview' ? 'Loading knowledge graph...' : 'Loading gap analysis...'}
+              {stage === 'overview' ? t('loadingKnowledgeGraph') : t('loadingGapAnalysis')}
             </span>
           </div>
         </div>
@@ -706,7 +713,7 @@ export default function GapNeo4jGraph() {
       {/* Empty state */}
       {!isLoading && !hasData && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-          <p className="text-sm text-muted-foreground">Describe your research idea to begin</p>
+          <p className="text-sm text-muted-foreground">{t('describeToBegin')}</p>
         </div>
       )}
 

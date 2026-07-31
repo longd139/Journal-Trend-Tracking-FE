@@ -20,9 +20,6 @@ import {
   Camera,
   X,
   RotateCcw,
-  Sun,
-  Moon,
-  Monitor,
   Loader2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,11 +28,9 @@ import { toast } from 'sonner';
 import { userAPI } from '../user/api';
 import { authAPI } from '../auth/api';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
-import { getLocalePreview } from '../../utils/localization';
 import { useAuthStore } from '../user/store';
 import ChangePasswordForm from './ChangePasswordForm';
 import NotificationSettings from './NotificationSettings';
-import { useTheme } from '../../hooks/useTheme';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Constants
@@ -112,13 +107,13 @@ function FormField({ icon: Icon, label, name, value, onChange, type = 'text', pl
    Settings section card
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function SectionCard({ icon: Icon, title, description, children, delay = 0 }) {
+function SectionCard({ icon: Icon, title, description, children, delay = 0, className = '' }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay, ease: [0.22, 1, 0.36, 1] }}
-      className="rounded-2xl border border-primary/8 bg-card-recessed/80 backdrop-blur-xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.3)]"
+      className={`rounded-2xl border border-primary/8 bg-card-recessed/80 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.3)] ${className}`}
     >
       {/* Header */}
       <div className="px-6 py-5 border-b border-primary/6 flex items-center gap-3.5">
@@ -156,11 +151,7 @@ export default function SettingsPage() {
   const updateStoreUser = useAuthStore((s) => s.updateUser);
   const user = useAuthStore((s) => s.user);
   const clearTokens = useAuthStore((s) => s.clearTokens);
-  const { theme, setTheme } = useTheme();
   const [showPasswordForm, setShowPasswordForm] = useState(false);
-
-  /* ── Language preview ────────────────────────────────────────────── */
-  const [langPreview, setLangPreview] = useState(getLocalePreview(i18n.language));
 
   /* ── University autocomplete ──────────────────────────────────────── */
   const [uniSuggestions, setUniSuggestions] = useState([]);
@@ -240,11 +231,6 @@ export default function SettingsPage() {
     };
     fetchProfile();
   }, []);
-
-  /* ── Language change effect ───────────────────────────────────────── */
-  useEffect(() => {
-    setLangPreview(getLocalePreview(i18n.language));
-  }, [i18n.language]);
 
   /* ── University autocomplete ──────────────────────────────────────── */
   useEffect(() => {
@@ -587,7 +573,6 @@ export default function SettingsPage() {
           <User size={13} className="text-primary" />
           <span className="text-xs font-bold text-primary">Profile</span>
         </div>
-        <span className="text-[11px] text-muted-foreground">Manage your personal information, preferences, and appearance</span>
       </motion.div>
 
       {/* ═════════════════════════════════════════════════════════════════
@@ -1100,93 +1085,6 @@ export default function SettingsPage() {
       </SectionCard>
 
       {/* ═════════════════════════════════════════════════════════════════
-         SECTION 1.8 — Appearance / Theme
-         ═════════════════════════════════════════════════════════════════ */}
-      <SectionCard
-        icon={Sun}
-        title="Appearance"
-        description="Choose between light, dark, or follow your system preference."
-        delay={0.12}
-      >
-        <div className="flex flex-wrap gap-3">
-          {/* Light */}
-          <button
-            type="button"
-            onClick={() => setTheme('light')}
-            className={`flex items-center gap-3 px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
-              theme === 'light'
-                ? 'border-[#D97706] bg-[#D97706]/5 shadow-[0_0_0_1px_rgba(217,119,6,0.3)]'
-                : 'border-primary/10 bg-transparent hover:border-primary/25 dark:border-primary/10 dark:hover:border-primary/25'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-              theme === 'light'
-                ? 'bg-[#D97706] text-white shadow-lg shadow-[#D97706]/25'
-                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
-            }`}>
-              <Sun size={20} />
-            </div>
-            <div className="text-left">
-              <div className={`text-sm font-bold transition-colors ${
-                theme === 'light' ? 'text-[#D97706]' : 'text-foreground'
-              }`}>Light</div>
-              <div className="text-[10px] text-muted-foreground">Warm ivory tone</div>
-            </div>
-          </button>
-
-          {/* Dark */}
-          <button
-            type="button"
-            onClick={() => setTheme('dark')}
-            className={`flex items-center gap-3 px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
-              theme === 'dark'
-                ? 'border-primary bg-primary/5 shadow-[0_0_0_1px_var(--shadow-color)]'
-                : 'border-primary/10 bg-transparent hover:border-primary/25 dark:border-primary/10 dark:hover:border-primary/25'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-              theme === 'dark'
-                ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/25'
-                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
-            }`}>
-              <Moon size={20} />
-            </div>
-            <div className="text-left">
-              <div className={`text-sm font-bold transition-colors ${
-                theme === 'dark' ? 'text-primary' : 'text-foreground'
-              }`}>Dark</div>
-              <div className="text-[10px] text-muted-foreground">Deep observatory</div>
-            </div>
-          </button>
-
-          {/* System */}
-          <button
-            type="button"
-            onClick={() => setTheme('system')}
-            className={`flex items-center gap-3 px-5 py-4 rounded-xl border-2 transition-all duration-200 ${
-              theme === 'system'
-                ? 'border-[#9CA3AF] bg-muted/25 shadow-[0_0_0_1px_rgba(156,163,175,0.3)]'
-                : 'border-primary/10 bg-transparent hover:border-primary/25 dark:border-primary/10 dark:hover:border-primary/25'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
-              theme === 'system'
-                ? 'bg-muted-foreground text-white shadow-lg shadow-[#9CA3AF]/20'
-                : 'bg-muted/30 text-muted-foreground dark:bg-muted/30'
-            }`}>
-              <Monitor size={20} />
-            </div>
-            <div className="text-left">
-              <div className={`text-sm font-bold transition-colors ${
-                theme === 'system' ? 'text-muted-foreground' : 'text-foreground'
-              }`}>System</div>
-              <div className="text-[10px] text-muted-foreground">Follow OS setting</div>
-            </div>
-          </button>
-        </div>
-      </SectionCard>
-
-      {/* ═════════════════════════════════════════════════════════════════
          SECTION 2 — Language & Region
          ═════════════════════════════════════════════════════════════════ */}
       <SectionCard
@@ -1194,63 +1092,32 @@ export default function SettingsPage() {
         title={t('language.title')}
         description={t('language.description')}
         delay={0.1}
+        className="relative z-10"
       >
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          {/* Language selector */}
-          <div className="md:col-span-3 space-y-4">
-            <label className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.05em]">
-              {t('language.title')}
-            </label>
-            <div className="max-w-[260px]">
-              <LanguageSwitcher variant="inline" />
-            </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              {t('language.description')}
-            </p>
+        <div className="flex items-center gap-4">
+          <div className="min-w-0 flex-1">
+            <LanguageSwitcher variant="inline" />
           </div>
-
-          {/* Preview card */}
-          <div className="md:col-span-2 p-4 rounded-2xl border border-primary/6 bg-card-recessed/50 space-y-3">
-            <label className="text-[11px] font-bold text-primary/80 uppercase tracking-[0.05em]">
-              {t('language.preview')}
-            </label>
-            <div className="space-y-2.5">
-              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-border">
-                <span className="text-muted-foreground">{t('language.dateSample')}</span>
-                <span className="font-bold text-foreground font-mono text-[11px]">
-                  {langPreview.date}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-xs py-2 px-3 rounded-lg bg-card border border-border">
-                <span className="text-muted-foreground">{t('language.numberSample')}</span>
-                <span className="font-bold text-foreground font-mono text-[11px]">
-                  {langPreview.number}
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={handleSaveLanguagePreference}
+              className="px-4 py-2 rounded-lg text-xs font-bold bg-primary text-primary-foreground hover:shadow-primary/25 transition-all flex items-center gap-1.5"
+            >
+              <Save size={12} /> {t('language.savePreference')}
+            </motion.button>
+            <button
+              onClick={() => {
+                i18n.changeLanguage('en');
+                localStorage.setItem('preferredLanguage', 'en');
+                toast.success(t('language.saved'), { duration: 2000 });
+              }}
+              className="px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all border border-transparent hover:border-primary/10"
+            >
+              {t('language.resetDefault')}
+            </button>
           </div>
-        </div>
-
-        {/* Language actions */}
-        <div className="flex items-center gap-3 mt-5 pt-5 border-t border-primary/6">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={handleSaveLanguagePreference}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-primary-foreground shadow-primary/15 hover:shadow-primary/25 transition-all flex items-center gap-2"
-          >
-            <Save size={13} /> {t('language.savePreference')}
-          </motion.button>
-          <button
-            onClick={() => {
-              i18n.changeLanguage('en');
-              localStorage.setItem('preferredLanguage', 'en');
-              toast.success(t('language.saved'), { duration: 2000 });
-            }}
-            className="px-4 py-2.5 rounded-xl text-xs font-bold text-muted-foreground hover:text-foreground hover:bg-muted/25 transition-all border border-transparent hover:border-primary/10"
-          >
-            {t('language.resetDefault')}
-          </button>
         </div>
       </SectionCard>
 

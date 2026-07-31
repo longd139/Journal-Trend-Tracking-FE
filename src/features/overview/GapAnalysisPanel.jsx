@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Loader2, Database, Gauge, Wrench, Lightbulb, ArrowLeft } from 'lucide-react';
 import useGapExplorerStore from '../../store/useGapExplorerStore';
@@ -35,7 +36,7 @@ function DimSection({ icon: Icon, title, items, emptyText }) {
  * If both are empty → show 1 merged card spanning full width.
  * If only one has data → show that one card at full width + a small "not found" note.
  */
-function DimPair({ icon: Icon, label, itemsA, itemsB, kwA, kwB }) {
+function DimPair({ icon: Icon, label, itemsA, itemsB, kwA, kwB, noDataText }) {
   const hasA = itemsA && itemsA.length > 0;
   const hasB = itemsB && itemsB.length > 0;
 
@@ -47,7 +48,7 @@ function DimPair({ icon: Icon, label, itemsA, itemsB, kwA, kwB }) {
           <Icon size={12} className="text-primary" />
           <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</h4>
         </div>
-        <p className="text-[10px] text-muted-foreground italic">No {label.toLowerCase()} found for either keyword</p>
+        <p className="text-[10px] text-muted-foreground italic">{noDataText}</p>
       </div>
     );
   }
@@ -74,6 +75,7 @@ function DimPair({ icon: Icon, label, itemsA, itemsB, kwA, kwB }) {
 }
 
 export default function GapAnalysisPanel() {
+  const { t } = useTranslation('graph');
   const { stage, selectedPair, gapAnalysis, gapAnalysisLoading, loadGapAnalysis, backToSuggestions } =
     useGapExplorerStore();
 
@@ -89,7 +91,7 @@ export default function GapAnalysisPanel() {
     return (
       <div className="w-full flex flex-col items-center justify-center bg-background border-l border-border p-5 gap-3 shrink-0">
         <Loader2 size={24} className="animate-spin text-primary" />
-        <p className="text-xs text-muted-foreground">Analyzing gap dimensions...</p>
+        <p className="text-xs text-muted-foreground">{t('analyzingGapDimensions')}</p>
       </div>
     );
   }
@@ -100,7 +102,7 @@ export default function GapAnalysisPanel() {
     <div className="w-full flex flex-col bg-background border-l border-border p-5 gap-4 overflow-y-auto">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold text-foreground">Gap Analysis</h3>
+        <h3 className="text-sm font-bold text-foreground">{t('gapAnalysis')}</h3>
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -108,7 +110,7 @@ export default function GapAnalysisPanel() {
           className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors bg-card/60 border-primary/10 text-muted-foreground hover:text-foreground hover:border-primary/20"
         >
           <ArrowLeft size={12} />
-          Back
+          {t('back')}
         </motion.button>
       </div>
       <p className="text-xs text-muted-foreground">
@@ -118,7 +120,7 @@ export default function GapAnalysisPanel() {
       {/* Quick stats */}
       <div className="grid grid-cols-3 gap-2">
         <StatBadge label={selectedPair.keywordA} count={a.kwACount} color="blue" />
-        <StatBadge label="Overlap" count={a.overlapCount} color="cream" />
+        <StatBadge label={t('overlap')} count={a.overlapCount} color="cream" />
         <StatBadge label={selectedPair.keywordB} count={a.kwBCount} color="red" />
       </div>
 
@@ -126,23 +128,26 @@ export default function GapAnalysisPanel() {
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
         {/* Datasets */}
         <DimPair
-          icon={Database} label="Datasets"
+          icon={Database} label={t('datasets')}
           itemsA={a.kwADatasets} itemsB={a.kwBDatasets}
           kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
+          noDataText={t('noDatasetsFound')}
         />
 
         {/* Metrics */}
         <DimPair
-          icon={Gauge} label="Metrics"
+          icon={Gauge} label={t('metrics')}
           itemsA={a.kwAMetrics} itemsB={a.kwBMetrics}
           kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
+          noDataText={t('noMetricsFound')}
         />
 
         {/* Methods */}
         <DimPair
-          icon={Wrench} label="Methods"
+          icon={Wrench} label={t('methods')}
           itemsA={a.kwAMethods} itemsB={a.kwBMethods}
           kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
+          noDataText={t('noMethodsFound')}
         />
 
         {/* AI Insight placeholder */}
@@ -150,13 +155,13 @@ export default function GapAnalysisPanel() {
           <div className="flex items-center gap-2 mb-1">
             <Lightbulb size={12} className="text-accent-teal" />
             <h4 className="text-[11px] font-semibold text-accent-teal uppercase tracking-wide">
-              Research Opportunity
+              {t('researchOpportunity')}
             </h4>
           </div>
           <p className="text-[10px] text-muted-foreground leading-relaxed">
             {a.overlapCount > 0
-              ? `${a.overlapCount} papers connect these keywords. Look for datasets and methods that are used on one side but not the other — these represent concrete research gaps.`
-              : 'No overlapping papers found. This intersection is completely unexplored — a significant greenfield opportunity.'}
+              ? t('researchOpportunityOverlap', { count: a.overlapCount })
+              : t('researchOpportunityNoOverlap')}
           </p>
         </div>
       </motion.div>

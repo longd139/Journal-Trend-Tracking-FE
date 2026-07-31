@@ -48,7 +48,8 @@
     "success": "Password changed successfully!",
     "error": {
       "mismatch": "Passwords do not match.",
-      "tooShort": "Password must be at least 6 characters.",
+      "tooShort": "Password must be at least 8 characters with at least 1 special character.",
+      "noSpecialChar": "Password must include at least 1 special character.",
       "wrongCurrent": "Current password is incorrect."
     }
   },

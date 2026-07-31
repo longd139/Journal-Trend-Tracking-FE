@@ -287,6 +287,9 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
     setShowSuggestions(false);
     setApiSuggestions([]);
 
+    // Notify overview to update search counter instantly
+    window.dispatchEvent(new CustomEvent('activity:search'));
+
     // ── Quota check in background (fire-and-forget, non-blocking) ──
     if (isAcademic) {
       paperAPI

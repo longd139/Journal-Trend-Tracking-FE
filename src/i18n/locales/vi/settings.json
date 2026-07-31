@@ -48,7 +48,8 @@
     "success": "Đổi mật khẩu thành công!",
     "error": {
       "mismatch": "Mật khẩu không khớp.",
-      "tooShort": "Mật khẩu phải có ít nhất 6 ký tự.",
+      "tooShort": "Mật khẩu phải có ít nhất 8 ký tự và ít nhất 1 ký tự đặc biệt.",
+      "noSpecialChar": "Mật khẩu phải có ít nhất 1 ký tự đặc biệt.",
       "wrongCurrent": "Mật khẩu hiện tại không đúng."
     }
   },

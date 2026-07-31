@@ -19,6 +19,7 @@ import { trendAPI } from '../search/trend.api';
 import { paperAPI } from '../search/paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
 import { authorAPI } from '../search/author.api';
+import useActivityStore from '../../store/useActivityStore';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
   Select,
@@ -155,6 +156,15 @@ export default function UserOverviewPage() {
   const [publicData, setPublicData] = useState(null);
   const [userData, setUserData] = useState(null);
 
+  // Activity store for instant counter updates
+  const activityPapersViewed = useActivityStore((s) => s.papersViewed);
+  const activityBookmarks = useActivityStore((s) => s.bookmarksThisMonth);
+  const activitySearches = useActivityStore((s) => s.searchesThisMonth);
+  const activityInit = useActivityStore((s) => s.initFromApi);
+  const activityIncrPapers = useActivityStore((s) => s.incrementPapersViewed);
+  const activityIncrBookmarks = useActivityStore((s) => s.incrementBookmarks);
+  const activityIncrSearches = useActivityStore((s) => s.incrementSearches);
+
   // Author selection
   const [selectedAuthorId, setSelectedAuthorId] = useState('__system__');
   const [followedAuthors, setFollowedAuthors] = useState([]);
@@ -187,7 +197,7 @@ export default function UserOverviewPage() {
       setPublicData(pubResult);
       setUserData(userResult);
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Failed to load overview';
+      const msg = err?.response?.data?.message || err?.message || t('user.failedToLoad');
       setError(msg);
     } finally {
       setLoading(false);
@@ -278,6 +288,34 @@ export default function UserOverviewPage() {
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Seed activity store from API data on initial load ──
+  useEffect(() => {
+    if (userData) {
+      activityInit({
+        papersViewed: userData.papersViewed ?? 0,
+        bookmarksThisMonth: userData.bookmarksThisMonth ?? 0,
+        searchesThisMonth: userData.searchesThisMonth ?? 0,
+      });
+    }
+  }, [userData, activityInit]);
+
+  // ── Listen for real-time activity events ──
+  useEffect(() => {
+    const onPaperViewed = () => activityIncrPapers();
+    const onBookmark = () => activityIncrBookmarks();
+    const onSearch = () => activityIncrSearches();
+
+    window.addEventListener('activity:paper-viewed', onPaperViewed);
+    window.addEventListener('activity:bookmark', onBookmark);
+    window.addEventListener('activity:search', onSearch);
+
+    return () => {
+      window.removeEventListener('activity:paper-viewed', onPaperViewed);
+      window.removeEventListener('activity:bookmark', onBookmark);
+      window.removeEventListener('activity:search', onSearch);
+    };
+  }, [activityIncrPapers, activityIncrBookmarks, activityIncrSearches]);
+
   // ── Loading ──
   if (loading) return <OverviewSkeleton />;
 
@@ -290,13 +328,13 @@ export default function UserOverviewPage() {
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
-          <p className="text-sm text-muted-foreground">Unable to load dashboard data.</p>
+          <p className="text-sm text-muted-foreground">{t('user.unableToLoad')}</p>
         </div>
         <button
           onClick={() => fetchOverview(selectedAuthorId)}
           className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
-          Retry
+          {t('user.retry')}
         </button>
       </div>
     );
@@ -304,6 +342,7 @@ export default function UserOverviewPage() {
 
   const pd = publicData || {};
   const ud = userData || {};
+
   const isAuthorView = selectedAuthorId !== '__system__';
   const hasFollowedAuthors = followedAuthors.length > 0;
   const currentAuthor = followedAuthors.find((a) => a.authorId === selectedAuthorId);
@@ -312,10 +351,10 @@ export default function UserOverviewPage() {
   const isAuthorCards = isAuthorView && pd.authorName;
 
   const authorCards = [
-    { label: 'Published Papers', value: (pd.authorTotalPapers ?? '—').toLocaleString(), sub: `Works by ${pd.authorName || currentAuthor?.authorName || 'author'}`, Icon: FileText, accent: '#4F8CFF' },
-    { label: 'Total Citations', value: (pd.authorTotalCitations ?? '—').toLocaleString(), sub: 'Citations across all works', Icon: TrendingUp, accent: '#DEDBC8' },
-    { label: 'h-Index', value: (pd.authorHIndex ?? '—').toLocaleString(), sub: `${pd.authorHIndex ?? 'N'} papers with ≥ ${pd.authorHIndex ?? 'N'} citations each`, Icon: Award, accent: '#00D1B2' },
-    { label: 'Co-Authors', value: (pd.authorCoAuthors ?? '—').toLocaleString(), sub: 'Unique collaborators', Icon: UserPlus, accent: '#DEDBC8' },
+    { label: t('user.publishedPapers'), value: (pd.authorTotalPapers ?? '—').toLocaleString(), sub: t('user.worksBy', { name: pd.authorName || currentAuthor?.authorName || t('user.roleAuthor') }), Icon: FileText, accent: '#4F8CFF' },
+    { label: t('user.totalCitations'), value: (pd.authorTotalCitations ?? '—').toLocaleString(), sub: t('user.citationsAcrossWorks'), Icon: TrendingUp, accent: '#DEDBC8' },
+    { label: t('user.hIndex'), value: (pd.authorHIndex ?? '—').toLocaleString(), sub: t('user.hIndexSubtext', { h: pd.authorHIndex ?? 'N' }), Icon: Award, accent: '#00D1B2' },
+    { label: t('user.coAuthors'), value: (pd.authorCoAuthors ?? '—').toLocaleString(), sub: t('user.uniqueCollaborators'), Icon: UserPlus, accent: '#DEDBC8' },
   ];
 
   const statCards = isAuthorCards ? authorCards : [];
@@ -345,27 +384,20 @@ export default function UserOverviewPage() {
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
                   bg-primary text-primary-foreground hover:bg-foreground transition-all duration-200"
               >
-                <Search size={12} /> New Search
-              </button>
-              <button
-                onClick={() => navigate(`/${role}/search-author`)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold
-                  bg-accent-blue text-white hover:bg-accent-blue/80 transition-all duration-200"
-              >
-                <UserSearch size={12} /> Find Authors
+                <Search size={12} /> {t('user.newSearch')}
               </button>
               <span className="w-px h-5 bg-primary/10 mx-1" />
               <button
                 onClick={() => navigate(`/${role}/bookmarks`)}
                 className="flex items-center gap-1 text-[11px] font-medium text-primary/50 hover:text-primary transition-colors"
               >
-                <Bookmark size={12} /> Bookmarks
+                <Bookmark size={12} /> {t('user.bookmarks')}
               </button>
               <button
                 onClick={() => navigate(`/${role}/search?q=`)}
                 className="flex items-center gap-1 text-[11px] font-medium text-primary/50 hover:text-primary transition-colors"
               >
-                <TrendingUpIcon size={12} /> Trending
+                <TrendingUpIcon size={12} /> {t('user.trendingTopics')}
               </button>
             </div>
 
@@ -387,18 +419,18 @@ export default function UserOverviewPage() {
                 disabled={authorsLoading}
               >
                 <SelectTrigger className="w-[200px] shrink-0 bg-card border-primary/10 text-foreground h-9 text-xs rounded-xl">
-                  <SelectValue placeholder={authorsLoading ? 'Loading...' : 'My Dashboard'} />
+                  <SelectValue placeholder={authorsLoading ? t('user.loading') : t('user.myDashboard')} />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-primary/10 text-foreground shadow-lg shadow-black/40">
                   <SelectItem
                     value="__system__"
                     className="text-xs data-[highlighted]:bg-primary/10 data-[highlighted]:text-foreground focus:bg-primary/10 focus:text-foreground cursor-pointer rounded-lg mx-1 my-0.5"
                   >
-                    My Dashboard
+                    {t('user.myDashboard')}
                   </SelectItem>
                   {!hasFollowedAuthors && (
                     <div className="px-2 py-3 text-xs text-muted-foreground text-center">
-                      No authors followed yet
+                      {t('user.noFollowedAuthors')}
                     </div>
                   )}
                   {followedAuthors.map((author) => (
@@ -428,9 +460,9 @@ export default function UserOverviewPage() {
                 <div>
                   <p className="text-base font-semibold text-foreground">{currentAuthor.authorName}</p>
                   <p className="text-xs text-muted-foreground">
-                    h-Index: {authorTimeline?.hIndex ?? hIndex ?? '—'}
+                    {t('user.hIndexLabel')}: {authorTimeline?.hIndex ?? hIndex ?? '—'}
                     {' · '}
-                    {recentPublications.length} publications listed
+                    {t('user.publicationsListed', { count: recentPublications.length })}
                   </p>
                 </div>
               </div>
@@ -438,17 +470,17 @@ export default function UserOverviewPage() {
                 <div className="flex items-center gap-4 text-xs">
                   <div className="text-center">
                     <p className="font-bold text-foreground font-mono tabular-nums">{authorTimeline.totalPapers?.toLocaleString() || '—'}</p>
-                    <p className="text-[10px] text-muted-foreground">Papers</p>
+                    <p className="text-[10px] text-muted-foreground">{t('user.papers')}</p>
                   </div>
                   <div className="w-px h-6 bg-primary/10" />
                   <div className="text-center">
                     <p className="font-bold text-accent-blue font-mono tabular-nums">{authorTimeline.totalCitations?.toLocaleString() || '—'}</p>
-                    <p className="text-[10px] text-muted-foreground">Citations</p>
+                    <p className="text-[10px] text-muted-foreground">{t('user.citations')}</p>
                   </div>
                   <div className="w-px h-6 bg-primary/10" />
                   <div className="text-center">
                     <p className="font-bold text-accent-teal font-mono tabular-nums">{authorCoAuthors?.coAuthors?.length ?? '—'}</p>
-                    <p className="text-[10px] text-muted-foreground">Co-Authors</p>
+                    <p className="text-[10px] text-muted-foreground">{t('user.coAuthors')}</p>
                   </div>
                 </div>
               )}
@@ -483,12 +515,12 @@ export default function UserOverviewPage() {
                       <Gauge size={14} className="text-primary" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-foreground">Search Quota</h4>
-                      <p className="text-[10px] text-muted-foreground">Monthly usage limit</p>
+                      <h4 className="text-xs font-bold text-foreground">{t('user.searchQuota')}</h4>
+                      <p className="text-[10px] text-muted-foreground">{t('user.monthlyLimit')}</p>
                     </div>
                   </div>
                   <span className="text-sm font-bold font-mono tabular-nums text-foreground">
-                    {searchesLeft} <span className="text-[10px] text-muted-foreground font-normal">/ {searchLimit} remaining</span>
+                    {searchesLeft} <span className="text-[10px] text-muted-foreground font-normal">/ {searchLimit} {t('user.remaining')}</span>
                   </span>
                 </div>
                 <div className="w-full h-2 rounded-full bg-primary/8 overflow-hidden">
@@ -500,19 +532,19 @@ export default function UserOverviewPage() {
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-2">
-                  Used {searchLimit - searchesLeft} of {searchLimit} searches this month
+                  {t('user.usageText', { used: searchLimit - searchesLeft, limit: searchLimit })}
                   {searchesLeft <= 3 && searchesLeft > 0 && (
-                    <span className="text-primary ml-1">— Running low</span>
+                    <span className="text-primary ml-1">— {t('user.runningLow')}</span>
                   )}
                   {searchesLeft === 0 && (
-                    <span className="text-red-400 ml-1">— Limit reached. Resets next month.</span>
+                    <span className="text-red-400 ml-1">— {t('user.limitReached')}</span>
                   )}
                 </p>
               </motion.div>
             )}
 
             {/* ── Activity Summary ── */}
-            {(ud.papersViewed != null || ud.bookmarksThisMonth != null || ud.searchesThisMonth != null) && (
+            {((activityPapersViewed > 0 || activityBookmarks > 0 || activitySearches > 0) || (ud.papersViewed != null || ud.bookmarksThisMonth != null || ud.searchesThisMonth != null)) && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -521,25 +553,25 @@ export default function UserOverviewPage() {
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Activity size={14} className="text-primary" />
-                  <h4 className="text-xs font-bold text-foreground">This Month's Activity</h4>
+                  <h4 className="text-xs font-bold text-foreground">{t('user.thisMonthActivity')}</h4>
                 </div>
                 <div className="flex flex-wrap items-center gap-6">
-                  {ud.papersViewed != null && (
+                  {(activityPapersViewed > 0 || ud.papersViewed != null) && (
                     <div>
-                      <p className="text-lg font-bold text-foreground font-mono tabular-nums">{ud.papersViewed}</p>
-                      <p className="text-[10px] text-muted-foreground">Papers Viewed</p>
+                      <p className="text-lg font-bold text-foreground font-mono tabular-nums">{activityPapersViewed}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('user.papersViewed')}</p>
                     </div>
                   )}
-                  {ud.bookmarksThisMonth != null && (
+                  {(activityBookmarks > 0 || ud.bookmarksThisMonth != null) && (
                     <div>
-                      <p className="text-lg font-bold text-accent-blue font-mono tabular-nums">{ud.bookmarksThisMonth}</p>
-                      <p className="text-[10px] text-muted-foreground">Bookmarks Added</p>
+                      <p className="text-lg font-bold text-accent-blue font-mono tabular-nums">{activityBookmarks}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('user.bookmarksAdded')}</p>
                     </div>
                   )}
-                  {ud.searchesThisMonth != null && (
+                  {(activitySearches > 0 || ud.searchesThisMonth != null) && (
                     <div>
-                      <p className="text-lg font-bold text-accent-teal font-mono tabular-nums">{ud.searchesThisMonth}</p>
-                      <p className="text-[10px] text-muted-foreground">Searches Run</p>
+                      <p className="text-lg font-bold text-accent-teal font-mono tabular-nums">{activitySearches}</p>
+                      <p className="text-[10px] text-muted-foreground">{t('user.searchesRun')}</p>
                     </div>
                   )}
                 </div>
@@ -558,9 +590,9 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <TrendingUpIcon size={15} className="text-accent-teal" /> Trending Topics
+                      <TrendingUpIcon size={15} className="text-accent-teal" /> {t('user.trendingTopics')}
                     </h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Hot research keywords right now</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.hotKeywords')}</p>
                   </div>
                 </div>
                 {extrasLoading ? (
@@ -593,7 +625,7 @@ export default function UserOverviewPage() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-20 text-muted-foreground text-xs">
-                    No trending topics yet
+                    {t('user.noTrendingData')}
                   </div>
                 )}
               </motion.div>
@@ -606,7 +638,7 @@ export default function UserOverviewPage() {
                 className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
               >
                 <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-3">
-                  <ChartPie size={15} className="text-primary" /> Research Fields
+                  <ChartPie size={15} className="text-primary" /> {t('user.researchFields')}
                 </h3>
                 {extrasLoading ? (
                   <div className="flex-1 flex items-center justify-center">
@@ -664,9 +696,9 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <Lightbulb size={15} className="text-primary" /> For You
+                      <Lightbulb size={15} className="text-primary" /> {t('user.forYou')}
                     </h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Recommended based on your interests</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.recommendedBased')}</p>
                   </div>
                 </div>
                 {extrasLoading ? (
@@ -687,7 +719,7 @@ export default function UserOverviewPage() {
                           transition={{ delay: 0.45 + i * 0.05, ...spring }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => {
-                            if (p.paperId) navigate(`/${role}/search/paper/${p.paperId}`);
+                            if (p.paperId) navigate(`/${role}/papers/${p.paperId}`);
                           }}
                           className="w-full text-left p-3 rounded-xl border border-primary/6 hover:border-primary/15
                             bg-transparent hover:bg-primary/3 transition-all duration-200 group"
@@ -698,7 +730,7 @@ export default function UserOverviewPage() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-semibold text-foreground line-clamp-1 group-hover:text-accent-blue transition-colors">
-                                {p.title || 'Untitled'}
+                                {p.title || t('user.untitled')}
                               </p>
                               <div className="flex items-center gap-3 text-[10px] text-muted-foreground mt-1">
                                 {p.journal && <span className="truncate">{p.journal}</span>}
@@ -735,7 +767,7 @@ export default function UserOverviewPage() {
               >
                 <div className="mb-4">
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                    <Bookmark size={15} className="text-accent-blue" /> Bookmarks
+                    <Bookmark size={15} className="text-accent-blue" /> {t('user.bookmarks')}
                   </h3>
                 </div>
                 {extrasLoading ? (
@@ -760,10 +792,10 @@ export default function UserOverviewPage() {
                           bg-transparent hover:bg-primary/3 transition-all duration-200 group"
                       >
                         <p className="text-xs font-medium text-foreground truncate group-hover:text-accent-blue transition-colors">
-                          {bm.paperTitle || bm.keywordText || 'Untitled'}
+                          {bm.paperTitle || bm.keywordText || t('user.untitled')}
                         </p>
                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                          {bm.collectionName || 'General'}
+                          {bm.collectionName || t('user.general')}
                           {bm.createdAt && ` · ${new Date(bm.createdAt).toLocaleDateString()}`}
                         </p>
                       </motion.button>
@@ -781,7 +813,7 @@ export default function UserOverviewPage() {
                     className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-medium
                       text-primary/60 hover:text-primary bg-primary/5 hover:bg-primary/10 transition-all"
                   >
-                    View all <ArrowRight size={12} />
+                    {t('user.viewAll')} <ArrowRight size={12} />
                   </button>
                 )}
               </motion.div>
@@ -797,15 +829,15 @@ export default function UserOverviewPage() {
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                    <Clock size={15} className="text-accent-teal" /> Recently Viewed
+                    <Clock size={15} className="text-accent-teal" /> {t('user.recentlyViewed')}
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Pick up where you left off</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.pickUpWhereLeft')}</p>
                 </div>
                 <button
                   onClick={() => navigate(`/${role}/reading-history`)}
                   className="flex items-center gap-1 text-[10px] font-medium text-primary/50 hover:text-primary transition-colors"
                 >
-                  View history <ArrowRight size={11} />
+                  {t('user.viewHistory')} <ArrowRight size={11} />
                 </button>
               </div>
               {extrasLoading ? (
@@ -836,7 +868,7 @@ export default function UserOverviewPage() {
                           <BookOpen size={12} className="text-accent-teal" />
                         </div>
                         <p className="text-xs font-semibold text-foreground line-clamp-2 leading-snug group-hover:text-accent-teal transition-colors">
-                          {p.paperTitle || 'Untitled'}
+                          {p.paperTitle || t('user.untitled')}
                         </p>
                       </div>
                       <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
@@ -895,13 +927,13 @@ export default function UserOverviewPage() {
                   <div className="flex items-center justify-between mb-6">
                     <div>
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                        <Calendar size={15} className="text-primary" /> Publication Timeline
+                        <Calendar size={15} className="text-primary" /> {t('user.publicationTimeline')}
                       </h3>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">Research output & impact per year</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.researchOutput')}</p>
                     </div>
                     <div className="flex items-center gap-3 text-[10px]">
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-primary" />Papers</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-accent-blue" style={{ borderTop: '2px dashed #4F8CFF', height: 0 }} />Citations</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-primary" />{t('user.papersChart')}</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-accent-blue" style={{ borderTop: '2px dashed #4F8CFF', height: 0 }} />{t('user.citationsChart')}</span>
                     </div>
                   </div>
                   {authorDetailLoading ? (
@@ -921,8 +953,8 @@ export default function UserOverviewPage() {
                             itemStyle={{ color: 'var(--foreground)' }}
                           />
                           <Legend content={() => null} />
-                          <Bar yAxisId="left" dataKey="worksCount" name="Papers" fill="#DEDBC8" radius={[4, 4, 0, 0]} maxBarSize={36} opacity={0.8} />
-                          <Line yAxisId="right" type="monotone" dataKey="citedByCount" name="Citations" stroke="#4F8CFF" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: '#4F8CFF', strokeWidth: 0 }} />
+                          <Bar yAxisId="left" dataKey="worksCount" name={t('user.papersChart')} fill="#DEDBC8" radius={[4, 4, 0, 0]} maxBarSize={36} opacity={0.8} />
+                          <Line yAxisId="right" type="monotone" dataKey="citedByCount" name={t('user.citationsChart')} stroke="#4F8CFF" strokeWidth={2} strokeDasharray="5 3" dot={{ r: 3, fill: '#4F8CFF', strokeWidth: 0 }} />
                         </ComposedChart>
                       </ResponsiveContainer>
                   ) : (
@@ -938,7 +970,7 @@ export default function UserOverviewPage() {
                   className="rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
                 >
                   <h3 className="text-base font-semibold text-foreground mb-4">
-                    {t('user.researchFields') || 'Research Fields'}
+                    {t('user.researchFields')}
                   </h3>
                   {researchFields.length > 0 ? (
                     <>
@@ -999,13 +1031,13 @@ export default function UserOverviewPage() {
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                        <Network size={15} className="text-primary" /> Co-Authors
+                        <Network size={15} className="text-primary" /> {t('user.coAuthors')}
                       </h3>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">Frequent collaborators</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.frequentCollaborators')}</p>
                     </div>
                     {authorCoAuthors && (
                       <span className="text-[10px] text-muted-foreground">
-                        {authorCoAuthors.totalCoAuthors || authorCoAuthors.coAuthors?.length || 0} co-authors
+                        {t('user.nCoAuthors', { count: authorCoAuthors.totalCoAuthors || authorCoAuthors.coAuthors?.length || 0 })}
                       </span>
                     )}
                   </div>
@@ -1030,7 +1062,7 @@ export default function UserOverviewPage() {
                           <p className="text-xs font-semibold text-foreground">{ca.name}</p>
                           <div className="flex items-center gap-2 mt-1">
                             <span className="text-[10px] text-muted-foreground">
-                              {ca.collaborationCount} collaboration{ca.collaborationCount > 1 ? 's' : ''}
+                              {t('user.collaboration', { count: ca.collaborationCount })}
                             </span>
                             {ca.lastInstitution && (
                               <span className="text-[9px] text-muted-foreground truncate max-w-[120px]">{ca.lastInstitution}</span>
@@ -1056,9 +1088,9 @@ export default function UserOverviewPage() {
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                        <Trophy size={15} className="text-primary" /> Top Cited Papers
+                        <Trophy size={15} className="text-primary" /> {t('user.topCitedPapers')}
                       </h3>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">Most influential works</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.mostInfluential')}</p>
                     </div>
                   </div>
                   {authorDetailLoading ? (
@@ -1077,14 +1109,14 @@ export default function UserOverviewPage() {
                           transition={{ delay: 0.35 + i * 0.05, ...spring }}
                           whileTap={{ scale: 0.98 }}
                           onClick={() => {
-                            if (p.paperId) navigate(`/${role}/search/paper/${p.paperId}`);
+                            if (p.paperId) navigate(`/${role}/papers/${p.paperId}`);
                           }}
                           className="w-full text-left p-3 rounded-xl border border-primary/6 hover:border-primary/15
                             bg-transparent hover:bg-primary/3 transition-all duration-200 group"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <p className="text-xs font-medium text-foreground line-clamp-1 group-hover:text-accent-blue transition-colors flex-1">
-                              {p.title || 'Untitled'}
+                              {p.title || t('user.untitled')}
                             </p>
                             <span className="text-xs font-bold text-primary font-mono tabular-nums shrink-0">
                               {(p.citationCount ?? p.citations ?? 0).toLocaleString()}
@@ -1115,9 +1147,9 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between px-6 py-5 border-b border-border">
                   <div>
                     <h3 className="text-base font-semibold text-foreground">
-                      {t('user.recentPublications') || 'Recent Publications'}
+                      {t('user.recentPublications')}
                     </h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">Latest published research</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.latestPublished')}</p>
                   </div>
                 </div>
                 {recentPublications.length > 0 ? (
@@ -1125,7 +1157,7 @@ export default function UserOverviewPage() {
                     <table className="w-full">
                       <thead>
                         <tr className="border-b border-border">
-                          {['Title', 'Journal', 'Year', 'Role', 'Citations'].map((h) => (
+                          {[t('user.tableTitle'), t('user.tableJournal'), t('user.tableYear'), t('user.tableRole'), t('user.tableCitations')].map((h) => (
                             <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                               {h}
                             </th>
@@ -1158,7 +1190,9 @@ export default function UserOverviewPage() {
                                     : '#A09878'
                                 }
                               >
-                                {p.role || 'Author'}
+                                {p.role === 'First Author' ? t('user.roleFirstAuthor')
+                                  : p.role === 'Corresponding Author' ? t('user.roleCorrespondingAuthor')
+                                  : p.role || t('user.roleAuthor')}
                               </GlowBadge>
                             </td>
                             <td className="px-6 py-4 text-sm font-bold text-foreground">
@@ -1171,7 +1205,7 @@ export default function UserOverviewPage() {
                   </div>
                 ) : (
                   <div className="flex items-center justify-center py-12 text-muted-foreground text-sm">
-                    No publications to display
+                    {t('user.noPublications')}
                   </div>
                 )}
               </motion.div>
@@ -1195,7 +1229,7 @@ export default function UserOverviewPage() {
                 Follow authors to unlock research insights
               </p>
               <p className="text-xs text-muted-foreground mt-1 max-w-md">
-                Search for authors, follow them, then switch the dropdown above to see their citation history, research fields, and publications.
+                {t('user.emptyStateText')}
               </p>
             </div>
           </motion.div>

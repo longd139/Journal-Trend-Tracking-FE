@@ -100,6 +100,8 @@ export default function UnifiedSearch() {
     setShowSuggestions(false);
     setSuggestions([]);
     setShowTabDropdown(false);
+    // Notify overview to update search counter instantly
+    if (trimmed) window.dispatchEvent(new CustomEvent('activity:search'));
   };
 
   const handleKeyDown = (e) => {

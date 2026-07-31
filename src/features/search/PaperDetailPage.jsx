@@ -442,6 +442,7 @@ export default function PaperDetailPage() {
           },
         );
         window.dispatchEvent(new CustomEvent('reading-history-changed'));
+        window.dispatchEvent(new CustomEvent('activity:paper-viewed'));
       } else {
         setError('Paper not found');
       }
@@ -542,6 +543,7 @@ export default function PaperDetailPage() {
           createdAt: new Date().toISOString(),
         });
         window.dispatchEvent(new CustomEvent('bookmark-changed'));
+        window.dispatchEvent(new CustomEvent('activity:bookmark'));
         toast.success('Saved to bookmarks');
       }
     } catch (err) {

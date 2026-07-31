@@ -169,5 +169,14 @@
     "generate": "Generate Report",
     "customReport": "Custom Report",
     "generating": "Generating..."
-  }
+  },
+  "trendStatus": {
+    "booming": "Booming",
+    "stable": "Stable",
+    "saturated": "Saturated",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noData": "No data"
+  },
+  "reportTitle": "Trend Report: {{keyword}}"
 }

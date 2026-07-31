@@ -170,13 +170,22 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
       : COLORS.red;
 
   // ── Status color ──
-  const statusColors = {
+  // API returns Vietnamese status strings; map them to colors directly
+  const statusColorMap = {
     'Đang bùng nổ': COLORS.green,
     'Ổn định': COLORS.amber,
     'Bão hòa': COLORS.red,
     'Không có dữ liệu': COLORS.muted,
   };
-  const statusColor = statusColors[status] || COLORS.muted;
+  const statusI18nMap = {
+    'Đang bùng nổ': 'trendStatus.booming',
+    'Ổn định': 'trendStatus.stable',
+    'Bão hòa': 'trendStatus.saturated',
+    'Không có dữ liệu': 'trendStatus.noData',
+  };
+  const statusColor = statusColorMap[status] || COLORS.muted;
+  const statusLabel = statusI18nMap[status] ? t(statusI18nMap[status]) : (status || '');
+  const reportTitleText = reportTitle || t('reportTitle', { keyword: keyword || '' });
 
   // ── Navigate to search ──
   const goToSearch = (kw) => {
@@ -224,7 +233,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
             {t('templates.trendAnalysis.name') || 'Keyword Trend Report'}
           </p>
           <h3 className="text-base font-bold text-foreground">
-            {reportTitle || `Báo cáo phân tích: ${keyword}`}
+            {reportTitleText}
           </h3>
           <p className="text-sm text-accent-blue font-mono mt-0.5">
             &quot;{keyword}&quot;
@@ -247,7 +256,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 border: `1px solid ${statusColor}44`,
               }}
             >
-              {status}
+              {statusLabel}
             </span>
           )}
           {growth != null && (
@@ -277,7 +286,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
         <SectionHeader
           icon={BarChart3}
           iconColor={COLORS.primary}
-          title={t('summary.title') || 'Tổng quan'}
+          title={t('summary.title')}
         />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
@@ -517,7 +526,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
           <SectionHeader
             icon={PieChart}
             iconColor={COLORS.amber}
-            title={t('charts.topJournals') || 'Phân bổ theo Tạp chí (Top Journals)'}
+            title={t('charts.topJournals')}
           />
           {donutData.length > 0 ? (
             <div className="flex flex-col lg:flex-row items-center justify-center gap-6">
@@ -592,7 +601,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
             <SectionHeader
               icon={Lightbulb}
               iconColor={COLORS.amber}
-              title={t('insight.title') || 'Nhận định & Phân tích'}
+              title={t('insight.title')}
             />
             <p className="text-sm text-foreground/80 leading-relaxed">{insight}</p>
           </div>

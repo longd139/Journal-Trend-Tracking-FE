@@ -1,4 +1,5 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   AlertTriangle,
@@ -22,6 +23,7 @@ import useGapExplorerStore from '../../store/useGapExplorerStore';
  * matchLevel === 'NONE'       → guided discovery landscape cards
  */
 export default function KeywordMatchFeedback() {
+  const { t } = useTranslation('graph');
   const {
     matchLevel,
     unmatchedTerms,
@@ -61,10 +63,10 @@ export default function KeywordMatchFeedback() {
           <AlertTriangle size={14} className="text-amber-400 mt-0.5 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-xs font-semibold text-amber-300">
-              Some concepts not found
+              {t('someConceptsNotFound')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Not found:{' '}
+              {t('notFound')}{' '}
               <span className="text-amber-300 font-medium">
                 {unmatchedTerms.join(', ')}
               </span>
@@ -77,6 +79,7 @@ export default function KeywordMatchFeedback() {
                 keywords={crawlKeywords}
                 isCrawling={isCrawling}
                 onClick={() => startCrawl(crawlKeywords)}
+                t={t}
               />
             )}
           </div>
@@ -95,7 +98,7 @@ export default function KeywordMatchFeedback() {
       >
         <div className="flex items-center gap-2">
           <Search size={14} className="text-foreground" />
-          <p className="text-xs font-semibold text-foreground">Did you mean?</p>
+          <p className="text-xs font-semibold text-foreground">{t('didYouMean')}</p>
         </div>
 
         <p className="text-xs text-muted-foreground">{shortMsg}</p>
@@ -103,7 +106,7 @@ export default function KeywordMatchFeedback() {
         {fuzzyCandidates.map((fs, i) => (
           <div key={i} className="rounded-lg border border-primary/10 bg-card p-3">
             <p className="text-xs font-medium text-muted-foreground mb-2">
-              For <span className="text-foreground italic">"{fs.originalTerm}"</span>:
+              {t('forTerm')} <span className="text-foreground italic">"{fs.originalTerm}"</span>:
             </p>
 
             {fs.candidates && fs.candidates.length > 0 ? (
@@ -138,7 +141,7 @@ export default function KeywordMatchFeedback() {
                           {c.keywordText}
                         </span>
                         <span className="text-[10px] text-muted-foreground shrink-0">
-                          ({c.paperCount} papers)
+                          ({c.paperCount} {t('papersLabel')})
                         </span>
                       </div>
                       <span className="text-[10px] font-bold text-accent-teal ml-2 shrink-0">
@@ -150,7 +153,7 @@ export default function KeywordMatchFeedback() {
               </div>
             ) : (
               <p className="text-xs text-muted-foreground">
-                No similar keywords found. System only indexes Computer Science & AI papers (2024-2026).
+                {t('noSimilarKeywords')}
               </p>
             )}
           </div>
@@ -162,6 +165,7 @@ export default function KeywordMatchFeedback() {
               keywords={crawlKeywords}
               isCrawling={isCrawling}
               onClick={() => startCrawl(crawlKeywords)}
+              t={t}
             />
           )}
           <motion.button
@@ -171,7 +175,7 @@ export default function KeywordMatchFeedback() {
             className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:opacity-90"
           >
             <BookOpen size={12} />
-            Explore Available Topics Instead
+            {t('exploreAvailableTopics')}
           </motion.button>
         </div>
       </motion.div>
@@ -189,13 +193,12 @@ export default function KeywordMatchFeedback() {
         <div className="flex items-center gap-2">
           <BookOpen size={14} className="text-foreground" />
           <h4 className="text-xs font-semibold text-foreground">
-            Available Knowledge Map
+            {t('availableKnowledgeMap')}
           </h4>
         </div>
 
         <p className="text-xs text-muted-foreground">
-          {guidanceMessage ||
-            'Our system currently indexes Computer Science & AI papers (2024-2026).'}
+          {guidanceMessage || t('systemScopeNote')}
         </p>
 
         {availableLandscape.length > 0 ? (
@@ -236,7 +239,7 @@ export default function KeywordMatchFeedback() {
           </div>
         ) : (
           <p className="text-xs text-muted-foreground italic">
-            No indexed data available yet. Run a crawl to populate the knowledge graph.
+            {t('noIndexedDataYet')}
           </p>
         )}
 
@@ -246,6 +249,7 @@ export default function KeywordMatchFeedback() {
               keywords={crawlKeywords}
               isCrawling={isCrawling}
               onClick={() => startCrawl(crawlKeywords)}
+              t={t}
             />
           )}
           <motion.button
@@ -255,7 +259,7 @@ export default function KeywordMatchFeedback() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:opacity-90"
           >
             <BookOpen size={12} />
-            View Full Knowledge Map
+            {t('viewFullKnowledgeMap')}
           </motion.button>
         </div>
       </motion.div>
@@ -268,10 +272,8 @@ export default function KeywordMatchFeedback() {
 /**
  * Shared button for triggering an on-demand crawl of unmatched keywords.
  */
-function CrawlButton({ keywords, isCrawling, onClick }) {
-  const label = keywords.length > 1
-    ? `Crawl "${keywords.join(', ')}" from OpenAlex`
-    : `Crawl "${keywords[0]}" from OpenAlex`;
+function CrawlButton({ keywords, isCrawling, onClick, t }) {
+  const label = t('crawlFromOpenAlex', { keywords: keywords.join(', ') });
 
   return (
     <motion.button
@@ -288,7 +290,7 @@ function CrawlButton({ keywords, isCrawling, onClick }) {
       {isCrawling ? (
         <>
           <RefreshCw size={12} className="animate-spin" />
-          Crawling...
+          {t('crawling')}
         </>
       ) : (
         <>
