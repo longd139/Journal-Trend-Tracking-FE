@@ -156,6 +156,9 @@ export default function UserOverviewPage() {
   const [publicData, setPublicData] = useState(null);
   const [userData, setUserData] = useState(null);
 
+  // ── Search quota (fetched separately, like search page) ──
+  const [searchQuota, setSearchQuota] = useState(null);
+
   // Activity store for instant counter updates
   const activityPapersViewed = useActivityStore((s) => s.papersViewed);
   const activityBookmarks = useActivityStore((s) => s.bookmarksThisMonth);
@@ -219,12 +222,17 @@ export default function UserOverviewPage() {
   const fetchExtras = useCallback(async () => {
     setExtrasLoading(true);
     try {
-      const [trendRes, histRes, bmRes, recRes] = await Promise.allSettled([
+      const promises = [
         trendAPI.getTrendingKeywords(15),
         paperAPI.getReadingHistory(5),
         bookmarkAPI.getMyBookmarks(),
         paperAPI.getRecommendations({ page: 0, size: 5 }),
-      ]);
+      ];
+      // Fetch search quota separately for academic users
+      if (isAcademic) {
+        promises.push(paperAPI.getUsage());
+      }
+      const [trendRes, histRes, bmRes, recRes, quotaRes] = await Promise.allSettled(promises);
       if (trendRes.status === 'fulfilled') {
         setTrendingKeywords(Array.isArray(trendRes.value) ? trendRes.value : []);
       }
@@ -240,10 +248,13 @@ export default function UserOverviewPage() {
         const rData = recRes.value?.recommendations || recRes.value || [];
         setRecommendations(Array.isArray(rData) ? rData : []);
       }
+      if (quotaRes && quotaRes.status === 'fulfilled') {
+        setSearchQuota(quotaRes.value);
+      }
     } finally {
       setExtrasLoading(false);
     }
-  }, []);
+  }, [isAcademic]);
 
   const fetchAuthorDetail = useCallback(async (authorName) => {
     if (!authorName) {
@@ -287,6 +298,28 @@ export default function UserOverviewPage() {
       fetchFollowedAuthors();
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Keep search quota in sync (re-fetch on navigate back + on every search) ──
+  useEffect(() => {
+    if (!isAcademic) return;
+
+    const refreshQuota = async () => {
+      try {
+        const usage = await paperAPI.getUsage();
+        if (usage) setSearchQuota(usage);
+      } catch { /* silently ignore */ }
+    };
+
+    // Re-fetch when navigating back to overview
+    if (location.pathname.endsWith('/overview')) {
+      refreshQuota();
+    }
+
+    // Re-fetch immediately when a search is performed anywhere in the app
+    const onSearch = () => refreshQuota();
+    window.addEventListener('activity:search', onSearch);
+    return () => window.removeEventListener('activity:search', onSearch);
+  }, [location.pathname, isAcademic]);
 
   // ── Seed activity store from API data on initial load ──
   useEffect(() => {
@@ -366,8 +399,9 @@ export default function UserOverviewPage() {
   const hIndex = ud.hIndex;
 
   // ── Search quota (academic users only) ──
-  const searchesLeft = ud.searchesRemaining;
-  const searchLimit = ud.monthlySearchLimit;
+  // Prefer dedicated usage API (same as search page), fall back to overview API
+  const searchesLeft = searchQuota?.remainingSearches ?? ud.searchesRemaining;
+  const searchLimit = searchQuota?.monthlyLimit ?? ud.monthlySearchLimit;
 
   return (
     <div className="min-h-screen bg-transparent">
