@@ -119,7 +119,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [captcha, setCaptcha] = useState({ required: false, question: '', token: '', answer: '' });
   const [errors, setErrors] = useState({
     email: false,
     emailFormat: false,
@@ -165,78 +164,23 @@ export default function LoginPage() {
           successMsg: response.message || t('login.resetDescription'),
         }));
       } else {
-        // Check CAPTCHA before login
-        let captchaToken = captcha.token;
-        let captchaAnswer = captcha.answer ? parseInt(captcha.answer, 10) : null;
-
-        if (captcha.required && (!captchaToken || !captchaAnswer)) {
-          setErrors((prev) => ({ ...prev, apiError: t('login.captchaRequired') }));
-          setLoading(false);
-          return;
-        }
-
         const response = await authAPI.login({
           email: form.email.trim(),
           password: form.password,
-          ...(captcha.required && { captchaToken, captchaAnswer }),
         });
         setToken(response.accessToken);
-        // Reset captcha + failed attempts on success
-        setCaptcha({ required: false, question: '', token: '', answer: '' });
-        sessionStorage.removeItem('loginFailedCount');
         const userRole = response.role;
         sessionStorage.setItem('userRole', userRole);
         toast.success(t('login.welcomeBack') + '!', { duration: 3000 });
         navigate(`/${userRole}/overview`);
       }
     } catch (error) {
-      const errorCode = error.response?.data?.code || error?.apiStatus;
-      const isCaptchaError = errorCode === 'CAPTCHA_REQUIRED' || errorCode === 'CAPTCHA_INVALID';
-
-      if (isCaptchaError) {
-        // Fetch CAPTCHA from server
-        try {
-          const captchaRes = await authAPI.getCaptcha(form.email.trim());
-          setCaptcha({
-            required: true,
-            question: captchaRes.data?.question || '',
-            token: captchaRes.data?.token || '',
-            answer: '',
-          });
-          setErrors((prev) => ({
-            ...prev,
-            apiError: error.response?.data?.message || t('login.captchaSolve'),
-          }));
-        } catch {
-          setErrors((prev) => ({ ...prev, apiError: t('login.captchaFailed') }));
-        }
-      } else {
-        // Track failed attempts locally
-        const count = parseInt(sessionStorage.getItem('loginFailedCount') || '0', 10) + 1;
-        sessionStorage.setItem('loginFailedCount', count.toString());
-
-        // After 5 failures, check CAPTCHA
-        if (count >= 5) {
-          try {
-            const captchaRes = await authAPI.getCaptcha(form.email.trim());
-            if (captchaRes.data?.required) {
-              setCaptcha({
-                required: true,
-                question: captchaRes.data.question || '',
-                token: captchaRes.data.token || '',
-                answer: '',
-              });
-            }
-          } catch { /* silent */ }
-        }
-
-        const errorMessage =
-          error.response?.data?.message ||
-          (isForgotMode
-            ? t('login.errorEmailNotFound')
-            : t('login.errorInvalidCredentials'));
-        setErrors((prev) => ({ ...prev, apiError: errorMessage }));
-      }
+      const errorMessage =
+        error.response?.data?.message ||
+        (isForgotMode
+          ? t('login.errorEmailNotFound')
+          : t('login.errorInvalidCredentials'));
+      setErrors((prev) => ({ ...prev, apiError: errorMessage }));
     } finally {
       setLoading(false);
     }
@@ -520,29 +464,6 @@ export default function LoginPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* ── CAPTCHA (shown after 5 failed attempts) ─────────────── */}
-            {captcha.required && (
-              <motion.div
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="p-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 space-y-3"
-              >
-                <p className="text-[11px] font-semibold text-amber-400">
-                  {t('login.captchaTitle')}
-                </p>
-                <p className="text-lg font-bold text-foreground text-center">
-                  {captcha.question}
-                </p>
-                <input
-                  type="number"
-                  placeholder={t('login.captchaPlaceholder')}
-                  value={captcha.answer}
-                  onChange={(e) => setCaptcha((c) => ({ ...c, answer: e.target.value }))}
-                  className="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-sm text-foreground text-center outline-none focus:border-primary transition-colors"
-                />
-              </motion.div>
-            )}
 
             {/* ── Submit ───────────────────────────────────────────────── */}
             <motion.button

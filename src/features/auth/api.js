@@ -74,11 +74,4 @@ export const authAPI = {
     });
     return data;
   },
-
-  async getCaptcha(email) {
-    const { data } = await axiosClient.get('/api/auth/captcha', {
-      params: { email },
-    });
-    return data;
-  },
 };
