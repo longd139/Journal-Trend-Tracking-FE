@@ -225,7 +225,7 @@ export const router = createBrowserRouter([
       {
         path: 'gap-explorer', // -> URL thực tế: /:roleName/gap-explorer
         element: (
-          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+          <ProtectedRoute allowedRoles={['researcher']}>
             <Suspense fallback={<FallbackLoading />}>
               <GapExplorerLayout />
             </Suspense>

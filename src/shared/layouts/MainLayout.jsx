@@ -47,7 +47,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
-    { id: 'gap-explorer', Icon: GitBranch, label: t('sidebar.gapExplorer') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
