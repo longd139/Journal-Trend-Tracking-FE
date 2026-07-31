@@ -47,6 +47,7 @@ const AdminConfig = lazy(() => import('../features/admin/AdminConfigPage.jsx'));
 const PdfRequestsPage = lazy(() => import('../features/admin/PdfRequestsPage.jsx'));
 const AdminNotificationsPage = lazy(() => import('../features/admin/AdminNotificationsPage.jsx'));
 const AdminReportsPage = lazy(() => import('../features/admin/AdminReportsPage.jsx'));
+const AdminUpgradeRequestsPage = lazy(() => import('../features/admin/AdminUpgradeRequestsPage.jsx'));
 
 // ==========================================
 // 2. COMPONENT LOADING & BẢO VỆ ROUTE
@@ -309,6 +310,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <AdminAuditLog />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'upgrade-requests',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <AdminUpgradeRequestsPage />
             </Suspense>
           </ProtectedRoute>
         ),

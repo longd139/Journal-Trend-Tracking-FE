@@ -28,6 +28,7 @@ import {
   Sun,
   Moon,
   GitBranch,
+  GraduationCap,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
@@ -72,6 +73,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
+    { id: 'upgrade-requests', Icon: GraduationCap, label: 'Upgrade Requests' },
     { id: 'admin-notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },

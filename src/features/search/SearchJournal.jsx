@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip,
   ResponsiveContainer, CartesianGrid,
@@ -964,85 +965,9 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
         )}
       </div>
 
-      {/* Upgrade to Researcher Modal */}
+      {/* Upgrade Request Dialog */}
       <AnimatePresence>
-        {upgradeOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4"
-            onClick={() => setUpgradeOpen(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.96, opacity: 0, y: 24 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.96, opacity: 0, y: 24 }}
-              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-sm rounded-2xl border border-primary/10 bg-card p-7 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.5)]"
-            >
-              <button
-                onClick={() => setUpgradeOpen(false)}
-                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-primary/5 text-foreground/60 hover:bg-primary/10 hover:text-foreground transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
-              >
-                <X size={14} />
-              </button>
-              <div className="text-center space-y-6">
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="mx-auto w-14 h-14 rounded-2xl bg-primary/[0.06] border border-primary/10 flex items-center justify-center"
-                >
-                  <Lock size={22} className="text-primary" />
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="space-y-2"
-                >
-                  <h3 className="text-xl font-black text-foreground font-display tracking-[-0.02em]">Upgrade to Researcher</h3>
-                  <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
-                    {t('upsell.description')}
-                  </p>
-                </motion.div>
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  className="rounded-xl bg-card border border-border p-4 space-y-0"
-                >
-                  {['Full abstract & paper details', 'AI-powered paper summaries', 'Similar paper recommendations', 'Citation export (BibTeX, RIS, APA)', 'Unlimited searches & bookmarks'].map((f, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 + i * 0.06, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="flex items-center gap-2.5 py-2 first:pt-0 last:pb-0 border-b border-border last:border-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary/50 shrink-0" />
-                      <span className="text-xs text-foreground/80">{f}</span>
-                    </motion.div>
-                  ))}
-                </motion.div>
-                <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} className="text-center">
-                  <span className="text-3xl font-black text-foreground font-display tracking-[-0.03em]">$999</span>
-                  <span className="text-sm text-foreground/60 ml-1">/year</span>
-                </motion.div>
-                <motion.button
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6, duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-                  onClick={() => { setUpgradeOpen(false); navigate(`/${currentRole}/settings`); }}
-                  className="group w-full flex items-center justify-between gap-3 px-5 py-3.5 rounded-full text-sm font-bold text-primary-foreground bg-primary hover:bg-foreground shadow-sm active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]"
-                >
-                  <span className="flex-1 text-center pl-6">Upgrade Now — $999/year</span>
-                  <span className="w-8 h-8 rounded-full bg-background/10 flex items-center justify-center shrink-0 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
-                  </span>
-                </motion.button>
-                <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} onClick={() => setUpgradeOpen(false)} className="w-full text-xs text-foreground/60 hover:text-muted-foreground transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">{t('upsell.maybeLater')}</motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       </AnimatePresence>
 
       {/* ─── Paper List Sidebar (click Total Papers) ─── */}

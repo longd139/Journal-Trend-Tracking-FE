@@ -496,4 +496,32 @@ export const adminAPI = {
     });
     return data; // AppResponse<UserReportResponse>
   },
+
+  /* ──────────── Upgrade Requests (/api/admin/upgrade-requests) ──────────── */
+
+  async getUpgradeRequests({ page = 0, size = 20, status } = {}) {
+    const { data } = await axiosClient.get('/api/admin/upgrade-requests', {
+      params: { page, size, status },
+    });
+    return data;
+  },
+
+  async getUpgradeRequestDetail(id) {
+    const { data } = await axiosClient.get(`/api/admin/upgrade-requests/${id}`);
+    return data;
+  },
+
+  async approveUpgradeRequest(id, adminNote) {
+    const { data } = await axiosClient.post(`/api/admin/upgrade-requests/${id}/approve`, {
+      adminNote: adminNote || '',
+    });
+    return data;
+  },
+
+  async rejectUpgradeRequest(id, adminNote) {
+    const { data } = await axiosClient.post(`/api/admin/upgrade-requests/${id}/reject`, {
+      adminNote: adminNote || '',
+    });
+    return data;
+  },
 };
