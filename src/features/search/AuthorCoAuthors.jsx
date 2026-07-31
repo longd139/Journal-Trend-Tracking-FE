@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Users, ExternalLink, AlertCircle, ArrowRight } from 'lucide-react';
 import { authorAPI } from './author.api';
@@ -35,7 +36,8 @@ function CoAuthorsSkeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
-  const [data, setData] = useState(null);
+  const { t } = useTranslation('search');
+    const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -57,7 +59,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Co-authors fetch error:', err);
-          setError(err?.message || 'Failed to load co-authors');
+          setError(err?.message || t('author.coauthorsLoadFailed', 'Failed to load co-authors'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -82,7 +84,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
     return (
       <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
         <AlertCircle size={13} className="shrink-0" />
-        <span>Co-authors data unavailable. {error}</span>
+        <span>{t('author.coauthorsUnavailable', { error })}</span>
       </div>
     );
   }
@@ -106,7 +108,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
         <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
           Co-authors
           <span className="text-primary/60 ml-1.5 font-normal normal-case">
-            — analyzed {data.totalPapersAnalyzed ?? '?'} papers, {data.totalCoAuthors ?? '?'} unique co-authors
+            — {t('author.analyzed', 'analyzed')} {data.totalPapersAnalyzed ?? '?'} papers, {data.totalCoAuthors ?? '?'} {t('author.uniqueCoauthors', 'unique co-authors')}
           </span>
         </span>
       </div>
@@ -114,9 +116,9 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
       {/* Summary strip */}
       <div className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary/3 border border-border text-[11px] text-muted-foreground">
         <Users size={12} className="text-primary/50" />
-        <span>Top {data.coAuthors.length} most frequent collaborators</span>
+        <span>{t('author.topCollaborators', 'Top')} {data.coAuthors.length} {t('author.mostFrequentCollaborators', 'most frequent collaborators')}</span>
         {onAuthorClick && (
-          <span className="text-primary/30 ml-auto text-[10px]">Click to explore →</span>
+          <span className="text-primary/30 ml-auto text-[10px]">{t('author.clickToExplore', 'Click to explore →')}</span>
         )}
       </div>
 
@@ -165,7 +167,7 @@ export default function AuthorCoAuthors({ keyword, onAuthorClick }) {
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                       className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
-                      title="Open in OpenAlex"
+                      title={t('author.openInOpenAlex', 'Open in OpenAlex')}
                     >
                       <ExternalLink size={11} />
                     </a>

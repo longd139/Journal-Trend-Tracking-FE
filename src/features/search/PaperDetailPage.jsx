@@ -428,6 +428,7 @@ export default function PaperDetailPage() {
       if (data) {
         setPaper(data);
         clearCache('reading-history-list'); // invalidate so history page shows fresh data
+        window.dispatchEvent(new CustomEvent('reading-history-changed'));
       } else {
         setError('Paper not found');
       }

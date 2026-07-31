@@ -20,9 +20,9 @@ import ExportButtons from './ExportButtons';
    ═══════════════════════════════════════════════════════════════════════════ */
 const COLORS = {
   // ── Chart series (categorical, fixed order, never cycled) ──
-  primary: '#3987e5',   // slot 1 — blue     (Publication Trend line)
-  accent:  '#199e70',   // slot 2 — aqua     (Citation Trend area)
-  purple:  '#9085e9',   // slot 5 — violet   (Co-occurring Keywords bar)
+  primary: '#F97316',   // slot 1 — blue     (Publication Trend line)
+  accent:  '#EA580C',   // slot 2 — aqua     (Citation Trend area)
+  purple:  '#FB923C',   // slot 5 — violet   (Co-occurring Keywords bar)
 
   // ── Status & indicators (reserved, never used as series) ──
   amber: '#F59E0B',     // neutral / warning
@@ -35,14 +35,14 @@ const COLORS = {
   border: 'var(--border)',  // hairline grid / container (follows theme)
 };
 
-/** Donut chart — warm neutral palette matching researchFields CHART_COLORS */
+/** Donut chart — warm orange palette */
 const DONUT_COLORS = [
-  '#DEDBC8',  // lightest beige
-  '#C5BFA0',
-  '#A09878',
-  '#8A8468',
-  '#6B6550',  // darkest brown
-  '#4A4538',  // extra dark
+  '#F97316',  // orange
+  '#FB923C',  // light orange
+  '#FDBA74',  // lighter orange
+  '#EA580C',  // deep orange
+  '#C2410C',  // dark orange
+  '#9A3412',  // darkest orange
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -103,7 +103,7 @@ function SectionHeader({ icon: Icon, iconColor, title }) {
 function ChartPlaceholder({ message }) {
   return (
     <div className="flex items-center justify-center h-[200px] text-xs text-muted-foreground">
-      {message || 'Not enough data to display chart'}
+      {message || t('charts.insufficientData')}
     </div>
   );
 }
@@ -232,7 +232,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
           {generatedAt && (
             <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
               <Clock size={10} />
-              Generated: {new Date(generatedAt).toLocaleString('vi-VN')}
+              {t('result.generatedAt')}{new Date(generatedAt).toLocaleString('vi-VN')}
             </p>
           )}
         </div>
@@ -256,7 +256,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
               style={{ color: growthColor }}
             >
               <GrowthIcon size={14} />
-              {growth > 0 ? '+' : ''}{growth}% YoY
+              {growth > 0 ? '+' : ''}{growth}% {t('result.yoyGrowth')}
             </span>
           )}
           {onClose && (
@@ -351,8 +351,8 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 />
                 <Tooltip
                   {...tooltipStyle}
-                  formatter={(value) => [value.toLocaleString(), 'Papers']}
-                  labelFormatter={(label) => `Year ${label}`}
+                  formatter={(value) => [value.toLocaleString(), t('charts.papers')]}
+                  labelFormatter={(label) => `${t('charts.yearPrefix')} ${label}`}
                   cursor={{ fill: 'var(--muted-foreground)' }}
                 />
                 <Bar
@@ -360,12 +360,12 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   fill="url(#pubBarGradient)"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={40}
-                  name="Papers"
+                  name={t('charts.papers')}
                 />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <ChartPlaceholder message="Need at least 2 years of data for trend chart" />
+            <ChartPlaceholder message={t('charts.needTwoYearsTrend')} />
           )}
         </div>
 
@@ -409,8 +409,8 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                 />
                 <Tooltip
                   {...tooltipStyle}
-                  formatter={(value) => [value.toLocaleString(), 'Citations']}
-                  labelFormatter={(label) => `Year ${label}`}
+                  formatter={(value) => [value.toLocaleString(), t('charts.citations')]}
+                  labelFormatter={(label) => `${t('charts.yearPrefix')} ${label}`}
                   cursor={{ fill: 'var(--muted-foreground)' }}
                 />
                 <Area
@@ -419,14 +419,14 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   stroke={DONUT_COLORS[0]}
                   strokeWidth={2}
                   fill="url(#citationGradient)"
-                  name="Citations"
+                  name={t('charts.citations')}
                   dot={{ fill: DONUT_COLORS[0], r: 3, strokeWidth: 2, stroke: COLORS.cardBg }}
                   activeDot={{ r: 5, fill: DONUT_COLORS[0], strokeWidth: 2, stroke: 'var(--background)' }}
                 />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
-            <ChartPlaceholder message="Need at least 2 years of citation data" />
+            <ChartPlaceholder message={t('charts.needTwoYearsCitation')} />
           )}
         </div>
 
@@ -476,14 +476,14 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   />
                   <Tooltip
                     {...tooltipStyle}
-                    formatter={(value) => [value.toLocaleString(), 'Co-occurrences']}
+                    formatter={(value) => [value.toLocaleString(), t('charts.cooccurrences')]}
                   />
                   <Bar
                     dataKey="count"
                     fill="url(#coKwBarGradient)"
                     radius={[0, 4, 4, 0]}
                     maxBarSize={24}
-                    name="Co-occurrences"
+                    name={t('charts.cooccurrences')}
                   />
                 </BarChart>
               </ResponsiveContainer>
@@ -506,7 +506,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
               </div>
             </div>
           ) : (
-            <ChartPlaceholder message="No co-occurring keywords found" />
+            <ChartPlaceholder message={t('charts.noCoKeywords')} />
           )}
         </div>
 
@@ -544,7 +544,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                     <Tooltip
                       {...tooltipStyle}
                       formatter={(value, _name, props) => [
-                        `${value.toLocaleString()} papers`,
+                        `${value.toLocaleString()} ${t('charts.donutPapersSuffix')}`,
                         props.payload.name,
                       ]}
                     />
@@ -555,7 +555,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
                   <span className="text-[22px] font-bold text-foreground font-mono tabular-nums">
                     {donutData.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
                   </span>
-                  <span className="text-[10px] text-muted-foreground mt-0.5">papers</span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">{t('charts.donutPapersLabel')}</span>
                 </div>
               </div>
               {/* Legend — below on mobile, right on desktop */}
@@ -577,7 +577,7 @@ export default function KeywordTrendResult({ data, onClose, onSave, saving, gene
               </div>
             </div>
           ) : (
-            <ChartPlaceholder message="No journal distribution data" />
+            <ChartPlaceholder message={t('charts.noJournalDistribution')} />
           )}
         </div>
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FileText, TrendingUp, TrendingDown, Star, BookOpen, AlertCircle, BarChart2, ExternalLink } from 'lucide-react';
@@ -22,6 +23,7 @@ const Q_COLORS = {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function TopJournalBars({ journals }) {
+  const { t } = useTranslation('search');
   if (!journals || journals.length === 0) return null;
 
   const maxCount = Math.max(...journals.map((j) => j.paperCount || 0), 1);
@@ -31,7 +33,7 @@ function TopJournalBars({ journals }) {
       <div className="flex items-center gap-2 mb-3">
         <BookOpen size={13} className="text-primary/40" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
-          Top Journals
+          {t('keyword.topJournals')}
         </span>
       </div>
       <div className="space-y-1.5">
@@ -127,6 +129,7 @@ function QuickStatsSkeleton() {
 export default function KeywordQuickStats({ keyword, filters }) {
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'academic';
+  const { t } = useTranslation('search');
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -208,9 +211,9 @@ export default function KeywordQuickStats({ keyword, filters }) {
       <div className="flex items-center gap-2">
         <div className="w-1 h-4 rounded-full bg-primary/20" />
         <span className="text-[11px] uppercase tracking-wider font-bold text-muted-foreground">
-          Quick Stats
+          {t('keyword.quickStats')}
           <span className="text-primary/80 ml-1.5 font-semibold normal-case">
-            for "{stats.keyword || keyword}"
+            {t('keyword.quickStatsFor')} "{stats.keyword || keyword}"
           </span>
         </span>
         {/* Generate Report button */}
@@ -226,7 +229,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
           className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-accent-blue/10 text-accent-blue border border-accent-blue/20 hover:bg-accent-blue/20 transition-all"
         >
           <BarChart2 size={12} />
-          Generate Report
+          {t('keyword.generateReport')}
         </button>
       </div>
 

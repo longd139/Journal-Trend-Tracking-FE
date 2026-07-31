@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   ComposedChart,
@@ -14,6 +15,7 @@ import {
 } from 'recharts';
 import { AlertCircle, TrendingUp } from 'lucide-react';
 import { authorAPI } from './author.api';
+import { paperAPI } from './paper.api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Loading Skeleton
@@ -70,6 +72,7 @@ function CustomTooltip({ active, payload, label }) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
+  const { t } = useTranslation('search');
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -87,12 +90,39 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
       setIsLoading(true);
       setError(null);
       try {
-        const result = await authorAPI.timeline(keyword.trim());
-        if (!cancelled) setData(result);
+        // Fetch timeline + works count in parallel for accuracy
+        const [timelineResult, worksResult] = await Promise.all([
+          authorAPI.timeline(keyword.trim()),
+          paperAPI.searchPapersByAuthor({ authorName: keyword.trim(), page: 0, size: 1 }).catch(() => null),
+        ]);
+
+        if (cancelled) return;
+
+        // Cross-reference: author profile may undercount vs actual works API.
+        // Scale yearly bars proportionally so they reflect reality more accurately.
+        const worksTotal = worksResult?.totalElements
+          || worksResult?.data?.totalElements
+          || 0;
+        const authorTotal = timelineResult?.totalPapers || 0;
+        const scale = (worksTotal > 0 && authorTotal > 0 && worksTotal > authorTotal)
+          ? worksTotal / authorTotal
+          : 1;
+
+        if (scale > 1 && timelineResult?.timeline) {
+          timelineResult.timeline = timelineResult.timeline.map(point => ({
+            ...point,
+            worksCount: Math.round(point.worksCount * scale),
+            _originalWorksCount: point.worksCount,
+          }));
+          timelineResult.totalPapers = worksTotal;
+          timelineResult._authorProfileTotal = authorTotal;
+        }
+
+        setData(timelineResult);
       } catch (err) {
         if (!cancelled) {
           console.error('Author timeline fetch error:', err);
-          setError(err?.message || 'Failed to load timeline');
+          setError(err?.message || t('author.error'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -117,7 +147,7 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
     return (
       <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
         <AlertCircle size={13} className="shrink-0" />
-        <span>Timeline unavailable. {error}</span>
+        <span>{t('author.timelineUnavailable', { error })}</span>
       </div>
     );
   }
@@ -160,7 +190,7 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
               tickLine={false}
               axisLine={false}
               label={{
-                value: 'Papers',
+                value: t('author.papers'),
                 angle: -90,
                 position: 'insideLeft',
                 style: { fontSize: 10, fill: 'var(--muted-foreground)' },
@@ -173,7 +203,7 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
               tickLine={false}
               axisLine={false}
               label={{
-                value: 'Citations',
+                value: t('author.citations'),
                 angle: 90,
                 position: 'insideRight',
                 style: { fontSize: 10, fill: 'var(--muted-foreground)' },
@@ -185,14 +215,28 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
               iconType="circle"
               iconSize={8}
             />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="citedByCount"
+              name={t('author.citations')}
+              stroke="var(--chart-4)"
+              strokeWidth={2.5}
+              dot={{ fill: 'var(--chart-4)', r: 3, strokeWidth: 0 }}
+              activeDot={{ fill: 'var(--chart-4)', r: 5, strokeWidth: 2, stroke: 'var(--background)' }}
+            />
             <Bar
               yAxisId="left"
               dataKey="worksCount"
-              name="Papers"
+              name={t('author.papers')}
               radius={[4, 4, 0, 0]}
               barSize={20}
               onClick={(data) => {
-                if (data?.worksCount > 0 && onBarClick) {
+                // Recharts 2.x passes the chart data entry; fields may be direct or nested in .payload
+                const entry = data?.payload || data;
+                const count = entry?.worksCount ?? data?.worksCount ?? 0;
+                console.log('[Timeline] bar clicked:', { year: entry?.year ?? data?.year, count, raw: data });
+                if (count > 0 && onBarClick) {
                   onBarClick(data);
                 }
               }}
@@ -210,16 +254,6 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
                 );
               })}
             </Bar>
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="citedByCount"
-              name="Citations"
-              stroke="var(--chart-4)"
-              strokeWidth={2.5}
-              dot={{ fill: 'var(--chart-4)', r: 3, strokeWidth: 0 }}
-              activeDot={{ fill: 'var(--chart-4)', r: 5, strokeWidth: 2, stroke: 'var(--background)' }}
-            />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

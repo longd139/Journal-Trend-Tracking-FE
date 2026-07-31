@@ -100,7 +100,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
 
  // Show toast
  const messages = {
-  en: 'Language updated successfully',
+  en: t('toast.languageUpdated'),
   vi: 'Đã cập nhật ngôn ngữ',
  };
 
@@ -161,7 +161,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
    transition={{ duration: 0.15, ease: 'easeOut' }}
    className="absolute z-50 mt-2 w-full min-w-[200px] rounded-xl border border-primary/10 bg-card shadow-xl shadow-black/20 dark:shadow-black/40 overflow-hidden"
    role="listbox"
-   aria-label="Select language"
+   aria-label={t('topbar.selectLanguage', 'Select language')}
    ref={listRef}
    >
    <div className="p-1">
@@ -180,12 +180,12 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
      className={`
       flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-150 text-sm
       ${isSelected
-      ? 'bg-primary/10 text-blue-600 dark:text-primary font-semibold'
+      ? 'bg-accent-blue/10 text-accent-blue font-semibold'
       : isFocused
        ? 'bg-muted/25 text-foreground'
        : 'text-foreground/80'
       }
-      ${isFocused ? 'outline-none ring-1 ring-inset ring-primary/30' : ''}
+      ${isFocused ? 'outline-none ring-1 ring-inset ring-accent-blue/30' : ''}
      `}
      >
      <span className="text-lg shrink-0">{lang.flag}</span>
@@ -196,7 +196,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
       )}
      </div>
      {isSelected && (
-      <Check size={16} className="shrink-0 text-primary" />
+      <Check size={16} className="shrink-0 text-accent-blue" />
      )}
      </div>
     );
@@ -208,7 +208,7 @@ export default function LanguageSwitcher({ variant = 'sidebar' }) {
 
   {/* Screen reader announcement */}
   <div aria-live="polite" aria-atomic="true" className="sr-only">
-  {i18n.language === 'en' ? 'English selected' : 'Tiếng Việt đã được chọn'}
+  {i18n.language === 'en' ? t('languageSwitcher.enSelected', 'English selected') : 'Tiếng Việt đã được chọn'}
   </div>
  </div>
  );

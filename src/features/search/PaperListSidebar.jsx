@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Loader2, FileText, Quote, User, ChevronLeft, ChevronRight, Library } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { paperAPI } from './paper.api';
 
 const PAGE_SIZE = 20;
+const YEAR_FILTER_PAGE_SIZE = 200;
 
 /**
  * Slide-out sidebar showing ALL papers with pagination.
@@ -17,13 +19,14 @@ const PAGE_SIZE = 20;
  * Pagination: {PAGE_SIZE} papers/page, prev/next buttons, page indicator.
  */
 export default function PaperListSidebar({ keyword, authorName, journalName, year, totalOverride, open, onClose }) {
+  const { t } = useTranslation('search');
   const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [apiTotal, setApiTotal] = useState(0);
 
-  // Use refs to avoid stale closures
+  const requestIdRef = useRef(0);
   const keywordRef = useRef(keyword);
   const authorRef = useRef(authorName);
   const journalRef = useRef(journalName);
@@ -35,21 +38,24 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
 
   const isAuthorMode = !!authorName;
   const isJournalMode = !!journalName;
+  const hasYearFilter = year != null;
 
-  // Use override only for author mode (same API source), not for keyword/journal
   const OPENALEX_PAGE_LIMIT = 500;
-  const totalElements = (isAuthorMode && totalOverride != null && totalOverride > 0) ? totalOverride : apiTotal;
+  const effectivePageSize = hasYearFilter ? YEAR_FILTER_PAGE_SIZE : PAGE_SIZE;
+  const totalElements = (hasYearFilter && totalOverride != null && totalOverride > 0)
+    ? totalOverride
+    : apiTotal;
   const navigate = useNavigate();
   const role = sessionStorage.getItem('userRole') || 'researcher';
 
-  const hasYearFilter = year != null;
-  const totalPages = Math.max(1, Math.ceil(totalElements / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(totalElements / effectivePageSize));
   const displayPages = isAuthorMode ? totalPages : Math.min(totalPages, OPENALEX_PAGE_LIMIT);
-  const startItem = totalElements > 0 ? page * PAGE_SIZE + 1 : 0;
-  const endItem = Math.min((page + 1) * PAGE_SIZE, totalElements);
+  const startItem = totalElements > 0 ? page * effectivePageSize + 1 : 0;
+  const endItem = Math.min((page + 1) * effectivePageSize, totalElements);
 
   /* ─── Fetch a page (reads from refs, no stale closure) ─── */
   async function doFetch(pageNum) {
+    const rid = ++requestIdRef.current;
     setLoading(true);
     setError(null);
     try {
@@ -61,18 +67,16 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
       let result;
 
       if (an) {
-        // Author mode: search papers BY this author (with optional year filter)
         result = await paperAPI.searchPapersByAuthor({
           authorName: an,
           page: pageNum,
-          size: PAGE_SIZE,
+          size: effectivePageSize,
           sortBy: 'date',
           sortDirection: 'desc',
           pubYearFrom: yr ?? undefined,
           pubYearTo: yr ?? undefined,
         });
       } else {
-        // Keyword/Journal mode: use OpenAlex for full pagination
         const query = kw || jn || '';
         if (!query.trim()) {
           setPapers([]);
@@ -83,17 +87,24 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
         result = await paperAPI.searchOpenAlex({ query, page: pageNum, size: PAGE_SIZE });
       }
 
-      const list = result?.papers || result?.data?.papers || [];
-      // Only keep papers with valid years (1900–current), sorted newest first
+      if (rid !== requestIdRef.current) return;
+
+      const list = result?.papers || result?.data?.papers || result?.data?.content || result?.content || [];
       const currentYear = new Date().getFullYear();
-      const filtered = list.filter(p => p.pubYear && p.pubYear >= 1900 && p.pubYear <= currentYear);
+      const filtered = list.filter(p => {
+        const y = p.pubYear || p.year;
+        if (!y || y < 1900 || y > currentYear) return false;
+        if (yr != null && Number(y) !== Number(yr)) return false;
+        return true;
+      });
       setPapers(filtered);
       setApiTotal(result?.totalElements || result?.data?.totalElements || filtered.length);
       setPage(pageNum);
     } catch (err) {
-      setError(err?.message || 'Failed to load papers');
+      if (rid !== requestIdRef.current) return;
+      setError(err?.message || t('author.error', 'Failed to load papers'));
     } finally {
-      setLoading(false);
+      if (rid === requestIdRef.current) setLoading(false);
     }
   }
 
@@ -114,14 +125,14 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
 
   /* ─── Header ─── */
   const headerTitle = isAuthorMode
-    ? `Papers by ${authorName}`
+    ? t('author.papersBy', { author: authorName })
     : isJournalMode
       ? `Papers in ${journalName}`
       : `Papers for "${keyword}"`;
 
   const headerSubtitle = isAuthorMode && hasYearFilter
-    ? `${totalElements.toLocaleString()} paper${totalElements !== 1 ? 's' : ''} in ${year}`
-    : `${totalElements.toLocaleString()} paper${totalElements !== 1 ? 's' : ''} total`;
+    ? t('author.papersIn', { count: totalElements, year })
+    : t('author.papersTotal', { count: totalElements });
 
   return (
     <AnimatePresence>
@@ -181,7 +192,7 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
               {/* Error */}
               {!loading && error && (
                 <div className="px-4 py-3 rounded-lg bg-red-500/5 border border-red-500/10 text-xs text-red-400">
-                  Error: {error}
+                  {t("author.error")}: {error}
                 </div>
               )}
 
@@ -190,8 +201,8 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
                 <div className="text-center py-16 space-y-2">
                   <p className="text-xs text-muted-foreground">
                     {totalElements > 0
-                      ? `All ${totalElements.toLocaleString()} papers shown. No more pages.`
-                      : 'No papers found.'}
+                      ? t('author.allShown', { count: totalElements })
+                      : t('author.noPapersFound')}
                   </p>
                 </div>
               )}
@@ -264,10 +275,10 @@ export default function PaperListSidebar({ keyword, authorName, journalName, yea
                 {/* Page info */}
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-muted-foreground">
-                    Showing {startItem}–{endItem} of {totalElements.toLocaleString()}
+                    {t("author.showingRange", { start: startItem, end: endItem, total: totalElements })}
                   </span>
                   <span className="text-[10px] font-mono text-muted-foreground">
-                    Page {page + 1} of {displayPages}
+                    {t("author.pageOf", { page: page + 1, total: displayPages })}
                   </span>
                 </div>
 

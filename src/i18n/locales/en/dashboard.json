@@ -146,6 +146,56 @@
   "toast": {
     "removed": "Removed from bookmarks",
     "loadError": "Failed to load bookmarks",
-    "removeError": "Failed to remove bookmark"
+    "removeError": "Failed to remove bookmark",
+    "copied": "Copied!",
+    "copyFailed": "Failed to copy"
+  },
+  "bookmarks": {
+    "batchExport": "Batch Export — {{count}} papers",
+    "close": "Close",
+    "fetchingCitations": "Fetching citations...",
+    "noCitationData": "No citation data available",
+    "generatedLocally": "Generated locally (server unavailable)",
+    "copied": "Copied",
+    "copyAll": "Copy All",
+    "downloadAll": "Download All",
+    "paperCount": "{{count}} paper",
+    "paperCount_plural": "{{count}} papers",
+    "selected": "selected",
+    "untitled": "Untitled",
+    "removeTitle": "Remove from bookmarks",
+    "citations": "Citations"
+  },
+  "readingHistory": {
+    "noPapers": "No papers viewed yet",
+    "startExploring": "Start exploring to build your reading history",
+    "startBtn": "Start exploring",
+    "untitled": "Untitled",
+    "cited": "Cited: ",
+    "openAccess": "Open Access",
+    "viewed": "Viewed ",
+    "justNow": "just now",
+    "oneMinuteAgo": "1 minute ago",
+    "minutesAgo": "{{count}} minutes ago",
+    "oneHourAgo": "1 hour ago",
+    "hoursAgo": "{{count}} hours ago",
+    "oneDayAgo": "1 day ago",
+    "daysAgo": "{{count}} days ago",
+    "at": " at "
+  },
+  "collections": {
+    "all": "All",
+    "new": "New",
+    "untitled": "Untitled",
+    "namePlaceholder": "Name...",
+    "rename": "Rename",
+    "delete": "Delete",
+    "created": "Collection created!",
+    "createFailed": "Failed to create collection",
+    "deleted": "Collection deleted",
+    "deleteFailed": "Failed to delete",
+    "deleteConfirm": "Delete collection \"{{name}}\"? Papers inside will not be deleted.",
+    "renamed": "Collection renamed",
+    "renameFailed": "Failed to rename"
   }
 }

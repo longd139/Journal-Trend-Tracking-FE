@@ -10,14 +10,14 @@ import { authorAPI } from './author.api';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 const TOPIC_COLORS = [
-  '#DEDBC8',
-  '#C5BFA0',
-  '#A09878',
-  '#8A8468',
-  '#6B6550',
-  '#B8B298',
-  '#948C70',
-  '#7A7458',
+  '#F97316',
+  '#FB923C',
+  '#FDBA74',
+  '#EA580C',
+  '#C2410C',
+  '#FED7AA',
+  '#9A3412',
+  '#7C2D12',
 ];
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -125,7 +125,7 @@ export default function AuthorResearchFocus({ keyword, onTopicClick }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Research focus fetch error:', err);
-          setError(err?.message || 'Failed to load research focus');
+          setError(err?.message || t('author.researchFocusLoadFailed', 'Failed to load research focus'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -150,7 +150,7 @@ export default function AuthorResearchFocus({ keyword, onTopicClick }) {
     return (
       <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
         <AlertCircle size={13} className="shrink-0" />
-        <span>Research focus unavailable. {error}</span>
+        <span>{t('author.researchFocusUnavailable', { error })}</span>
       </div>
     );
   }

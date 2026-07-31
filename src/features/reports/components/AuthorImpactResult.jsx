@@ -1,4 +1,5 @@
 ﻿import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   User, Hash, MapPin, Users, Lightbulb, Trophy,
@@ -18,6 +19,7 @@ import ExportButtons from './ExportButtons';
  * @param {boolean}  props.saving     - Whether save is in progress
  */
 export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
+  const { t } = useTranslation('reports');
   const resultRef = useRef(null);
 
   if (!data) return null;
@@ -54,10 +56,10 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
       <div className="flex items-center justify-between p-5 border-b border-border">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-            Author Impact Report
+            {t('authorImpact.headerBadge')}
           </p>
           <h3 className="text-base font-bold text-foreground">
-            {reportTitle || `Hồ sơ năng lực học thuật: ${authorName}`}
+            {reportTitle || t('authorImpact.reportTitle', { name: authorName })}
           </h3>
           <div className="flex items-center gap-2 mt-0.5">
             <p className="text-sm text-muted-foreground font-mono">
@@ -92,7 +94,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
               border: `1px solid ${statusColor}44`,
             }}
           >
-            {status || 'Unknown'}
+            {status || t('authorImpact.unknown')}
           </span>
         </div>
 
@@ -102,7 +104,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
             <div className="flex items-center gap-2 mb-2">
               <Trophy size={13} className="text-amber-600 dark:text-amber-500" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                h-Index
+                {t('stats.hIndex')}
               </span>
             </div>
             <p className="text-xl font-bold text-amber-600 dark:text-amber-500 font-mono tabular-nums">
@@ -113,7 +115,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
             <div className="flex items-center gap-2 mb-2">
               <Hash size={13} className="text-accent-blue" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Total Papers
+                {t('stats.totalPapers')}
               </span>
             </div>
             <p className="text-xl font-bold text-foreground font-mono tabular-nums">
@@ -124,7 +126,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
             <div className="flex items-center gap-2 mb-2">
               <MapPin size={13} className="text-violet-600 dark:text-violet-500" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Top Field
+                {t('stats.topField')}
               </span>
             </div>
             <p className="text-xl font-bold text-foreground font-mono tabular-nums truncate">
@@ -138,7 +140,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
           <div className="rounded-xl p-5 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-3 flex items-center gap-2">
               <Users size={13} className="text-primary" />
-              Top Collaborators
+              {t('stats.topCollaborators')}
             </h4>
             <div className="space-y-2.5">
               {topCollaborators.map((collab, i) => (
@@ -165,7 +167,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
                   </div>
                   {collab.collaborationCount != null && (
                     <span className="text-xs font-mono text-muted-foreground">
-                      {collab.collaborationCount} paper{collab.collaborationCount !== 1 ? 's' : ''}
+                      {collab.collaborationCount} {t('authorImpact.papersCount', { count: collab.collaborationCount })}
                     </span>
                   )}
                 </div>
@@ -179,7 +181,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
           <div className="rounded-xl p-4 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
               <Lightbulb size={13} className="text-amber-600 dark:text-amber-500" />
-              Insight
+              {t('insight.title')}
             </h4>
             <p className="text-sm text-foreground/80 leading-relaxed">{insight}</p>
           </div>

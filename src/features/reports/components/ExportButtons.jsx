@@ -1,4 +1,5 @@
 ﻿import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, FileJson, Loader2, Printer } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -26,6 +27,7 @@ export default function ExportButtons({
   onSave,
   saving = false,
 }) {
+  const { t } = useTranslation('reports');
   const [pdfLoading, setPdfLoading] = useState(false);
 
   /** Download as JSON */
@@ -51,7 +53,7 @@ export default function ExportButtons({
   const handleExportPDF = async () => {
     const element = contentRef?.current;
     if (!element) {
-      toast.error('Nothing to export — content not ready');
+      toast.error(t('toast.nothingToExport'));
       return;
     }
 
@@ -133,10 +135,10 @@ export default function ExportButtons({
         document.body.removeChild(iframe);
       }, 1000);
 
-      toast.success('Print dialog opened — choose "Save as PDF"');
+      toast.success(t('toast.printOpened'));
     } catch (err) {
       console.error('Print export error:', err);
-      toast.error('Export failed — try Download JSON instead');
+      toast.error(t('toast.exportFailed'));
     } finally {
       setPdfLoading(false);
     }
@@ -150,7 +152,7 @@ export default function ExportButtons({
         className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
       >
         <FileJson size={13} />
-        Download JSON
+        {t('export.downloadJson')}
       </button>
 
       {/* Export PDF — uses browser print dialog */}
@@ -162,12 +164,12 @@ export default function ExportButtons({
         {pdfLoading ? (
           <>
             <Loader2 size={13} className="animate-spin" />
-            Opening print...
+            {t('export.openingPrint')}
           </>
         ) : (
           <>
             <Printer size={13} />
-            Export PDF
+            {t('export.exportPdf')}
           </>
         )}
       </button>
@@ -179,7 +181,7 @@ export default function ExportButtons({
           disabled={saving}
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all disabled:opacity-50 bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 hover:scale-[1.02] active:scale-[0.98]"
         >
-          {saving ? 'Saving...' : 'Save Report'}
+          {saving ? t('export.saving') : t('export.saveReport')}
         </button>
       )}
     </div>

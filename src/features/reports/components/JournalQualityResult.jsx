@@ -1,4 +1,5 @@
 ﻿import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   BookOpen, Hash, TrendingUp, Award, Tag, Lightbulb, Building2, Quote,
@@ -18,6 +19,7 @@ import ExportButtons from './ExportButtons';
  * @param {boolean}  props.saving     - Whether save is in progress
  */
 export default function JournalQualityResult({ data, onClose, onSave, saving }) {
+  const { t } = useTranslation('reports');
   const resultRef = useRef(null);
 
   if (!data) return null;
@@ -63,10 +65,10 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
       <div className="flex items-center justify-between p-5 border-b border-border">
         <div>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
-            Journal Quality Report
+            {t('journalQuality.headerBadge')}
           </p>
           <h3 className="text-base font-bold text-foreground">
-            {reportTitle || `Đánh giá chất lượng tạp chí: ${journalName}`}
+            {reportTitle || t('journalQuality.reportTitle', { name: journalName })}
           </h3>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
             <p className="text-sm text-primary font-mono">{journalName}</p>
@@ -78,7 +80,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
             )}
             {issn && (
               <span className="text-xs text-muted-foreground font-mono">
-                ISSN: {issn}
+                {t('journalQuality.issnPrefix')}{issn}
               </span>
             )}
           </div>
@@ -114,7 +116,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20"
             >
               <TrendingUp size={12} />
-              IF: {impactFactor}
+              {t('journalQuality.ifPrefix')}{impactFactor}
             </span>
           )}
         </div>
@@ -125,7 +127,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
             <div className="flex items-center gap-2 mb-2">
               <Hash size={13} className="text-accent-blue" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Total Papers
+                {t('stats.totalPapers')}
               </span>
             </div>
             <p className="text-xl font-bold text-foreground font-mono tabular-nums">
@@ -136,7 +138,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
             <div className="flex items-center gap-2 mb-2">
               <Quote size={13} className="text-accent-teal" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Citations
+                {t('stats.citations')}
               </span>
             </div>
             <p className="text-xl font-bold text-foreground font-mono tabular-nums">
@@ -147,7 +149,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
             <div className="flex items-center gap-2 mb-2">
               <Award size={13} className="text-amber-600 dark:text-amber-500" />
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Score
+                {t('stats.score')}
               </span>
             </div>
             <p className="text-xl font-bold text-foreground font-mono tabular-nums">
@@ -161,7 +163,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
           <div className="rounded-xl p-4 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
               <BookOpen size={13} className="text-primary" />
-              Editorial Focus
+              {t('journalQuality.editorialFocus')}
             </h4>
             <p className="text-sm text-foreground/80 leading-relaxed">{taste}</p>
           </div>
@@ -172,7 +174,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
           <div>
             <h4 className="text-xs font-semibold text-foreground mb-2.5 flex items-center gap-2">
               <Tag size={13} className="text-primary" />
-              Recent Keywords
+              {t('journalQuality.recentKeywords')}
             </h4>
             <div className="flex flex-wrap gap-2">
               {topKeywords.map((kw) => (
@@ -193,7 +195,7 @@ export default function JournalQualityResult({ data, onClose, onSave, saving }) 
           <div className="rounded-xl p-4 border border-border bg-card">
             <h4 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-2">
               <Lightbulb size={13} className="text-amber-600 dark:text-amber-500" />
-              Insight
+              {t('journalQuality.insight')}
             </h4>
             <p className="text-sm text-foreground/80 leading-relaxed">{insight}</p>
           </div>

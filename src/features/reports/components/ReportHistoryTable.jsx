@@ -21,10 +21,10 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
     <div className="rounded-xl border overflow-hidden bg-card border-border">
       <div className="flex items-center justify-between p-5 border-b border-border">
         <h3 className="text-sm font-bold text-foreground">
-          {t('history.title') || 'Report History'}
+          {t('history.title')}
         </h3>
         <span className="text-xs text-muted-foreground">
-          {history.length} report{history.length !== 1 ? 's' : ''}
+          {t('history.reportCount', { count: history.length })}
         </span>
       </div>
 
@@ -32,7 +32,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
         <table className="w-full">
           <thead>
             <tr className="border-b border-border">
-              {['Type', 'Query', 'Generated', 'Status', ''].map((h) => (
+              {[t('history.columns.type'), t('history.columns.query'), t('history.columns.generated'), t('history.columns.status'), ''].map((h) => (
                 <th
                   key={h}
                   className="text-left px-5 py-4 text-xs font-semibold text-muted-foreground"
@@ -75,7 +75,7 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                   <td className="px-5 py-4">
                     <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-400/10 w-fit px-2.5 py-1 rounded-md">
                       <CheckCircle2 size={12} />
-                      Ready
+                      {t('history.status.ready')}
                     </span>
                   </td>
                   <td className="px-5 py-4">
@@ -85,13 +85,13 @@ export default function ReportHistoryTable({ history, onView, onDelete }) {
                         className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-foreground transition-colors"
                       >
                         <TrendingUp size={13} />
-                        View
+                        {t('history.action.view')}
                       </button>
                       {onDelete && (
                         <button
                           onClick={() => onDelete(i)}
                           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                          title="Delete"
+                          title={t('history.action.delete')}
                         >
                           <Trash2 size={13} />
                         </button>

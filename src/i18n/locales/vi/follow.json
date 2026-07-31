@@ -32,7 +32,9 @@
     "keyword": "Từ khóa",
     "author": "Tác giả",
     "followedOn": "Đã theo dõi từ {{date}}",
-    "notification": "Thông báo"
+    "notification": "Thông báo",
+    "followCount": "{{count}} lượt theo dõi",
+    "followCount_plural": "{{count}} lượt theo dõi"
   },
   "toast": {
     "followSuccess": "Đã theo dõi thành công",

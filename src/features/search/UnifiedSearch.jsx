@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, X, TrendingUp, BookOpen, Users, Library, ChevronDown } from 'lucide-react';
 import SearchPapers from './SearchPapers';
@@ -8,9 +9,9 @@ import SearchJournal from './SearchJournal';
 import { trendAPI } from './trend.api.js';
 
 const TABS = [
-  { key: 'papers', label: 'Papers', icon: BookOpen },
-  { key: 'authors', label: 'Authors', icon: Users },
-  { key: 'journals', label: 'Journals', icon: Library },
+  { key: 'papers', labelKey: 'tabs.papers', icon: BookOpen },
+  { key: 'authors', labelKey: 'tabs.authors', icon: Users },
+  { key: 'journals', labelKey: 'tabs.journals', icon: Library },
 ];
 
 /**
@@ -23,6 +24,7 @@ const TABS = [
  *             Used by Author Research Focus "deep analysis" topic clicks.
  */
 export default function UnifiedSearch() {
+  const { t } = useTranslation('search');
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQ = searchParams.get('q') || '';
 
@@ -115,14 +117,19 @@ export default function UnifiedSearch() {
   // Listen for URL param changes (e.g., clicking a topic from Author Research Focus)
   // When ?q=... changes, auto-trigger search and clean the URL param.
   const urlQ = searchParams.get('q');
+  const urlTab = searchParams.get('tab');
   useEffect(() => {
     if (urlQ && urlQ.trim()) {
       setQuery(urlQ);
       setSearchedQuery(urlQ);
-      setActiveTab('papers');
-      // Clean URL param after consuming to keep URL tidy
+      // Respect tab param: authors|journals|papers
+      const validTabs = ['papers', 'authors', 'journals'];
+      setActiveTab(validTabs.includes(urlTab) ? urlTab : 'papers');
+      // Clean URL params after consuming to keep URL tidy
       const next = new URLSearchParams(searchParams);
       next.delete('q');
+      next.delete('tab');
+      next.delete('auto');
       setSearchParams(next, { replace: true });
     }
   }, [urlQ]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -147,15 +154,14 @@ export default function UnifiedSearch() {
           className="flex flex-col items-center overflow-hidden"
         >
           <h1 className="text-center font-extrabold tracking-tight leading-tight text-3xl sm:text-[42px]">
-            Discover{' '}
-            <span className="inline-block bg-primary text-white px-2.5 py-1 rounded-lg">
-              breakthrough research
+            {t('hero.line1')}{' '}
+            <span className="inline-block bg-accent-blue text-white px-2.5 py-1 rounded-lg">
+              {t('hero.highlight')}
             </span>{' '}
-            across academia
+            {t('hero.line2')}
           </h1>
           <p className="mt-4 text-sm sm:text-base text-muted-foreground text-center max-w-[500px] leading-relaxed">
-            Search across millions of papers, authors, and journals with
-            AI-powered analytics and visualizations.
+            {t('hero.subtitle')}
           </p>
         </motion.div>
 
@@ -186,7 +192,7 @@ export default function UnifiedSearch() {
             <button
               onClick={() => handleSearch()}
               className="w-9 h-9 rounded-full bg-primary flex items-center justify-center shrink-0 hover:bg-primary/90 active:scale-95 transition-all"
-              title="Search"
+              title={t('actions.search')}
             >
               <Search size={16} className="text-white" strokeWidth={2.5} />
             </button>
@@ -194,7 +200,7 @@ export default function UnifiedSearch() {
             {/* ── Keyword input ── */}
             <input
               type="text"
-              placeholder="Paper title, author name, or journal..."
+              placeholder={t('hero.placeholder')}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
@@ -230,10 +236,10 @@ export default function UnifiedSearch() {
                   setShowTabDropdown(!showTabDropdown);
                   setShowSuggestions(false);
                 }}
-                className="flex items-center gap-1.5 pl-3 pr-2.5 py-2 rounded-full bg-muted/60 text-xs font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-colors border border-transparent hover:border-border"
+                className="flex items-center gap-1.5 pl-3 pr-1.5 py-2 rounded-full bg-muted/60 text-xs font-medium text-foreground/70 hover:bg-muted hover:text-foreground transition-colors border border-transparent hover:border-border"
               >
                 {ActiveTabIcon && <ActiveTabIcon size={13} className="text-primary/60" />}
-                <span>{activeTabDef?.label}</span>
+                <span>{t(activeTabDef?.labelKey)}</span>
                 <ChevronDown
                   size={12}
                   className={`text-foreground/40 transition-transform duration-200 ${
@@ -268,7 +274,7 @@ export default function UnifiedSearch() {
                           }`}
                         >
                           <Icon size={13} />
-                          {tab.label}
+                          {t(tab.labelKey)}
                         </button>
                       );
                     })}
@@ -321,7 +327,7 @@ export default function UnifiedSearch() {
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp size={14} className="text-primary/50" />
             <span className="text-[11px] font-semibold text-foreground/50 uppercase tracking-wider">
-              Trending now
+              {t('hero.trending')}
             </span>
           </div>
           <div className="flex flex-wrap justify-center gap-2 max-w-lg">

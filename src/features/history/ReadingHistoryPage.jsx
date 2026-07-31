@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -12,7 +12,7 @@ import { useStaleWhileRevalidate } from '../../hooks/useStaleWhileRevalidate.js'
    Helpers
    ═══════════════════════════════════════════════════════════════════════════ */
 
-function formatRelativeTime(dateStr) {
+function formatRelativeTime(dateStr, t) {
   if (!dateStr) return '';
   const now = new Date();
   const date = new Date(dateStr);
@@ -22,13 +22,13 @@ function formatRelativeTime(dateStr) {
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
 
-  if (diffSec < 60) return 'just now';
-  if (diffMin === 1) return '1 minute ago';
-  if (diffMin < 60) return `${diffMin} minutes ago`;
-  if (diffHour === 1) return '1 hour ago';
-  if (diffHour < 24) return `${diffHour} hours ago`;
-  if (diffDay === 1) return '1 day ago';
-  if (diffDay < 7) return `${diffDay} days ago`;
+  if (diffSec < 60) return t('readingHistory.justNow');
+  if (diffMin === 1) return t('readingHistory.oneMinuteAgo');
+  if (diffMin < 60) return t('readingHistory.minutesAgo', { count: diffMin });
+  if (diffHour === 1) return t('readingHistory.oneHourAgo');
+  if (diffHour < 24) return t('readingHistory.hoursAgo', { count: diffHour });
+  if (diffDay === 1) return t('readingHistory.oneDayAgo');
+  if (diffDay < 7) return t('readingHistory.daysAgo', { count: diffDay });
 
   return date.toLocaleDateString('en-US', {
     month: 'short',
@@ -37,14 +37,14 @@ function formatRelativeTime(dateStr) {
   });
 }
 
-function formatViewedAt(dateStr) {
+function formatViewedAt(dateStr, t) {
   if (!dateStr) return '';
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-  }) + ' at ' + date.toLocaleTimeString('en-US', {
+  }) + t('readingHistory.at') + date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
@@ -81,7 +81,7 @@ export default function ReadingHistoryPage() {
   const navigate = useNavigate();
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
 
-  const { data: history, loading, error, refetch } = useStaleWhileRevalidate(
+  const { data: history, loading, error, refetch, mutate } = useStaleWhileRevalidate(
     'reading-history-list',
     async () => {
       const response = await paperAPI.getReadingHistory(20);
@@ -98,12 +98,31 @@ export default function ReadingHistoryPage() {
     { ttl: 5 * 60 * 1000, defaultValue: [] },
   );
 
+  // Auto-refresh when a new paper is viewed (from PaperDetailPage)
+  useEffect(() => {
+    const handler = () => refetch();
+    window.addEventListener('reading-history-changed', handler);
+    return () => window.removeEventListener('reading-history-changed', handler);
+  }, [refetch]);
+
   const handlePaperClick = useCallback((item) => {
     if (item.paperId) {
+      // Optimistically move this paper to top of history
+      mutate((prev) => {
+        const arr = Array.isArray(prev) ? [...prev] : [];
+        const idx = arr.findIndex((h) => h.paperId === item.paperId || h.readingHistoryId === item.readingHistoryId);
+        if (idx > 0) {
+          const [moved] = arr.splice(idx, 1);
+          arr.unshift({ ...moved, viewedAt: new Date().toISOString() });
+        } else if (idx === -1) {
+          arr.unshift({ ...item, viewedAt: new Date().toISOString() });
+        }
+        return arr;
+      });
       sessionStorage.setItem('scitrack_referrer', window.location.pathname);
       navigate(`/${currentRole}/papers/${item.paperId}`);
     }
-  }, [navigate, currentRole]);
+  }, [navigate, currentRole, mutate]);
 
   const handleDoiClick = useCallback((e, doi) => {
     e.stopPropagation();
@@ -158,14 +177,14 @@ export default function ReadingHistoryPage() {
           <History size={28} className="text-muted-foreground" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-foreground mb-1">No papers viewed yet</h3>
-          <p className="text-sm text-muted-foreground">Start exploring to build your reading history</p>
+          <h3 className="text-lg font-bold text-foreground mb-1">{t('readingHistory.noPapers')}</h3>
+          <p className="text-sm text-muted-foreground">{t('readingHistory.startExploring')}</p>
         </div>
         <button
           onClick={() => navigate(`/${currentRole}/search`)}
           className="px-5 py-2.5 rounded-lg text-sm font-bold bg-accent-blue text-white hover:bg-accent-blue/80 transition-all"
         >
-          Start exploring
+          {t('readingHistory.startBtn')}
         </button>
       </div>
     );
@@ -193,7 +212,7 @@ export default function ReadingHistoryPage() {
             >
               {/* Title */}
               <h4 className="text-sm font-bold text-foreground mb-1.5 hover:text-accent-blue transition-colors">
-                {item.paperTitle || 'Untitled'}
+                {item.paperTitle || t('readingHistory.untitled')}
               </h4>
 
               {/* Journal + Year */}
@@ -216,18 +235,18 @@ export default function ReadingHistoryPage() {
                   </button>
                 )}
                 {doi && (citations != null || isOA) && <span>·</span>}
-                <span>Cited: {citations != null ? citations.toLocaleString() : '—'}</span>
+                <span>{t('readingHistory.cited')}{citations != null ? citations.toLocaleString() : '—'}</span>
                 {isOA && <span>·</span>}
                 {isOA && (
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20">
-                    Open Access
+                    {t('readingHistory.openAccess')}
                   </span>
                 )}
               </div>
 
               {/* Viewed At */}
-              <div className="text-[11px] text-muted-foreground" title={formatViewedAt(item.viewedAt)}>
-                Viewed {formatRelativeTime(item.viewedAt)}
+              <div className="text-[11px] text-muted-foreground" title={formatViewedAt(item.viewedAt, t)}>
+                {t('readingHistory.viewed')}{formatRelativeTime(item.viewedAt, t)}
               </div>
             </motion.div>
           );

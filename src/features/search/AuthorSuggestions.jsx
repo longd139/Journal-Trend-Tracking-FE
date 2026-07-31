@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Users, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { authorAPI } from './author.api';
@@ -61,7 +62,8 @@ function Skeleton() {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function AuthorSuggestions({ onAuthorClick }) {
-  const [authors, setAuthors] = useState([]);
+  const { t } = useTranslation('search');
+    const [authors, setAuthors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -79,7 +81,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Failed to load suggested authors:', err);
-          setError(err?.message || 'Failed to load suggestions');
+          setError(err?.message || t('author.suggestionsLoadFailed', 'Failed to load suggestions'));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -167,13 +169,13 @@ export default function AuthorSuggestions({ onAuthorClick }) {
                 {/* Stats row */}
                 <div className="flex items-center gap-3 mt-2 text-[10px] text-muted-foreground">
                   {author.hIndex != null && (
-                    <span title="h-index">h-index {author.hIndex}</span>
+                    <span title={t('author.hIndex')}>h-index {author.hIndex}</span>
                   )}
                   {author.totalCitations != null && (
-                    <span title="Total citations">{formatNumber(author.totalCitations)} cites</span>
+                    <span title={t('author.totalCitations')}>{formatNumber(author.totalCitations)} {t('author.cites', 'cites')}</span>
                   )}
                   {author.paperCount != null && (
-                    <span title="Paper count">{author.paperCount} papers</span>
+                    <span title={t('author.paperCount')}>{author.paperCount} {t('author.papers')}</span>
                   )}
                 </div>
               </motion.button>
@@ -184,7 +186,7 @@ export default function AuthorSuggestions({ onAuthorClick }) {
 
       {/* Empty state (API returned no authors) */}
       {!loading && !error && authors.length === 0 && (
-        <p className="text-xs text-muted-foreground">No suggested authors available right now.</p>
+        <p className="text-xs text-muted-foreground">{t('author.noSuggestedAuthors')}</p>
       )}
 
       {/* Footer hint */}

@@ -3,6 +3,13 @@
   "roleAdmin": "Admin",
   "roleUser": "Researcher & Academic",
   "tip": "Tip",
+  "searchPlaceholder": "Filter...",
+  "noMatchingSections": "No matching sections",
+  "sectionCount": "{{count}} section",
+  "sectionCount_plural": "{{count}} sections",
+  "howTo": "How to",
+  "footer": "SciTrack — Research Platform",
+  "pressEsc": "Press Esc to close",
   "admin": {
     "sections": {
       "overview": "Dashboard",

@@ -1,4 +1,5 @@
 ﻿import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Quote, Copy, Check, FileText, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -12,6 +13,7 @@ import { paperAPI } from './paper.api.js';
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function CitationExport({ paper, variant = 'inline' }) {
+  const { t } = useTranslation('search');
   const [open, setOpen] = useState(false);
   const [activeFormat, setActiveFormat] = useState('bibtex');
   const [copied, setCopied] = useState(false);
@@ -95,7 +97,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
       toast.success(`Citation copied as ${currentFormat.label}`);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Failed to copy citation');
+      toast.error(t('citation.copyFailed'));
     }
   };
 
@@ -162,14 +164,14 @@ export default function CitationExport({ paper, variant = 'inline' }) {
                       Loading...
                     </span>
                   ) : (
-                    citationText || 'No citation available'
+                    citationText || t('citation.noCitation')
                   )}
                 </pre>
 
                 {/* API fallback indicator */}
                 {fetchError && !loading && (
                   <p className="text-[9px] text-amber-400/60 italic">
-                    Generated locally (server unavailable)
+                    {t('citation.generatedLocally')}
                   </p>
                 )}
 
@@ -182,7 +184,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
                     className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-bold bg-primary text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40"
                   >
                     {copied ? <Check size={12} /> : <Copy size={12} />}
-                    {copied ? 'Copied' : 'Copy'}
+                    {copied ? t('citation.copied') : t('citation.copy')}
                   </button>
                   <button
                     type="button"
@@ -208,7 +210,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Quote size={15} className="text-primary/40" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Export Citation</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{t('citation.exportCitation')}</h3>
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -218,7 +220,7 @@ export default function CitationExport({ paper, variant = 'inline' }) {
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-all border border-primary/10 disabled:opacity-40"
           >
             {copied ? <Check size={11} /> : <Copy size={11} />}
-            {copied ? 'Copied' : 'Copy'}
+            {copied ? t('citation.copied') : t('citation.copy')}
           </button>
           <button
             type="button"
@@ -258,14 +260,14 @@ export default function CitationExport({ paper, variant = 'inline' }) {
             Fetching citation...
           </span>
         ) : (
-          citationText || 'No citation available'
+          citationText || t('citation.noCitation')
         )}
       </pre>
 
       {/* API fallback indicator */}
       {fetchError && !loading && (
         <p className="text-[10px] text-amber-400/60 italic">
-          Generated locally (server unavailable)
+          {t('citation.generatedLocally')}
         </p>
       )}
     </div>

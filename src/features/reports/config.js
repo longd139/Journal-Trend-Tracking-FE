@@ -15,7 +15,7 @@ const REPORT_TYPES = {
   },
   'journal-quality': {
     icon: BookOpen,
-    color: '#DEDBC8',
+    color: '#F97316',
     label: 'Journal Quality',
     descriptionKey: 'templates.readingList.description',
     placeholderKey: 'input.placeholder.journal',
@@ -23,7 +23,7 @@ const REPORT_TYPES = {
   },
   'author-impact': {
     icon: User,
-    color: '#A09878',
+    color: '#EA580C',
     label: 'Author Impact',
     descriptionKey: 'templates.authorImpact.description',
     placeholderKey: 'input.placeholder.author',
@@ -32,7 +32,7 @@ const REPORT_TYPES = {
 };
 
 /** Fallback for unknown report types */
-const DEFAULT_TYPE_CONFIG = { icon: FileText, color: '#DEDBC8', label: 'Report' };
+const DEFAULT_TYPE_CONFIG = { icon: FileText, color: '#F97316', label: 'Report' };
 
 /**
  * Get the display config for a report type.

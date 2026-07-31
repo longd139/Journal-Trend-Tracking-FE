@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
@@ -8,6 +9,7 @@ import {
   Loader2,
   Trash2,
   User,
+  ArrowUpRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
@@ -74,6 +76,7 @@ function formatDate(dateStr, t) {
  */
 export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
   const { t } = useTranslation('follow');
+  const navigate = useNavigate();
   const [toggling, setToggling] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [localNotify, setLocalNotify] = React.useState(follow.notifyEnabled);
@@ -123,13 +126,23 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
     }
   };
 
+  const handleCardClick = () => {
+    const role = sessionStorage.getItem('userRole') || 'researcher';
+    const query = getFollowName(follow);
+    if (!query) return;
+    // Navigate based on type with appropriate tab
+    const tab = type === 'author' ? 'authors' : type === 'journal' ? 'journals' : 'papers';
+    navigate(`/${role}/search?q=${encodeURIComponent(query)}&tab=${tab}&auto=1`);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={deleting ? { opacity: 0, y: -20, height: 0 } : { opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.25 }}
-      className="rounded-xl border p-4 sm:p-5 bg-card border-primary/10 hover:border-primary/20 transition-colors"
+      className="rounded-xl border p-4 sm:p-5 bg-card border-primary/10 hover:border-primary/20 transition-colors cursor-pointer group"
+      onClick={handleCardClick}
     >
       <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4">
         {/* Left: icon + info */}
@@ -147,7 +160,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
                 {t(`label.${type}`)}
               </span>
             </div>
-            <h4 className="text-sm font-bold text-foreground truncate">{name}</h4>
+            <h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{name}</h4>
             <p className="text-xs text-muted-foreground mt-1">
               {formatDate(follow.createdAt, t)}
             </p>
@@ -155,7 +168,7 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
         </div>
 
         {/* Right: toggle + unfollow */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex items-center gap-4 shrink-0" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{t('label.notification')}</span>
             {toggling ? (

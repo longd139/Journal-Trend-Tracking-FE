@@ -3,6 +3,13 @@
   "roleAdmin": "Admin",
   "roleUser": "Researcher & Academic",
   "tip": "Mẹo",
+  "searchPlaceholder": "Tìm kiếm...",
+  "noMatchingSections": "Không tìm thấy mục phù hợp",
+  "sectionCount": "{{count}} mục",
+  "sectionCount_plural": "{{count}} mục",
+  "howTo": "Cách thực hiện",
+  "footer": "SciTrack — Nền tảng nghiên cứu",
+  "pressEsc": "Nhấn Esc để đóng",
   "admin": {
     "sections": {
       "overview": "Bảng điều khiển",

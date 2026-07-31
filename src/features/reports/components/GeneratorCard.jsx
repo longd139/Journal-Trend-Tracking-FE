@@ -76,7 +76,7 @@ export default function GeneratorCard({
           {loading ? (
             <>
               <Loader2 size={14} className="animate-spin" />
-              Generating...
+              {t('button.generating')}
             </>
           ) : (
             t('button.generate') || 'Generate Report'

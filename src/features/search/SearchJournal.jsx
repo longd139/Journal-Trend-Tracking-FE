@@ -457,8 +457,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
     if (!q) return;
 
     if (quotaExhausted) {
-      toast.error('Search limit reached', {
-        description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
+      toast.error(t('author.searchLimitReached'), {
+        description: t('author.monthlyLimitMsg', { limit: searchLimit }),
         action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
         duration: 6000,
       });
@@ -484,7 +484,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
           if (err?.response?.status === 403 || err?.apiStatus === 403) {
             setSearchesLeft(0);
             toast.error('Search limit reached', {
-              description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
+              description: `You have used all ${searchLimit} searches this month. ${t('upsell.title')} for unlimited access.`,
               action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
               duration: 6000,
             });
@@ -533,12 +533,12 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
           if (err?.response?.status === 403 || err?.apiStatus === 403) {
             setSearchesLeft(0);
             toast.error('Search limit reached', {
-              description: 'Upgrade to Researcher for unlimited searches.',
+              description: t('upsell.title'),
               action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
               duration: 6000,
             });
           }
-          setError(err?.message || 'Failed to load journal data');
+          setError(err?.message || t('journal.loadFailed', 'Failed to load journal data'));
         }
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -563,7 +563,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
   useEffect(() => {
     if (query.trim()) return;
 
-    // Clear stale search results when returning to browse mode
+    // {t('author.clearQuery')} stale search results when returning to browse mode
     setJournalStats(null);
     setTimeline(null);
     setTopAuthors([]);
@@ -612,7 +612,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
       } catch (err) {
         if (!cancelled) {
           console.error('Failed to load categories:', err);
-          setBrowseError(err?.message || 'Failed to load journal categories');
+          setBrowseError(err?.message || t('journal.categoriesLoadFailed', 'Failed to load journal categories'));
         }
       } finally {
         if (!cancelled) setLoadingCategories(false);
@@ -673,7 +673,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             <input
               ref={searchInputRef}
               type="text"
-              placeholder={quotaExhausted ? 'Search limit reached — upgrade to continue' : 'Search by journal name or ID...'}
+              placeholder={quotaExhausted ? 'Search limit reached — upgrade to continue' : t('journal.placeholder', 'Search by journal name or ID...')}
               value={query}
               disabled={quotaExhausted}
               onChange={(e) => { setQuery(e.target.value); setShowSuggestionList(false); }}
@@ -707,7 +707,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   ? 'bg-primary/20 text-primary'
                   : 'bg-transparent text-primary/40 hover:bg-primary/10 hover:text-primary'
               }`}
-              title="Search history"
+              title={t('author.recentSearches')}
             >
               <History size={14} />
             </button>
@@ -736,7 +736,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 ) : (
                   <div className="px-5 py-4 text-xs text-foreground/60 flex items-center gap-2">
                     <Search size={12} />
-                    Press Enter to search "{query.trim()}"
+                    {t('author.pressEnterToSearch', { query: query.trim() })} "{query.trim()}"
                   </div>
                 )}
               </motion.div>
@@ -755,7 +755,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 {searchHistory.length === 0 ? (
                   <div className="px-5 py-6 text-center">
                     <Clock size={24} className="mx-auto text-muted-foreground mb-2" />
-                    <p className="text-xs text-foreground/60">No recent searches</p>
+                    <p className="text-xs text-foreground/60">{t('author.noRecentSearches')}</p>
                   </div>
                 ) : (
                   <>
@@ -773,7 +773,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                         }}
                         className="text-[10px] font-medium text-foreground/60 hover:text-red-400 transition-colors flex items-center gap-1"
                       >
-                        <Trash2 size={10} /> Clear all
+                        <Trash2 size={10} /> {t('author.clearAll')}
                       </button>
                     </div>
                     {searchHistory.map((kw) => (
@@ -819,7 +819,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 <Gauge size={14} className={quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary/50'} />
-                <span className="text-xs font-semibold text-foreground">Search Quota</span>
+                <span className="text-xs font-semibold text-foreground">{t('author.searchQuota')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-xs font-bold font-mono ${quotaExhausted ? 'text-red-400' : searchesLeft <= 3 ? 'text-amber-400' : 'text-primary'}`}>
@@ -844,7 +844,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
                 <div className="flex items-center gap-2 text-[11px] text-red-400/80">
                   <Lock size={12} />
-                  <span>Monthly limit reached. Upgrade to Researcher for unlimited searches.</span>
+                  <span>{t('author.monthlyLimitMsg', { limit: searchLimit })}</span>
                 </div>
                 <button
                   onClick={() => navigate(`/${currentRole}/settings`)}
@@ -868,8 +868,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               <Search size={13} className="text-primary/50" />
               <span className="text-xs text-muted-foreground">
                 {apiSuggestions.length > 0
-                  ? `Found ${apiSuggestions.length} journal${apiSuggestions.length > 1 ? 's' : ''} matching "${query.trim()}"`
-                  : `Searching for "${query.trim()}"...`}
+                  ? `Found ${apiSuggestions.length} journal, query: query.trim() })} "${query.trim()}"`
+                  : `{t('author.searchingFor', { query: query.trim() })} "${query.trim()}"...`}
               </span>
               <button
                 type="button"
@@ -919,7 +919,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               </div>
             ) : (
               <div className="flex items-center justify-center py-12 text-xs text-foreground/60">
-                No journals found for "{query.trim()}". Try a different keyword.
+                {t('journal.noResults', { query: query.trim() })}
               </div>
             )}
           </motion.div>
@@ -953,8 +953,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               <div className="rounded-2xl border border-border bg-card p-5 space-y-5">
                 {/* ── Section Header ── */}
                 <div>
-                  <h3 className="text-base font-semibold text-foreground">Browse by Research Field</h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Explore top journals across {categories.length} academic disciplines</p>
+                  <h3 className="text-base font-semibold text-foreground">{t('journal.browseByField')}</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{t('journal.browseDescription', { count: categories.length })}</p>
                 </div>
 
                 {/* ── Category Tabs with Rank Badges ── */}
@@ -1104,7 +1104,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                       <Newspaper size={24} className="text-primary/20" />
                     </div>
                     <p className="text-xs text-foreground/60">
-                      No journals found in this category yet.
+                      {t('journal.noCategoryJournals')}
                     </p>
                   </motion.div>
                 ) : null}
@@ -1122,7 +1122,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   <Newspaper size={32} className="text-primary/30" />
                 </div>
                 <p className="text-sm text-foreground/60 max-w-sm">
-                  Enter a journal name to explore its statistics, top papers, authors, and publication timeline.
+                  {t('journal.emptyPrompt')}
                 </p>
               </motion.div>
             )}
@@ -1136,7 +1136,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
         {error && !isLoading && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-amber-500/5 border border-amber-500/10 text-[11px] text-amber-400/70">
             <AlertCircle size={13} className="shrink-0" />
-            <span>Unable to load journal data. Please check the journal name and try again.</span>
+            <span>{t('journal.loadError')}</span>
           </div>
         )}
 
@@ -1159,7 +1159,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               className="grid grid-cols-2 lg:grid-cols-4 gap-3"
             >
               <StatCard
-                label="Total Papers"
+                label={t('journal.totalPapers')}
                 value={(journalStats.totalPapers ?? 0).toLocaleString()}
                 change=""
                 Icon={FileText}
@@ -1171,23 +1171,23 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 }}
               />
               <StatCard
-                label="Total Citations"
+                label={t('journal.totalCitations')}
                 value={(journalStats.totalCitations ?? 0).toLocaleString()}
                 change=""
                 Icon={Star}
                 accent="var(--chart-3)"
               />
               <StatCard
-                label="Avg Citations/Paper"
+                label={t('journal.avgCitations')}
                 value={journalStats.avgCitationsPerPaper != null ? journalStats.avgCitationsPerPaper.toFixed(2) : '—'}
                 change=""
                 Icon={TrendingUp}
                 accent="var(--chart-4)"
               />
               <StatCard
-                label="Quartile"
+                label={t('journal.quartile')}
                 value={journalStats.quartile || 'N/A'}
-                change={!journalStats.quartile ? 'Not ranked yet' : journalStats.quartile === 'Q1' ? 'Top 25%' : journalStats.quartile === 'Q2' ? '25–50%' : journalStats.quartile === 'Q3' ? '50–75%' : 'Bottom 25%'}
+                change={!journalStats.quartile ? t('journal.notRanked', 'Not ranked yet') : journalStats.quartile === 'Q1' ? t('journal.quartileTop25', 'Top 25%') : journalStats.quartile === 'Q2' ? '25–50%' : journalStats.quartile === 'Q3' ? '50–75%' : t('journal.quartileBottom25', 'Bottom 25%')}
                 Icon={Gauge}
                 accent={Q_COLORS[journalStats.quartile] || 'var(--muted-foreground)'}
               />
@@ -1251,7 +1251,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                 >
                   <h3 className="text-xl font-black text-foreground font-display tracking-[-0.02em]">Upgrade to Researcher</h3>
                   <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
-                    Unlock full paper details, AI summaries, citation exports, and unlimited searches.
+                    {t('upsell.description')}
                   </p>
                 </motion.div>
                 <motion.div
@@ -1283,7 +1283,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary-foreground"><path d="M7 17l9.2-9.2M17 17V7H7" /></svg>
                   </span>
                 </motion.button>
-                <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} onClick={() => setUpgradeOpen(false)} className="w-full text-xs text-foreground/60 hover:text-muted-foreground transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">Maybe later</motion.button>
+                <motion.button initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7, duration: 0.4, ease: [0.32, 0.72, 0, 1] }} onClick={() => setUpgradeOpen(false)} className="w-full text-xs text-foreground/60 hover:text-muted-foreground transition-colors duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">{t('upsell.maybeLater')}</motion.button>
               </div>
             </motion.div>
           </motion.div>

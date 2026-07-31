@@ -14,12 +14,11 @@ import {
   Clock,
   UserCheck,
   BellRing,
-  ArrowRight,
-  ExternalLink,
 } from 'lucide-react';
 import { notificationAPI } from './api';
 import { adminAPI } from '../admin/api';
 import { useNotificationStore } from '../../store/useNotificationStore';
+import NotificationDetailDialog from './NotificationDetailDialog';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Type → icon + color mapping
@@ -67,7 +66,7 @@ function normalizeNotif(api) {
   };
 }
 
-function formatRelativeTime(notif) {
+function formatRelativeTime(notif, t) {
   if (notif.rawCreatedAt) {
     try {
       const d = new Date(notif.rawCreatedAt);
@@ -77,10 +76,10 @@ function formatRelativeTime(notif) {
       const diffHours = Math.floor(diffMs / 3600000);
       const diffDays = Math.floor(diffMs / 86400000);
 
-      if (diffMins < 1) return 'Just now';
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffHours < 24) return `${diffHours}h ago`;
-      if (diffDays < 7) return `${diffDays}d ago`;
+      if (diffMins < 1) return t('notifications.justNow');
+      if (diffMins < 60) return t('notifications.minutesAgo', { count: diffMins });
+      if (diffHours < 24) return t('notifications.hoursAgo', { count: diffHours });
+      if (diffDays < 7) return t('notifications.daysAgo', { count: diffDays });
       return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     } catch {
       // fall through
@@ -89,12 +88,12 @@ function formatRelativeTime(notif) {
   if (notif.timestamp) {
     const diff = Date.now() - notif.timestamp;
     const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 1) return t('notifications.justNow');
+    if (mins < 60) return t('notifications.minutesAgo', { count: mins });
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return t('notifications.hoursAgo', { count: hours });
     const days = Math.floor(hours / 24);
-    if (days < 7) return `${days}d ago`;
+    if (days < 7) return t('notifications.daysAgo', { count: days });
     return new Date(notif.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
   return '';
@@ -105,6 +104,7 @@ function formatRelativeTime(notif) {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 function NotificationCard({ notif, onClick, onDismiss }) {
+  const { t } = useTranslation('common');
   const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
   const Icon = ICON_MAP[notif.type] || FileText;
 
@@ -141,7 +141,7 @@ function NotificationCard({ notif, onClick, onDismiss }) {
             </h4>
             <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap flex items-center gap-1">
               <Clock size={10} />
-              {formatRelativeTime(notif)}
+              {formatRelativeTime(notif, t)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground leading-relaxed">{notif.desc}</p>
@@ -157,66 +157,6 @@ function NotificationCard({ notif, onClick, onDismiss }) {
       >
         <Trash2 size={14} />
       </button>
-    </motion.div>
-  );
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Detail Sheet
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-function DetailSheet({ notif, onClose, onViewPaper }) {
-  const colors = COLOR_MAP[notif.type] || COLOR_MAP.system;
-  const Icon = ICON_MAP[notif.type] || FileText;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="rounded-2xl border border-primary/15 bg-card p-6 space-y-5"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${colors.bg}`}>
-            <Icon size={22} className={colors.text} />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-foreground">{notif.title}</h3>
-            <span className="text-[11px] text-muted-foreground flex items-center gap-1 mt-0.5">
-              <Clock size={10} />
-              {formatRelativeTime(notif)}
-            </span>
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all"
-        >
-          ✕
-        </button>
-      </div>
-
-      <p className="text-sm text-foreground/80 leading-relaxed">{notif.detail}</p>
-
-      {/* Action buttons */}
-      {notif.actionable && notif.relatedPaperId && (
-        <div className="flex items-center gap-2 pt-1">
-          <button
-            onClick={() => onViewPaper(notif.relatedPaperId)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-primary-foreground bg-primary hover:bg-primary/90 active:scale-[0.97] transition-all duration-150"
-          >
-            <ExternalLink size={14} />
-            View Paper
-            <ArrowRight size={14} />
-          </button>
-          {notif.relatedPaperTitle && (
-            <span className="text-xs text-muted-foreground truncate max-w-[200px]">
-              {notif.relatedPaperTitle}
-            </span>
-          )}
-        </div>
-      )}
     </motion.div>
   );
 }
@@ -249,12 +189,12 @@ function NotificationSkeleton() {
 
 export default function NotificationsPage() {
   const { t } = useTranslation('common');
+  const [dialogNotif, setDialogNotif] = useState(null);
   const navigate = useNavigate();
   const [notifs, setNotifs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   const [filter, setFilter] = useState('all');
-  const [selectedNotif, setSelectedNotif] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
   // Sync with global store so sidebar badge updates instantly
@@ -349,20 +289,20 @@ export default function NotificationsPage() {
     const yesterday = new Date(today.getTime() - 86400000);
     const weekAgo = new Date(today.getTime() - 7 * 86400000);
 
-    const groups = { Today: [], Yesterday: [], 'This Week': [], Earlier: [] };
+    const groups = { [t('notifications.today')]: [], [t('notifications.yesterday')]: [], [t('notifications.thisWeek')]: [], [t('notifications.earlier')]: [] };
 
     filteredNotifs.forEach((n) => {
       const d = n.rawCreatedAt ? new Date(n.rawCreatedAt) : new Date(n.timestamp);
       const dateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
       if (dateOnly.getTime() >= today.getTime()) {
-        groups['Today'].push(n);
+        groups[t('notifications.today')].push(n);
       } else if (dateOnly.getTime() >= yesterday.getTime()) {
-        groups['Yesterday'].push(n);
+        groups[t('notifications.yesterday')].push(n);
       } else if (dateOnly.getTime() >= weekAgo.getTime()) {
-        groups['This Week'].push(n);
+        groups[t('notifications.thisWeek')].push(n);
       } else {
-        groups['Earlier'].push(n);
+        groups[t('notifications.earlier')].push(n);
       }
     });
 
@@ -397,18 +337,19 @@ export default function NotificationsPage() {
         return next;
       });
     }
-    if (selectedNotif?.id === id) setSelectedNotif(null);
     try { await notificationAPI.deleteNotification(id); } catch { /* revert on next fetch */ }
   };
 
   const handleSelect = (notif) => {
-    setSelectedNotif(notif);
+    setDialogNotif(notif);
     if (!notif.read) markAsRead(notif.id);
   };
 
-  const handleViewPaper = (paperId) => {
-    const role = sessionStorage.getItem('userRole') || 'researcher';
-    navigate(`/${role}/papers/${paperId}`);
+  const handleSearchKeyword = (keyword) => {
+    setDialogNotif(null);
+    const rawRole = sessionStorage.getItem('userRole') || 'researcher';
+    const role = rawRole === 'academic' ? 'academic_user' : rawRole;
+    navigate(`/${role}/search?q=${encodeURIComponent(keyword)}`);
   };
 
   return (
@@ -419,8 +360,8 @@ export default function NotificationsPage() {
           <h2 className="text-lg font-bold text-foreground">{t('notifications.title')}</h2>
           <p className="text-sm text-muted-foreground">
             {unreadCount > 0
-              ? `${unreadCount} unread · ${notifs.length} total`
-              : `${notifs.length} notification${notifs.length !== 1 ? 's' : ''}`}
+              ? t('notifications.unreadSummary', { unread: unreadCount, total: notifs.length })
+              : t('notifications.notificationCount', { count: notifs.length })}
           </p>
         </div>
 
@@ -434,10 +375,10 @@ export default function NotificationsPage() {
                 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
                 : 'text-muted-foreground border-border hover:text-foreground hover:border-primary/20'
             }`}
-            title={autoRefresh ? 'Auto-refresh active (30s)' : 'Enable auto-refresh'}
+            title={autoRefresh ? t('notifications.autoRefreshActive') : t('notifications.autoRefreshEnable')}
           >
             <RefreshCw size={12} className={autoRefresh ? 'animate-spin-slow' : ''} />
-            {autoRefresh ? 'Live' : 'Live'}
+            {t('notifications.live')}
           </button>
           {unreadCount > 0 && (
             <button
@@ -445,7 +386,7 @@ export default function NotificationsPage() {
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-muted-foreground hover:text-primary hover:bg-primary/5 border border-border transition-all"
             >
               <CheckCheck size={14} />
-              Mark all read
+              {t('notifications.markAllRead')}
             </button>
           )}
         </div>
@@ -454,8 +395,8 @@ export default function NotificationsPage() {
       {/* Filter tabs */}
       <div className="flex gap-1.5 p-1 rounded-xl bg-muted/40 border border-border w-fit">
         {[
-          { key: 'all', label: 'All' },
-          { key: 'unread', label: `Unread${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
+          { key: 'all', label: t('notifications.all') },
+          { key: 'unread', label: `${t('notifications.unread')}${unreadCount > 0 ? ` (${unreadCount})` : ''}` },
         ].map(({ key, label }) => (
           <button
             key={key}
@@ -473,17 +414,6 @@ export default function NotificationsPage() {
           </button>
         ))}
       </div>
-
-      {/* Detail */}
-      <AnimatePresence>
-        {selectedNotif && (
-          <DetailSheet
-            notif={selectedNotif}
-            onClose={() => setSelectedNotif(null)}
-            onViewPaper={handleViewPaper}
-          />
-        )}
-      </AnimatePresence>
 
       {/* Loading */}
       {loading && <NotificationSkeleton />}
@@ -522,15 +452,21 @@ export default function NotificationsPage() {
             <Inbox size={32} className="text-muted-foreground" />
           </div>
           <h3 className="text-base font-bold text-foreground mb-1.5">
-            {filter === 'unread' ? 'No unread notifications' : t('notifications.emptyTitle')}
+            {filter === 'unread' ? t('notifications.noUnreadTitle') : t('notifications.emptyTitle')}
           </h3>
           <p className="text-xs text-muted-foreground text-center max-w-[280px] leading-relaxed">
             {filter === 'unread'
-              ? "You're all caught up! Switch to 'All' to see previous notifications."
+              ? t('notifications.noUnreadDesc')
               : t('notifications.emptyDesc')}
           </p>
         </motion.div>
       )}
+      <NotificationDetailDialog
+        notif={dialogNotif}
+        open={!!dialogNotif}
+        onClose={() => setDialogNotif(null)}
+        onSearchKeyword={handleSearchKeyword}
+      />
     </div>
   );
 }

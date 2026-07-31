@@ -222,17 +222,17 @@ export default function FollowsView() {
         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
           <Bell size={13} className="text-primary" />
           <span className="text-xs font-bold text-primary">{follows.length}</span>
-          <span className="text-[11px] text-muted-foreground">{follows.length === 1 ? 'follow' : 'follows'}</span>
+          <span className="text-[11px] text-muted-foreground">{t('label.followCount', { count: follows.length })}</span>
         </div>
       </div>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Journals', count: counts.journals, color: '#4F8CFF' },
-          { label: 'Topics', count: counts.topics, color: '#F59E0B' },
-          { label: 'Keywords', count: counts.keywords, color: '#A78BFA' },
-          { label: 'Authors', count: counts.authors, color: '#34D399' },
+          { label: t('tabs.journals'), count: counts.journals, color: '#4F8CFF' },
+          { label: t('tabs.topics'), count: counts.topics, color: '#F59E0B' },
+          { label: t('tabs.keywords'), count: counts.keywords, color: '#A78BFA' },
+          { label: t('tabs.authors'), count: counts.authors, color: '#34D399' },
         ].map((stat) => (
           <motion.div
             key={stat.label}

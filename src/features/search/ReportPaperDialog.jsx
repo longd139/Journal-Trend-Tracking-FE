@@ -137,7 +137,7 @@ export function ReportPaperDialog({ paper, open, onOpenChange }) {
 
         {/* Paper info pill */}
         <div className="px-3 py-2 rounded-lg bg-muted/30 border border-border text-xs text-muted-foreground truncate">
-          <span className="font-semibold text-foreground">{paper.title || 'Untitled Paper'}</span>
+          <span className="font-semibold text-foreground">{paper.title || t('paper.untitled', 'Untitled Paper')}</span>
         </div>
 
         <div className="space-y-4">
