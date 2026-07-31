@@ -222,6 +222,12 @@ export default function UserOverviewPage() {
   const [authorTopPapers, setAuthorTopPapers] = useState([]);
   const [authorDetailLoading, setAuthorDetailLoading] = useState(false);
 
+  // ── Cached system overview for instant Research Fields ──
+  const {
+    data: cachedUserOverview,
+    refetch: refetchOverview,
+  } = useStaleWhileRevalidate('user-overview-system', () => overviewAPI.getUserOverview(null));
+
   const fetchOverview = useCallback(async (authorId) => {
     setLoading(true);
     setError(null);
@@ -257,7 +263,7 @@ export default function UserOverviewPage() {
     setExtrasLoading(true);
     try {
       const promises = [
-        trendAPI.getTrendingKeywords(15),
+        trendAPI.getTrendingKeywords(30),
         paperAPI.getRecommendations({ page: 0, size: 5 }),
       ];
       if (isAcademic) {
@@ -265,7 +271,24 @@ export default function UserOverviewPage() {
       }
       const [trendRes, recRes, quotaRes] = await Promise.allSettled(promises);
       if (trendRes.status === 'fulfilled') {
-        setTrendingKeywords(Array.isArray(trendRes.value) ? trendRes.value : []);
+        const trending = Array.isArray(trendRes.value) ? trendRes.value : [];
+        // Merge with user's own search history (localStorage) to fill the card
+        const historyKey = `scitrack_search_history_${role}`;
+        let historyKeywords = [];
+        try {
+          const raw = localStorage.getItem(historyKey);
+          if (raw) {
+            historyKeywords = JSON.parse(raw);
+          }
+        } catch { /* ignore */ }
+        const trendingNames = new Set(
+          trending.map((t) => (typeof t === 'string' ? t : t.keywordText).toLowerCase())
+        );
+        const extraFromHistory = historyKeywords
+          .filter((k) => !trendingNames.has(k.toLowerCase()))
+          .slice(0, 15)
+          .map((k) => ({ keywordText: k }));
+        setTrendingKeywords([...trending, ...extraFromHistory]);
       }
       if (recRes.status === 'fulfilled') {
         const rData = recRes.value?.recommendations || recRes.value || [];
@@ -321,6 +344,7 @@ export default function UserOverviewPage() {
       fetchExtras();
       refetchPapers();
       refetchBookmarks();
+      refetchOverview();
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -341,7 +365,10 @@ export default function UserOverviewPage() {
     }
 
     // Re-fetch immediately when a search is performed anywhere in the app
-    const onSearch = () => refreshQuota();
+    const onSearch = () => {
+      refreshQuota();
+      refetchOverview();
+    };
     window.addEventListener('activity:search', onSearch);
     return () => window.removeEventListener('activity:search', onSearch);
   }, [location.pathname, isAcademic]);
@@ -399,7 +426,8 @@ export default function UserOverviewPage() {
   }
 
   const pd = publicData || {};
-  const ud = userData || {};
+  const ud = userData || cachedUserOverview || {};
+  const researchFields = ud.researchFields || [];
 
   const isAuthorView = selectedAuthorId !== '__system__';
   const hasFollowedAuthors = followedAuthors.length > 0;
@@ -419,7 +447,6 @@ export default function UserOverviewPage() {
 
   // ── Author detail — from /api/v1/overview/user ──
   const citationHistory = ud.citationHistory || [];
-  const researchFields = ud.researchFields || [];
   const recentPublications = ud.recentPublications || [];
   const hIndex = ud.hIndex;
 
@@ -692,7 +719,7 @@ export default function UserOverviewPage() {
                       <ResponsiveContainer width="100%" height={140}>
                         <PieChart>
                           <Pie
-                            data={researchFields.slice(0, 8)}
+                            data={researchFields.slice(0, 4)}
                             cx="50%" cy="50%"
                             innerRadius={35} outerRadius={55}
                             dataKey="value"
@@ -700,7 +727,7 @@ export default function UserOverviewPage() {
                             stroke="none"
                             paddingAngle={2}
                           >
-                            {researchFields.slice(0, 8).map((_, i) => (
+                            {researchFields.slice(0, 4).map((_, i) => (
                               <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                             ))}
                           </Pie>
