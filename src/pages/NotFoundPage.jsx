@@ -7,6 +7,25 @@ export default function NotFoundPage() {
  const navigate = useNavigate();
  const error = useRouteError();
  const { t } = useTranslation('common');
+ const role = sessionStorage.getItem('userRole');
+
+ const handleBack = () => {
+  if (window.history.length > 1) {
+   navigate(-1);
+  } else if (role) {
+   navigate(`/${role}/overview`);
+  } else {
+   navigate('/');
+  }
+ };
+
+ const handleHome = () => {
+  if (role) {
+   navigate(`/${role}/overview`);
+  } else {
+   navigate('/');
+  }
+ };
 
  return (
  <div className="flex h-screen w-full flex-col items-center justify-center p-6 text-center bg-transparent">
@@ -29,17 +48,17 @@ export default function NotFoundPage() {
 
   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
    <button
-   onClick={() => navigate(-1)}
+   onClick={handleBack}
    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-foreground/80 dark:text-white bg-card border border-primary/10 hover:bg-muted/25 hover:bg-muted/40 transition-colors"
    >
    <ArrowLeft size={16} /> {t('actions.back')}
    </button>
 
    <button
-   onClick={() => navigate('/')}
+   onClick={handleHome}
    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold text-white transition-transform hover:scale-105 bg-primary"
    >
-   <Home size={16} /> {t('actions.back')}
+   <Home size={16} /> {t('actions.home', 'Home')}
    </button>
   </div>
   </motion.div>

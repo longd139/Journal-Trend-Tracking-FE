@@ -12,7 +12,7 @@ import {
   AlertCircle, User, ArrowUpRight, TrendingUp as TrendingUpIcon, Clock,
   Bookmark, Search, BookOpen, ArrowRight, Gauge,
   Network, Trophy, Calendar, Lightbulb, Activity,
-  ChartPie, MessageSquareText, UserSearch,
+  ChartPie, MessageSquareText, UserSearch, Lock,
 } from 'lucide-react';
 import { overviewAPI } from './api';
 import { trendAPI } from '../search/trend.api';
@@ -20,6 +20,8 @@ import { paperAPI } from '../search/paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
 import { authorAPI } from '../search/author.api';
 import useActivityStore from '../../store/useActivityStore';
+import { useStaleWhileRevalidate } from '../../hooks/useStaleWhileRevalidate.js';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import { Skeleton } from '../../components/ui/skeleton';
 import {
   Select,
@@ -158,6 +160,8 @@ export default function UserOverviewPage() {
 
   // ── Search quota (fetched separately, like search page) ──
   const [searchQuota, setSearchQuota] = useState(null);
+  const quotaExhausted = isAcademic && (searchQuota?.remainingSearches === 0);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Activity store for instant counter updates
   const activityPapersViewed = useActivityStore((s) => s.papersViewed);
@@ -173,13 +177,43 @@ export default function UserOverviewPage() {
   const [followedAuthors, setFollowedAuthors] = useState([]);
   const [authorsLoading, setAuthorsLoading] = useState(false);
 
-  // ── Dashboard extras (Trending, Reading History, Bookmarks) ──
-  const [trendingKeywords, setTrendingKeywords] = useState([]);
-  const [recentPapers, setRecentPapers] = useState([]);
-  const [recentBookmarks, setRecentBookmarks] = useState([]);
-  const [extrasLoading, setExtrasLoading] = useState(true);
+  // ── Dashboard extras — cached (shared with tab pages) ──
+  const {
+    data: recentPapersRaw,
+    loading: papersLoading,
+    refetch: refetchPapers,
+  } = useStaleWhileRevalidate('reading-history-list', async () => {
+    const res = await paperAPI.getReadingHistory(20);
+    let items = null;
+    if (Array.isArray(res)) items = res;
+    else if (res && Array.isArray(res.data)) items = res.data;
+    else if (res?.data && Array.isArray(res.data.data)) items = res.data.data;
+    return Array.isArray(items) ? items : [];
+  });
 
-  // ── Recommendations ──
+  const {
+    data: bookmarksRaw,
+    loading: bookmarksLoading,
+    refetch: refetchBookmarks,
+  } = useStaleWhileRevalidate('bookmarks-list', async () => {
+    const res = await bookmarkAPI.getMyBookmarks();
+    let items = null;
+    if (Array.isArray(res)) items = res;
+    else if (res && Array.isArray(res.data)) items = res.data;
+    else if (res?.data && Array.isArray(res.data.data)) items = res.data.data;
+    return Array.isArray(items) ? items : [];
+  });
+
+  const recentPapers = Array.isArray(recentPapersRaw)
+    ? recentPapersRaw.slice(0, 5)
+    : [];
+  const recentBookmarks = Array.isArray(bookmarksRaw)
+    ? bookmarksRaw.slice(0, 5)
+    : [];
+
+  // ── Trending + Recommendations (not cached — lightweight) ──
+  const [trendingKeywords, setTrendingKeywords] = useState([]);
+  const [extrasLoading, setExtrasLoading] = useState(true);
   const [recommendations, setRecommendations] = useState([]);
 
   // ── Author detail enrichment (Timeline, Co-authors, Top Papers) ──
@@ -224,25 +258,14 @@ export default function UserOverviewPage() {
     try {
       const promises = [
         trendAPI.getTrendingKeywords(15),
-        paperAPI.getReadingHistory(5),
-        bookmarkAPI.getMyBookmarks(),
         paperAPI.getRecommendations({ page: 0, size: 5 }),
       ];
-      // Fetch search quota separately for academic users
       if (isAcademic) {
         promises.push(paperAPI.getUsage());
       }
-      const [trendRes, histRes, bmRes, recRes, quotaRes] = await Promise.allSettled(promises);
+      const [trendRes, recRes, quotaRes] = await Promise.allSettled(promises);
       if (trendRes.status === 'fulfilled') {
         setTrendingKeywords(Array.isArray(trendRes.value) ? trendRes.value : []);
-      }
-      if (histRes.status === 'fulfilled') {
-        const hData = histRes.value?.data || histRes.value || [];
-        setRecentPapers(Array.isArray(hData) ? hData.slice(0, 5) : []);
-      }
-      if (bmRes.status === 'fulfilled') {
-        const bData = bmRes.value?.data || bmRes.value || [];
-        setRecentBookmarks(Array.isArray(bData) ? bData.slice(0, 5) : []);
       }
       if (recRes.status === 'fulfilled') {
         const rData = recRes.value?.recommendations || recRes.value || [];
@@ -291,11 +314,13 @@ export default function UserOverviewPage() {
     init();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Re-fetch followed authors when navigating back to overview
-  // (KeepAlive keeps the component mounted, so we need to watch pathname changes)
+  // Re-fetch when navigating back to overview (KeepAlive keeps component mounted)
   useEffect(() => {
-    if ((isResearcher || isAcademic) && location.pathname.endsWith('/overview')) {
-      fetchFollowedAuthors();
+    if (location.pathname.endsWith('/overview')) {
+      if (isResearcher || isAcademic) fetchFollowedAuthors();
+      fetchExtras();
+      refetchPapers();
+      refetchBookmarks();
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -636,8 +661,24 @@ export default function UserOverviewPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35, ...spring }}
-                className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col"
+                className="lg:col-span-2 rounded-2xl border p-6 bg-card-recessed border-card-recessed-border flex flex-col relative overflow-hidden"
               >
+                {quotaExhausted && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+                    <div className="text-center space-y-3 px-4">
+                      <Lock size={20} className="text-primary/40 mx-auto" />
+                      <p className="text-xs text-muted-foreground max-w-[200px]">
+                        Research fields — available when you have searches remaining.
+                      </p>
+                      <button
+                        onClick={() => setUpgradeOpen(true)}
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+                      >
+                        Upgrade
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <h3 className="text-base font-semibold text-foreground flex items-center gap-2 mb-3">
                   <ChartPie size={15} className="text-primary" /> {t('user.researchFields')}
                 </h3>
@@ -759,14 +800,30 @@ export default function UserOverviewPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.42, ...spring }}
-                className="lg:col-span-1 rounded-2xl border p-5 bg-transparent border-dashed border-border flex flex-col"
+                className="lg:col-span-1 rounded-2xl border p-5 bg-transparent border-dashed border-border flex flex-col relative overflow-hidden"
               >
+                {quotaExhausted && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+                    <div className="text-center space-y-3 px-4">
+                      <Lock size={20} className="text-primary/40 mx-auto" />
+                      <p className="text-xs text-muted-foreground max-w-[200px]">
+                        Bookmarks — available when you have searches remaining.
+                      </p>
+                      <button
+                        onClick={() => setUpgradeOpen(true)}
+                        className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+                      >
+                        Upgrade
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="mb-4">
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                     <Bookmark size={15} className="text-accent-blue" /> {t('user.bookmarks')}
                   </h3>
                 </div>
-                {extrasLoading ? (
+                {bookmarksLoading ? (
                   <div className="space-y-3 flex-1">
                     {[1, 2, 3].map((i) => (
                       <Skeleton key={i} className="h-12 w-full rounded-xl bg-muted/40" />
@@ -782,7 +839,7 @@ export default function UserOverviewPage() {
                         transition={{ delay: 0.48 + i * 0.06, ...spring }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => {
-                          if (bm.paperId) navigate(`/${role}/search/paper/${bm.paperId}`);
+                          if (bm.paperId) navigate(`/${role}/papers/${bm.paperId}`);
                         }}
                         className="w-full text-left p-2.5 rounded-xl border border-primary/6 hover:border-primary/15
                           bg-transparent hover:bg-primary/3 transition-all duration-200 group"
@@ -820,8 +877,24 @@ export default function UserOverviewPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.44, ...spring }}
-              className="rounded-2xl border p-6 bg-transparent border-dashed border-border"
+              className="rounded-2xl border p-6 bg-transparent border-dashed border-border relative overflow-hidden"
             >
+              {quotaExhausted && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-[2px]">
+                  <div className="text-center space-y-3 px-4">
+                    <Lock size={20} className="text-primary/40 mx-auto" />
+                    <p className="text-xs text-muted-foreground max-w-[200px]">
+                      Recently viewed papers — available when you have searches remaining.
+                    </p>
+                    <button
+                      onClick={() => setUpgradeOpen(true)}
+                      className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+                    >
+                      Upgrade
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
@@ -836,7 +909,7 @@ export default function UserOverviewPage() {
                   {t('user.viewHistory')} <ArrowRight size={11} />
                 </button>
               </div>
-              {extrasLoading ? (
+              {papersLoading ? (
                 <div className="flex gap-4 overflow-hidden">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="min-w-[220px] p-4 rounded-xl border border-border space-y-2">
@@ -855,7 +928,7 @@ export default function UserOverviewPage() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.5 + i * 0.06, ...spring }}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => navigate(`/${role}/search/paper/${p.paperId}`)}
+                      onClick={() => navigate(`/${role}/papers/${p.paperId}`)}
                       className="shrink-0 w-[240px] p-4 rounded-xl border border-primary/6 hover:border-primary/15
                         bg-transparent hover:bg-primary/3 transition-all duration-200 text-left group"
                     >
@@ -1231,6 +1304,11 @@ export default function UserOverviewPage() {
           </motion.div>
         )}
       </div>
+
+      {/* Upgrade Request Dialog */}
+      <AnimatePresence>
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AnimatePresence>
     </div>
   );
 }

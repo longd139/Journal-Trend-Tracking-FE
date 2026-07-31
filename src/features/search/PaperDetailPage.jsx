@@ -402,6 +402,7 @@ export default function PaperDetailPage() {
   const role = sessionStorage.getItem('userRole') || 'researcher';
   const isAcademic = role === 'academic_user' || role === 'academic';
   const [searchesLeft, setSearchesLeft] = useState(null);
+  const [viewsLeft, setViewsLeft] = useState(null);
   const quotaExhausted = isAcademic && searchesLeft === 0;
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
@@ -411,6 +412,7 @@ export default function PaperDetailPage() {
       try {
         const data = await paperAPI.getUsage();
         if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+        if (data?.remainingViews != null) setViewsLeft(data.remainingViews);
       } catch { /* silently ignore */ }
     })();
   }, [isAcademic]);
@@ -559,10 +561,16 @@ export default function PaperDetailPage() {
 
   // ── Error ──
   if (error) {
+    const isViewLimit = /view limit/i.test(error);
+
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px] text-center space-y-4 p-8">
-        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <AlertCircle size={28} className="text-red-400" />
+        <div className={`w-16 h-16 rounded-2xl border flex items-center justify-center ${isViewLimit ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
+          {isViewLimit ? (
+            <Lock size={28} className="text-amber-400" />
+          ) : (
+            <AlertCircle size={28} className="text-red-400" />
+          )}
         </div>
         <div>
           <h3 className="text-lg font-bold text-foreground mb-1">{error}</h3>
@@ -575,12 +583,21 @@ export default function PaperDetailPage() {
           >
             Go Back
           </button>
-          <button
-            onClick={fetchPaper}
-            className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all"
-          >
-            Retry
-          </button>
+          {isViewLimit ? (
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all"
+            >
+              Upgrade to Researcher
+            </button>
+          ) : (
+            <button
+              onClick={fetchPaper}
+              className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-all"
+            >
+              Retry
+            </button>
+          )}
         </div>
       </div>
     );
