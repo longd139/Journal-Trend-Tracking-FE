@@ -21,6 +21,7 @@ const GapExplorerLayout = lazy(
   () => import('../features/overview/GapExplorerLayout.jsx'),
 );
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
+const VerifyEmailPage = lazy(() => import('../pages/VerifyEmailPage.jsx'));
 
 // Trang User / Researcher
 const SearchPapers = lazy(() => import('../features/search/SearchPapers.jsx'));
@@ -115,6 +116,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<FallbackLoading />}>
         <ResetPasswordPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/verify-email',
+    element: (
+      <Suspense fallback={<FallbackLoading />}>
+        <VerifyEmailPage />
       </Suspense>
     ),
   },

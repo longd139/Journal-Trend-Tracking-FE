@@ -13,6 +13,7 @@ import {
  EyeOff,
  User,
  ArrowLeft,
+ CheckCircle2,
 } from 'lucide-react';
 import { authAPI } from './api';
 import { useAuthStore } from '../user/store';
@@ -37,6 +38,7 @@ export default function RegisterPage() {
  const location = useLocation();
  const navigate = useNavigate();
  const { t } = useTranslation('auth');
+ const { t: tv } = useTranslation('verify');
 
  const incomingRole = location.state?.role || '';
 
@@ -104,13 +106,17 @@ export default function RegisterPage() {
  }, [form.institution]);
 
  const [loading, setLoading] = useState(false);
+ const [registrationComplete, setRegistrationComplete] = useState(false);
 
  const [errors, setErrors] = useState({
  fullName: false,
+ fullNameInvalid: false,
  institution: false,
  email: false,
  emailFormat: false,
  password: false,
+ passwordWeak: false,
+ passwordHasName: false,
  confirmPassword: false,
  mismatch: false,
  apiError: '',
@@ -128,6 +134,20 @@ export default function RegisterPage() {
  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  const isEmailFormatInvalid = !isEmailEmpty && !emailRegex.test(form.email);
 
+ // Full name: no digits or special chars (allow spaces, letters, Vietnamese chars)
+ const nameRegex = /^[\p{L}\s]+$/u;
+ const isNameInvalid = !isNameEmpty && !nameRegex.test(form.fullName.trim());
+
+ // Password: min 8 chars + at least 1 special char
+ const isPasswordTooShort = !isPasswordEmpty && form.password.length < 8;
+ const passwordSpecialRegex = /[@#$%^&*!?_~\-]/;
+ const isPasswordWeak = !isPasswordEmpty && !passwordSpecialRegex.test(form.password);
+ // Password should not contain username or email
+ const isPasswordHasName = !isPasswordEmpty && (
+   (form.fullName.trim() && form.password.toLowerCase().includes(form.fullName.trim().toLowerCase())) ||
+   (form.email.trim() && form.password.toLowerCase().includes(form.email.trim().split('@')[0].toLowerCase()))
+ );
+
  const isMismatch =
   !isPasswordEmpty &&
   !isConfirmEmpty &&
@@ -135,19 +155,26 @@ export default function RegisterPage() {
 
  if (
   isNameEmpty ||
+  isNameInvalid ||
   isInstitutionEmpty ||
   isEmailEmpty ||
   isEmailFormatInvalid ||
   isPasswordEmpty ||
+  isPasswordTooShort ||
+  isPasswordWeak ||
+  isPasswordHasName ||
   isConfirmEmpty ||
   isMismatch
  ) {
   setErrors({
   fullName: isNameEmpty,
+  fullNameInvalid: isNameInvalid,
   institution: isInstitutionEmpty,
   email: isEmailEmpty,
   emailFormat: isEmailFormatInvalid,
   password: isPasswordEmpty,
+  passwordWeak: isPasswordTooShort || isPasswordWeak,
+  passwordHasName: isPasswordHasName,
   confirmPassword: isConfirmEmpty || isMismatch,
   mismatch: isMismatch,
   apiError: '',
@@ -168,17 +195,8 @@ export default function RegisterPage() {
   };
 
   const response = await authAPI.register(payload);
-  const { accessToken } = response;
-  if (accessToken) {
-  setTokens(accessToken);
-  }
-  toast.success(t('register.successTitle'), {
-  description: t('register.successDescription'),
-  });
-
-  setTimeout(() => {
-  navigate('/login');
-  }, 1000);
+  setRegistrationComplete(true);
+  toast.success(tv('register.checkEmail'));
  } catch (error) {
   console.error('Registration error:', error);
   const errorMessage =
@@ -220,6 +238,42 @@ export default function RegisterPage() {
 
  return (
  <div>
+  {registrationComplete ? (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="text-center space-y-6 py-8"
+    >
+      <div className="flex justify-center">
+        <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+          <CheckCircle2 size={28} className="text-emerald-500" />
+        </div>
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">
+          {tv('register.verifyTitle')}
+        </h2>
+        <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
+          {tv('register.verifyDescription', { email: form.email })}
+        </p>
+      </div>
+      <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-left">
+        <p className="text-[11px] text-amber-400 font-medium mb-2">{tv('register.didntReceive')}</p>
+        <ul className="text-[11px] text-muted-foreground space-y-1">
+          <li>• {tv('register.tipSpam')}</li>
+          <li>• {tv('register.tipCorrect')}</li>
+          <li>• {tv('register.tipResend')}</li>
+        </ul>
+      </div>
+      <Link
+        to="/login"
+        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-all"
+      >
+        {tv('register.goToLogin')}
+      </Link>
+    </motion.div>
+  ) : (
+    <>
   <motion.div layout>
   <Link
    to="/auth"
@@ -266,6 +320,11 @@ export default function RegisterPage() {
    {errors.fullName && (
    <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
     <AlertCircle size={10} /> {t('register.validation.nameRequired')}
+   </div>
+   )}
+   {errors.fullNameInvalid && (
+   <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
+    <AlertCircle size={10} /> {t('register.validation.nameInvalid')}
    </div>
    )}
   </motion.div>
@@ -402,6 +461,16 @@ export default function RegisterPage() {
     <AlertCircle size={10} /> {t('register.validation.passwordRequired')}
     </div>
    )}
+   {errors.passwordWeak && (
+    <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
+    <AlertCircle size={10} /> {t('register.validation.passwordWeak')}
+    </div>
+   )}
+   {errors.passwordHasName && (
+    <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
+    <AlertCircle size={10} /> {t('register.validation.passwordHasName')}
+    </div>
+   )}
    </motion.div>
 
    <motion.div layout>
@@ -490,6 +559,8 @@ export default function RegisterPage() {
    </Link>
   </span>
   </motion.div>
+    </>
+  )}
  </div>
  );
 }
