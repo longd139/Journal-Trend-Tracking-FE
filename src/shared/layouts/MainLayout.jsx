@@ -29,6 +29,7 @@ import {
   Lightbulb,
   Sun,
   Moon,
+  GitBranch,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
@@ -50,6 +51,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'gap-explorer', Icon: GitBranch, label: t('sidebar.gapExplorer') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -61,6 +63,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const researcherNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'gap-explorer', Icon: GitBranch, label: t('sidebar.gapExplorer') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -347,6 +350,7 @@ export default function DashboardLayout({ children }) {
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     'my-reports': { title: t('headings.myReports'), sub: t('subtitles.myReports') },
     ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },
+    'gap-explorer': { title: t('headings.gapExplorer'), sub: t('subtitles.gapExplorer') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
