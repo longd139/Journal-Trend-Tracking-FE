@@ -759,13 +759,7 @@ export default function PaperDetailPage() {
                 : null
             }
           />
-          <button
-            onClick={() => setShowReportDialog(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border transition-all border-amber-500/30 text-amber-400 hover:bg-amber-500/10 hover:border-amber-500/50 active:scale-[0.97]"
-          >
-            <AlertTriangle size={14} />
-            Report
-          </button>
+          {/* Report button hidden for thesis defense */}
         </motion.div>
 
         {/* ── Journal ── */}
