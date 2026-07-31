@@ -246,15 +246,7 @@ export function PaperItemCard({
       </span>
 
       <div className="flex gap-2 sm:mt-1">
-       {/* Report button */}
-       <button
-        type="button"
-        onClick={(e) => { e.stopPropagation(); setShowReportDialog(true); }}
-        className={`${iconBtn} hover:text-amber-400 hover:bg-amber-400/10 hover:border-amber-400/30`}
-        title="Report paper"
-       >
-        <AlertTriangle size={15} />
-       </button>
+       {/* Report button hidden for thesis defense */}
 
        {/* Bookmark — only when onToggleBookmark is provided */}
        {onToggleBookmark && (

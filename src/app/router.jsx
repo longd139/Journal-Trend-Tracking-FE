@@ -73,6 +73,16 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+/**
+ * Route /:roleName/reports — renders the correct page based on role:
+ * - admin    → AdminReportsPage (manage user reports + paper flags)
+ * - others   → ReportsView (generate trend reports)
+ */
+const ReportsPageRouter = () => {
+  const role = sessionStorage.getItem('userRole');
+  return role === 'admin' ? <AdminReportsPage /> : <ReportsView />;
+};
+
 // ==========================================
 // 3. CẤU HÌNH ROUTER (NESTED ROUTES)
 // ==========================================
@@ -243,11 +253,11 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: 'reports', // -> URL thực tế: /:roleName/reports
+        path: 'reports', // -> /:roleName/reports
         element: (
-          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user', 'admin']}>
             <Suspense fallback={<FallbackLoading />}>
-              <ReportsView />
+              <ReportsPageRouter />
             </Suspense>
           </ProtectedRoute>
         ),
@@ -319,16 +329,6 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['admin']}>
             <Suspense fallback={<FallbackLoading />}>
               <AdminNotificationsPage />
-            </Suspense>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: 'reports',
-        element: (
-          <ProtectedRoute allowedRoles={['admin']}>
-            <Suspense fallback={<FallbackLoading />}>
-              <AdminReportsPage />
             </Suspense>
           </ProtectedRoute>
         ),

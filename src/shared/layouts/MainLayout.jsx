@@ -52,7 +52,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
-    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const researcherNav = [
@@ -63,7 +62,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
-    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const adminNav = [
@@ -72,7 +70,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'database', Icon: Database, label: t('sidebar.database') },
     { id: 'sync-data', Icon: RefreshCw, label: t('sidebar.syncData') },
     { id: 'pdf-requests', Icon: FileText, label: t('sidebar.pdfRequests') },
-    { id: 'reports', Icon: Flag, label: t('sidebar.reports') },
     { id: 'admin-notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'audit-logs', Icon: ShieldCheck, label: t('sidebar.auditLogs') },
     { id: 'configs', Icon: Sliders, label: t('sidebar.configs') },
