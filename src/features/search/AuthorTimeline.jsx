@@ -229,6 +229,7 @@ export default function AuthorTimeline({ keyword, onBarClick, highlightYear }) {
               yAxisId="left"
               dataKey="worksCount"
               name={t('author.papers')}
+              fill="var(--chart-1)"
               radius={[4, 4, 0, 0]}
               barSize={20}
               onClick={(data) => {

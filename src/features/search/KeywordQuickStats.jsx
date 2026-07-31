@@ -259,7 +259,7 @@ export default function KeywordQuickStats({ keyword, filters }) {
         <StatCard
           label="YoY Growth"
           value={stats.yoyGrowthRate != null ? `${Math.abs(stats.yoyGrowthRate).toFixed(1)}%` : '—'}
-          change={yoyChange}
+          change=""
           Icon={yoyDirection === 'up' ? TrendingUp : yoyDirection === 'down' ? TrendingDown : TrendingUp}
           accent={yoyAccent}
         />
