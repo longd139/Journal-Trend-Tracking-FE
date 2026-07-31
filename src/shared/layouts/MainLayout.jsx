@@ -24,16 +24,16 @@ import {
   Flag,
   Menu,
   X,
-  HelpCircle,
+  Lightbulb,
   Sun,
   Moon,
+  GitBranch,
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { userAPI } from '../../features/user/api';
 import { useAuthStore } from '../../features/user/store';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
-import SupportDialog from '../../components/common/SupportDialog';
 import { useTheme } from '../../hooks/useTheme';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -42,12 +42,12 @@ import { useTheme } from '../../hooks/useTheme';
 
 function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount = 0, pdfPendingCount = 0 }) {
   const { t } = useTranslation('common');
-  const [supportOpen, setSupportOpen] = useState(false);
   const clearTokens = useAuthStore((s) => s.clearTokens);
 
   const academicNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'gap-explorer', Icon: GitBranch, label: t('sidebar.gapExplorer') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -58,6 +58,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
   const researcherNav = [
     { id: 'overview', Icon: Home, label: t('sidebar.overview') },
     { id: 'search', Icon: Search, label: t('sidebar.searchPapers') },
+    { id: 'gap-explorer', Icon: GitBranch, label: t('sidebar.gapExplorer') },
     { id: 'bookmarks', Icon: Bookmark, label: t('sidebar.bookmarks') },
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
@@ -143,15 +144,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
 
       {/* Bottom section */}
       <div className="p-4 border-t border-sidebar-border space-y-3">
-        {/* Support */}
-        <button
-          onClick={() => setSupportOpen(true)}
-          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-sidebar-primary/5 text-muted-foreground hover:bg-sidebar-primary/15 hover:text-sidebar-foreground"
-        >
-          <HelpCircle size={14} />
-          {t('sidebar.support')}
-        </button>
-
         {/* Sign out */}
         <button
           onClick={() => {
@@ -170,13 +162,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
           {t('sidebar.signOut')}
         </button>
       </div>
-
-      {/* Support Dialog */}
-      <SupportDialog
-        open={supportOpen}
-        onClose={() => setSupportOpen(false)}
-        role={role}
-      />
     </aside>
   );
 }
@@ -342,6 +327,8 @@ export default function DashboardLayout({ children }) {
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     'my-reports': { title: t('headings.myReports'), sub: t('subtitles.myReports') },
+    ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },
+    'gap-explorer': { title: t('headings.gapExplorer'), sub: t('subtitles.gapExplorer') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),

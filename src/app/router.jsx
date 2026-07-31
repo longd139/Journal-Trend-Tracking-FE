@@ -14,6 +14,12 @@ const LandingPage = lazy(() => import('../features/landing/LandingPage'));
 const OverviewController = lazy(
   () => import('../features/overview/OverviewController.jsx'),
 );
+const UserOverviewPage = lazy(
+  () => import('../features/overview/UserOverviewPage.jsx'),
+);
+const GapExplorerLayout = lazy(
+  () => import('../features/overview/GapExplorerLayout.jsx'),
+);
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage.jsx'));
 
 // Trang User / Researcher
@@ -184,6 +190,16 @@ export const router = createBrowserRouter([
           <Suspense fallback={<FallbackLoading />}>
             <OverviewController />
           </Suspense>
+        ),
+      },
+      {
+        path: 'gap-explorer', // -> URL thực tế: /:roleName/gap-explorer
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <GapExplorerLayout />
+            </Suspense>
+          </ProtectedRoute>
         ),
       },
       {
