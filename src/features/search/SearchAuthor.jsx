@@ -8,6 +8,7 @@ import AuthorQuickStats from './AuthorQuickStats';
 import { useAuthStore } from '../user/store.js';
 import { paperAPI } from './paper.api.js';
 import { authorAPI } from './author.api.js';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import AuthorTimeline from './AuthorTimeline';
 import AuthorResearchFocus from './AuthorResearchFocus';
 import AuthorCoAuthors from './AuthorCoAuthors';
@@ -48,6 +49,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
   const [searchLimit, setSearchLimit] = useState(null);
   const [resetDate, setResetDate] = useState(null);
   const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // ── Sidebar state for timeline bar click ──
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -229,7 +231,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
     if (quotaExhausted) {
       toast.error(t('author.searchLimitReached'), {
         description: t('author.monthlyLimitMsg', { limit: searchLimit }),
-        action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+        action: { label: 'Upgrade', onClick: () => setUpgradeOpen(true) },
         duration: 6000,
       });
       return;
@@ -259,7 +261,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             setSearchesLeft(0);
             toast.error('Search limit reached', {
               description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
-              action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+              action: { label: 'Upgrade', onClick: () => setUpgradeOpen(true) },
               duration: 6000,
             });
           } else {
@@ -469,7 +471,7 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                   <span>{t('author.monthlyLimitMsg', { limit: searchLimit })}</span>
                 </div>
                 <button
-                  onClick={() => navigate(`/${currentRole}/settings`)}
+                  onClick={() => setUpgradeOpen(true)}
                   className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
@@ -578,9 +580,8 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             className="space-y-8"
           >
             <AuthorQuickStats keyword={searchedAuthor} onTotalPapersClick={handleTotalPapersClick} />
-            {isAcademic ? (
+            {quotaExhausted ? (
               <div className="space-y-8">
-                {/* Timeline — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
                     <AuthorTimeline keyword={searchedAuthor} onBarClick={handleBarClick} highlightYear={sidebarOpen ? sidebarYear : null} />
@@ -589,11 +590,10 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-muted-foreground max-w-[260px]">
-                        Publication timeline & citation trends — available for{' '}
-                        <strong className="text-foreground">Researcher</strong> accounts.
+                        Publication timeline & citation trends — available when you have searches remaining.
                       </p>
                       <button
-                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        onClick={() => setUpgradeOpen(true)}
                         className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         {t('author.upgradeNow')}
@@ -601,8 +601,6 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     </div>
                   </div>
                 </div>
-
-                {/* Research Focus — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
                     <AuthorResearchFocus keyword={searchedAuthor} onTopicClick={handleTopicClick} />
@@ -611,11 +609,10 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-muted-foreground max-w-[260px]">
-                        Topic distribution & research domains — available for{' '}
-                        <strong className="text-foreground">Researcher</strong> accounts.
+                        Topic distribution & research domains — available when you have searches remaining.
                       </p>
                       <button
-                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        onClick={() => setUpgradeOpen(true)}
                         className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         Upgrade now
@@ -623,8 +620,6 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     </div>
                   </div>
                 </div>
-
-                {/* Co-authors — blurred real content */}
                 <div className="relative">
                   <div className="blur-[6px] pointer-events-none select-none">
                     <AuthorCoAuthors keyword={searchedAuthor} onAuthorClick={handleSearch} />
@@ -633,11 +628,10 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
                     <div className="text-center space-y-3 px-4">
                       <Lock size={20} className="text-primary/40 mx-auto" />
                       <p className="text-xs text-muted-foreground max-w-[260px]">
-                        Collaboration network & top co-authors — available for{' '}
-                        <strong className="text-foreground">Researcher</strong> accounts.
+                        Collaboration network & top co-authors — available when you have searches remaining.
                       </p>
                       <button
-                        onClick={() => navigate(`/${currentRole}/settings`)}
+                        onClick={() => setUpgradeOpen(true)}
                         className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                       >
                         Upgrade now
@@ -665,6 +659,11 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
           onClose={() => setSidebarOpen(false)}
         />
       </div>
+
+      {/* Upgrade Request Dialog */}
+      <AnimatePresence>
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AnimatePresence>
     </div>
   );
 }

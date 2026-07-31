@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, FileText, Star, TrendingUp, AlertCircle, Lock } from 'lucide-react';
 import { paperAPI } from '../search/paper.api';
 import { StatCard } from '../../components/SharedUI';
 import { JournalHeader, JournalTimelineChart, JournalTopAuthors, JournalTopKeywords } from '../search/JournalDetailComponents';
 import { Skeleton } from '../../components/ui/skeleton';
 import PaperListSidebar from '../search/PaperListSidebar';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 
 const Q_COLORS = { Q1: '#34D399', Q2: '#F59E0B', Q3: '#FB923C', Q4: '#EF4444' };
 
@@ -31,6 +32,8 @@ export default function JournalProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // ── Paper List Sidebar ──
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -186,7 +189,7 @@ export default function JournalProfilePage() {
             </div>
 
             {/* Publication Timeline */}
-            {isAcademic ? (
+            {quotaExhausted ? (
               <div className="relative">
                 <div className="blur-[6px] pointer-events-none select-none">
                   <JournalTimelineChart timeline={timeline} />
@@ -195,11 +198,10 @@ export default function JournalProfilePage() {
                   <div className="text-center space-y-3 px-4">
                     <Lock size={20} className="text-primary/40 mx-auto" />
                     <p className="text-xs text-muted-foreground max-w-[260px]">
-                      Publication timeline & citation trends — available for{' '}
-                      <strong className="text-foreground">Researcher</strong> accounts.
+                      Publication timeline & citation trends — available when you have searches remaining.
                     </p>
                     <button
-                      onClick={() => navigate(`/${currentRole}/settings`)}
+                      onClick={() => setUpgradeOpen(true)}
                       className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                     >
                       Upgrade now
@@ -212,20 +214,19 @@ export default function JournalProfilePage() {
             )}
 
             {/* Top Authors */}
-            {isAcademic ? (
+            {quotaExhausted ? (
               <div className="relative">
                 <div className="blur-[6px] pointer-events-none select-none">
-                  <JournalTopAuthors authors={topAuthors} isAcademic={false} />
+                  <JournalTopAuthors authors={topAuthors} isLocked={false} />
                 </div>
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center space-y-3 px-4">
                     <Lock size={20} className="text-primary/40 mx-auto" />
                     <p className="text-xs text-muted-foreground max-w-[260px]">
-                      Top contributing authors — available for{' '}
-                      <strong className="text-foreground">Researcher</strong> accounts.
+                      Top contributing authors — available when you have searches remaining.
                     </p>
                     <button
-                      onClick={() => navigate(`/${currentRole}/settings`)}
+                      onClick={() => setUpgradeOpen(true)}
                       className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                     >
                       Upgrade now
@@ -234,7 +235,7 @@ export default function JournalProfilePage() {
                 </div>
               </div>
             ) : (
-              <JournalTopAuthors authors={topAuthors} isAcademic={false} />
+              <JournalTopAuthors authors={topAuthors} isLocked={false} />
             )}
           </motion.div>
         )}
@@ -247,6 +248,11 @@ export default function JournalProfilePage() {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
+
+      {/* Upgrade Request Dialog */}
+      <AnimatePresence>
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AnimatePresence>
     </div>
   );
 }

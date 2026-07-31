@@ -1,11 +1,12 @@
 ﻿import * as React from 'react';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { History, AlertCircle, ExternalLink } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { History, AlertCircle, ExternalLink, Lock } from 'lucide-react';
 import { Skeleton } from '../../components/ui/skeleton';
 import { paperAPI } from '../search/paper.api';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import { useStaleWhileRevalidate } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -80,6 +81,20 @@ export default function ReadingHistoryPage() {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   const { data: history, loading, error, refetch, mutate } = useStaleWhileRevalidate(
     'reading-history-list',
@@ -192,7 +207,28 @@ export default function ReadingHistoryPage() {
 
   /* ── Data State ── */
   return (
-    <div className="p-8 space-y-6 min-h-screen bg-transparent pb-24">
+    <div className="relative min-h-screen bg-transparent">
+      {/* Lock overlay when quota exhausted */}
+      {quotaExhausted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="text-center space-y-4 px-6 py-10 rounded-2xl border border-border bg-card max-w-sm">
+            <Lock size={32} className="text-primary/40 mx-auto" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Search limit reached</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                You have used all your monthly searches. Upgrade to Researcher to access reading history and all features.
+              </p>
+            </div>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+            >
+              Upgrade to Researcher
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="p-8 space-y-6 pb-24">
       <div className="space-y-3">
         {history.map((item, i) => {
           const year = item.pubYear;
@@ -225,7 +261,7 @@ export default function ReadingHistoryPage() {
 
               {/* DOI + Citations + Open Access */}
               <div className="flex items-center gap-3 text-[11px] text-muted-foreground mb-2.5 flex-wrap">
-                {doi && (
+                {!isAcademic && doi && (
                   <button
                     onClick={(e) => handleDoiClick(e, doi)}
                     className="flex items-center gap-1 text-accent-blue hover:underline transition-all"
@@ -234,7 +270,7 @@ export default function ReadingHistoryPage() {
                     DOI: {doi.length > 40 ? doi.slice(0, 40) + '...' : doi}
                   </button>
                 )}
-                {doi && (citations != null || isOA) && <span>·</span>}
+                {!isAcademic && doi && (citations != null || isOA) && <span>·</span>}
                 <span>{t('readingHistory.cited')}{citations != null ? citations.toLocaleString() : '—'}</span>
                 {isOA && <span>·</span>}
                 {isOA && (
@@ -252,6 +288,12 @@ export default function ReadingHistoryPage() {
           );
         })}
       </div>
+    </div>
+
+    {/* Upgrade Request Dialog */}
+    <AnimatePresence>
+      <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    </AnimatePresence>
     </div>
   );
 }

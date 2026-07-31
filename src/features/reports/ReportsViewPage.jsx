@@ -2,9 +2,11 @@
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, FileText, History, Trash2, RefreshCw, Clock, Loader2, Search, ArrowRight } from 'lucide-react';
+import { AlertCircle, FileText, History, Trash2, RefreshCw, Clock, Loader2, Search, ArrowRight, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { reportAPI } from './api';
+import { paperAPI } from '../search/paper.api';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import REPORT_TYPES from './config';
 import KeywordTrendResult from './components/KeywordTrendResult';
 
@@ -18,6 +20,22 @@ export default function ReportsViewPage() {
   const [loadingKeyword, setLoadingKeyword] = useState('');
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
+
+  const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   // ── Keyword Trend History (from new BE endpoint) ──
   const [kwHistory, setKwHistory] = useState([]);
@@ -198,6 +216,27 @@ export default function ReportsViewPage() {
   );
 
   return (
+    <div className="relative min-h-screen bg-transparent">
+      {/* Lock overlay when quota exhausted */}
+      {quotaExhausted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="text-center space-y-4 px-6 py-10 rounded-2xl border border-border bg-card max-w-sm">
+            <Lock size={32} className="text-primary/40 mx-auto" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Search limit reached</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                You have used all your monthly searches. Upgrade to Researcher to generate reports and access all features.
+              </p>
+            </div>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+            >
+              Upgrade to Researcher
+            </button>
+          </div>
+        </div>
+      )}
     <div className="w-full h-full min-h-screen p-8 space-y-6 overflow-y-auto bg-transparent">
       {/* HEADER */}
       <motion.div
@@ -356,6 +395,12 @@ export default function ReportsViewPage() {
         </motion.div>
       )}
 
+    </div>
+
+    {/* Upgrade Request Dialog */}
+    <AnimatePresence>
+      <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    </AnimatePresence>
     </div>
   );
 }

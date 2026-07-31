@@ -211,7 +211,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
     if (quotaExhausted) {
       toast.error(t('author.searchLimitReached'), {
         description: t('author.monthlyLimitMsg', { limit: searchLimit }),
-        action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+        action: { label: 'Upgrade', onClick: () => setUpgradeOpen(true) },
         duration: 6000,
       });
       return;
@@ -237,7 +237,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             setSearchesLeft(0);
             toast.error('Search limit reached', {
               description: `You have used all ${searchLimit} searches this month. ${t('upsell.title')} for unlimited access.`,
-              action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+              action: { label: 'Upgrade', onClick: () => setUpgradeOpen(true) },
               duration: 6000,
             });
           } else {
@@ -286,7 +286,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             setSearchesLeft(0);
             toast.error('Search limit reached', {
               description: t('upsell.title'),
-              action: { label: 'Upgrade', onClick: () => navigate(`/${currentRole}/settings`) },
+              action: { label: 'Upgrade', onClick: () => setUpgradeOpen(true) },
               duration: 6000,
             });
           }
@@ -599,7 +599,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
                   <span>{t('author.monthlyLimitMsg', { limit: searchLimit })}</span>
                 </div>
                 <button
-                  onClick={() => navigate(`/${currentRole}/settings`)}
+                  onClick={() => setUpgradeOpen(true)}
                   className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
@@ -960,7 +960,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
             />
 
             {/* Top Authors */}
-            {topAuthors.length > 0 && <JournalTopAuthors authors={topAuthors} isAcademic={isAcademic} />}
+            {topAuthors.length > 0 && <JournalTopAuthors authors={topAuthors} isLocked={quotaExhausted} />}
           </div>
         )}
       </div>

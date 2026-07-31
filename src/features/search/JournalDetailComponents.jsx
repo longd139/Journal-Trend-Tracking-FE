@@ -167,7 +167,7 @@ export function JournalTimelineChart({ timeline }) {
 }
 
 /* ── TopAuthors ── */
-export function JournalTopAuthors({ authors, isAcademic }) {
+export function JournalTopAuthors({ authors, isLocked }) {
   if (!authors || authors.length === 0) return null;
 
   return (
@@ -187,7 +187,7 @@ export function JournalTopAuthors({ authors, isAcademic }) {
 
       <div className="space-y-2">
         {authors.map((author, i) => {
-          const isBlurred = isAcademic && i < 3;
+          const isBlurred = isLocked && i < 3;
           return (
             <motion.div
               key={author.authorName || i}

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookmarkMinus, BookOpen, AlertCircle, Download, Trash2, Copy, Check, Loader2 } from 'lucide-react';
+import { BookmarkMinus, BookOpen, AlertCircle, Download, Trash2, Copy, Check, Loader2, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { bookmarkAPI } from './api';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -16,6 +16,7 @@ import {
   generateBatchCitations,
 } from '../../utils/citationGenerators.js';
 import { paperAPI } from '../search/paper.api';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import { useStaleWhileRevalidate } from '../../hooks/useStaleWhileRevalidate.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -231,6 +232,20 @@ export default function BookmarksView() {
   const { t } = useTranslation('dashboard');
   const navigate = useNavigate();
   const currentRole = sessionStorage.getItem('userRole') || 'researcher';
+  const isAcademic = currentRole === 'academic_user' || currentRole === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   // Cache-first data fetching — instant display on tab switch
   const { data: bookmarks, loading, error, mutate: setBookmarks, refetch } = useStaleWhileRevalidate(
@@ -418,7 +433,28 @@ export default function BookmarksView() {
 
   /* ── Data State ── */
   return (
-    <div className="p-8 space-y-6 min-h-screen bg-transparent pb-24">
+    <div className="relative min-h-screen bg-transparent">
+      {/* Lock overlay when quota exhausted */}
+      {quotaExhausted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="text-center space-y-4 px-6 py-10 rounded-2xl border border-border bg-card max-w-sm">
+            <Lock size={32} className="text-primary/40 mx-auto" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Search limit reached</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                You have used all your monthly searches. Upgrade to Researcher to access bookmarks and all features.
+              </p>
+            </div>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+            >
+              Upgrade to Researcher
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="p-8 space-y-6 pb-24">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           {/* Select All checkbox */}
@@ -553,6 +589,12 @@ export default function BookmarksView() {
         onExport={handleBatchExport}
         removing={removing}
       />
+      </div>
+
+    {/* Upgrade Request Dialog */}
+    <AnimatePresence>
+      <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    </AnimatePresence>
     </div>
   );
 }

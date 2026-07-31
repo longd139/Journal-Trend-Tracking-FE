@@ -1,12 +1,12 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, BookOpen, ExternalLink, FileText,
   Quote, Eye, Users, Calendar, Globe, Hash,
   ShieldCheck, AlertCircle, Bookmark, Loader2, CheckCircle2,
-  BrainCircuit, Cpu, RefreshCw, Lock, AlertTriangle,
+  BrainCircuit, Cpu, RefreshCw, AlertTriangle, Lock,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
@@ -18,6 +18,7 @@ import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import CitationExport from './CitationExport';
 import SimilarPapers from './SimilarPapers';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import FollowButton from '../follows/FollowButton';
 import { ReportPaperDialog } from './ReportPaperDialog';
 
@@ -397,27 +398,22 @@ export default function PaperDetailPage() {
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
 
-  // Role check for academic restrictions
+  // ── Search quota for academics ──
   const role = sessionStorage.getItem('userRole') || 'researcher';
   const isAcademic = role === 'academic_user' || role === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  // ── Upgrade banner for academic users ──
-  const UpgradeBanner = ({ feature }) => (
-    <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/[0.04] border border-primary/10">
-      <div className="flex items-center gap-2">
-        <Lock size={13} className="text-primary/50 shrink-0" />
-        <span className="text-[11px] text-muted-foreground">
-          {feature} is available for <strong className="text-foreground">Researcher</strong> accounts.{' '}
-          <button
-            onClick={() => navigate(`/${role}/settings`)}
-            className="underline hover:text-primary transition-colors font-semibold text-primary/70"
-          >
-            Upgrade now
-          </button>
-        </span>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   // Fetch paper detail
   const fetchPaper = useCallback(async () => {
@@ -692,7 +688,7 @@ export default function PaperDetailPage() {
           transition={{ delay: 0.08 }}
           className="flex flex-wrap items-center gap-2"
         >
-          {paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl) && (
+          {!quotaExhausted && paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl) && (
               <a
                 href={paper.pdfUrl || paper.downloadUrl}
                 target="_blank"
@@ -705,10 +701,10 @@ export default function PaperDetailPage() {
           )}
 
           {/* Request PDF — shown when paper has no direct PDF access */}
-          {!(paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl)) && (
+          {!quotaExhausted && !(paper.pdfAvailable && (paper.pdfUrl || paper.downloadUrl)) && (
             <RequestPdfButton paperId={paper.paperId} paperTitle={paper.title} hasRequestedPdf={paper.hasRequestedPdf} />
           )}
-          {doi && (
+          {!quotaExhausted && doi && (
             <button
               onClick={() => window.open(`https://doi.org/${doi}`, '_blank')}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:shadow-sm active:scale-[0.97] transition-all"
@@ -717,6 +713,7 @@ export default function PaperDetailPage() {
               View Source (DOI)
             </button>
           )}
+          {!quotaExhausted && (
           <button
             onClick={() => window.open(`https://scholar.google.com/scholar?q=${encodeURIComponent(title)}`, '_blank')}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold border border-border text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground hover:shadow-sm active:scale-[0.97] transition-all"
@@ -724,6 +721,7 @@ export default function PaperDetailPage() {
             <Globe size={14} />
             Google Scholar
           </button>
+          )}
           <button
             onClick={handleToggleBookmark}
             disabled={bookmarkLoading}
@@ -802,26 +800,31 @@ export default function PaperDetailPage() {
             className="rounded-xl border border-primary/10 bg-card p-5 space-y-3"
           >
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abstract</h3>
-            {isAcademic ? (
-              <div className="space-y-3">
-                <p className="text-sm text-foreground/80 leading-relaxed">
-                  {abstract}
-                </p>
-              </div>
-            ) : (
-              <p className="text-sm text-foreground/80 leading-relaxed">{abstract}</p>
-            )}
+            <p className="text-sm text-foreground/80 leading-relaxed">{abstract}</p>
           </motion.div>
         )}
 
         {/* ── AI Summary ── */}
-        {isAcademic ? (
+        {quotaExhausted ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.14 }}
           >
-            <UpgradeBanner feature="AI-powered paper summary" />
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/[0.04] border border-primary/10">
+              <div className="flex items-center gap-2">
+                <Lock size={13} className="text-primary/50 shrink-0" />
+                <span className="text-[11px] text-muted-foreground">
+                  AI-powered paper summary is available when you have searches remaining.{' '}
+                  <button
+                    onClick={() => setUpgradeOpen(true)}
+                    className="underline hover:text-primary transition-colors font-semibold text-primary/70"
+                  >
+                    Upgrade now
+                  </button>
+                </span>
+              </div>
+            </div>
           </motion.div>
         ) : (
           <AISummarySection paperId={paperId} hasAbstract={!!paper?.abstractText} />
@@ -929,13 +932,26 @@ export default function PaperDetailPage() {
         )}
 
         {/* ── Similar Papers ── */}
-        {isAcademic ? (
+        {quotaExhausted ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <UpgradeBanner feature="Similar papers recommendations" />
+            <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-primary/[0.04] border border-primary/10">
+              <div className="flex items-center gap-2">
+                <Lock size={13} className="text-primary/50 shrink-0" />
+                <span className="text-[11px] text-muted-foreground">
+                  Similar papers recommendations are available when you have searches remaining.{' '}
+                  <button
+                    onClick={() => setUpgradeOpen(true)}
+                    className="underline hover:text-primary transition-colors font-semibold text-primary/70"
+                  >
+                    Upgrade now
+                  </button>
+                </span>
+              </div>
+            </div>
           </motion.div>
         ) : (
           <SimilarPapers paper={paper} />
@@ -962,6 +978,11 @@ export default function PaperDetailPage() {
           open={showReportDialog}
           onOpenChange={setShowReportDialog}
         />
+
+        {/* Upgrade Request Dialog */}
+        <AnimatePresence>
+          <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+        </AnimatePresence>
       </div>
     </div>
   );

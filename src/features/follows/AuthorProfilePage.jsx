@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, Loader2, Lock } from 'lucide-react';
 import AuthorQuickStats from '../search/AuthorQuickStats';
 import AuthorTimeline from '../search/AuthorTimeline';
 import AuthorResearchFocus from '../search/AuthorResearchFocus';
 import AuthorCoAuthors from '../search/AuthorCoAuthors';
 import PaperListSidebar from '../search/PaperListSidebar';
+import { paperAPI } from '../search/paper.api';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 
 /**
  * AuthorProfilePage — standalone author profile (no search bar).
@@ -27,6 +29,21 @@ export default function AuthorProfilePage() {
   const [sidebarYear, setSidebarYear] = useState(null);
   const [sidebarAuthor, setSidebarAuthor] = useState('');
   const [sidebarTotal, setSidebarTotal] = useState(null);
+
+  // ── Search quota for academics ──
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   const handleBarClick = (data) => {
     const entry = data?.payload || data;
@@ -95,9 +112,8 @@ export default function AuthorProfilePage() {
         >
           <AuthorQuickStats keyword={authorName} onTotalPapersClick={handleTotalPapersClick} />
 
-          {isAcademic ? (
+          {quotaExhausted ? (
             <div className="space-y-8">
-              {/* Timeline — blurred */}
               <div className="relative">
                 <div className="blur-[6px] pointer-events-none select-none">
                   <AuthorTimeline keyword={authorName} onBarClick={handleBarClick} highlightYear={sidebarOpen ? sidebarYear : null} />
@@ -106,11 +122,10 @@ export default function AuthorProfilePage() {
                   <div className="text-center space-y-3 px-4">
                     <Lock size={20} className="text-primary/40 mx-auto" />
                     <p className="text-xs text-muted-foreground max-w-[260px]">
-                      Publication timeline & citation trends — available for{' '}
-                      <strong className="text-foreground">Researcher</strong> accounts.
+                      Publication timeline & citation trends — available when you have searches remaining.
                     </p>
                     <button
-                      onClick={() => navigate(`/${currentRole}/settings`)}
+                      onClick={() => setUpgradeOpen(true)}
                       className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                     >
                       {t('author.upgradeNow')}
@@ -118,8 +133,6 @@ export default function AuthorProfilePage() {
                   </div>
                 </div>
               </div>
-
-              {/* Research Focus — blurred */}
               <div className="relative">
                 <div className="blur-[6px] pointer-events-none select-none">
                   <AuthorResearchFocus keyword={authorName} onTopicClick={handleTopicClick} />
@@ -128,11 +141,10 @@ export default function AuthorProfilePage() {
                   <div className="text-center space-y-3 px-4">
                     <Lock size={20} className="text-primary/40 mx-auto" />
                     <p className="text-xs text-muted-foreground max-w-[260px]">
-                      Topic distribution & research domains — available for{' '}
-                      <strong className="text-foreground">Researcher</strong> accounts.
+                      Topic distribution & research domains — available when you have searches remaining.
                     </p>
                     <button
-                      onClick={() => navigate(`/${currentRole}/settings`)}
+                      onClick={() => setUpgradeOpen(true)}
                       className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                     >
                       Upgrade now
@@ -140,8 +152,6 @@ export default function AuthorProfilePage() {
                   </div>
                 </div>
               </div>
-
-              {/* Co-authors — blurred */}
               <div className="relative">
                 <div className="blur-[6px] pointer-events-none select-none">
                   <AuthorCoAuthors keyword={authorName} onAuthorClick={handleCoAuthorClick} />
@@ -150,11 +160,10 @@ export default function AuthorProfilePage() {
                   <div className="text-center space-y-3 px-4">
                     <Lock size={20} className="text-primary/40 mx-auto" />
                     <p className="text-xs text-muted-foreground max-w-[260px]">
-                      Collaboration network & top co-authors — available for{' '}
-                      <strong className="text-foreground">Researcher</strong> accounts.
+                      Collaboration network & top co-authors — available when you have searches remaining.
                     </p>
                     <button
-                      onClick={() => navigate(`/${currentRole}/settings`)}
+                      onClick={() => setUpgradeOpen(true)}
                       className="px-4 py-2 rounded-lg text-[11px] font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
                     >
                       Upgrade now
@@ -181,6 +190,11 @@ export default function AuthorProfilePage() {
           onClose={() => setSidebarOpen(false)}
         />
       </div>
+
+      {/* Upgrade Request Dialog */}
+      <AnimatePresence>
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AnimatePresence>
     </div>
   );
 }

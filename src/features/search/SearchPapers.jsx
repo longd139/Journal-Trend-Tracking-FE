@@ -28,6 +28,7 @@ import {
 } from '../../components/ui/select';
 import { useAuthStore } from '../user/store.js';
 import { paperAPI } from './paper.api.js';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import { trendAPI } from './trend.api.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -147,6 +148,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
   const [searchLimit, setSearchLimit] = useState(null);
   const [resetDate, setResetDate] = useState(null);
   const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   useEffect(() => {
     if (!isAcademic) return;
@@ -273,7 +275,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
         description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
         action: {
           label: 'Upgrade',
-          onClick: () => navigate(`/${currentRole}/settings`),
+          onClick: () => setUpgradeOpen(true),
         },
         duration: 6000,
       });
@@ -309,7 +311,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
               description: `You have used all ${searchLimit} searches this month. Upgrade to Researcher for unlimited access.`,
               action: {
                 label: 'Upgrade',
-                onClick: () => navigate(`/${currentRole}/settings`),
+                onClick: () => setUpgradeOpen(true),
               },
               duration: 6000,
             });
@@ -628,7 +630,7 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
                   </span>
                 </div>
                 <button
-                  onClick={() => navigate(`/${currentRole}/settings`)}
+                  onClick={() => setUpgradeOpen(true)}
                   className="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-primary text-background hover:bg-foreground transition-colors shrink-0 ml-3"
                 >
                   Upgrade
@@ -799,6 +801,11 @@ export default function SearchPapers({ embedded = false, initialQuery = '' }) {
           </>
         )}
       </div>
+
+      {/* Upgrade Request Dialog */}
+      <AnimatePresence>
+        <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AnimatePresence>
     </div>
   );
 }

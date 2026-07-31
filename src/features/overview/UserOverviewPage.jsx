@@ -283,7 +283,7 @@ export default function UserOverviewPage() {
 
   useEffect(() => {
     const init = async () => {
-      if (isResearcher) {
+      if (isResearcher || isAcademic) {
         await fetchFollowedAuthors();
       }
       await Promise.all([fetchOverview(null), fetchExtras()]);
@@ -294,7 +294,7 @@ export default function UserOverviewPage() {
   // Re-fetch followed authors when navigating back to overview
   // (KeepAlive keeps the component mounted, so we need to watch pathname changes)
   useEffect(() => {
-    if (isResearcher && location.pathname.endsWith('/overview')) {
+    if ((isResearcher || isAcademic) && location.pathname.endsWith('/overview')) {
       fetchFollowedAuthors();
     }
   }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -435,7 +435,7 @@ export default function UserOverviewPage() {
               </button>
             </div>
 
-            {isResearcher && (
+            {(isResearcher || isAcademic) && (
               <Select
                 value={selectedAuthorId}
                 onValueChange={(authorId) => {

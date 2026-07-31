@@ -269,6 +269,7 @@ export function PaperItemCard({
        )}
 
        {/* External link */}
+       {!isLocked && (
        <button
         type="button"
         onClick={handleExternalLink}
@@ -276,8 +277,10 @@ export function PaperItemCard({
        >
         <ExternalLink size={15} />
        </button>
+       )}
 
        {/* PDF indicator */}
+       {!isLocked && (
        <span
          className={`${iconBtn} ${
            paper.pdfAvailable
@@ -288,6 +291,7 @@ export function PaperItemCard({
        >
          <FileText size={15} />
        </span>
+       )}
       </div>
      </div>
     </CardContent>

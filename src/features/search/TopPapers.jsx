@@ -2,7 +2,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, AlertCircle, Lock, X } from 'lucide-react';
+import { Star, AlertCircle, X, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 import { PaperItemCard } from './PaperItemCard';
 import { paperAPI } from './paper.api';
@@ -61,7 +61,19 @@ export default function TopPapers({
   // Academic restriction
   const role = sessionStorage.getItem('userRole') || 'researcher';
   const isAcademic = role === 'academic_user' || role === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
 
   // Fetch user's bookmarks to know which papers are saved
   const refreshBookmarks = useCallback(async () => {
@@ -309,9 +321,9 @@ export default function TopPapers({
               paper={paper}
               index={i}
               badgeColor="#F59E0B"
-              isLocked={isAcademic}
+              isLocked={quotaExhausted}
               onClick={(p) => {
-                if (isAcademic) {
+                if (quotaExhausted) {
                   setUpgradeOpen(true);
                   return;
                 }
@@ -326,7 +338,7 @@ export default function TopPapers({
         ))}
       </div>
 
-      {/* Upgrade to Researcher — High-end modal */}
+      {/* Upgrade Request Dialog */}
       <AnimatePresence>
         <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       </AnimatePresence>

@@ -14,9 +14,12 @@ import {
   Clock,
   UserCheck,
   BellRing,
+  Lock,
 } from 'lucide-react';
 import { notificationAPI } from './api';
 import { adminAPI } from '../admin/api';
+import { paperAPI } from '../search/paper.api';
+import { UpgradeRequestDialog } from '../user/UpgradeRequestDialog';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import NotificationDetailDialog from './NotificationDetailDialog';
 
@@ -201,6 +204,20 @@ export default function NotificationsPage() {
   const setStoreUnreadCount = useNotificationStore((s) => s.setUnreadCount);
 
   const userRole = sessionStorage.getItem('userRole');
+  const isAcademic = userRole === 'academic_user' || userRole === 'academic';
+  const [searchesLeft, setSearchesLeft] = useState(null);
+  const quotaExhausted = isAcademic && searchesLeft === 0;
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isAcademic) return;
+    (async () => {
+      try {
+        const data = await paperAPI.getUsage();
+        if (data?.remainingSearches != null) setSearchesLeft(data.remainingSearches);
+      } catch { /* silently ignore */ }
+    })();
+  }, [isAcademic]);
   const isAdmin = userRole === 'admin';
 
   const fetchNotifications = useCallback(async (silent = false) => {
@@ -353,6 +370,27 @@ export default function NotificationsPage() {
   };
 
   return (
+    <div className="relative min-h-screen bg-transparent">
+      {/* Lock overlay when quota exhausted */}
+      {quotaExhausted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="text-center space-y-4 px-6 py-10 rounded-2xl border border-border bg-card max-w-sm">
+            <Lock size={32} className="text-primary/40 mx-auto" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Search limit reached</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                You have used all your monthly searches. Upgrade to Researcher to access notifications and all features.
+              </p>
+            </div>
+            <button
+              onClick={() => setUpgradeOpen(true)}
+              className="px-5 py-2.5 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-foreground transition-colors"
+            >
+              Upgrade to Researcher
+            </button>
+          </div>
+        </div>
+      )}
     <div className="p-6 sm:p-8 space-y-6 min-h-screen bg-transparent">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -467,6 +505,12 @@ export default function NotificationsPage() {
         onClose={() => setDialogNotif(null)}
         onSearchKeyword={handleSearchKeyword}
       />
+    </div>
+
+    {/* Upgrade Request Dialog */}
+    <AnimatePresence>
+      <UpgradeRequestDialog open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+    </AnimatePresence>
     </div>
   );
 }
