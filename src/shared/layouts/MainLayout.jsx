@@ -25,7 +25,6 @@ import {
   Flag,
   Menu,
   X,
-  HelpCircle,
   Lightbulb,
   Sun,
   Moon,
@@ -35,7 +34,6 @@ import { userAPI } from '../../features/user/api';
 import { useAuthStore } from '../../features/user/store';
 import { useNotificationStore } from '../../store/useNotificationStore';
 import ScitrackSLogo from '../../components/prisma/ScitrackSLogo';
-import SupportDialog from '../../components/common/SupportDialog';
 import { useTheme } from '../../hooks/useTheme';
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -44,7 +42,6 @@ import { useTheme } from '../../hooks/useTheme';
 
 function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount = 0, pdfPendingCount = 0 }) {
   const { t } = useTranslation('common');
-  const [supportOpen, setSupportOpen] = useState(false);
   const clearTokens = useAuthStore((s) => s.clearTokens);
 
   const academicNav = [
@@ -147,15 +144,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
 
       {/* Bottom section */}
       <div className="p-4 border-t border-sidebar-border space-y-3">
-        {/* Support */}
-        <button
-          onClick={() => setSupportOpen(true)}
-          className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg font-bold transition-all bg-sidebar-primary/5 text-muted-foreground hover:bg-sidebar-primary/15 hover:text-sidebar-foreground"
-        >
-          <HelpCircle size={14} />
-          {t('sidebar.support')}
-        </button>
-
         {/* Sign out */}
         <button
           onClick={() => {
@@ -174,13 +162,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
           {t('sidebar.signOut')}
         </button>
       </div>
-
-      {/* Support Dialog */}
-      <SupportDialog
-        open={supportOpen}
-        onClose={() => setSupportOpen(false)}
-        role={role}
-      />
     </aside>
   );
 }
