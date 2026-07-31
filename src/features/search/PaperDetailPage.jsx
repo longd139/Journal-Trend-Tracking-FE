@@ -11,7 +11,7 @@ import {
 import { toast } from 'sonner';
 import { paperAPI } from './paper.api';
 import { bookmarkAPI } from '../bookmarks/api';
-import { prependToCache, removeFromCache, clearCache } from '../../hooks/useStaleWhileRevalidate.js';
+import { prependToCache, removeFromCache, moveToTopInCache } from '../../hooks/useStaleWhileRevalidate.js';
 import { aiAPI } from '../../lib/api/ai.api.js';
 import { Badge } from '../../components/ui/badge';
 import { Button } from '../../components/ui/button';
@@ -427,7 +427,20 @@ export default function PaperDetailPage() {
       const data = await paperAPI.getPaperById(paperId, sourceUrl);
       if (data) {
         setPaper(data);
-        clearCache('reading-history-list'); // invalidate so history page shows fresh data
+        // Move viewed paper to top of reading-history cache instead of wiping it
+        moveToTopInCache('reading-history-list',
+          (e) => e.paperId === paperId,
+          {
+            paperId,
+            paperTitle: data.title,
+            viewedAt: new Date().toISOString(),
+            pubYear: data.pubYear,
+            journalName: data.journalName,
+            doi: data.doi,
+            citationCount: data.citationCount,
+            isOpenAccess: data.isOpenAccess,
+          },
+        );
         window.dispatchEvent(new CustomEvent('reading-history-changed'));
       } else {
         setError('Paper not found');

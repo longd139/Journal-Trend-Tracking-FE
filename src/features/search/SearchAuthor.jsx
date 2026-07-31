@@ -2,7 +2,7 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, X, Clock, Trash2, UserSearch, Lock, Gauge, History } from 'lucide-react';
+import { Search, X, Clock, Trash2, UserSearch, Lock, Gauge, History, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import AuthorQuickStats from './AuthorQuickStats';
 import { useAuthStore } from '../user/store.js';
@@ -487,21 +487,21 @@ export default function SearchAuthor({ embedded = false, initialQuery = '' }) {
             className="space-y-3"
           >
             <div className="flex items-center gap-2">
-              <Search size={13} className="text-primary/50" />
-              <span className="text-xs text-muted-foreground">
-                {apiSuggestions.length > 0
-                  ? `Showing ${apiSuggestions.length} of ${suggestTotal} author${suggestTotal !== 1 ? 's' : ''} matching "${query.trim()}"`
-                  : `Searching for "${query.trim()}"...`}
-              </span>
-              <button
-                type="button"
-                onClick={() => { setShowSuggestionList(false); setQuery(''); }}
-                className="ml-auto text-[10px] text-foreground/60 hover:text-foreground/80"
-              >
-                ✕ Clear
-              </button>
+              {!suggestLoading && apiSuggestions.length > 0 && (
+                <>
+                  <Search size={13} className="text-primary/50" />
+                  <span className="text-xs text-muted-foreground">
+                    Showing {apiSuggestions.length} of {suggestTotal} author{suggestTotal !== 1 ? 's' : ''} matching "{query.trim()}"
+                  </span>
+                </>
+              )}
             </div>
-            {apiSuggestions.length > 0 ? (
+            {suggestLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <Loader2 size={18} className="animate-spin text-primary/50" />
+                <span className="text-xs text-muted-foreground">Searching for "{query.trim()}"...</span>
+              </div>
+            ) : apiSuggestions.length > 0 ? (
               <div className="grid grid-cols-1 gap-2">
                 {apiSuggestions.map((s) => (
                   <motion.button

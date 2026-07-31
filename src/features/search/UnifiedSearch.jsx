@@ -71,21 +71,17 @@ export default function UnifiedSearch() {
       setShowSuggestions(false);
       return;
     }
-    // Don't fetch suggestions if user already searched for this exact query
-    if (q === searchedQuery.trim()) {
-      setShowSuggestions(false);
-      return;
-    }
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
         const list = await trendAPI.suggestKeywords(q, 8);
         const arr = Array.isArray(list) ? list : [];
         setSuggestions(arr);
-        if (arr.length > 0) setShowSuggestions(true);
+        setShowSuggestions(arr.length > 0);
       } catch (err) {
         console.error('Suggest API failed:', err);
         setSuggestions([]);
+        setShowSuggestions(false);
       }
     }, 300);
     return () => {
@@ -118,6 +114,10 @@ export default function UnifiedSearch() {
   // When ?q=... changes, auto-trigger search and clean the URL param.
   const urlQ = searchParams.get('q');
   const urlTab = searchParams.get('tab');
+  // Capture auto param in ref so it survives URL cleanup re-render
+  const urlAutoRef = useRef(searchParams.get('auto'));
+  // Track whether user has manually searched (to disable autoSearch on subsequent searches)
+  const [hasManualSearch, setHasManualSearch] = useState(false);
   useEffect(() => {
     if (urlQ && urlQ.trim()) {
       setQuery(urlQ);
@@ -204,6 +204,7 @@ export default function UnifiedSearch() {
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
+                setSearchedQuery(''); // clear old results when typing new keyword
                 setShowSuggestions(true);
                 setShowTabDropdown(false);
               }}

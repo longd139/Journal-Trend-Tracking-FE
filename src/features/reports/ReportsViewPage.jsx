@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useEffect } from 'react';
+﻿import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -170,18 +170,19 @@ export default function ReportsViewPage() {
         const yearParams = {};
         if (startYear) yearParams.startYear = Number(startYear);
         if (endYear) yearParams.endYear = Number(endYear);
-        const timer = setTimeout(() => {
-          generateReport(type, q, apiFn, yearParams);
-        }, 100);
-        return () => clearTimeout(timer);
+        generateReportRef.current(type, q, apiFn, yearParams);
       }
     }
-  }, [location.search, generateReport]);
+  }, [location.search]);
 
   /* ── Save report (local toast only — BE has no persistence endpoint) ── */
   const handleSave = useCallback(async (_reportData) => {
     toast.success(t('toast.savedLocally'));
   }, []);
+
+  // Keep a ref to generateReport to avoid re-triggering the auto-generate effect
+  const generateReportRef = useRef(generateReport);
+  generateReportRef.current = generateReport;
 
   /* ── Error Banner ── */
   const ErrorBanner = error && (

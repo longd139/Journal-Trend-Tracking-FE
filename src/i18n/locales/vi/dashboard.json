@@ -39,7 +39,7 @@
     "gapExplorer": "Phân tích khoảng trống từ khóa với AI và biểu đồ Neo4j",
     "bookmarks": "Danh sách đọc và tài liệu tham khảo cá nhân",
     "readingHistory": "Các bài báo bạn đã xem gần đây",
-    "follows": "Quản lý journal, chủ đề và từ khóa bạn đang theo dõi",
+    "follows": "Quản lý tạp chí và tác giả bạn đang theo dõi",
     "notifications": "Xem và quản lý thông báo của bạn",
     "userManagement": "Quản lý tài khoản và phân quyền",
     "apiMonitoring": "Giám sát điểm cuối và lưu lượng",

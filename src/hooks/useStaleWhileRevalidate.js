@@ -112,3 +112,18 @@ export function removeFromCache(key, matchFn) {
     cache.set(key, { data: entry.data.filter((e) => !matchFn(e)), timestamp: Date.now() });
   }
 }
+
+/**
+ * Move an item to the top of a cached array. If no match is found, the new item is prepended.
+ * Used for reading-history optimistic reorder after viewing a paper.
+ */
+export function moveToTopInCache(key, matchFn, newItem) {
+  const entry = cache.get(key);
+  if (!entry || !Array.isArray(entry.data)) {
+    // No cache yet — create one with just this item
+    cache.set(key, { data: [newItem], timestamp: Date.now() });
+    return;
+  }
+  const filtered = entry.data.filter((e) => !matchFn(e));
+  cache.set(key, { data: [newItem, ...filtered], timestamp: Date.now() });
+}
