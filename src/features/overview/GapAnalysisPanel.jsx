@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Loader2, Database, Gauge, Wrench, Users, Lightbulb, ArrowLeft } from 'lucide-react';
+import { Loader2, Database, Gauge, Wrench, Lightbulb, ArrowLeft } from 'lucide-react';
 import useGapExplorerStore from '../../store/useGapExplorerStore';
 
 function DimSection({ icon: Icon, title, items, emptyText }) {
@@ -26,6 +26,49 @@ function DimSection({ icon: Icon, title, items, emptyText }) {
       ) : (
         <p className="text-[10px] text-muted-foreground italic">{emptyText || 'No data extracted yet'}</p>
       )}
+    </div>
+  );
+}
+
+/**
+ * Smart dimension pair: if both sides have data → show 2 separate cards.
+ * If both are empty → show 1 merged card spanning full width.
+ * If only one has data → show that one card at full width + a small "not found" note.
+ */
+function DimPair({ icon: Icon, label, itemsA, itemsB, kwA, kwB }) {
+  const hasA = itemsA && itemsA.length > 0;
+  const hasB = itemsB && itemsB.length > 0;
+
+  // Both empty → single merged card
+  if (!hasA && !hasB) {
+    return (
+      <div className="p-3 rounded-lg bg-card border border-border">
+        <div className="flex items-center gap-2 mb-2">
+          <Icon size={12} className="text-primary" />
+          <h4 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">{label}</h4>
+        </div>
+        <p className="text-[10px] text-muted-foreground italic">No {label.toLowerCase()} found for either keyword</p>
+      </div>
+    );
+  }
+
+  // Only one side has data → show it full-width
+  if (hasA && !hasB) {
+    return (
+      <DimSection icon={Icon} title={`${label} (${kwA})`} items={itemsA} />
+    );
+  }
+  if (!hasA && hasB) {
+    return (
+      <DimSection icon={Icon} title={`${label} (${kwB})`} items={itemsB} />
+    );
+  }
+
+  // Both have data → 2-column layout
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      <DimSection icon={Icon} title={`${label} (${kwA})`} items={itemsA} />
+      <DimSection icon={Icon} title={`${label} (${kwB})`} items={itemsB} />
     </div>
   );
 }
@@ -82,59 +125,24 @@ export default function GapAnalysisPanel() {
       {/* Dimensions */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col gap-3">
         {/* Datasets */}
-        <div className="grid grid-cols-2 gap-2">
-          <DimSection
-            icon={Database}
-            title={`Datasets (${selectedPair.keywordA})`}
-            items={a.kwADatasets}
-            emptyText="No datasets found"
-          />
-          <DimSection
-            icon={Database}
-            title={`Datasets (${selectedPair.keywordB})`}
-            items={a.kwBDatasets}
-            emptyText="No datasets found"
-          />
-        </div>
+        <DimPair
+          icon={Database} label="Datasets"
+          itemsA={a.kwADatasets} itemsB={a.kwBDatasets}
+          kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
+        />
 
         {/* Metrics */}
-        <div className="grid grid-cols-2 gap-2">
-          <DimSection
-            icon={Gauge}
-            title={`Metrics (${selectedPair.keywordA})`}
-            items={a.kwAMetrics}
-            emptyText="No metrics found"
-          />
-          <DimSection
-            icon={Gauge}
-            title={`Metrics (${selectedPair.keywordB})`}
-            items={a.kwBMetrics}
-            emptyText="No metrics found"
-          />
-        </div>
+        <DimPair
+          icon={Gauge} label="Metrics"
+          itemsA={a.kwAMetrics} itemsB={a.kwBMetrics}
+          kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
+        />
 
         {/* Methods */}
-        <div className="grid grid-cols-2 gap-2">
-          <DimSection
-            icon={Wrench}
-            title={`Methods (${selectedPair.keywordA})`}
-            items={a.kwAMethods}
-            emptyText="No methods found"
-          />
-          <DimSection
-            icon={Wrench}
-            title={`Methods (${selectedPair.keywordB})`}
-            items={a.kwBMethods}
-            emptyText="No methods found"
-          />
-        </div>
-
-        {/* Authors */}
-        <DimSection
-          icon={Users}
-          title="Top Authors"
-          items={a.topAuthors?.map((au) => ({ name: au.name, count: au.paperCount }))}
-          emptyText="No author data"
+        <DimPair
+          icon={Wrench} label="Methods"
+          itemsA={a.kwAMethods} itemsB={a.kwBMethods}
+          kwA={selectedPair.keywordA} kwB={selectedPair.keywordB}
         />
 
         {/* AI Insight placeholder */}
