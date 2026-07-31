@@ -23,11 +23,13 @@ import {
   Sun,
   Moon,
   Monitor,
+  Loader2,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { userAPI } from '../user/api';
+import { authAPI } from '../auth/api';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import { getLocalePreview } from '../../utils/localization';
 import { useAuthStore } from '../user/store';
@@ -146,6 +148,7 @@ function SectionCard({ icon: Icon, title, description, children, delay = 0 }) {
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation('settings');
+  const { t: tv } = useTranslation('verify');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
@@ -206,7 +209,7 @@ export default function SettingsPage() {
           email: userData.email || '',
           institution: userData.institution || '',
           bio: userData.bio || '',
-          isVerified: userData.isVerified || false,
+          isVerified: userData.isActive || false,
           avatarUrl: userData.avatarUrl || '',
         });
         setEditForm({
@@ -531,8 +534,19 @@ export default function SettingsPage() {
     }
   };
 
-  const handleVerifyEmail = () => {
-    navigate('/verify-email');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+
+  const handleVerifyEmail = async () => {
+    setVerifyLoading(true);
+    try {
+      await authAPI.resendVerification(formData.email);
+      toast.success(tv('settings.verifySent'));
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to send verification email';
+      toast.error(msg);
+    } finally {
+      setVerifyLoading(false);
+    }
   };
 
   const handleSaveLanguagePreference = async () => {
@@ -734,19 +748,26 @@ export default function SettingsPage() {
               <div className="mt-4 pt-4 border-t border-border flex-1 flex flex-col justify-end">
                 {!formData.isVerified ? (
                   <>
-                    <p className="text-[11px] text-foreground/70 font-medium leading-relaxed mb-3">
+                    <p className="text-[11px] text-foreground/70 font-medium leading-relaxed mb-2">
                       {t('profile.verifyEmail')}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed mb-3">
+                      {tv('settings.verifyHint', { email: formData.email })}
                     </p>
                     <button
                       type="button"
                       onClick={handleVerifyEmail}
-                      className="w-full py-2.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-50 bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 group"
+                      disabled={verifyLoading}
+                      className="w-full py-2.5 rounded-xl text-xs font-bold text-amber-700 dark:text-amber-50 bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500/30 hover:border-amber-500/50 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
                     >
-                      {t('profile.verifyNow')}
-                      <ArrowRight
-                        size={12}
-                        className="group-hover:translate-x-0.5 transition-transform"
-                      />
+                      {verifyLoading ? (
+                        <Loader2 size={12} className="animate-spin" />
+                      ) : (
+                        <>
+                          {t('profile.verifyNow')}
+                          <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                        </>
+                      )}
                     </button>
                   </>
                 ) : (

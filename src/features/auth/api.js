@@ -57,4 +57,28 @@ export const authAPI = {
       role: data.data.user.roleName,
     };
   },
+
+  // ==========================================
+  // EMAIL VERIFICATION
+  // ==========================================
+  async verifyEmail(token) {
+    const { data } = await axiosClient.get('/api/auth/verify-email', {
+      params: { token },
+    });
+    return data;
+  },
+
+  async resendVerification(email) {
+    const { data } = await axiosClient.post('/api/auth/resend-verification', {
+      email,
+    });
+    return data;
+  },
+
+  async getCaptcha(email) {
+    const { data } = await axiosClient.get('/api/auth/captcha', {
+      params: { email },
+    });
+    return data;
+  },
 };

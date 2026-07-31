@@ -1,0 +1,28 @@
+{
+  "page": {
+    "title": "Email Verification",
+    "verifying": "Verifying your email...",
+    "success": "Email Verified!",
+    "error": "Verification Failed",
+    "noToken": "No verification token found. Please use the link from your email, or go to Settings to request a new verification email.",
+    "successMessage": "Email verified successfully! You can now login.",
+    "errorMessage": "Verification failed. The link may be expired or already used.",
+    "goToLogin": "Go to Login",
+    "backToLogin": "Back to Login",
+    "expiredHint": "If the link has expired, please login and request a new verification email from Settings."
+  },
+  "register": {
+    "verifyTitle": "Verify your email",
+    "verifyDescription": "We've sent a verification link to {{email}}. Please check your inbox and click the link to activate your account.",
+    "checkEmail": "Registration successful! Please check your email to verify your account.",
+    "didntReceive": "Didn't receive the email?",
+    "tipSpam": "Check your spam/junk folder",
+    "tipCorrect": "Make sure you entered the correct email address",
+    "tipResend": "Go to Login and click \"Verify Now\" in Settings to resend",
+    "goToLogin": "Go to Login"
+  },
+  "settings": {
+    "verifySent": "Verification email sent! Check your inbox.",
+    "verifyHint": "A verification email was sent to {{email}} during registration. Click the link in that email to verify your account."
+  }
+}

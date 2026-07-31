@@ -1,0 +1,28 @@
+{
+  "page": {
+    "title": "Xác minh Email",
+    "verifying": "Đang xác minh email...",
+    "success": "Email đã được xác minh!",
+    "error": "Xác minh thất bại",
+    "noToken": "Không tìm thấy mã xác minh. Vui lòng sử dụng liên kết từ email, hoặc vào Cài đặt để yêu cầu email xác minh mới.",
+    "successMessage": "Email đã được xác minh thành công! Bạn có thể đăng nhập ngay bây giờ.",
+    "errorMessage": "Xác minh thất bại. Liên kết có thể đã hết hạn hoặc đã được sử dụng.",
+    "goToLogin": "Đi đến Đăng nhập",
+    "backToLogin": "Quay lại Đăng nhập",
+    "expiredHint": "Nếu liên kết đã hết hạn, vui lòng đăng nhập và yêu cầu email xác minh mới từ Cài đặt."
+  },
+  "register": {
+    "verifyTitle": "Xác minh email của bạn",
+    "verifyDescription": "Chúng tôi đã gửi liên kết xác minh đến {{email}}. Vui lòng kiểm tra hộp thư và nhấp vào liên kết để kích hoạt tài khoản.",
+    "checkEmail": "Đăng ký thành công! Vui lòng kiểm tra email để xác minh tài khoản.",
+    "didntReceive": "Không nhận được email?",
+    "tipSpam": "Kiểm tra thư mục spam/rác",
+    "tipCorrect": "Đảm bảo bạn đã nhập đúng địa chỉ email",
+    "tipResend": "Đi đến Đăng nhập và nhấp \"Xác minh ngay\" trong Cài đặt để gửi lại",
+    "goToLogin": "Đi đến Đăng nhập"
+  },
+  "settings": {
+    "verifySent": "Đã gửi email xác minh! Kiểm tra hộp thư của bạn.",
+    "verifyHint": "Email xác minh đã được gửi đến {{email}} trong quá trình đăng ký. Nhấp vào liên kết trong email đó để xác minh tài khoản."
+  }
+}

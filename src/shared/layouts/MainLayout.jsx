@@ -233,7 +233,7 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
               <div className="text-[10px] truncate text-muted-foreground">
                 {user ? role.toUpperCase() : t('sidebar.pleaseWait')}
               </div>
-              {user && user.isVerified === false && (
+              {user && user.isActive === false && (
                 <div className="flex items-center gap-0.5 text-[8px] font-bold text-amber-400 bg-amber-500/10 px-1 py-0.5 rounded">
                   <AlertTriangle size={8} /> {t('status.unverified')}
                 </div>
