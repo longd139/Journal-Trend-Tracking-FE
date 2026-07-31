@@ -238,5 +238,24 @@
     "notRanked": "Chưa xếp hạng",
     "quartileTop25": "Top 25%",
     "quartileBottom25": "25% cuối"
+  },
+  "paperDetail": {
+    "backToResults": "Quay lại kết quả",
+    "abstract": "Tóm tắt",
+    "similarPapers": "Bài báo tương tự",
+    "citations": "Trích dẫn",
+    "bookmarks": "Đánh dấu",
+    "views": "Lượt xem",
+    "requestPdf": "Yêu cầu PDF",
+    "requesting": "Đang yêu cầu...",
+    "viewSourceDoi": "Xem nguồn (DOI)",
+    "googleScholar": "Google Scholar",
+    "saved": "Đã lưu",
+    "saving": "Đang lưu...",
+    "bookmark": "Đánh dấu",
+    "cite": "Trích dẫn",
+    "report": "Báo cáo",
+    "noAbstract": "Không có tóm tắt cho bài báo này — không thể tạo tóm tắt.",
+    "noPdfMessage": "Không có quyền truy cập PDF trực tiếp cho bài báo này."
   }
 }

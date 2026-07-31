@@ -238,5 +238,24 @@
     "notRanked": "Not ranked yet",
     "quartileTop25": "Top 25%",
     "quartileBottom25": "Bottom 25%"
+  },
+  "paperDetail": {
+    "backToResults": "Back to results",
+    "abstract": "Abstract",
+    "similarPapers": "Similar Papers",
+    "citations": "Citations",
+    "bookmarks": "Bookmarks",
+    "views": "Views",
+    "requestPdf": "Request PDF",
+    "requesting": "Requesting...",
+    "viewSourceDoi": "View Source (DOI)",
+    "googleScholar": "Google Scholar",
+    "saved": "Saved",
+    "saving": "Saving...",
+    "bookmark": "Bookmark",
+    "cite": "Cite",
+    "report": "Report",
+    "noAbstract": "No abstract available for this paper — summary cannot be generated.",
+    "noPdfMessage": "No direct PDF access is available for this paper."
   }
 }

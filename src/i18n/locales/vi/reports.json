@@ -169,5 +169,14 @@
     "generate": "Tạo báo cáo",
     "customReport": "Báo cáo tùy chỉnh",
     "generating": "Đang tạo..."
-  }
+  },
+  "trendStatus": {
+    "booming": "Đang bùng nổ",
+    "stable": "Ổn định",
+    "saturated": "Bão hòa",
+    "active": "Đang sung sức",
+    "inactive": "Đã dừng nghiên cứu",
+    "noData": "Không có dữ liệu"
+  },
+  "reportTitle": "Báo cáo phân tích: {{keyword}}"
 }

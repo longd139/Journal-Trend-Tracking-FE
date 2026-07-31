@@ -207,8 +207,8 @@ function TopBar({ title, subtitle, onMenuClick, user, role, navigate }) {
         {/* Theme Toggle */}
         <ThemeToggle />
 
-        {/* Language Switcher */}
-        <LanguageSwitcher />
+        {/* Language Switcher — hidden */}
+        {/* <LanguageSwitcher /> */}
 
         {/* Notification Bell */}
         <NotificationBell />

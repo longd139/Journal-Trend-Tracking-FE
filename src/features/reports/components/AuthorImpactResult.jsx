@@ -37,12 +37,19 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
   } = data;
 
   // ── Status color mapping ──
-  const statusColors = {
+  // API returns Vietnamese status strings; map to colors + i18n keys
+  const statusColorMap = {
     'Đang sung sức': '#34D399',
     'Đã dừng nghiên cứu': '#F59E0B',
     'Không có dữ liệu': 'var(--muted-foreground)',
   };
-  const statusColor = statusColors[status] || 'var(--muted-foreground)';
+  const statusI18nMap = {
+    'Đang sung sức': 'trendStatus.active',
+    'Đã dừng nghiên cứu': 'trendStatus.inactive',
+    'Không có dữ liệu': 'trendStatus.noData',
+  };
+  const statusColor = statusColorMap[status] || 'var(--muted-foreground)';
+  const statusLabel = statusI18nMap[status] ? t(statusI18nMap[status]) : (status || t('authorImpact.unknown'));
 
   return (
     <motion.div
@@ -94,7 +101,7 @@ export default function AuthorImpactResult({ data, onClose, onSave, saving }) {
               border: `1px solid ${statusColor}44`,
             }}
           >
-            {status || t('authorImpact.unknown')}
+            {statusLabel}
           </span>
         </div>
 

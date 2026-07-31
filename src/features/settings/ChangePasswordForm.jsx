@@ -30,12 +30,20 @@ export default function ChangePasswordForm({ visible, onClose }) {
     confirmPassword: '',
     apiError: '',
   });
+  const [newPwTouched, setNewPwTouched] = useState(false);
+
+  // Real-time password strength checks
+  const newPw = form.newPassword;
+  const pwMinLength = newPw.length >= 8;
+  const pwHasSpecial = /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'/~`]/.test(newPw);
+  const pwValid = pwMinLength && pwHasSpecial;
 
   const handleChange = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }));
     if (errors[field]) setErrors((e) => ({ ...e, [field]: '' }));
     if (errors.apiError) setErrors((e) => ({ ...e, apiError: '' }));
     if (isSuccess) setIsSuccess(false);
+    if (field === 'newPassword') setNewPwTouched(true);
   };
 
   const toggleShow = (field) => {
@@ -52,8 +60,11 @@ export default function ChangePasswordForm({ visible, onClose }) {
       newErrors.currentPassword = 'Current password is required';
       hasError = true;
     }
-    if (form.newPassword.length < 6) {
+    if (form.newPassword.length < 8) {
       newErrors.newPassword = t('password.error.tooShort');
+      hasError = true;
+    } else if (!/[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;'/~`]/.test(form.newPassword)) {
+      newErrors.newPassword = t('password.error.noSpecialChar');
       hasError = true;
     }
     if (form.newPassword !== form.confirmPassword) {
@@ -203,6 +214,19 @@ export default function ChangePasswordForm({ visible, onClose }) {
                     <p className="text-[10px] font-medium text-red-400 flex items-center gap-1 mt-1 ml-1">
                       <AlertCircle size={10} /> {errors.newPassword}
                     </p>
+                  )}
+                  {/* Real-time password requirements */}
+                  {newPwTouched && !pwValid && !errors.newPassword && (
+                    <div className="flex flex-col gap-0.5 mt-1.5 ml-1">
+                      <span className={`text-[10px] flex items-center gap-1 ${pwMinLength ? 'text-emerald-400' : 'text-muted-foreground'}`}>
+                        {pwMinLength ? <CheckCircle2 size={10} /> : <span className="w-2.5" />}
+                        {t('password.error.tooShort')}
+                      </span>
+                      <span className={`text-[10px] flex items-center gap-1 ${pwHasSpecial ? 'text-emerald-400' : 'text-muted-foreground'}`}>
+                        {pwHasSpecial ? <CheckCircle2 size={10} /> : <span className="w-2.5" />}
+                        {t('password.error.noSpecialChar')}
+                      </span>
+                    </div>
                   )}
                 </div>
 

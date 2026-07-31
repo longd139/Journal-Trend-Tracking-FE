@@ -10,7 +10,7 @@ import CrawlProgressCard from './CrawlProgressCard';
 const MAX_HISTORY = 10;
 
 export default function MCPChatbot() {
-  const { t } = useTranslation('common');
+  const { t } = useTranslation('graph');
   const [input, setInput] = useState('');
   const [history, setHistory] = useState([]);
 
@@ -86,17 +86,17 @@ export default function MCPChatbot() {
       <div className="w-full flex flex-col bg-background border-l border-border p-5 gap-4 shrink-0">
         <div className="flex items-center gap-2">
           <Sparkles size={16} className="text-primary" />
-          <h3 className="text-sm font-bold text-foreground">Research Advisor</h3>
+          <h3 className="text-sm font-bold text-foreground">{t('researchAdvisor')}</h3>
         </div>
         <p className="text-xs text-foreground/80 leading-relaxed font-medium">
-          Describe your research interest in natural language. The AI will explore available data and suggest keyword pairs with the most interesting research gaps.
+          {t('advisorDescription')}
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder='Example: "I want to explore AI applications in wearable devices for healthcare monitoring"'
+            placeholder={t('advisorPlaceholder')}
             rows={4}
             disabled={suggestionsLoading}
             className="w-full px-4 py-3 rounded-lg text-sm outline-none border transition-colors disabled:opacity-50 bg-card border-input text-foreground focus:border-primary/30 resize-none placeholder:text-muted-foreground/50"
@@ -113,7 +113,7 @@ export default function MCPChatbot() {
             ) : (
               <>
                 <Send size={14} />
-                Explore Gaps
+                {t('exploreGaps')}
               </>
             )}
           </motion.button>
@@ -129,13 +129,13 @@ export default function MCPChatbot() {
             <div className="flex items-center justify-between">
               <span className="text-[10px] text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                 <Clock size={10} />
-                Recent Ideas
+                {t('recentIdeas')}
               </span>
               <button
                 onClick={clearHistory}
                 className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
               >
-                Clear all
+                {t('clearAll')}
               </button>
             </div>
             {history.map((item, i) => (
@@ -167,8 +167,8 @@ export default function MCPChatbot() {
       return (
         <div className="w-full flex flex-col bg-background border-l border-border p-5 gap-4 overflow-y-auto">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-foreground">Live Crawl</h3>
-            <button onClick={cancelCrawl} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title="Cancel">
+            <h3 className="text-sm font-bold text-foreground">{t('liveCrawl')}</h3>
+            <button onClick={cancelCrawl} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title={t('cancel')}>
               <RefreshCw size={14} />
             </button>
           </div>
@@ -187,17 +187,17 @@ export default function MCPChatbot() {
           <div className="flex items-center gap-2">
             <Sparkles size={16} className="text-accent-teal" />
             <h3 className="text-sm font-bold text-foreground">
-              {matchLevel === 'NONE' ? 'Knowledge Map' : matchLevel === 'FUZZY_ONLY' ? 'Keyword Match' : 'Suggested Pairs'}
+              {matchLevel === 'NONE' ? t('knowledgeMap') : matchLevel === 'FUZZY_ONLY' ? t('keywordMatch') : t('suggestedPairs')}
             </h3>
           </div>
-          <button onClick={reset} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title="Start over">
+          <button onClick={reset} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title={t('startOver')}>
             <RefreshCw size={14} />
           </button>
         </div>
 
         {ideaText && (
           <p className="text-xs text-muted-foreground">
-            Based on: <span className="text-foreground font-medium italic">"{ideaText.length > 80 ? ideaText.slice(0, 80) + '…' : ideaText}"</span>
+            {t('basedOn')} <span className="text-foreground font-medium italic">"{ideaText.length > 80 ? ideaText.slice(0, 80) + '…' : ideaText}"</span>
           </p>
         )}
 
@@ -234,7 +234,7 @@ export default function MCPChatbot() {
                   </div>
                   <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
                     <Zap size={10} />
-                    Gap score: {suggestion.gapScore >= 70 ? 'High opportunity' : suggestion.gapScore >= 50 ? 'Moderate' : 'Explore'}
+                    {t('gapScoreLabel')} {suggestion.gapScore >= 70 ? t('gapScoreHigh') : suggestion.gapScore >= 50 ? t('gapScoreModerate') : t('gapScoreExplore')}
                   </div>
                 </motion.button>
               ))}
@@ -245,7 +245,7 @@ export default function MCPChatbot() {
         {/* Empty suggestions — feedback already shown above */}
         {matchLevel !== 'NONE' && matchLevel !== 'FUZZY_ONLY' && suggestions.length === 0 && matchLevel === 'FULL' && (
           <p className="text-xs text-muted-foreground text-center py-4">
-            No keyword pairs found. Try a different idea.
+            {t('noPairsFound')}
           </p>
         )}
       </div>
@@ -260,12 +260,12 @@ export default function MCPChatbot() {
           <h3 className="text-sm font-bold text-foreground">
             {selectedPair.keywordA} <span className="text-accent-teal">↔</span> {selectedPair.keywordB}
           </h3>
-          <button onClick={reset} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title="Start over">
+          <button onClick={reset} className="p-1.5 rounded-lg hover:bg-muted/40 text-muted-foreground" title={t('startOver')}>
             <RefreshCw size={14} />
           </button>
         </div>
         <p className="text-xs text-muted-foreground">
-          Gap analysis is ready. View the graph and analysis panel for details.
+          {t('gapAnalysisReady')}
         </p>
         <div className="flex gap-2">
           <motion.button
@@ -275,7 +275,7 @@ export default function MCPChatbot() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-foreground border border-border hover:bg-muted/40 transition-colors"
           >
             <ArrowRight size={12} className="rotate-180" />
-            Back to Suggestions
+            {t('backToSuggestions')}
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -284,7 +284,7 @@ export default function MCPChatbot() {
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold text-primary-foreground bg-primary hover:opacity-90"
           >
             <ArrowRight size={12} />
-            Explore Another Gap
+            {t('exploreAnotherGap')}
           </motion.button>
         </div>
       </div>
@@ -297,9 +297,9 @@ export default function MCPChatbot() {
       <div className="w-full flex flex-col items-center justify-center bg-background border-l border-border p-5 gap-3 shrink-0">
         <Loader2 size={24} className="animate-spin text-primary" />
         <p className="text-xs text-muted-foreground text-center">
-          Exploring available data...
+          {t('exploringData')}
           <br />
-          AI is analyzing keywords, co-occurrences, and gap scores.
+          {t('aiAnalyzing')}
         </p>
       </div>
     );

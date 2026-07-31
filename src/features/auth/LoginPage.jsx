@@ -215,7 +215,7 @@ export default function LoginPage() {
         const count = parseInt(sessionStorage.getItem('loginFailedCount') || '0', 10) + 1;
         sessionStorage.setItem('loginFailedCount', count.toString());
 
-        // After 5 failures, check CAPTCHA
+        // After 5 failures, always fetch a fresh CAPTCHA (one-time use)
         if (count >= 5) {
           try {
             const captchaRes = await authAPI.getCaptcha(form.email.trim());

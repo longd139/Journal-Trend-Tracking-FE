@@ -10,9 +10,11 @@ export const reportAPI = {
    * @returns {Promise<{status, message, data: KeywordTrendReport}>}
    */
   async getKeywordTrend(keyword, { startYear, endYear } = {}) {
+    const lang = localStorage.getItem('preferredLanguage') || 'en';
     const { data } = await axiosClient.get('/api/public/reports/keyword-trend', {
       params: {
         keyword,
+        lang,
         ...(startYear && { startYear }),
         ...(endYear && { endYear }),
       },
@@ -25,9 +27,11 @@ export const reportAPI = {
    * @returns {Promise<{status, message, data: KeywordTrendReport}>}
    */
   async getKeywordTrendCached(keyword, { startYear, endYear } = {}) {
+    const lang = localStorage.getItem('preferredLanguage') || 'en';
     const { data } = await axiosClient.get('/api/public/reports/keyword-trend/cached', {
       params: {
         keyword,
+        lang,
         ...(startYear && { startYear }),
         ...(endYear && { endYear }),
       },
@@ -57,16 +61,18 @@ export const reportAPI = {
 
   /** GET /api/public/reports/journal-quality?journalName= — Báo cáo chất lượng journal */
   async getJournalQuality(journalName) {
+    const lang = localStorage.getItem('preferredLanguage') || 'en';
     const { data } = await axiosClient.get('/api/public/reports/journal-quality', {
-      params: { journalName },
+      params: { journalName, lang },
     });
     return data;
   },
 
   /** GET /api/public/reports/author-impact?authorName= — Báo cáo tác động tác giả */
   async getAuthorImpact(authorName) {
+    const lang = localStorage.getItem('preferredLanguage') || 'en';
     const { data } = await axiosClient.get('/api/public/reports/author-impact', {
-      params: { authorName },
+      params: { authorName, lang },
     });
     return data;
   },
