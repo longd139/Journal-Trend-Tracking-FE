@@ -33,6 +33,7 @@ const ReadingHistoryPage = lazy(() => import('../features/history/ReadingHistory
 const ReportsView = lazy(() => import('../features/reports/ReportsViewPage.jsx'));
 const FollowsView = lazy(() => import('../features/follows/FollowsView.jsx'));
 const AuthorProfilePage = lazy(() => import('../features/follows/AuthorProfilePage.jsx'));
+const JournalProfilePage = lazy(() => import('../features/follows/JournalProfilePage.jsx'));
 const NotificationsPage = lazy(() => import('../features/notifications/NotificationsPage.jsx'));
 const MyReportsPage = lazy(() => import('../features/reports/MyReportsPage.jsx'));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage.jsx'));
@@ -189,6 +190,16 @@ export const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
             <Suspense fallback={<FallbackLoading />}>
               <AuthorProfilePage />
+            </Suspense>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'journal-profile',
+        element: (
+          <ProtectedRoute allowedRoles={['researcher', 'academic_user']}>
+            <Suspense fallback={<FallbackLoading />}>
+              <JournalProfilePage />
             </Suspense>
           </ProtectedRoute>
         ),

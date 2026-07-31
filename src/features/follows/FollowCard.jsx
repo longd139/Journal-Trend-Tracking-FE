@@ -105,9 +105,13 @@ export default function FollowCard({ follow, onUnfollow }) {
       navigate(`/${role}/author-profile?name=${encodeURIComponent(name)}`);
       return;
     }
-    // Journal / Topic / Keyword → search page
-    const tab = type === 'journal' ? 'journals' : 'papers';
-    navigate(`/${role}/search?q=${encodeURIComponent(name)}&tab=${tab}&auto=1`);
+    // Journal → direct profile page (no search)
+    if (type === 'journal') {
+      navigate(`/${role}/journal-profile?name=${encodeURIComponent(name)}`);
+      return;
+    }
+    // Topic / Keyword → search page
+    navigate(`/${role}/search?q=${encodeURIComponent(name)}&auto=1`);
   };
 
   return (

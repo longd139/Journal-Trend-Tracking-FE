@@ -543,40 +543,7 @@ export default function UserOverviewPage() {
               </motion.div>
             )}
 
-            {/* ── Activity Summary ── */}
-            {((activityPapersViewed > 0 || activityBookmarks > 0 || activitySearches > 0) || (ud.papersViewed != null || ud.bookmarksThisMonth != null || ud.searchesThisMonth != null)) && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.28, ...spring }}
-                className="rounded-2xl border p-5 bg-card-recessed border-card-recessed-border"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <Activity size={14} className="text-primary" />
-                  <h4 className="text-xs font-bold text-foreground">{t('user.thisMonthActivity')}</h4>
-                </div>
-                <div className="flex flex-wrap items-center gap-6">
-                  {(activityPapersViewed > 0 || ud.papersViewed != null) && (
-                    <div>
-                      <p className="text-lg font-bold text-foreground font-mono tabular-nums">{activityPapersViewed}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('user.papersViewed')}</p>
-                    </div>
-                  )}
-                  {(activityBookmarks > 0 || ud.bookmarksThisMonth != null) && (
-                    <div>
-                      <p className="text-lg font-bold text-accent-blue font-mono tabular-nums">{activityBookmarks}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('user.bookmarksAdded')}</p>
-                    </div>
-                  )}
-                  {(activitySearches > 0 || ud.searchesThisMonth != null) && (
-                    <div>
-                      <p className="text-lg font-bold text-accent-teal font-mono tabular-nums">{activitySearches}</p>
-                      <p className="text-[10px] text-muted-foreground">{t('user.searchesRun')}</p>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
+            {/* ── Activity Summary (hidden) ── */}
 
             {/* ── Row: Trending Keywords (3 cols) + Research Fields (2 cols) ── */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
@@ -590,7 +557,7 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <TrendingUpIcon size={15} className="text-accent-teal" /> {t('user.trendingTopics')}
+                      <TrendingUpIcon size={15} className="text-accent-teal" /> Trending Keywords
                     </h3>
                     <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.hotKeywords')}</p>
                   </div>
@@ -696,9 +663,9 @@ export default function UserOverviewPage() {
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-                      <Lightbulb size={15} className="text-primary" /> {t('user.forYou')}
+                      <TrendingUpIcon size={15} className="text-primary" /> Paper Trending
                     </h3>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.recommendedBased')}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">Popular recent papers you might find interesting</p>
                   </div>
                 </div>
                 {extrasLoading ? (
@@ -739,11 +706,6 @@ export default function UserOverviewPage() {
                                   <span className="flex items-center gap-0.5"><Award size={9} /> {p.citationCount}</span>
                                 )}
                               </div>
-                              {rec.reasonDetail && (
-                                <p className="text-[9px] text-muted-foreground mt-1 flex items-center gap-1">
-                                  <MessageSquareText size={9} /> {rec.reasonDetail}
-                                </p>
-                              )}
                             </div>
                           </div>
                         </motion.button>
@@ -932,7 +894,7 @@ export default function UserOverviewPage() {
                       <p className="text-[11px] text-muted-foreground mt-0.5">{t('user.researchOutput')}</p>
                     </div>
                     <div className="flex items-center gap-3 text-[10px]">
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-primary" />{t('user.papersChart')}</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded" style={{ background: '#DEDBC8' }} />{t('user.papersChart')}</span>
                       <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 rounded bg-accent-blue" style={{ borderTop: '2px dashed #4F8CFF', height: 0 }} />{t('user.citationsChart')}</span>
                     </div>
                   </div>

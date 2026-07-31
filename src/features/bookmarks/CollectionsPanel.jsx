@@ -1,21 +1,18 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FolderPlus, Folder, Trash2, Check, X, Plus, Edit3, Layers } from 'lucide-react';
+import { Folder, Trash2, Check, X, Edit3, Layers } from 'lucide-react';
 import { toast } from 'sonner';
 import { collectionsAPI } from './collectionsApi';
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   CollectionsPanel — shows collection tabs + create/rename/delete
+   CollectionsPanel — shows collection tabs + rename/delete
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function CollectionsPanel({ activeCollection, onSelectCollection }) {
   const { t } = useTranslation('dashboard');
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [newName, setNewName] = useState('');
-  const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
 
@@ -32,23 +29,6 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
   }, []);
 
   useEffect(() => { fetchCollections(); }, [fetchCollections]);
-
-  const handleCreate = async () => {
-    const name = newName.trim();
-    if (!name) return;
-    setCreating(true);
-    try {
-      await collectionsAPI.createCollection({ name });
-      toast.success(t('collections.created'));
-      setNewName('');
-      setShowCreate(false);
-      fetchCollections();
-    } catch (err) {
-      toast.error(err?.response?.data?.message || err?.message || t('collections.createFailed'));
-    } finally {
-      setCreating(false);
-    }
-  };
 
   const handleDelete = async (id, name) => {
     if (!confirm(t('collections.deleteConfirm', { name }))) return;
@@ -161,35 +141,6 @@ export default function CollectionsPanel({ activeCollection, onSelectCollection 
             );
           })}
         </AnimatePresence>
-
-        {/* Create button / form */}
-        {!showCreate ? (
-          <button
-            onClick={() => setShowCreate(true)}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold text-muted-foreground border border-dashed border-primary/10 hover:text-primary hover:border-primary/30 transition-all"
-          >
-            <Plus size={11} />
-            {t('collections.new')}
-          </button>
-        ) : (
-          <div className="flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/20 bg-card">
-            <FolderPlus size={11} className="text-primary/40" />
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') { setShowCreate(false); setNewName(''); } }}
-              placeholder={t('collections.namePlaceholder')}
-              className="w-28 text-[11px] bg-transparent text-foreground outline-none placeholder:text-muted-foreground"
-              autoFocus
-            />
-            <button onClick={handleCreate} disabled={creating || !newName.trim()} className="text-emerald-600 dark:text-emerald-400 disabled:opacity-40">
-              <Check size={11} />
-            </button>
-            <button onClick={() => { setShowCreate(false); setNewName(''); }} className="text-muted-foreground">
-              <X size={11} />
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

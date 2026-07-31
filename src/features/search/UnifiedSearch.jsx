@@ -64,9 +64,10 @@ export default function UnifiedSearch() {
   }, []);
 
   // ─── Debounced keyword autocomplete via OpenAlex ───
+  // Only show suggestions when there's no active search result (searchedQuery empty)
   useEffect(() => {
     const q = query.trim();
-    if (q.length < 2) {
+    if (q.length < 2 || searchedQuery) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
@@ -87,7 +88,7 @@ export default function UnifiedSearch() {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query]);
+  }, [query, searchedQuery]);
 
   const handleSearch = (kw) => {
     const trimmed = (kw || query).trim();
@@ -211,7 +212,7 @@ export default function UnifiedSearch() {
                 setShowTabDropdown(false);
               }}
               onFocus={() => {
-                if (suggestions.length > 0) setShowSuggestions(true);
+                if (suggestions.length > 0 && !searchedQuery) setShowSuggestions(true);
               }}
               onKeyDown={handleKeyDown}
               className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
