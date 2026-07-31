@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import {
   Search, X, BookOpen, FileText, Star, User, Hash,
   TrendingUp, AlertCircle, Library, Newspaper, Globe,
-  Clock, Trash2, Lock, Gauge, History,
+  Clock, Trash2, Lock, Gauge, History, Loader2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuthStore } from '../user/store.js';
@@ -331,6 +331,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
   const [showHistory, setShowHistory] = useState(false);
   const [apiSuggestions, setApiSuggestions] = useState([]);
   const [showSuggestionList, setShowSuggestionList] = useState(false);
+  const [suggestLoading, setSuggestLoading] = useState(false);
   const searchInputRef = useRef(null);
   const debounceRef = useRef(null);
 
@@ -424,6 +425,7 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
       return;
     }
     if (debounceRef.current) clearTimeout(debounceRef.current);
+    setSuggestLoading(true);
     debounceRef.current = setTimeout(async () => {
       try {
         // Strip Vietnamese diacritics — OpenAlex doesn't support them
@@ -432,6 +434,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
         setApiSuggestions(Array.isArray(suggestions) ? suggestions : []);
       } catch {
         setApiSuggestions([]);
+      } finally {
+        setSuggestLoading(false);
       }
     }, 300);
     return () => {
@@ -858,30 +862,32 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
         )}
 
         {/* ─── Suggestion list — shown after pressing Enter ─── */}
-        {showSuggestionList && !isLoading && !journalStats && (
+        {showSuggestionList && !journalStats && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-3"
           >
-            <div className="flex items-center gap-2">
-              <Search size={13} className="text-primary/50" />
-              <span className="text-xs text-muted-foreground">
-                {apiSuggestions.length > 0
-                  ? `Found ${apiSuggestions.length} journal, query: query.trim() })} "${query.trim()}"`
-                  : `{t('author.searchingFor', { query: query.trim() })} "${query.trim()}"...`}
-              </span>
-              <button
-                type="button"
-                onClick={() => { setShowSuggestionList(false); setQuery(''); }}
-                className="ml-auto text-[10px] text-foreground/60 hover:text-foreground/80"
-              >
-                ✕ Clear
-              </button>
-            </div>
-            {apiSuggestions.length > 0 ? (
-              <div className="grid grid-cols-1 gap-2">
-                {apiSuggestions.map((s) => (
+            {suggestLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2">
+                <Loader2 size={18} className="animate-spin text-primary/50" />
+                <span className="text-xs text-muted-foreground">Searching for "{query.trim()}"...</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-2">
+                  {apiSuggestions.length > 0 && (
+                    <>
+                      <Search size={13} className="text-primary/50" />
+                      <span className="text-xs text-muted-foreground">
+                        Found {apiSuggestions.length} journal{apiSuggestions.length !== 1 ? 's' : ''} matching "{query.trim()}"
+                      </span>
+                    </>
+                  )}
+                </div>
+                {apiSuggestions.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-2">
+                    {apiSuggestions.map((s) => (
                   <motion.button
                     key={s.id || s.name}
                     type="button"
@@ -921,6 +927,8 @@ export default function SearchJournal({ embedded = false, initialQuery = '' }) {
               <div className="flex items-center justify-center py-12 text-xs text-foreground/60">
                 {t('journal.noResults', { query: query.trim() })}
               </div>
+            )}
+              </>
             )}
           </motion.div>
         )}

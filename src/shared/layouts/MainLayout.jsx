@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import LanguageSwitcher from '../../components/common/LanguageSwitcher';
 import ThemeToggle from '../../components/common/ThemeToggle';
 import SyncFloatingPanel from '../../features/admin/SyncFloatingPanel';
-import IdeaAnalysisFloatingPanel from '../../features/idea/IdeaAnalysisFloatingPanel';
 import KeepAlive from '../../components/KeepAlive';
 import NotificationBell from '../../features/notifications/NotificationBell';
 import {
@@ -26,7 +25,6 @@ import {
   Menu,
   X,
   HelpCircle,
-  Lightbulb,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -55,7 +53,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
-    { id: 'ideas', Icon: Lightbulb, label: t('sidebar.idea') },
   ];
 
   const researcherNav = [
@@ -66,7 +63,6 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
     { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
-    { id: 'ideas', Icon: Lightbulb, label: t('sidebar.idea') },
   ];
 
   const adminNav = [
@@ -346,7 +342,6 @@ export default function DashboardLayout({ children }) {
     },
     reports: { title: t('headings.reports'), sub: t('subtitles.reports') },
     'my-reports': { title: t('headings.myReports'), sub: t('subtitles.myReports') },
-    ideas: { title: t('headings.idea'), sub: t('subtitles.idea') },
     bookmarks: {
       title: t('headings.bookmarks'),
       sub: t('subtitles.bookmarks'),
@@ -465,7 +460,6 @@ export default function DashboardLayout({ children }) {
           </main>
         </div>
         <SyncFloatingPanel />
-        <IdeaAnalysisFloatingPanel />
       </div>
     </div>
   );

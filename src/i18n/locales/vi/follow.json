@@ -1,10 +1,10 @@
 {
   "page": {
     "title": "Đang theo dõi",
-    "subtitle": "Quản lý journal, chủ đề, từ khóa và tác giả bạn đang theo dõi",
+    "subtitle": "Quản lý tạp chí và tác giả bạn đang theo dõi",
     "empty": {
       "title": "Bạn chưa theo dõi gì",
-      "description": "Theo dõi journal, chủ đề, từ khóa hoặc tác giả để nhận thông báo về bài báo mới"
+      "description": "Theo dõi tạp chí hoặc tác giả để nhận thông báo về bài báo mới"
     }
   },
   "button": {

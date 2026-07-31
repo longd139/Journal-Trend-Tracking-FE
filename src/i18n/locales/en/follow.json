@@ -1,10 +1,10 @@
 {
   "page": {
     "title": "My Follows",
-    "subtitle": "Manage journals, topics, keywords, and authors you're following",
+    "subtitle": "Manage journals and authors you're following",
     "empty": {
       "title": "Not following anything yet",
-      "description": "Follow journals, topics, keywords, or authors to get notified about new papers"
+      "description": "Follow journals or authors to get notified about new papers"
     }
   },
   "button": {

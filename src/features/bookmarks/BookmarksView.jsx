@@ -77,6 +77,7 @@ function BookmarkCardSkeleton() {
    Batch Export Panel (inline, shown below header when exporting)
    ═══════════════════════════════════════════════════════════════════════════ */
 function BatchExportPanel({ papers, onClose }) {
+  const { t } = useTranslation('dashboard');
   const [formatKey, setFormatKey] = useState('bibtex');
   const [copied, setCopied] = useState(false);
   const [combined, setCombined] = useState('');
@@ -374,7 +375,7 @@ export default function BookmarksView() {
           <p className="text-sm text-muted-foreground">{t('toast.loadError')}</p>
         </div>
         <button
-          onClick={fetchBookmarks}
+          onClick={refetch}
           className="px-4 py-2 rounded-lg text-sm font-semibold bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-all"
         >
           {t('button.retry') || 'Retry'}

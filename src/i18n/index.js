@@ -15,7 +15,6 @@ import landingEn from './locales/en/landing.json';
 import followEn from './locales/en/follow.json';
 import supportEn from './locales/en/support.json';
 import adminEn from './locales/en/admin.json';
-import ideaEn from './locales/en/idea.json';
 
 // VI
 import commonVi from './locales/vi/common.json';
@@ -30,7 +29,6 @@ import landingVi from './locales/vi/landing.json';
 import followVi from './locales/vi/follow.json';
 import supportVi from './locales/vi/support.json';
 import adminVi from './locales/vi/admin.json';
-import ideaVi from './locales/vi/idea.json';
 
 const resources = {
   en: {
@@ -46,7 +44,6 @@ const resources = {
     follow: followEn,
     support: supportEn,
     admin: adminEn,
-    idea: ideaEn,
   },
   vi: {
     common: commonVi,
@@ -61,7 +58,6 @@ const resources = {
     follow: followVi,
     support: supportVi,
     admin: adminVi,
-    idea: ideaVi,
   },
 };
 
@@ -88,7 +84,6 @@ i18n
       'follow',
       'support',
       'admin',
-      'idea',
     ],
 
     defaultNS: 'common',

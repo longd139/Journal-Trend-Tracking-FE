@@ -1,8 +1,8 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, BellOff, AlertCircle } from 'lucide-react';
+import { BellOff, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { followAPI } from './api';
 import FollowCard from './FollowCard';
@@ -16,8 +16,6 @@ function FilterTabs({ activeTab, onTabChange, counts, t }) {
   const tabs = [
     { key: 'all', label: t('tabs.all'), countKey: 'all' },
     { key: 'journal', label: t('tabs.journals'), countKey: 'journals' },
-    { key: 'topic', label: t('tabs.topics'), countKey: 'topics' },
-    { key: 'keyword', label: t('tabs.keywords'), countKey: 'keywords' },
     { key: 'author', label: t('tabs.authors'), countKey: 'authors' },
   ];
 
@@ -67,8 +65,6 @@ export default function FollowsView() {
     setError(null);
     try {
       const response = await followAPI.getMyFollows(true);
-      // Backend returns AppResponse<List<FollowResponse>>:
-      // { status: 200, message: "...", data: [...] }
       const list = response?.data;
       setFollows(Array.isArray(list) ? list : []);
     } catch (err) {
@@ -83,32 +79,12 @@ export default function FollowsView() {
     fetchFollows();
   }, [fetchFollows]);
 
-  // Re-fetch when follow/unfollow happens from other pages (e.g. SearchPapers)
+  // Re-fetch when follow/unfollow happens from other pages
   useEffect(() => {
     const handler = () => fetchFollows();
     window.addEventListener('follow-changed', handler);
     return () => window.removeEventListener('follow-changed', handler);
   }, [fetchFollows]);
-
-  // Toggle notification
-  const handleToggleNotify = useCallback(
-    async (followId, enabled) => {
-      const response = await followAPI.toggleNotify(followId, enabled);
-      // Backend returns AppResponse<FollowResponse>:
-      // { status: 200, message: "...", data: { followId, notifyEnabled, ... } }
-      const updatedFollow = response?.data;
-      if (updatedFollow && updatedFollow.followId) {
-        setFollows((prev) =>
-          prev.map((f) =>
-            f.followId === followId
-              ? { ...f, notifyEnabled: updatedFollow.notifyEnabled ?? enabled }
-              : f,
-          ),
-        );
-      }
-    },
-    [],
-  );
 
   // Unfollow
   const handleUnfollow = useCallback(async (followId) => {
@@ -119,15 +95,11 @@ export default function FollowsView() {
   // Compute filtered follows and counts
   const { filtered, counts } = useMemo(() => {
     const journals = follows.filter((f) => f.journalId);
-    const topics = follows.filter((f) => f.topicId);
-    const keywords = follows.filter((f) => f.keywordId);
     const authors = follows.filter((f) => f.authorId);
 
     const counts = {
       all: follows.length,
       journals: journals.length,
-      topics: topics.length,
-      keywords: keywords.length,
       authors: authors.length,
     };
 
@@ -135,12 +107,6 @@ export default function FollowsView() {
     switch (activeTab) {
       case 'journal':
         filtered = journals;
-        break;
-      case 'topic':
-        filtered = topics;
-        break;
-      case 'keyword':
-        filtered = keywords;
         break;
       case 'author':
         filtered = authors;
@@ -182,7 +148,7 @@ export default function FollowsView() {
           <Skeleton className="h-4 w-64 rounded bg-muted/20" />
         </div>
         <div className="flex items-center gap-2">
-          {[1, 2, 3, 4].map((i) => (
+          {[1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-8 w-20 rounded-lg bg-muted/20" />
           ))}
         </div>
@@ -217,34 +183,6 @@ export default function FollowsView() {
   /* ── Data State ── */
   return (
     <div className="p-8 space-y-6 min-h-screen bg-transparent">
-      {/* Header — compact stats, title is in TopBar */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-primary/5 border border-primary/8">
-          <Bell size={13} className="text-primary" />
-          <span className="text-xs font-bold text-primary">{follows.length}</span>
-          <span className="text-[11px] text-muted-foreground">{t('label.followCount', { count: follows.length })}</span>
-        </div>
-      </div>
-
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: t('tabs.journals'), count: counts.journals, color: '#4F8CFF' },
-          { label: t('tabs.topics'), count: counts.topics, color: '#F59E0B' },
-          { label: t('tabs.keywords'), count: counts.keywords, color: '#A78BFA' },
-          { label: t('tabs.authors'), count: counts.authors, color: '#34D399' },
-        ].map((stat) => (
-          <motion.div
-            key={stat.label}
-            whileHover={{ y: -2 }}
-            className="p-3 rounded-xl border bg-card border-primary/10 text-center"
-          >
-            <div className="text-xl font-bold text-foreground">{stat.count}</div>
-            <div className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">{stat.label}</div>
-          </motion.div>
-        ))}
-      </div>
-
       {/* Filter Tabs */}
       <FilterTabs
         activeTab={activeTab}
@@ -260,7 +198,6 @@ export default function FollowsView() {
             <FollowCard
               key={follow.followId || i}
               follow={follow}
-              onToggleNotify={handleToggleNotify}
               onUnfollow={handleUnfollow}
             />
           ))}

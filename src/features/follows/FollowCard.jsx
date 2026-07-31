@@ -9,11 +9,9 @@ import {
   Loader2,
   Trash2,
   User,
-  ArrowUpRight,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../../components/ui/button';
-import { Switch } from '../../components/ui/switch';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,44 +72,16 @@ function formatDate(dateStr, t) {
  *  - onToggleNotify: (followId, enabled) => Promise<void>
  *  - onUnfollow: (followId) => Promise<void>
  */
-export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
+export default function FollowCard({ follow, onUnfollow }) {
   const { t } = useTranslation('follow');
   const navigate = useNavigate();
-  const [toggling, setToggling] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
-  const [localNotify, setLocalNotify] = React.useState(follow.notifyEnabled);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
-
-  // Sync local state when prop changes
-  React.useEffect(() => {
-    setLocalNotify(follow.notifyEnabled);
-  }, [follow.notifyEnabled]);
 
   const type = getFollowType(follow);
   const name = getFollowName(follow);
   const Icon = typeIcons[type] || Hash;
   const colors = typeColors[type] || typeColors.keyword;
-
-  const handleToggle = async (checked) => {
-    setToggling(true);
-    // Optimistic update
-    setLocalNotify(checked);
-    try {
-      await onToggleNotify(follow.followId, checked);
-      toast.success(
-        t('toast.toggleSuccess', {
-          status: checked ? t('dialog.enableNotification') : 'disabled',
-        }),
-      );
-    } catch (error) {
-      // Revert on error
-      setLocalNotify(!checked);
-      const msg = error?.response?.data?.message || error?.message || t('toast.genericError');
-      toast.error(msg);
-    } finally {
-      setToggling(false);
-    }
-  };
 
   const handleUnfollow = async () => {
     setDeleting(true);
@@ -128,11 +98,16 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
 
   const handleCardClick = () => {
     const role = sessionStorage.getItem('userRole') || 'researcher';
-    const query = getFollowName(follow);
-    if (!query) return;
-    // Navigate based on type with appropriate tab
-    const tab = type === 'author' ? 'authors' : type === 'journal' ? 'journals' : 'papers';
-    navigate(`/${role}/search?q=${encodeURIComponent(query)}&tab=${tab}&auto=1`);
+    const name = getFollowName(follow);
+    if (!name) return;
+    // Author → direct profile page (no search)
+    if (type === 'author') {
+      navigate(`/${role}/author-profile?name=${encodeURIComponent(name)}`);
+      return;
+    }
+    // Journal / Topic / Keyword → search page
+    const tab = type === 'journal' ? 'journals' : 'papers';
+    navigate(`/${role}/search?q=${encodeURIComponent(name)}&tab=${tab}&auto=1`);
   };
 
   return (
@@ -167,20 +142,8 @@ export default function FollowCard({ follow, onToggleNotify, onUnfollow }) {
           </div>
         </div>
 
-        {/* Right: toggle + unfollow */}
+        {/* Right: unfollow */}
         <div className="flex items-center gap-4 shrink-0" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">{t('label.notification')}</span>
-            {toggling ? (
-              <Loader2 size={14} className="animate-spin text-muted-foreground" />
-            ) : (
-              <Switch
-                checked={localNotify}
-                onCheckedChange={handleToggle}
-                disabled={toggling}
-              />
-            )}
-          </div>
 
           <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
             <AlertDialogTrigger asChild>
