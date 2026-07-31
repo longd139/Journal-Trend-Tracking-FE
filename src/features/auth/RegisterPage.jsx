@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
@@ -19,19 +19,19 @@ import { authAPI } from './api';
 import { useAuthStore } from '../user/store';
 
 const LOCAL_UNIS = [
- 'Văn Lang University',
+ 'Van Lang University',
  'FPT University',
- 'Bách khoa University',
- 'Khoa học Tự nhiên University',
- 'Công nghệ Thông tin (UIT) University',
- 'Quốc tế TP.HCM University',
+ 'B�ch khoa University',
+ 'Khoa h?c T? nhi�n University',
+ 'C�ng ngh? Th�ng tin (UIT) University',
+ 'Qu?c t? TP.HCM University',
  'RMIT University',
- 'Tôn Đức Thắng University',
- 'Kinh tế TP.HCM University',
- 'Ngoại thương University',
- 'Y Dược University',
- 'Sư phạm Kỹ thuật University',
- 'Công nghiệp University',
+ 'T�n �?c Th?ng University',
+ 'Kinh t? TP.HCM University',
+ 'Ngo?i thuong University',
+ 'Y Du?c University',
+ 'Su ph?m K? thu?t University',
+ 'C�ng nghi?p University',
 ];
 
 export default function RegisterPage() {
@@ -116,7 +116,6 @@ export default function RegisterPage() {
  emailFormat: false,
  password: false,
  passwordWeak: false,
- passwordHasName: false,
  confirmPassword: false,
  mismatch: false,
  apiError: '',
@@ -142,11 +141,6 @@ export default function RegisterPage() {
  const isPasswordTooShort = !isPasswordEmpty && form.password.length < 8;
  const passwordSpecialRegex = /[@#$%^&*!?_~\-]/;
  const isPasswordWeak = !isPasswordEmpty && !passwordSpecialRegex.test(form.password);
- // Password should not contain username or email
- const isPasswordHasName = !isPasswordEmpty && (
-   (form.fullName.trim() && form.password.toLowerCase().includes(form.fullName.trim().toLowerCase())) ||
-   (form.email.trim() && form.password.toLowerCase().includes(form.email.trim().split('@')[0].toLowerCase()))
- );
 
  const isMismatch =
   !isPasswordEmpty &&
@@ -162,7 +156,6 @@ export default function RegisterPage() {
   isPasswordEmpty ||
   isPasswordTooShort ||
   isPasswordWeak ||
-  isPasswordHasName ||
   isConfirmEmpty ||
   isMismatch
  ) {
@@ -174,7 +167,6 @@ export default function RegisterPage() {
   emailFormat: isEmailFormatInvalid,
   password: isPasswordEmpty,
   passwordWeak: isPasswordTooShort || isPasswordWeak,
-  passwordHasName: isPasswordHasName,
   confirmPassword: isConfirmEmpty || isMismatch,
   mismatch: isMismatch,
   apiError: '',
@@ -260,9 +252,9 @@ export default function RegisterPage() {
       <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 text-left">
         <p className="text-[11px] text-amber-400 font-medium mb-2">{tv('register.didntReceive')}</p>
         <ul className="text-[11px] text-muted-foreground space-y-1">
-          <li>• {tv('register.tipSpam')}</li>
-          <li>• {tv('register.tipCorrect')}</li>
-          <li>• {tv('register.tipResend')}</li>
+          <li>� {tv('register.tipSpam')}</li>
+          <li>� {tv('register.tipCorrect')}</li>
+          <li>� {tv('register.tipResend')}</li>
         </ul>
       </div>
       <Link
@@ -464,11 +456,6 @@ export default function RegisterPage() {
    {errors.passwordWeak && (
     <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
     <AlertCircle size={10} /> {t('register.validation.passwordWeak')}
-    </div>
-   )}
-   {errors.passwordHasName && (
-    <div className="flex items-center gap-1 mt-1.5 ml-1 text-[11px] font-medium text-red-400">
-    <AlertCircle size={10} /> {t('register.validation.passwordHasName')}
     </div>
    )}
    </motion.div>

@@ -52,6 +52,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
+    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const researcherNav = [
@@ -62,6 +63,7 @@ function Sidebar({ role, activeTab, navigate, user, open, onClose, unreadCount =
     { id: 'reading-history', Icon: History, label: t('sidebar.readingHistory') },
     { id: 'follows', Icon: Bell, label: t('sidebar.follows') },
     { id: 'notifications', Icon: BellRing, label: t('sidebar.notifications') },
+    { id: 'reports', Icon: FileText, label: t('sidebar.reports') },
   ];
 
   const adminNav = [

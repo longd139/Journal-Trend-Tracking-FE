@@ -1,5 +1,6 @@
 ﻿import { useState, useCallback, useEffect, useRef } from 'react';
 import GapNeo4jGraph from './GapNeo4jGraph';
+import GapVennDiagram from './GapVennDiagram';
 import MCPChatbot from './MCPChatbot';
 import GapAnalysisPanel from './GapAnalysisPanel';
 import useGapExplorerStore from '../../store/useGapExplorerStore';
@@ -16,6 +17,8 @@ const DEFAULT_PANEL_WIDTH = 360;
  */
 export default function GapExplorerLayout() {
   const stage = useGapExplorerStore((s) => s.stage);
+  const viewMode = useGapExplorerStore((s) => s.viewMode);
+  const setViewMode = useGapExplorerStore((s) => s.setViewMode);
   const [panelWidth, setPanelWidth] = useState(DEFAULT_PANEL_WIDTH);
   const dragging = useRef(false);
   const startX = useRef(0);
@@ -56,8 +59,26 @@ export default function GapExplorerLayout() {
 
   return (
     <div className="flex h-[calc(100vh-64px)]">
-      {/* Left: Neo4j Graph */}
-      <GapNeo4jGraph />
+      {/* Left: Venn Diagram (default) or Neo4j Graph */}
+      <div className="flex-1 relative flex flex-col min-h-0">
+        {stage === 'focused' && (
+          <div className="absolute top-3 right-3 z-20 flex rounded-lg border border-border bg-card/80 backdrop-blur overflow-hidden">
+            <button
+              onClick={() => setViewMode('venn')}
+              className={`px-2 py-1 text-[10px] font-medium transition-colors ${viewMode === 'venn' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Venn
+            </button>
+            <button
+              onClick={() => setViewMode('graph')}
+              className={`px-2 py-1 text-[10px] font-medium transition-colors ${viewMode === 'graph' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Graph
+            </button>
+          </div>
+        )}
+        {stage === 'focused' && viewMode === 'venn' ? <GapVennDiagram /> : <GapNeo4jGraph />}
+      </div>
 
       {/* Drag handle */}
       <div

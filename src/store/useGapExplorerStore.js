@@ -39,6 +39,9 @@ const useGapExplorerStore = create((set, get) => ({
   availableLandscape: [],        // [{ fieldName, topicName, topKeywords: [{ text, paperCount }] }]
   guidanceMessage: '',
 
+  // ── Search history (persisted to localStorage) ──
+  searchHistory: [],
+
   submitIdea: async (idea) => {
     if (!idea.trim()) return;
     set({ suggestionsLoading: true, suggestionsError: null, ideaText: idea });
@@ -46,13 +49,25 @@ const useGapExplorerStore = create((set, get) => ({
       const { data } = await axiosClient.post('/api/v1/gap/suggest', { idea });
       const payload = data.data || {};
 
-      set({
+      const newResult = {
         suggestions: payload.suggestions || [],
         matchLevel: payload.matchLevel || 'FULL',
         fuzzyCandidates: payload.fuzzyCandidates || [],
         unmatchedTerms: payload.unmatchedTerms || [],
         availableLandscape: payload.availableLandscape || [],
         guidanceMessage: payload.message || payload.rawText || '',
+      };
+
+      // Add to history (latest first, max 20)
+      const history = get().searchHistory || [];
+      const entry = { query: idea.trim(), result: newResult, timestamp: Date.now() };
+      // Remove duplicate query if exists
+      const filtered = history.filter((h) => h.query !== entry.query);
+      const updated = [entry, ...filtered].slice(0, 20);
+
+      set({
+        ...newResult,
+        searchHistory: updated,
         suggestionsLoading: false,
         stage: 'filtered',
       });
@@ -207,6 +222,10 @@ const useGapExplorerStore = create((set, get) => ({
   setHighlightedNode: (nodeId) => set({ highlightedNode: nodeId }),
   clearHighlight: () => set({ highlightedNode: null }),
 
+  // ── Stage 3 view mode ──
+  viewMode: 'venn', // 'venn' | 'graph'
+  setViewMode: (mode) => set({ viewMode: mode }),
+
   // ── Reset ──
   reset: () =>
     set({
@@ -226,7 +245,14 @@ const useGapExplorerStore = create((set, get) => ({
       crawlProgress: null,
       isCrawling: false,
       crawlError: null,
+      viewMode: 'venn',
     }),
+    /** Clear a single history entry by timestamp */
+    removeHistoryEntry: (timestamp) => {
+      set((s) => ({
+        searchHistory: s.searchHistory.filter((h) => h.timestamp !== timestamp),
+      }));
+    },
 }));
 
 export default useGapExplorerStore;

@@ -181,6 +181,7 @@ function buildGraphology(data, isFocused) {
     }
   } else {
     // Overview mode: all edges as-is
+    const edgesAdded = new Set();
     for (const link of links) {
       if (hiddenIds.has(link.source) || hiddenIds.has(link.target)) continue;
       if (graph.hasNode(link.source) && graph.hasNode(link.target)) {
@@ -191,7 +192,7 @@ function buildGraphology(data, isFocused) {
         const crossesZones = srcZone !== tgtZone && srcZone !== 'other' && tgtZone !== 'other'
           && srcZone !== 'middle' && tgtZone !== 'middle';
 
-        graph.addEdge(link.source, link.target, {
+        const ek = link.source + "||" + link.target; if (edgesAdded.has(ek)) continue; edgesAdded.add(ek); graph.addEdge(link.source, link.target, {
           color: crossesZones ? 'rgba(160,152,120,0.08)' : 'rgba(160,152,120,0.2)',
           size: crossesZones ? 0.3 : 0.5,
         });
